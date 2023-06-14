@@ -1,0 +1,252 @@
+# init ---------------
+setwd("~/marseille")
+library(tidyverse)
+library(terra)
+library(tictoc)
+library(accesstars)
+library(tmap)
+library(accessibility)
+library(r3035)
+library(glue)
+library(stars)
+library(data.table)
+library(conflicted)
+
+progressr::handlers(global = TRUE)
+progressr::handlers(progressr::handler_progress(format = ":bar :percent :eta", width = 80))
+data.table::setDTthreads(8)
+arrow::set_cpu_count(8)
+
+conflict_prefer("select", "dplyr", quiet=TRUE)
+conflict_prefer("filter", "dplyr", quiet=TRUE)
+
+## globals --------------------
+load("baselayer.rda")
+
+ds <- open_dataset("DVFdata", partitioning = c("Communes"))
+
+resol <- 200
+
+elevation <- terra::rast("{elevation}" |> glue())
+
+# les carreaux de résidence
+c200ze <- qs::qread("{c200ze_file}" |> glue())
+c200.scot3 <- c200ze |>
+  filter(ind>0&scot) |> 
+  select(ind) |>
+  st_centroid() 
+
+message(str_c("Nombre de carreaux sur la zone",
+              "résidents = {nrow(c200.scot3)}",
+              "opportunités emploi = {c200ze |> filter(emp>0) |> nrow()}",
+              "opportunités complètes = {c200ze |> filter(emp>0|ind>0) |> nrow()}",
+              sep = "\n") |> glue())
+
+# Choix du jour du transit
+jour_du_transit <- plage(localr5) |> choisir_jour_transit()
+message(
+  "jour retenu: \n{lubridate::wday(jour_du_transit, label = TRUE, abbr = FALSE)} {jour_du_transit}" |> glue())
+
+# les opportinités
+opportunites <- c200ze |> 
+  select(emplois=emp, ind) |> 
+  st_centroid() |> 
+  st_transform(crs=4326)
+
+
+# ---- CALCUL DE L'ACCESSIBILITE ----
+## transit --------------
+# penser à mettre 16vCPU
+future::plan("multisession", workers=1)
+
+r5_transit <- routing_setup_r5(path = localr5, date=jour_du_transit, n_threads = 16,
+                               breakdown = TRUE)
+
+iso_transit_dt <- iso_accessibilite(quoi = opportunites, 
+                                    ou = c200.scot3, 
+                                    resolution = resol,
+                                    tmax = 120, 
+                                    chunk = 1e+6,
+                                    pdt = 1,
+                                    dir = "temp_t3", 
+                                    routing = r5_transit,
+                                    ttm_out = TRUE,
+                                    future=TRUE)
+
+
+arrow::write_parquet(ttm_idINS(iso_transit_dt), sink="{repository_distances_emploi}/transit_ref.parquet" |> glue())
+
+## vélo --------------
+# passer à 8*16 = 128 vCPU
+future::plan("multisession", workers=1)
+rJava::.jinit(silent=TRUE)
+logger::log_threshold("INFO")
+
+r5_bike <- routing_setup_r5(path = localr5, date=jour_du_transit, n_threads = 16, mode = "BICYCLE",
+                            elevation = "TOBBLER",
+                            overwrite=TRUE,
+                            di=FALSE, # Nécessaire pour les distances !
+                            max_rows=50000, 
+                            elevation_tif = "elevation.tif", # calcule les dénivelés si di est true
+                            max_rides=1) 
+
+# s'il marche pas pour la mémoire de Java, 
+# aller sur "usethis::edit_r_profile()" 
+# et insérer "options(java.parameters = '-Xmx32G')", 
+# après redémarrer pour confirmer le changement
+
+iso_bike_dt <- iso_accessibilite(quoi = opportunites, 
+                                 ou = c200.scot3, 
+                                 resolution = resol,
+                                 tmax = 120, 
+                                 pdt = 1, chunk=1e+6,
+                                 dir = "temp_be",
+                                 routing = r5_bike,
+                                 ttm_out = TRUE,
+                                 future=TRUE)
+
+arrow::write_parquet(ttm_idINS(iso_bike_dt), sink="{repository_distances_emploi}/bike.parquet" |> glue())
+
+## marche à pied --------------
+# passer à 8*16 = 128 vCPU
+future::plan("multisession", workers=1)
+rJava::.jinit(silent=TRUE)
+logger::log_threshold("INFO")
+
+r5_walk <- routing_setup_r5(path = localr5, 
+                            date=jour_du_transit, 
+                            n_threads = 16,
+                            mode = "WALK",
+                            overwrite = TRUE, 
+                            di=TRUE, 
+                            elevation="NONE", 
+                            max_rows=50000, 
+                            max_rides = 1)
+
+iso_walk_dt <- iso_accessibilite(quoi = opportunites, 
+                                 ou = c200.scot3, 
+                                 resolution = resol,
+                                 tmax = 90, 
+                                 pdt = 1,
+                                 dir = "temp_we",
+                                 routing = r5_walk,
+                                 ttm_out = TRUE,
+                                 future = TRUE)
+
+arrow::write_parquet(ttm_idINS(iso_walk_dt), sink="{repository_distances_emploi}/walk.parquet" |> glue())
+
+## voiture r5 --------------
+# passer à 8*15 = 120 vCPU
+# ca prend 20h à calculer (20h*120vCPU = 100j vCPU) pour la Rochelle
+future::plan("multisession", workers=1)
+rJava::.jinit(silent=TRUE)
+logger::log_threshold("INFO")
+
+r5_car5 <- routing_setup_r5(path = localr5, 
+                            date=jour_du_transit, 
+                            n_threads = 16, 
+                            mode = "CAR",
+                            overwrite = TRUE, 
+                            di=TRUE,
+                            max_rows=100000,
+                            max_rides = 1)
+
+iso_car5_dt <- iso_accessibilite(quoi = opportunites, 
+                                 ou = c200.scot3, 
+                                 resolution = resol,
+                                 tmax = 120, 
+                                 pdt = 1,
+                                 chunk = 1e+7,
+                                 dir = "temp_cr5",
+                                 routing = r5_car5,
+                                 ttm_out = TRUE,
+                                 future = FALSE)
+
+
+arrow::write_parquet(ttm_idINS(iso_car5_dt), sink="{repository_distances_emploi}/car5.parquet" |> glue())
+
+# dodgr pour la voiture --------------------------------------------------------
+# apparement il pourrait pas marcher en futur mais on est pas sur et on sait pas pourquoi
+# on peut repasser à 16 vCPU
+# c'est (beaucoup) plus rapide, mais est ce mieux ?
+logger::log_threshold("INFO")
+car_dodgr <- routing_setup_dodgr(path = "{localdata}/dodgr" |> glue(), 
+                                 mode = "CAR", n_threads = 16, distances=TRUE, turn_penalty = FALSE, 
+                                 wt_profile_file = "{localdata}/dodgr/dodgr_profiles.json" |> glue())
+
+iso_card_dt <- iso_accessibilite(quoi = opportunites, 
+                                 ou = c200.scot3, 
+                                 resolution = 200,
+                                 tmax = 120, 
+                                 pdt = 1,
+                                 dir = "temp_dodgr", 
+                                 routing = car_dodgr,
+                                 ttm_out = TRUE,
+                                 future=FALSE)
+
+arrow::write_parquet(ttm_idINS(iso_card_dt), sink="{repository_distances}/card.parquet" |> glue())
+
+## test de vitesse excessive -----------
+
+library(r5r)
+routing <- r5_bike
+o <- c200.scot3 |> filter(idINS=="r200N2625000E3492800") |> mutate(id=1:n()) 
+d <- opportunites |> filter(idINS=="r200N2624000E3492200") |> mutate(id=1:n())
+
+o <- c200.scot3 |> slice_sample(n=100) |> mutate(id=1:n())|> st_transform(crs = 4326)
+d <- opportunites |> slice_sample(n=100) |> mutate(id=1:n())
+
+d2 <- tibble(id =3, lon =-0.7530465 , lat= 46.18783)
+
+
+tic();trajet <- r5r::detailed_itineraries(r5r_core = routing$core,
+                                          origins = o,
+                                          destinations = d,
+                                          mode=routing$mode,
+                                          mode_egress="WALK",
+                                          departure_datetime = routing$departure_datetime,
+                                          max_walk_dist = routing$max_walk_dist,
+                                          max_bike_dist = Inf,
+                                          max_trip_duration = 600,
+                                          walk_speed = routing$walk_speed,
+                                          bike_speed = routing$bike_speed,
+                                          max_rides = 3,
+                                          max_lts = routing$max_lts,
+                                          shortest_path= TRUE,
+                                          n_threads = routing$n_threads,
+                                          verbose=FALSE,
+                                          progress=FALSE,
+                                          drop_geometry = FALSE); toc()
+
+tic();time <- r5r::travel_time_matrix(r5r_core = routing$core,
+                                      origins = o,
+                                      destinations = d,
+                                      mode=routing$mode,
+                                      mode_egress="WALK",
+                                      departure_datetime = routing$departure_datetime,
+                                      max_walk_dist = routing$max_walk_dist,
+                                      max_bike_dist = Inf,
+                                      max_trip_duration = 600,
+                                      walk_speed = routing$walk_speed,
+                                      bike_speed = routing$bike_speed,
+                                      max_rides = 3,
+                                      breakdown = TRUE,
+                                      max_lts = routing$max_lts,
+                                      n_threads = routing$n_threads,
+                                      verbose=FALSE,
+                                      progress=FALSE); toc()
+
+tmap::qtm(bind_rows(o, d, trajet))
+trajet$geometry[[1]] |>
+  st_cast("MULTIPOINT") |>
+  as.matrix() |>
+  as_tibble() |>
+  rename(lon=V1, lat=V2) |>
+  st_as_sf(coords=c("lon", "lat"), crs=4326) |>
+  mutate(id=1:n()) |>
+  slice(21:45) |>
+  qtm(dots.col="id")
+lrosm <- st_read("{localdata}/r5/lr.gpkg" |> glue())
+box <- st_bbox(bind_rows(o,d) |> st_buffer(1000))
+qtm(lrosm |> filter(st_intersects(lrosm, box |> st_as_sfc(), sparse=FALSE)))
+# 
