@@ -28,3 +28,16 @@ tm_shape(mnt)+
   tm_raster(legend.show = FALSE)+
   tm_shape(marseille)+
   tm_borders(col = "blue", lwd  = 3)
+
+
+#elevation avec un autre package
+library(elevatr)
+a <- get_elev_raster(marseille|> st_transform(crs = 4326), z = 11, src = "aws", expand = 0.5) 
+#writeRaster(a, filename = elev_marseille, format = "GTiff", overwrite = TRUE) 
+
+tm_shape(a)+
+  tm_raster(legend.show = FALSE)+
+  tm_shape(marseille)+
+  tm_borders(col = "blue", lwd  = 3)
+
+
