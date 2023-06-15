@@ -12,8 +12,14 @@ if(fs::file_exists("baselayer.rda")) bl <- load("baselayer.rda")
 
 # globals -----------------------------------------------------------------
 ville <- "Marseille"
-#scot4.n <- c("la Rochelle", "Aunis Atlantique", "Aunis Sud", "Rochefort")
-#scot3.n <- c("la Rochelle", "Aunis Atlantique", "Aunis Sud")
+scot1 <- c("Marseille Provence")
+scot2 <- c("Pays d'Aix")
+scot3 <- c("Pays Salonais")
+scot4 <- c("Pays d'Aubagne et de l'Etoile")
+scot5 <- c("Pays de Martigues")
+scot5 <- c("Ouest Etang de Berre")
+
+scot_tot <- c("Marseille Provence", "Pays d'Aix", "Pays Salonais", "Pays d'Aubagne et de l'Etoile", "Pays de Martigues", "Ouest Etang de Berre")
 
 # fichiers importants
 localdata <- "~/files/marseille"
