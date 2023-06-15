@@ -36,8 +36,8 @@ a <- get_elev_raster(marseille|> st_transform(crs = 4326), z = 11, src = "aws", 
 #writeRaster(a, filename = elev_marseille, format = "GTiff", overwrite = TRUE) 
 
 tm_shape(a)+
-  tm_raster(legend.show = FALSE)+
+  tm_raster(legend.show = TRUE)+
   tm_shape(marseille)+
-  tm_borders(col = "blue", lwd  = 3)
+  tm_borders(col = , lwd  = 0.5)
 
 
