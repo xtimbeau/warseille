@@ -45,7 +45,7 @@ tm_shape(a)+
 
 #elevation region plus large
 sud <- read_sf("contours-geographiques-des-communes-et-arrondissements-municipaux.shp")
-a2 <- get_elev_raster(sud|> st_transform(crs = 4326), z = 11, src = "aws", expand = 0.5) 
+a2 <- get_elev_raster(sud|> st_transform(crs = 4326), z = 11, src = "aws") 
 writeRaster(a, filename = "elev_aix_marseille", format = "GTiff", overwrite = TRUE) 
 
 tm_shape(a2)+
