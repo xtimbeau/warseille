@@ -3,6 +3,9 @@
 library(happign)
 library(sf)
 library(tmap)
+library(elevatr)
+library(terra)
+
 
 # shape from the best town in France
 marseille <- read_sf("contours_quartiers_Marseille.shp")
@@ -31,9 +34,8 @@ tm_shape(mnt)+
 
 
 #elevation avec un autre package
-library(elevatr)
 a <- get_elev_raster(marseille|> st_transform(crs = 4326), z = 11, src = "aws", expand = 0.5) 
-#writeRaster(a, filename = elev_marseille, format = "GTiff", overwrite = TRUE) 
+writeRaster(a, filename = "elev_marseille", format = "GTiff", overwrite = TRUE) 
 
 tm_shape(a)+
   tm_raster(legend.show = TRUE)+
@@ -41,3 +43,12 @@ tm_shape(a)+
   tm_borders(col = , lwd  = 0.5)
 
 
+#elevation region plus large
+sud <- read_sf("ls-modele-doccupation-du-sol-evolution-entre-2009-et-2017.shp")
+a2 <- get_elev_raster(sud|> st_transform(crs = 4326), z = 11, src = "aws", expand = 0.5) 
+#writeRaster(a, filename = elev_marseille, format = "GTiff", overwrite = TRUE) 
+
+tm_shape(a2)+
+  tm_raster(legend.show = TRUE)+
+  tm_shape(sud)+
+  tm_borders(col = , lwd  = 0.1)
