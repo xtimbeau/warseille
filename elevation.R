@@ -1,6 +1,6 @@
 #package happign is the interface to IGN (elevation)
 
-library(happign)
+#library(happign)
 library(sf)
 library(tmap)
 library(elevatr)
@@ -34,7 +34,7 @@ tm_shape(mnt)+
 
 
 #elevation avec un autre package
-a <- get_elev_raster(marseille|> st_transform(crs = 4326), z = 11, src = "aws", expand = 0.5) 
+a <- get_elev_raster(marseille|> st_transform(crs = 4326), z = 11, src = "aws") 
 writeRaster(a, filename = "elev_marseille", format = "GTiff", overwrite = TRUE) 
 
 tm_shape(a)+
@@ -46,7 +46,16 @@ tm_shape(a)+
 #elevation region plus large
 sud <- read_sf("contours-geographiques-des-communes-et-arrondissements-municipaux.shp")
 a2 <- get_elev_raster(sud|> st_transform(crs = 4326), z = 11, src = "aws") 
-writeRaster(a, filename = "elev_aix_marseille", format = "GTiff", overwrite = TRUE) 
+writeRaster(a2, filename = "elev_aix_marseille", format = "GTiff", overwrite = TRUE) 
+
+tm_shape(a2)+
+  tm_raster(legend.show = TRUE)+
+  tm_shape(sud)+
+  tm_borders(col = , lwd  = 0.5)
+
+#elevation france et on conserve que les SCOT marseille
+a3 <- get_elev_raster(communes.scot_tot|> st_transform(crs = 4326), z = 11, src = "aws") 
+writeRaster(a3, filename = "elev_aix_marseille", format = "GTiff", overwrite = TRUE) 
 
 tm_shape(a2)+
   tm_raster(legend.show = TRUE)+
