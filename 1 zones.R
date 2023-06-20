@@ -3,6 +3,9 @@ setwd("~/marseille")
 library(tidyverse)
 library(glue)
 library(conflicted)
+library(rlang)
+library(glue)
+library(stringr)
 
 progressr::handlers(global = TRUE)
 progressr::handlers(progressr::handler_progress(format = ":bar :percent :eta", width = 80))
@@ -12,20 +15,20 @@ if(fs::file_exists("baselayer.rda")) bl <- load("baselayer.rda")
 
 # globals -----------------------------------------------------------------
 ville <- "Marseille"
-scot1 <- c("Marseille Provence")
-scot2 <- c("Pays d'Aix")
-scot3 <- c("Pays Salonais")
-scot4 <- c("Pays d'Aubagne et de l'Etoile")
-scot5 <- c("Pays de Martigues")
-scot5 <- c("Ouest Etang de Berre")
+scot1.n <- c("Marseille Provence")
+scot2.n <- c("Pays d'Aix")
+scot3.n <- c("Pays Salonais")
+scot4.n <- c("Pays d'Aubagne et de l'Etoile")
+scot5.n <- c("Pays de Martigues")
+scot5.n <- c("Ouest Etang de Berre")
 
-scot_tot <- c("Marseille Provence", "Pays d'Aix", "Pays Salonais", "Pays d'Aubagne et de l'Etoile", "Pays de Martigues", "Ouest Etang de Berre")
+scot_tot.n <- c("Marseille Provence", "Pays d'Aix", "Pays Salonais", "Pays d'Aubagne et de l'Etoile", "Pays de Martigues", "Ouest Etang de Berre")
 
 # fichiers importants
 localdata <- "~/files/marseille"
 DVFdata <- "/scratch/DVFdata"
 scripts <- "~/marseille"
-#mob2019 <- "~/larochelle/Mobilités des Personnes 2019" est ce qu'on garde le meme dossier
+mob2019 <- "~/marseille/Mobilités des Personnes 2019" 
 home <- "~/marseille"
 repository <- "/scratch"
 temp_dir <- "~/temp"
@@ -151,7 +154,11 @@ save(list = unique(
     "tcm_ind_kish_file",
     "tcm_men_file",
     "temp_dir",
+    "scot1.n",
+    "scot2.n",
     "scot3.n",
     "scot4.n",
+    "scot5.n",
+    "scot_tot.n",
     "ville")),
   file = "baselayer.rda")
