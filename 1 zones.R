@@ -91,9 +91,9 @@ tcm_ind_kish_file <- "{mob2019}/tcm_ind_kish_public.csv" |> glue()
 enqmobpro <- "{DVFdata}/sources/MOB/mobpro2018.csv" |> glue()
 enqmobscol <- "{DVFdata}/sources/MOB/mobscol2018.csv" |> glue()
 
-c200ze_file <- "{DVFdata}/c200ze_lr.qs" |> glue()
-c200edu_file <- "{DVFdata}/c200edu_lr.qs" |> glue()
-c200edu_init_file  <- "{DVFdata}/c200edu_lr_init.qs" |> glue()
+# c200ze_file <- "{DVFdata}/c200ze_lr.qs" |> glue()
+# c200edu_file <- "{DVFdata}/c200edu_lr.qs" |> glue()
+# c200edu_init_file  <- "{DVFdata}/c200edu_lr_init.qs" |> glue()
 
 # 100 minutes de trajet en voiture max et
 # 35km pour les probas (au delà proba_car=1)
