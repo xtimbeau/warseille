@@ -62,3 +62,7 @@ tm_shape(a2)+
   tm_raster(legend.show = TRUE)+
   tm_shape(sud)+
   tm_borders(col = , lwd  = 0.5)
+
+
+marseille %>% pin_upload(system.file("elev_aix_marseille.tif"))
+
