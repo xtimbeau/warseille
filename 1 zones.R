@@ -6,6 +6,7 @@ library(conflicted)
 library(rlang)
 library(glue)
 library(stringr)
+library(pins)
 
 progressr::handlers(global = TRUE)
 progressr::handlers(progressr::handler_progress(format = ":bar :percent :eta", width = 80))
@@ -30,7 +31,8 @@ DVFdata <- "/scratch/DVFdata"
 scripts <- "~/marseille"
 mob2019 <- "~/marseille/Mobilités des Personnes 2019" 
 home <- "~/marseille"
-repository <- "/scratch"
+#repository <- "/scratch"
+board_path <- marseille
 temp_dir <- "~/temp"
 r5files_rep <- "/scratch/distances/xt"
 newpredict_file <- "~/marseille/annexes/newpredict.r"
@@ -66,9 +68,9 @@ localr5 <- str_c(localdata, "/r5_base")
 localr5car <- str_c(localdata, "/r5car")
 
 ## informations spécifique sur la ville
-elevation_tif <- "{localr5}/elevation.tif" |> glue()
-emp33km_file <- "{DVFdata}/emp33km.qs" |> glue()
-c200_file <- "{DVFdata}/c200_17.qs" |> glue()
+elevation_tif <- board_path  %>% pin_download("elevation.tif") |> glue()
+emp33km_file <- board_path  %>% pin_download("emp33km.qs") |> glue()
+c200_file <- board_path  %>% pin_download("c200_17.qs") |> glue()
 pbf_file <- "lr.pbf"
 pbf_rep <- "{repository}/OSM/" |> glue()
 dodgr_profiles <- "{localdata}/dodgr/dodgr_profiles.json" |> glue()
@@ -77,9 +79,9 @@ alternative_scenario2 <- "{localdata}/co2/filosofi_scenario_s4.csv" |> glue()
 
 ## informations qu'on peut garder car elles sont sur la France et donc 
 # seront filtrées différemment une fois qu'on change la zone
-densitescommunes <- "{DVFdata}/sources/Communes/grid.xlsx" |> glue()
-c200_stars <- "{DVFdata}/data_villes/c200_stars.rda" |> glue()
-popactive_file <- "{DVFdata}/base-cc-emploi-pop-active-2018.xlsx" |> glue()
+densitescommunes <- board_path  %>% pin_download("grid.xlsx") |> glue() #le fichier Communes/grid.xslx qui était dans scratch
+c200_stars <- board_path  %>% pin_download("c200_stars.rda") |> glue() #vient de data_villes
+popactive_file <- board_path  %>% pin_download("base-cc-emploi-pop-active-2018.xlsx") |> glue()
 classification_urbaine <- "{localdata}/autres/classification_urbaine.csv" |> glue()
 
 ## enquetes nationales
@@ -105,15 +107,15 @@ save(list = unique(
     "alternative_scenario",
     "alternative_scenario2",
     "c200_file",
-    "c200ze_file",
-    "c200edu_file",
-    "c200edu_init_file",
+    # "c200ze_file",
+    # "c200edu_file",
+    # "c200edu_init_file",
     "decor_carte_file",
     "densitescommunes",
     "deploc_file",
     "distances_file",
     "distances_scol_file",
-    "DVFdata",
+    # "DVFdata",
     "elevation_tif",
     "emp33km_file", 
     "enqmobpro",
