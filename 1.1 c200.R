@@ -1,6 +1,6 @@
 # on fait un c200 local, correctement renseigné.
-# il est la réunion de c200 individu, plus des carreaux flores, sur l'étendue zone_emploi
-
+# il est la réunion de c200 individus, plus des carreaux flores, sur l'étendue zone_emploi
+library(pins)
 library(tidyverse)
 library(stars)
 library(sf)
@@ -72,3 +72,5 @@ c200ze <- c200ze |>
 qs::qsave(c200ze, file=c200ze_file)
 
 save(list = c(bl, "c200ze_file"), file="baselayer.rda")
+
+marseille %>% pin_upload(system.file("c200ze_file"))
