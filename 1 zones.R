@@ -7,6 +7,7 @@ library(rlang)
 library(glue)
 library(stringr)
 library(pins)
+library(AzureStor)
 
 progressr::handlers(global = TRUE)
 progressr::handlers(progressr::handler_progress(format = ":bar :percent :eta", width = 80))
@@ -25,14 +26,28 @@ scot5.n <- c("Ouest Etang de Berre")
 
 scot_tot.n <- c("Marseille Provence", "Pays d'Aix", "Pays Salonais", "Pays d'Aubagne et de l'Etoile", "Pays de Martigues", "Ouest Etang de Berre")
 
+container <- AzureStor::blob_container(marseille_url)
+marseille_board <- board_azure(container, cache=marseille_sas)
+
+#à faire juste une fois
+marseille_board %>% pin_upload(system.file("Mobilités des Personnes 2019"))
+marseille_board  %>% pin_upload(system.file("emp33km.qs")) 
+marseille_board  %>% pin_upload(system.file("c200_17.qs")) 
+marseille_board  %>% pin_upload(system.file("grid.xlsx")) 
+marseille_board  %>% pin_upload(system.file("c200_stars.rda")) 
+marseille_board  %>% pin_upload(system.file("base-cc-emploi-pop-active-2018.xlsx")) 
+marseille_board  %>% pin_upload(system.file("marseille_parcs_jardins_2018.xlsx")) 
+marseille_board  %>% pin_upload(system.file("gtfs_marseille_zip.zip")) 
+
+
+
 # fichiers importants
 localdata <- "~/files/marseille"
-DVFdata <- "/scratch/DVFdata"
+# DVFdata <- "/scratch/DVFdata"
 scripts <- "~/marseille"
 mob2019 <- "~/marseille/Mobilités des Personnes 2019" 
 home <- "~/marseille"
 #repository <- "/scratch"
-board_path <- marseille
 temp_dir <- "~/temp"
 r5files_rep <- "/scratch/distances/xt"
 newpredict_file <- "~/marseille/annexes/newpredict.r"
@@ -40,6 +55,7 @@ enqmobstarter_file <- "~/marseille/mod/5.a enq_mob_starter.R"
 mod_rep <- "/files/marseille"
 output_rep <- "~/marseille/output/"
 fs::dir_create(output_rep)
+
 
 # distances, probas et tutti quanti
 
@@ -68,9 +84,9 @@ localr5 <- str_c(localdata, "/r5_base")
 localr5car <- str_c(localdata, "/r5car")
 
 ## informations spécifique sur la ville
-elevation_tif <- board_path  %>% pin_download("elevation.tif") |> glue()
-emp33km_file <- board_path  %>% pin_download("emp33km.qs") |> glue()
-c200_file <- board_path  %>% pin_download("c200_17.qs") |> glue()
+elevation_tif <- marseille_board  %>% pin_download("elevation_aix_marseille.tif") |> glue()
+emp33km_file <- marseille_board  %>% pin_download("emp33km.qs") |> glue()
+c200_file <- marseille_board  %>% pin_download("c200_17.qs") |> glue()
 pbf_file <- "lr.pbf"
 pbf_rep <- "{repository}/OSM/" |> glue()
 dodgr_profiles <- "{localdata}/dodgr/dodgr_profiles.json" |> glue()
@@ -79,9 +95,9 @@ alternative_scenario2 <- "{localdata}/co2/filosofi_scenario_s4.csv" |> glue()
 
 ## informations qu'on peut garder car elles sont sur la France et donc 
 # seront filtrées différemment une fois qu'on change la zone
-densitescommunes <- board_path  %>% pin_download("grid.xlsx") |> glue() #le fichier Communes/grid.xslx qui était dans scratch
-c200_stars <- board_path  %>% pin_download("c200_stars.rda") |> glue() #vient de data_villes
-popactive_file <- board_path  %>% pin_download("base-cc-emploi-pop-active-2018.xlsx") |> glue()
+densitescommunes <- marseille_board  %>% pin_download("grid.xlsx") |> glue() #le fichier Communes/grid.xslx qui était dans scratch
+c200_stars <- marseille_board  %>% pin_download("c200_stars.rda") |> glue() #vient de data_villes
+popactive_file <- marseille_board  %>% pin_download("base-cc-emploi-pop-active-2018.xlsx") |> glue()
 classification_urbaine <- "{localdata}/autres/classification_urbaine.csv" |> glue()
 
 ## enquetes nationales
@@ -90,8 +106,8 @@ k_individu_file <- "{mob2019}/k_individu_public.csv" |> glue()
 tcm_men_file <- "{mob2019}/tcm_men_public.csv" |> glue()
 q_men_file <- "{mob2019}/q_menage_public.csv" |> glue()
 tcm_ind_kish_file <- "{mob2019}/tcm_ind_kish_public.csv" |> glue()
-enqmobpro <- "{DVFdata}/sources/MOB/mobpro2018.csv" |> glue()
-enqmobscol <- "{DVFdata}/sources/MOB/mobscol2018.csv" |> glue()
+enqmobpro <- marseille_board  %>% pin_download("mobpro2018.csv") |> glue()
+#enqmobscol <- "{DVFdata}/sources/MOB/mobscol2018.csv" |> glue()
 
 # c200ze_file <- "{DVFdata}/c200ze_lr.qs" |> glue()
 # c200edu_file <- "{DVFdata}/c200edu_lr.qs" |> glue()
