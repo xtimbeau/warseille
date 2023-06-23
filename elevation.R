@@ -6,6 +6,7 @@ library(sf)
 library(tmap)
 library(elevatr)
 library(terra)
+library(pins)
 
 
 # shape from the best town in France
@@ -63,6 +64,4 @@ tm_shape(a2)+
   tm_shape(sud)+
   tm_borders(col = , lwd  = 0.5)
 
-
-marseille %>% pin_upload(system.file("elev_aix_marseille.tif"))
-
+marseille_board %>% pin_upload(system.file("elev_aix_marseille.tif"))
