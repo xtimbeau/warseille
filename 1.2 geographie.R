@@ -19,6 +19,7 @@ library(rlang)
 library(glue)
 library(stringr)
 library(sf)
+library(writexl)
 
 conflict_prefer_all("dplyr", quiet = TRUE)
 
@@ -29,50 +30,60 @@ download <- TRUE
 
 # IRIS ------------------
 
-rep <- str_c(temp_dir, "/iris2018")
-if(download|!file.exists("{DVFdata}/iris18.qs" |> glue())) {
-  if(fs::dir_exists(rep)) fs::dir_delete(rep)
-  fs::dir_create(rep)
-  # 2018
-  curl::curl_download(
-    "https://wxs.ign.fr/1yhlj2ehpqf3q6dt6a2y7b64/telechargement/inspire/CONTOURS-IRIS-2018-01-02$CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01/file/CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01.7z", 
-    glue("{rep}/iris18.7z"))
-  archive_extract(glue("{rep}/iris18.7z"), dir=rep)
+# rep <- str_c(temp_dir, "/iris2018")
+# if(download|!file.exists("{DVFdata}/iris18.qs" |> glue())) {
+#   if(fs::dir_exists(rep)) fs::dir_delete(rep)
+#   fs::dir_create(rep)
+#   # 2018
+#   curl::curl_download(
+#     "https://wxs.ign.fr/1yhlj2ehpqf3q6dt6a2y7b64/telechargement/inspire/CONTOURS-IRIS-2018-01-02$CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01/file/CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01.7z", 
+#     glue("{rep}/iris18.7z"))
+#   archive_extract(glue("{rep}/iris18.7z"), dir=rep)
+  
+download.file(url = "https://wxs.ign.fr/1yhlj2ehpqf3q6dt6a2y7b64/telechargement/inspire/CONTOURS-IRIS-2018-01-02$CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01/file/CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01.7z", destfile =  "~/files/iris18.7z")
+unzip("~/files/iris18.7z", exdir = "~/files/")
+  
   
   files <- fs::dir_ls(rep, recurse = TRUE)
   iris_shp <- files[str_detect(files, "CONTOURS-IRIS.shp")&str_detect(files, "LAMB93")]
   
   iris18.cont <- st_read(iris_shp)
   
-  archive_extract("https://www.insee.fr/fr/statistiques/fichier/2017499/reference_IRIS_geo2018.zip", 
-                  dir = rep)
+download.file("https://www.insee.fr/fr/statistiques/fichier/2017499/reference_IRIS_geo2018.zip", destfile="~/files/reference_IRIS_geo2018.zip")
+unzip("~/files/reference_IRIS_geo2018.zip", exdir = "~/files/")
+
+
+iris18.table <- read_excel("~/files/reference_IRIS_geo2018.xls" |> glue(), skip = 5)
   
-  iris18.table <- read_excel("{rep}/reference_IRIS_geo2018.xls" |> glue(), skip = 5)
-  
-  iris18 <- left_join(iris18.table, 
+iris18 <- left_join(iris18.table, 
                       as_tibble(iris18.cont) |> select(CODE_IRIS, geometry), 
                       by = "CODE_IRIS") |> 
     st_as_sf() |> 
     st_transform(3035) 
   
-  qs::qsave(iris18, file="{DVFdata}/iris18.qs" |> glue())
-  fs::dir_delete(rep)
-}
+write_xlsx(iris18,"~/files/iris18.xlsx")
+
+  # qs::qsave(iris18, file="{DVFdata}/iris18.qs" |> glue())
+  # fs::dir_delete(rep)
+#}
 # C200 ---------------
-if(download|!file.exists(c200_file)) {
-  
-  caro <- "~/files/DVFdata/sources/carreau"
-  
-  if(fs::dir_exists(caro)) fs::dir_delete(caro)
-  fs::dir_create(caro)
-  
-  archive_extract("https://www.insee.fr/fr/statistiques/fichier/6215138/Filosofi2017_carreaux_200m_shp.zip",
-                  dir = "{caro}/2017/" |> glue())
-  archive_extract("{caro}/2017/Filosofi2017_carreaux_200m_shp.7z" |> glue(),
-                  dir = "{caro}/2017/" |> glue())
-  c200 <- st_read("{caro}/2017/Filosofi2017_carreaux_200m_met.shp" |> glue(), stringsAsFactors=FALSE)
-  
-  fs::dir_delete(caro)
+# if(download|!file.exists(c200_file)) {
+#   
+#   caro <- "~/files/DVFdata/sources/carreau"
+#   
+#   if(fs::dir_exists(caro)) fs::dir_delete(caro)
+#   fs::dir_create(caro)
+#   
+  # archive_extract("https://www.insee.fr/fr/statistiques/fichier/6215138/Filosofi2017_carreaux_200m_shp.zip",
+  #                 dir = "{caro}/2017/" |> glue())
+  # archive_extract("{caro}/2017/Filosofi2017_carreaux_200m_shp.7z" |> glue(),
+  #                 dir = "{caro}/2017/" |> glue())
+
+download.file("https://www.insee.fr/fr/statistiques/fichier/6215138/Filosofi2017_carreaux_200m_shp.zip",destfile="~/files/carreaux.zip") 
+unzip("~/files/carreaux.zip", exdir = "~/files/")
+archive_extract("~/files/Filosofi2017_carreaux_200m_met_shp", dir="~/files/")
+
+c200 <- st_read("~/files/Filosofi2017_carreaux_200m_met.shp" |> glue(), stringsAsFactors=FALSE)
   
   c200 <- c200 |> st_transform(3035) 
   xy <- c200 |> st_centroid()
@@ -83,57 +94,62 @@ if(download|!file.exists(c200_file)) {
   nas <- sf::st_nearest_feature(c200[is.na(irises),], iris18)
   irises[is.na(irises)] <- nas
   
+write_xlsx(c200,"~/files/c200.xlsx")
+  
+  
   # on prend les iris pour être cohérent, un carreau peut être sur plusieurs communes
   # on utilise donc la géographie de iris18
   
-  c200f <- c200 |>
-    transmute(
-      idINS=idINS200, 
-      dep=str_sub(lcog_geo, 1,2),
-      com=iris18$DEPCOM[irises], 
-      CODE_IRIS = iris18$CODE_IRIS[irises],
-      ind = Ind,
-      men = Men,
-      enfants = Ind_0_3+Ind_4_5+Ind_6_10+Ind_11_17,
-      ecoliers_mat = Ind_4_5,
-      ecoliers_prim = Ind_6_10,
-      collegienslyceens = Ind_11_17,
-      adultes = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64+Ind_65_79+Ind_80p,
-      ind_18_64 = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64,
-      ind_snv = Ind_snv
-    )
-  
-  qs::qsave(c200f, c200_file)
-}
+  # c200f <- c200 |>
+  #   transmute(
+  #     idINS=idINS200, 
+  #     dep=str_sub(lcog_geo, 1,2),
+  #     com=iris18$DEPCOM[irises], 
+  #     CODE_IRIS = iris18$CODE_IRIS[irises],
+  #     ind = Ind,
+  #     men = Men,
+  #     enfants = Ind_0_3+Ind_4_5+Ind_6_10+Ind_11_17,
+  #     ecoliers_mat = Ind_4_5,
+  #     ecoliers_prim = Ind_6_10,
+  #     collegienslyceens = Ind_11_17,
+  #     adultes = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64+Ind_65_79+Ind_80p,
+  #     ind_18_64 = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64,
+  #     ind_snv = Ind_snv
+  #   )
+  # 
+  #qs::qsave(c200f, c200_file)
+
 # GEOGRAPHIES DES COMMUNES --------------------
 
-com2017_rep <- "{DVFdata}/sources/Communes/2017" |> glue()
-no_file <- !exists("com2017_shp")||!file.exists(com2017_shp)
+# com2017_rep <- "{DVFdata}/sources/Communes/2017" |> glue()
+# no_file <- !exists("com2017_shp")||!file.exists(com2017_shp)
+# 
+# if(download|no_file) {
+#   unlink(com2017_rep, recursive = TRUE, force = TRUE)
+#   dir.create(com2017_rep)
+#   curl::curl_download(
+#     'http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20170111-shp.zip',
+#     destfile = "{com2017_rep}/downloaded.zip" |> glue())
+#   unzip("{com2017_rep}/downloaded.zip" |> glue(),
+#         exdir = com2017_rep)
+# }
+# com2017_shp <- fs::dir_ls(com2017_rep, glob="*.shp")[[1]]
+# 
+# com2021_rep <- "{DVFdata}/sources/Communes/2021" |> glue()
+# no_file <- !exists("com2021_shp")||!file.exists(com2021_shp)
+# if(download|no_file) {
+#   if(fs::dir_exists(com2021_rep)) fs::dir_delete(com2021_rep)
+#   dir.create(com2021_rep)
+#   curl::curl_download(
+#     'http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20210101-shp.zip',
+#     destfile = "{com2021_rep}/2021downloaded.zip" |> glue())
+#   unzip("{com2021_rep}/2021downloaded.zip" |> glue(),
+#         exdir = com2021_rep)
+# }
+# com2021_shp <- fs::dir_ls(com2021_rep, glob="*.shp")[[1]]
 
-if(download|no_file) {
-  unlink(com2017_rep, recursive = TRUE, force = TRUE)
-  dir.create(com2017_rep)
-  curl::curl_download(
-    'http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20170111-shp.zip',
-    destfile = "{com2017_rep}/downloaded.zip" |> glue())
-  unzip("{com2017_rep}/downloaded.zip" |> glue(),
-        exdir = com2017_rep)
-}
-com2017_shp <- fs::dir_ls(com2017_rep, glob="*.shp")[[1]]
 
-com2021_rep <- "{DVFdata}/sources/Communes/2021" |> glue()
-no_file <- !exists("com2021_shp")||!file.exists(com2021_shp)
-if(download|no_file) {
-  if(fs::dir_exists(com2021_rep)) fs::dir_delete(com2021_rep)
-  dir.create(com2021_rep)
-  curl::curl_download(
-    'http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20210101-shp.zip',
-    destfile = "{com2021_rep}/2021downloaded.zip" |> glue())
-  unzip("{com2021_rep}/2021downloaded.zip" |> glue(),
-        exdir = com2021_rep)
-}
-com2021_shp <- fs::dir_ls(com2021_rep, glob="*.shp")[[1]]
-
+# 
 # DEFINITION DES ZONES ---------------------------------------------------------
 # on récupère les epci de 2017 pour ne pas perdre Péré
 if(download|!file.exists("{localdata}/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue())) {
