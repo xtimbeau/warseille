@@ -7,7 +7,9 @@ library(rlang)
 library(glue)
 library(stringr)
 library(pins)
-library(AzureStor)
+library(AzureStor) 
+library(writexl)
+
 
 progressr::handlers(global = TRUE)
 progressr::handlers(progressr::handler_progress(format = ":bar :percent :eta", width = 80))
@@ -26,18 +28,24 @@ scot5.n <- c("Ouest Etang de Berre")
 
 scot_tot.n <- c("Marseille Provence", "Pays d'Aix", "Pays Salonais", "Pays d'Aubagne et de l'Etoile", "Pays de Martigues", "Ouest Etang de Berre")
 
-container <- AzureStor::blob_container(marseille_url)
-marseille_board <- board_azure(container, cache=marseille_sas)
+marseille_board <- pins::board_azure(
+  AzureStor::storage_container(azure_url, sas = azure_jeton))
 
 #à faire juste une fois
-marseille_board %>% pin_upload(system.file("Mobilités des Personnes 2019"))
-marseille_board  %>% pin_upload(system.file("emp33km.qs")) 
-marseille_board  %>% pin_upload(system.file("c200_17.qs")) 
-marseille_board  %>% pin_upload(system.file("grid.xlsx")) 
-marseille_board  %>% pin_upload(system.file("c200_stars.rda")) 
-marseille_board  %>% pin_upload(system.file("base-cc-emploi-pop-active-2018.xlsx")) 
-marseille_board  %>% pin_upload(system.file("marseille_parcs_jardins_2018.xlsx")) 
-marseille_board  %>% pin_upload(system.file("gtfs_marseille_zip.zip")) 
+marseille_board %>% pin_upload("Mobilités des Personnes 2019")
+marseille_board %>% pin_upload("emp33km.qs")
+marseille_board %>% pin_upload("c200_17.qs")
+marseille_board %>% pin_upload("grid.xlsx")
+marseille_board %>% pin_upload("c200_stars.rda")
+marseille_board %>% pin_upload("base-cc-emploi-pop-active-2018.xlsx")
+marseille_board %>% pin_upload("~/files/marseille_parcs_jardins_2018.csv") 
+marseille_board %>% pin_upload("gtfs_marseille_zip.zip") 
+marseille_board %>% pin_upload("~/files/iris18.7z") 
+marseille_board %>% pin_upload("~/files/reference_IRIS_geo2018.xls") 
+marseille_board %>% pin_upload("~/files/carreaux.zip") 
+marseille_board %>% pin_upload("~/files/iris18.xlsx") 
+#marseille_board %>% pin_upload("~/files/c200.xslx") 
+
 
 
 
@@ -45,7 +53,7 @@ marseille_board  %>% pin_upload(system.file("gtfs_marseille_zip.zip"))
 localdata <- "~/files/marseille"
 # DVFdata <- "/scratch/DVFdata"
 scripts <- "~/marseille"
-mob2019 <- "~/marseille/Mobilités des Personnes 2019" 
+mob2019 <- marseille_board  %>% pin_download('Mobilités des Personnes 2019')
 home <- "~/marseille"
 #repository <- "/scratch"
 temp_dir <- "~/temp"
