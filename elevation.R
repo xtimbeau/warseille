@@ -64,4 +64,4 @@ tm_shape(a2)+
   tm_shape(sud)+
   tm_borders(col = , lwd  = 0.5)
 
-marseille_board %>% pin_upload(system.file("elev_aix_marseille.tif"))
+marseille_board %>% pin_upload("elev_aix_marseille.tif")
