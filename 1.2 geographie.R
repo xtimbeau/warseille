@@ -1,12 +1,11 @@
 install.packages("remotes")
 remotes::install_github("OFCE/ofce")
 remotes::install_github("OFCE/r3035")
-
+library(r3035)
 library(ofce)
 library(tidyverse)
 library(archive)
 #devtools::install_github("ofce/r3035")
-library(r3035)
 library(sf)
 library(mapboxapi)
 library(stars)
@@ -20,7 +19,7 @@ library(glue)
 library(stringr)
 library(sf)
 library(writexl)
-
+library(dplyr)
 conflict_prefer_all("dplyr", quiet = TRUE)
 
 bl <- load("~/marseille/baselayer.rda")
@@ -41,11 +40,11 @@ download <- TRUE
 #   archive_extract(glue("{rep}/iris18.7z"), dir=rep)
   
 download.file(url = "https://wxs.ign.fr/1yhlj2ehpqf3q6dt6a2y7b64/telechargement/inspire/CONTOURS-IRIS-2018-01-02$CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01/file/CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01.7z", destfile =  "~/files/iris18.7z")
-unzip("~/files/iris18.7z", exdir = "~/files/")
+archive_extract("~/files/iris18.7z", dir = "~/files/")
   
   
   files <- fs::dir_ls(rep, recurse = TRUE)
-  iris_shp <- files[str_detect(files, "CONTOURS-IRIS.shp")&str_detect(files, "LAMB93")]
+  iris_shp <- files[str_detect("~/files/", "CONTOURS-IRIS.shp")&str_detect(files, "LAMB93")]
   
   iris18.cont <- st_read(iris_shp)
   
@@ -62,6 +61,8 @@ iris18 <- left_join(iris18.table,
     st_transform(3035) 
   
 write_xlsx(iris18,"~/files/iris18.xlsx")
+iris18 <- read_xlsx("~/files/iris18.xlsx")
+
 
   # qs::qsave(iris18, file="{DVFdata}/iris18.qs" |> glue())
   # fs::dir_delete(rep)
@@ -94,7 +95,8 @@ c200 <- st_read("~/files/Filosofi2017_carreaux_200m_met.shp" |> glue(), stringsA
   nas <- sf::st_nearest_feature(c200[is.na(irises),], iris18)
   irises[is.na(irises)] <- nas
   
-write_xlsx(c200,"~/files/c200.xlsx")
+#write_xlsx(c200,"~/files/c200.xlsx")
+#c200 <- read_xlsx("~/files/c200.xlsx")
   
   
   # on prend les iris pour être cohérent, un carreau peut être sur plusieurs communes
@@ -133,8 +135,11 @@ write_xlsx(c200,"~/files/c200.xlsx")
 #   unzip("{com2017_rep}/downloaded.zip" |> glue(),
 #         exdir = com2017_rep)
 # }
-# com2017_shp <- fs::dir_ls(com2017_rep, glob="*.shp")[[1]]
-# 
+
+download.file("http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20170111-shp.zip", destfile = "~/files/communes_2017.zip")
+unzip("~/files/communes_2017.zip", exdir = "~/files/")
+com2017_shp <- read_sf("~/files/communes-20170112.shp")
+ 
 # com2021_rep <- "{DVFdata}/sources/Communes/2021" |> glue()
 # no_file <- !exists("com2021_shp")||!file.exists(com2021_shp)
 # if(download|no_file) {
@@ -146,20 +151,27 @@ write_xlsx(c200,"~/files/c200.xlsx")
 #   unzip("{com2021_rep}/2021downloaded.zip" |> glue(),
 #         exdir = com2021_rep)
 # }
-# com2021_shp <- fs::dir_ls(com2021_rep, glob="*.shp")[[1]]
+
+download.file("http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20210101-shp.zip", destfile = "~/files/communes_2021.zip")
+unzip("~/files/communes_2021.zip", exdir = "~/files/")
+com2021_shp <- read_sf("~/files/communes-20210101.shp")
 
 
 # 
 # DEFINITION DES ZONES ---------------------------------------------------------
 # on récupère les epci de 2017 pour ne pas perdre Péré
-if(download|!file.exists("{localdata}/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue())) {
-  archive_extract(
-    "https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2017.zip", 
-    dir = "{localdata}/" |> glue())
-}
+# if(download|!file.exists("{localdata}/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue())) {
+#   archive_extract(
+#     "https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2017.zip", 
+#     dir = "{localdata}/" |> glue())
+# }
+
+download.file("https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2017.zip", destfile = "~/files/Intercommunalite_Metropole_au_01-01-2017.zip")
+unzip("~/files/Intercommunalite_Metropole_au_01-01-2017.zip", exdir = "~/files/")
+
 
 epcis <- readxl::read_xls(
-  "{localdata}/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue(),
+  "~/files/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue(),
   sheet=2,
   skip=5)
 

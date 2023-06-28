@@ -45,6 +45,10 @@ marseille_board %>% pin_upload("~/files/reference_IRIS_geo2018.xls")
 marseille_board %>% pin_upload("~/files/carreaux.zip") 
 marseille_board %>% pin_upload("~/files/iris18.xlsx") 
 #marseille_board %>% pin_upload("~/files/c200.xslx") 
+marseille_board %>% pin_upload("~/files/communes_2017.zip") 
+marseille_board %>% pin_upload("~/files/communes_2021.zip")
+marseille_board %>% pin_upload("~/files/Intercommunalite_Metropole_au_01-01-2017.xls")
+
 
 
 
