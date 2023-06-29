@@ -43,11 +43,9 @@ download.file(url = "https://wxs.ign.fr/1yhlj2ehpqf3q6dt6a2y7b64/telechargement/
 archive_extract("~/files/iris18.7z", dir = "~/files/")
   
   
-  files <- fs::dir_ls(rep, recurse = TRUE)
-  iris_shp <- files[str_detect("~/files/", "CONTOURS-IRIS.shp")&str_detect(files, "LAMB93")]
+  iris18.cont <- st_read("~/files/CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01/CONTOURS-IRIS/1_DONNEES_LIVRAISON_2018-07-00057/CONTOURS-IRIS_2-1_SHP_LAMB93_FXX-2018/CONTOURS-IRIS.shp")
   
-  iris18.cont <- st_read(iris_shp)
-  
+
 download.file("https://www.insee.fr/fr/statistiques/fichier/2017499/reference_IRIS_geo2018.zip", destfile="~/files/reference_IRIS_geo2018.zip")
 unzip("~/files/reference_IRIS_geo2018.zip", exdir = "~/files/")
 
@@ -212,10 +210,10 @@ geoepci <- map_dfr(scot_tot.n, ~{
 }) |> st_transform(3035)
 
 # version MAJ d'iris (en espérant que toutes les communes y sont)
-iris <- qs::qread("{DVFdata}/iris18.qs" |> glue())
+#iris <- qs::qread("{DVFdata}/iris18.qs" |> glue())
 # si il y a besoin de mettre à jour (même si le nouveau fichier IRIS est mis à jour en 2022)
 
-iris <- iris  |> 
+iris <- iris18  |> 
   rename(COM = DEPCOM, IRIS = CODE_IRIS) 
 
 # là c'est où c'est possible de faire des modifications aux iris 
