@@ -19,14 +19,14 @@ if(fs::file_exists("baselayer.rda")) bl <- load("baselayer.rda")
 
 # globals -----------------------------------------------------------------
 ville <- "Marseille"
-scot1.n <- c("Marseille Provence")
-scot2.n <- c("Pays d'Aix")
-scot3.n <- c("Pays Salonais")
-scot4.n <- c("Pays d'Aubagne et de l'Etoile")
-scot5.n <- c("Pays de Martigues")
-scot5.n <- c("Ouest Etang de Berre")
+scot1.n <- c("Allauch",	"Carry-le-Rouet","Cassis", "Ceyreste","Châteauneuf-les-Martigues","La Ciotat","Ensuès-la-Redonne","Gémenos","Gignac-la-Nerthe","Marignane","Marseille","Plan-de-Cuques","Roquefort-la-Bédoule","Le Rove","Saint-Victoret","Sausset-les-Pins","Septèmes-les-Vallons","Carnoux-en-Provence")
+scot2.n <- c("Aix-en-Provence","Beaurecueil","Bouc-Bel-Air","Cabriès","Châteauneuf-le-Rouge","Éguilles","Fuveau","Jouques","Lambesc","Meyrargues","Meyreuil","Mimet","Les Pennes-Mirabeau","Peynier","Peyrolles-en-Provence","Puyloubier","Le Puy-Sainte-Réparade","Rognes","La Roque-d'Anthéron","Rousset","Saint-Antonin-sur-Bayon","Saint-Cannat","Saint-Estève-Janson","Saint-Marc-Jaumegarde","Saint-Paul-lès-Durance","Simiane-Collongue","Le Tholonet","Trets","Vauvenargues","Venelles","Ventabren","Vitrolles","Coudoux","Pertuis")
+scot3.n <- c("Alleins","Aurons","La Barben","Berre-l'Étang","Charleval","Eyguières","La Fare-les-Oliviers","Lamanon","Lançon-Provence","Mallemort","Pélissanne","Rognac","Saint-Chamas","Salon-de-Provence","Sénas","Velaux","Vernègues")
+scot4.n <- c("Aubagne","Auriol","Belcodène","La Bouilladisse","Cadolive","Cuges-les-Pins","La Destrousse","Gréasque","La Penne-sur-Huveaune","Peypin","Roquevaire","Saint-Savournin","Saint-Zacharie")
+scot5.n <- c("Arles","Aureille","Barbentane","Les Baux-de-Provence","Boulbon","Cabannes","Châteaurenard","Eygalières","Eyragues","Fontvieille","Graveson","Maillane","Mas-Blanc-des-Alpilles","Maussane-les-Alpilles","Saint-Pierre-de-Mézoargues","Mollégès","Mouriès","Noves","Paradou","Rognonas","Saint-Andiol","Saint-Étienne-du-Grès","Saintes-Maries-de-la-Mer","Saint-Martin-de-Crau","Saint-Rémy-de-Provence","Tarascon","Verquières")
+scot5.n <- c("Cornillon-Confoux","Fos-sur-Mer","Grans","Istres","Martigues","Miramas","Port-de-Bouc","Port-Saint-Louis-du-Rhône","Saint-Mitre-les-Remparts")
 
-scot_tot.n <- c("Marseille Provence", "Pays d'Aix", "Pays Salonais", "Pays d'Aubagne et de l'Etoile", "Pays de Martigues", "Ouest Etang de Berre")
+scot_tot.n <- c("Allauch",	"Carry-le-Rouet","Cassis", "Ceyreste","Châteauneuf-les-Martigues","La Ciotat","Ensuès-la-Redonne","Gémenos","Gignac-la-Nerthe","Marignane","Marseille","Plan-de-Cuques","Roquefort-la-Bédoule","Le Rove","Saint-Victoret","Sausset-les-Pins","Septèmes-les-Vallons","Carnoux-en-Provence","Aix-en-Provence","Beaurecueil","Bouc-Bel-Air","Cabriès","Châteauneuf-le-Rouge","Éguilles","Fuveau","Jouques","Lambesc","Meyrargues","Meyreuil","Mimet","Les Pennes-Mirabeau","Peynier","Peyrolles-en-Provence","Puyloubier","Le Puy-Sainte-Réparade","Rognes","La Roque-d'Anthéron","Rousset","Saint-Antonin-sur-Bayon","Saint-Cannat","Saint-Estève-Janson","Saint-Marc-Jaumegarde","Saint-Paul-lès-Durance","Simiane-Collongue","Le Tholonet","Trets","Vauvenargues","Venelles","Ventabren","Vitrolles","Coudoux","Pertuis","Alleins","Aurons","La Barben","Berre-l'Étang","Charleval","Eyguières","La Fare-les-Oliviers","Lamanon","Lançon-Provence","Mallemort","Pélissanne","Rognac","Saint-Chamas","Salon-de-Provence","Sénas","Velaux","Vernègues","Aubagne","Auriol","Belcodène","La Bouilladisse","Cadolive","Cuges-les-Pins","La Destrousse","Gréasque","La Penne-sur-Huveaune","Peypin","Roquevaire","Saint-Savournin","Saint-Zacharie","Arles","Aureille","Barbentane","Les Baux-de-Provence","Boulbon","Cabannes","Châteaurenard","Eygalières","Eyragues","Fontvieille","Graveson","Maillane","Mas-Blanc-des-Alpilles","Maussane-les-Alpilles","Saint-Pierre-de-Mézoargues","Mollégès","Mouriès","Noves","Paradou","Rognonas","Saint-Andiol","Saint-Étienne-du-Grès","Saintes-Maries-de-la-Mer","Saint-Martin-de-Crau","Saint-Rémy-de-Provence","Tarascon","Verquières","Cornillon-Confoux","Fos-sur-Mer","Grans","Istres","Martigues","Miramas","Port-de-Bouc","Port-Saint-Louis-du-Rhône","Saint-Mitre-les-Remparts")
 
 marseille_board <- pins::board_azure(
   AzureStor::storage_container(azure_url, sas = azure_jeton))
