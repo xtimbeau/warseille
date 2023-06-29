@@ -17,9 +17,9 @@ emp33km <- qs::qread(emp33km_file) |>
   filter(emp_pred>0) |> 
   st_as_sf(coords=c("x", "y"), crs=3035) 
 
-c200.src <- setDT(qs::qread(c200_file))
-iris <- qs::qread("{DVFdata}/iris18.qs" |> glue()) 
-c200i <- c200.src[CODE_IRIS %in% iris[ st_intersects(iris, zone_emploi, sparse=FALSE), ]$CODE_IRIS,]
+c200.src <- setDT(c200)
+iris18 <- read_xlsx("~/files/iris18.xlsx")
+c200i <- c200.src[CODE_IRIS %in% iris18[ st_intersects(iris18, zone_emploi, sparse=FALSE), ]$CODE_IRIS,]
 c200i[, geometry := r3035::idINS2square(idINS) ]
 
 c200i <- st_as_sf(c200i, crs=3035) 
