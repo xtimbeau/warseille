@@ -4,7 +4,7 @@ library(sp)
 library(data.table)
 library(sf)
 library(qs)
-library(archive)
+library(archive) 
 install.packages("remotes")
 remotes::install_github("OFCE/r3035")
 library(r3035)
@@ -51,14 +51,14 @@ geographie = TRUE
 if (geographie){
   interco <- read_excel("~/marseille/Intercommunalite-Metropole_au_01-01-2021.xlsx", skip = 5)
   communes <- read_excel("~/marseille/table-appartenance-geo-communes-21.xlsx", skip = 5)
-  communes_shape <- st_read(com2021_shp) |> 
+  communes_shape <- st_read("~/files/communes-20210112.shp") |> 
     st_set_crs(2154) |> 
     st_transform(3035)
   
-  com21 <- sf::st_read(com2021_shp) |>
+  com21 <- st_read("~/files/communes-20210112.shp") |>
     sf::st_transform(3035)
   
-  com17 <- sf::st_read(com2017_shp) |>
+  com17 <- st_read("~/files/communes-20170112.shp") |>
     sf::st_transform(3035)
   
   #com17$code21 <- com21$insee[st_nearest_feature(com17, com21)]
@@ -81,7 +81,7 @@ if (geographie){
   # epci3 <- interco |> 
   #   dplyr::filter(str_detect(LIBEPCI, "Aunis|Rochelle")) |> 
   #   pull(EPCI) 
-  iris <- qs::qread("{DVFdata}/iris18.qs" |> glue())
+  # iris <- qs::qread("{DVFdata}/iris18.qs" |> glue())
   iris <- iris  |> 
     rename(COM = DEPCOM, IRIS = CODE_IRIS) 
   scot_tot <- iris |>
@@ -126,7 +126,7 @@ if (geographie){
 
 # On reprend c200_file; celui-ci contient déjà tous les individus
 
-c200 <- qread(file = c200_file)
+# c200 <- qread(file = c200_file)
 c200$etud <- c200$collegienslyceens + c200$ecoliers_mat + c200$ecoliers_prim
 c200 <- c200 |> dplyr::filter(com %in% com_ze$insee)
 
