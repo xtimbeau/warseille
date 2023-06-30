@@ -203,7 +203,7 @@ geoepci <- map_dfr(scot_tot.n, ~{
   coms <- epcis |> 
     dplyr::filter(str_detect(LIBEPCI, .x)) |>
     pull(CODGEO, name=LIBGEO)
-  st_read(com2017_shp) |> 
+  st_read("~/files/communes-20170112.shp") |> 
     dplyr::filter(insee%in%coms) |>
     summarise() |>
     mutate(epci = .x)
@@ -231,9 +231,12 @@ communes.scot_tot <- iris |>
   dplyr::filter(COM %in% scot_tot.epci) |>
   group_by(COM) |>
   summarize()
-c200 <- qs::qread(c200_file)
-c200.scot3 <- c200 |> filter(st_intersects(c200, scot3, sparse=FALSE))
-c200.scot4 <- c200 |> filter(st_intersects(c200, scot4, sparse=FALSE))
+#c200 <- qs::qread(c200_file)
+# c200.scot3 <- c200 |> filter(st_intersects(c200, scot3, sparse=FALSE))
+# c200.scot4 <- c200 |> filter(st_intersects(c200, scot4, sparse=FALSE))
+
+c200.scot_tot <- c200 |> filter(st_intersects(c200, scot_tot, sparse=FALSE))
+
 
 # # GTFS --------------------
 # if(download) {
