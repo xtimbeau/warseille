@@ -59,9 +59,9 @@ tm_shape(a2)+
 a3 <- get_elev_raster(communes.scot_tot|> st_transform(crs = 4326), z = 11, src = "aws") 
 writeRaster(a3, filename = "elev_aix_marseille", format = "GTiff", overwrite = TRUE) 
 
-tm_shape(a2)+
+tm_shape(a3)+
   tm_raster(legend.show = TRUE)+
-  tm_shape(sud)+
+  tm_shape(communes_shape)+
   tm_borders(col = , lwd  = 0.5)
 
 marseille_board %>% pin_upload("elev_aix_marseille.tif")
