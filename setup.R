@@ -49,13 +49,13 @@ geographie = TRUE
 
 ## Définition des zones
 if (geographie){
-  interco <- read_excel("~/marseille/Intercommunalite-Metropole_au_01-01-2021.xlsx", skip = 5)
-  communes <- read_excel("~/marseille/table-appartenance-geo-communes-21.xlsx", skip = 5)
-  communes_shape <- st_read("~/files/communes-20210112.shp") |> 
+  interco <- read_excel("~/files/Intercommunalite_Metropole_au_01-01-2017.xls", skip = 5)
+  communes <- read_excel("~/files/table-appartenance-geo-communes-23.xlsx", skip = 5)
+  communes_shape <- st_read("~/files/communes-20210101.shp") |> 
     st_set_crs(2154) |> 
     st_transform(3035)
   
-  com21 <- st_read("~/files/communes-20210112.shp") |>
+  com21 <- st_read("~/files/communes-20210101.shp") |>
     sf::st_transform(3035)
   
   com17 <- st_read("~/files/communes-20170112.shp") |>
@@ -63,17 +63,17 @@ if (geographie){
   
   #com17$code21 <- com21$insee[st_nearest_feature(com17, com21)]
   
-  epcis <- readxl::read_xls(
-    "{localdata}/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue(),
-    sheet=2,
-    skip=5)
-  
-  
-  scot_tot.epci <- epcis |> 
-    dplyr::filter(str_detect(LIBEPCI, str_c(scot_tot.n, collapse='|'))) |>
-    pull(CODGEO, name=LIBGEO)
-  
+  # epcis <- readxl::read_xls(
+  #   "~/files/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue(),
+  #   sheet=2,
+  #   skip=5)
   # 
+  # 
+  # scot_tot.epci <- epcis |> 
+  #   dplyr::filter(str_detect(LIBEPCI, str_c(scot_tot.n, collapse='|'))) |>
+  #   pull(CODGEO, name=LIBGEO)
+  # 
+  # # 
   # scot3.epci21 <- epcis21 |> 
   #   dplyr::filter(str_detect(raison_sociale, "Aunis|Rochelle")) |>
   #   pull(insee, name=nom_membre)
@@ -82,22 +82,21 @@ if (geographie){
   #   dplyr::filter(str_detect(LIBEPCI, "Aunis|Rochelle")) |> 
   #   pull(EPCI) 
   # iris <- qs::qread("{DVFdata}/iris18.qs" |> glue())
-  iris <- iris  |> 
-    rename(COM = DEPCOM, IRIS = CODE_IRIS) 
-  scot_tot <- iris |>
-    dplyr::filter(COM %in% scot_tot.epci) |>
-    st_union() 
+  # iris <- iris18  |> 
+  #   rename(COM = DEPCOM, IRIS = CODE_IRIS) 
+  # scot_tot <- iris |>
+  #   dplyr::filter(LIB_IRIS %in% scot_tot.n) |>
+  #   st_union() 
+  # 
   
-  zone_emploi <- scot_tot |> 
-    st_union() |>
-    st_buffer(33000)
+  
+  zone_emploi <- iris |> filter(LIBCOM %in% scot_tot.n & DEP %in% c("13","30","83","84")) |> st_union() |> st_buffer(33000)
   
   com_ze <- com17 |> filter(st_intersects(com17, zone_emploi, sparse = FALSE))
   com_ze21 <- com21 |> filter(st_intersects(com21, zone_emploi, sparse = FALSE))
   
-  communes.scot_tot <- iris |> 
-    dplyr::filter(COM %in% scot_tot.epci) |>
-    group_by(COM) |>
+  communes.scot_tot <- iris |> filter(LIBCOM %in% scot_tot.n & DEP %in% c("13","30","83","84")) |>
+    group_by(LIBCOM) |>
     summarize()
   
   
@@ -107,7 +106,8 @@ if (geographie){
     tm_shape(communes.scot_tot) + tm_borders(col = 'green')
   tmap21 <- tm_shape(com_ze21) + tm_fill(col = 'red', alpha = 0, title = "nom") + tm_shape(com_ze21) + tm_borders(col = 'red') + tm_shape(zone_emploi) + tm_borders() +
     tm_shape(communes.scot_tot) + tm_borders(col = 'green')
-}
+tmap 
+  }
 # 
 # centre <- communes_shape |> filter(nom == "La Rochelle", insee == "17300") |> st_centroid()
 # in50km <- st_buffer(centre, dist = set_units(33, km))
