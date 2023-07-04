@@ -164,51 +164,51 @@ com2021_shp <- read_sf("~/files/communes-20210101.shp")
 #     dir = "{localdata}/" |> glue())
 # }
 
-download.file("https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2017.zip", destfile = "~/files/Intercommunalite_Metropole_au_01-01-2017.zip")
-unzip("~/files/Intercommunalite_Metropole_au_01-01-2017.zip", exdir = "~/files/")
+# download.file("https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2017.zip", destfile = "~/files/Intercommunalite_Metropole_au_01-01-2017.zip")
+# unzip("~/files/Intercommunalite_Metropole_au_01-01-2017.zip", exdir = "~/files/")
+# 
+# 
+# epcis <- readxl::read_xls(
+#   "~/files/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue(),
+#   sheet=2,
+#   skip=5)
+# 
+# scot1.epci <- epcis |> 
+#   dplyr::filter(str_detect(LIBEPCI, str_c(scot1.n, collapse='|'))) |>
+#   pull(CODGEO, name=LIBGEO)
+# 
+# scot2.epci <- epcis |>
+#   dplyr::filter(str_detect(LIBEPCI, str_c(scot2.n, collapse='|'))) |> 
+#   pull(CODGEO, name=LIBGEO)
+# 
+# 
+# scot3.epci <- epcis |> 
+#   dplyr::filter(str_detect(LIBEPCI, str_c(scot3.n, collapse='|'))) |>
+#   pull(CODGEO, name=LIBGEO)
+# 
+# scot4.epci <- epcis |>
+#   dplyr::filter(str_detect(LIBEPCI, str_c(scot4.n, collapse='|'))) |> 
+#   pull(CODGEO, name=LIBGEO)
+# 
+# scot5.epci <- epcis |> 
+#   dplyr::filter(str_detect(LIBEPCI, str_c(scot5.n, collapse='|'))) |>
+#   pull(CODGEO, name=LIBGEO)
+# 
+# scot_tot.epci <- epcis |>
+#   dplyr::filter(str_detect(LIBEPCI, str_c(scot_tot.n, collapse='|'))) |> 
+#   pull(CODGEO, name=LIBGEO)
+# 
 
-
-epcis <- readxl::read_xls(
-  "~/files/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue(),
-  sheet=2,
-  skip=5)
-
-scot1.epci <- epcis |> 
-  dplyr::filter(str_detect(LIBEPCI, str_c(scot1.n, collapse='|'))) |>
-  pull(CODGEO, name=LIBGEO)
-
-scot2.epci <- epcis |>
-  dplyr::filter(str_detect(LIBEPCI, str_c(scot2.n, collapse='|'))) |> 
-  pull(CODGEO, name=LIBGEO)
-
-
-scot3.epci <- epcis |> 
-  dplyr::filter(str_detect(LIBEPCI, str_c(scot3.n, collapse='|'))) |>
-  pull(CODGEO, name=LIBGEO)
-
-scot4.epci <- epcis |>
-  dplyr::filter(str_detect(LIBEPCI, str_c(scot4.n, collapse='|'))) |> 
-  pull(CODGEO, name=LIBGEO)
-
-scot5.epci <- epcis |> 
-  dplyr::filter(str_detect(LIBEPCI, str_c(scot5.n, collapse='|'))) |>
-  pull(CODGEO, name=LIBGEO)
-
-scot_tot.epci <- epcis |>
-  dplyr::filter(str_detect(LIBEPCI, str_c(scot_tot.n, collapse='|'))) |> 
-  pull(CODGEO, name=LIBGEO)
-
-
-geoepci <- map_dfr(scot_tot.n, ~{
-  coms <- epcis |> 
-    dplyr::filter(str_detect(LIBEPCI, .x)) |>
-    pull(CODGEO, name=LIBGEO)
-  st_read("~/files/communes-20170112.shp") |> 
-    dplyr::filter(insee%in%coms) |>
-    summarise() |>
-    mutate(epci = .x)
-}) |> st_transform(3035)
-
+# geoepci <- map_dfr(scot_tot.n, ~{
+#   coms <- epcis |> 
+#     dplyr::filter(str_detect(LIBEPCI, .x)) |>
+#     pull(CODGEO, name=LIBGEO)
+#   st_read("~/files/communes-20170112.shp") |> 
+#     dplyr::filter(insee%in%coms) |>
+#     summarise() |>
+#     mutate(epci = .x)
+# }) |> st_transform(3035)
+# 
 # version MAJ d'iris (en espérant que toutes les communes y sont)
 #iris <- qs::qread("{DVFdata}/iris18.qs" |> glue())
 # si il y a besoin de mettre à jour (même si le nouveau fichier IRIS est mis à jour en 2022)
@@ -218,9 +218,7 @@ iris <- iris18  |>
 
 # là c'est où c'est possible de faire des modifications aux iris 
 
-scot_tot <- iris |>
-  dplyr::filter(COM %in% scot_tot.epci) |>
-  st_union()
+scot_tot <- iris |> filter(LIBCOM %in% scot_tot.n & DEP %in% c("13","30","83","84")) |> st_union()
 # scot4 <- iris |>
 #   dplyr::filter(COM %in% scot4.epci) |>
 #   st_union()
@@ -228,8 +226,8 @@ zone_emploi <- scot_tot |>
   st_union() |>
   st_buffer(33000)
 communes.scot_tot <- iris |>
-  dplyr::filter(COM %in% scot_tot.epci) |>
-  group_by(COM) |>
+  dplyr::filter(LIBCOM %in% scot_tot.n & DEP %in% c("13","30","83","84")) |>
+  group_by(LIBCOM) |>
   summarize()
 #c200 <- qs::qread(c200_file)
 # c200.scot3 <- c200 |> filter(st_intersects(c200, scot3, sparse=FALSE))
