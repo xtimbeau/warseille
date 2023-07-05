@@ -47,7 +47,7 @@ jour_du_transit <- plage(localr5) |> choisir_jour_transit()
 message(
   "jour retenu: \n{lubridate::wday(jour_du_transit, label = TRUE, abbr = FALSE)} {jour_du_transit}" |> glue())
 
-# les opportinités
+# les opportunités
 opportunites <- c200ze |> 
   select(emplois=emp, ind) |> 
   st_centroid() |> 
