@@ -61,7 +61,7 @@ writeRaster(a3, filename = "elev_aix_marseille", format = "GTiff", overwrite = T
 
 tm_shape(a3)+
   tm_raster(legend.show = TRUE)+
-  tm_shape(communes_shape)+
+  tm_shape(communes.scot_tot)+
   tm_borders(col = , lwd  = 0.5)
 
 marseille_board %>% pin_upload("elev_aix_marseille.tif")
