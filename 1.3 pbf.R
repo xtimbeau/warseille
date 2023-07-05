@@ -9,7 +9,7 @@ library(tidyverse)
 if(FALSE) {
   fs::dir_create("/scratch/OSM")
   options(timeout = max(60*10, getOption("timeout")))
-  download.file("https://download.geofabrik.de/europe/france-latest.osm.pbf", destfile = "/scratch/OSM/france-latest.osm.pbf")
+  download.file("https://download.geofabrik.de/europe/france-latest.osm.pbf", destfile = "~/files/france-latest.osm.pbf")
 }
 
 rJava::.jinit()
@@ -37,7 +37,7 @@ setwd(current.wd)
 # attention à ce qu'il n'en y ai qu'un
 # on nettoie donc
 
-pbfs <- fs::dir_ls("{localdata}/r5/" |> glue(), regexp = "*.pbf")
-gpkg <- fs::dir_ls("{localdata}/r5/" |> glue(), regexp = "*.gpkg")
+pbfs <- fs::dir_ls("~/files/" |> glue(), regexp = "*.pbf")
+gpkg <- fs::dir_ls("~/files/" |> glue(), regexp = "*.gpkg")
 fs::file_delete(c(pbfs, "{localdata}/r5/network.dat" |> glue(), gpkg))
 fs::file_copy("{pbf_rep}/{pbf_file}" |> glue(), "{localdata}/r5/{pbf_file}" |> glue())

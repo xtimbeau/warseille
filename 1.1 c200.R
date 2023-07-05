@@ -19,7 +19,7 @@ emp33km <- qs::qread(emp33km_file) |>
 
 c200.src <- setDT(c200)
 # iris18 <- read_xlsx("~/files/iris18.xlsx")
-c200i <- c200.src[CODE_IRIS %in% iris[ st_intersects(iris, zone_emploi, sparse=FALSE), ]$CODE_IRIS,]
+c200i <- c200.src[IRIS %in% iris[ st_intersects(iris, zone_emploi, sparse=FALSE), ]$IRIS,]
 c200i[, geometry := r3035::idINS2square(idINS) ]
 
 c200i <- st_as_sf(c200i, crs=3035) 
