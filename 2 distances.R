@@ -23,7 +23,7 @@ conflict_prefer("filter", "dplyr", quiet=TRUE)
 ## globals --------------------
 load("baselayer.rda")
 
-ds <- open_dataset("DVFdata", partitioning = c("Communes"))
+# ds <- open_dataset("DVFdata", partitioning = c("Communes"))
 
 resol <- 200
 
@@ -31,7 +31,7 @@ elevation <- terra::rast("{elevation}" |> glue())
 
 # les carreaux de résidence
 c200ze <- qs::qread("{c200ze_file}" |> glue())
-c200.scot3 <- c200ze |>
+c200.scot_tot <- c200ze |>
   filter(ind>0&scot) |> 
   select(ind) |>
   st_centroid() 
@@ -63,7 +63,7 @@ r5_transit <- routing_setup_r5(path = localr5, date=jour_du_transit, n_threads =
                                breakdown = TRUE)
 
 iso_transit_dt <- iso_accessibilite(quoi = opportunites, 
-                                    ou = c200.scot3, 
+                                    ou = c200.scot_tot, 
                                     resolution = resol,
                                     tmax = 120, 
                                     chunk = 1e+6,
@@ -87,7 +87,7 @@ r5_bike <- routing_setup_r5(path = localr5, date=jour_du_transit, n_threads = 16
                             overwrite=TRUE,
                             di=FALSE, # Nécessaire pour les distances !
                             max_rows=50000, 
-                            elevation_tif = "elevation.tif", # calcule les dénivelés si di est true
+                            elevation_tif = "elevation_aix_marseille.tif", # calcule les dénivelés si di est true
                             max_rides=1) 
 
 # s'il marche pas pour la mémoire de Java, 
@@ -96,7 +96,7 @@ r5_bike <- routing_setup_r5(path = localr5, date=jour_du_transit, n_threads = 16
 # après redémarrer pour confirmer le changement
 
 iso_bike_dt <- iso_accessibilite(quoi = opportunites, 
-                                 ou = c200.scot3, 
+                                 ou = c200.scot_tot, 
                                  resolution = resol,
                                  tmax = 120, 
                                  pdt = 1, chunk=1e+6,
@@ -124,7 +124,7 @@ r5_walk <- routing_setup_r5(path = localr5,
                             max_rides = 1)
 
 iso_walk_dt <- iso_accessibilite(quoi = opportunites, 
-                                 ou = c200.scot3, 
+                                 ou = c200.scot_tot, 
                                  resolution = resol,
                                  tmax = 90, 
                                  pdt = 1,
@@ -152,7 +152,7 @@ r5_car5 <- routing_setup_r5(path = localr5,
                             max_rides = 1)
 
 iso_car5_dt <- iso_accessibilite(quoi = opportunites, 
-                                 ou = c200.scot3, 
+                                 ou = c200.scot_tot, 
                                  resolution = resol,
                                  tmax = 120, 
                                  pdt = 1,
@@ -175,7 +175,7 @@ car_dodgr <- routing_setup_dodgr(path = "{localdata}/dodgr" |> glue(),
                                  wt_profile_file = "{localdata}/dodgr/dodgr_profiles.json" |> glue())
 
 iso_card_dt <- iso_accessibilite(quoi = opportunites, 
-                                 ou = c200.scot3, 
+                                 ou = c200.scot_tot, 
                                  resolution = 200,
                                  tmax = 120, 
                                  pdt = 1,
@@ -246,7 +246,7 @@ trajet$geometry[[1]] |>
   mutate(id=1:n()) |>
   slice(21:45) |>
   qtm(dots.col="id")
-lrosm <- st_read("{localdata}/r5/lr.gpkg" |> glue())
+# lrosm <- st_read("{localdata}/r5/lr.gpkg" |> glue())
 box <- st_bbox(bind_rows(o,d) |> st_buffer(1000))
 qtm(lrosm |> filter(st_intersects(lrosm, box |> st_as_sfc(), sparse=FALSE)))
 # 
