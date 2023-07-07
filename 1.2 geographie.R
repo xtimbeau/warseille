@@ -250,6 +250,8 @@ c200.scot_tot <- c200 |> filter(st_intersects(c200, scot_tot, sparse=FALSE))
 #                 overwrite = TRUE)
 #}
 
+base_emploi <- read_xlsx("~/files/base-cc-emploi-pop-active-2018.xlsx")
+
 # fond de carte -------------------
 
 mblr3 <- mapboxapi::get_static_tiles(
