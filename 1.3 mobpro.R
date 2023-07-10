@@ -39,15 +39,15 @@ rm(c200)
 fua_c200s <- Marseille_c200s
 
 # ---- source : locaux as extract from FF2018 ----
-con <- nuvolos::get_connection()
-locaux <- dbGetQuery(con, "SELECT sprincp, cconac, idcom, X, Y
-                     FROM FF2018_PB0010_LOCAL
-                     WHERE ccodep IN ('16', '17', '33', '79', '85', '86') AND
-                           cconac IS NOT NULL ;")
-
-locaux <- locaux |> 
-  mutate(NAF = str_sub(CCONAC, 1, 2)) |> 
-  rename(sp = SPRINCP)
+# con <- nuvolos::get_connection()
+# locaux <- dbGetQuery(con, "SELECT sprincp, cconac, idcom, X, Y
+#                      FROM DV3FV231_LOCAL
+#                      WHERE ccodep IN ('13', '30', '80', '84') AND
+#                            cconac IS NOT NULL ;")
+# 
+# locaux <- locaux |> 
+#   mutate(NAF = str_sub(CCONAC, 1, 2)) |> 
+#   rename(sp = SPRINCP)
 
 # if(fs::dir_exists("{DVFdata}/sources/flores/2017" |> glue())) fs::dir_delete("{DVFdata}/sources/flores/2017" |> glue())
 # fs::dir_create("{DVFdata}/sources/flores/2017/" |> glue())
@@ -99,19 +99,19 @@ iris_region <- iris18[zone_emploi, ] |>
   summarize(DEP = first(DEP)) |>
   rename(idcom=COM)
 
-surfbynaf_iris <- aggregate(surf_by_naf, by = iris_region, FUN = sum, na.rm = TRUE) |>
-  st_as_sf() |>
-  st_drop_geometry()
-
-surfbynaf_iris <- bind_cols(iris_region |> st_drop_geometry() |> select(idcom),
-                            surfbynaf_iris) |>
-  pivot_longer(cols = -c(idcom), names_to = c("sp", "sp_act"),
-               names_pattern = "sp([[:upper:]])?_?a?c?t?([[:upper:]])?",
-               values_to = "surface") |>
-  mutate(NAF1 = str_c(sp, sp_act),
-         act = ifelse(str_detect(sp_act, "[[:upper:]]"), "sp_act", "sp")) |>
-  select(idcom, NAF1, surface, act) |>
-  pivot_wider(id_cols = c(idcom, NAF1), names_from = act, values_from = surface)
+# surfbynaf_iris <- aggregate(surf_by_naf, by = iris_region, FUN = sum, na.rm = TRUE) |>
+#   st_as_sf() |>
+#   st_drop_geometry()
+# 
+# surfbynaf_iris <- bind_cols(iris_region |> st_drop_geometry() |> select(idcom),
+#                             surfbynaf_iris) |>
+#   pivot_longer(cols = -c(idcom), names_to = c("sp", "sp_act"),
+#                names_pattern = "sp([[:upper:]])?_?a?c?t?([[:upper:]])?",
+#                values_to = "surface") |>
+#   mutate(NAF1 = str_c(sp, sp_act),
+#          act = ifelse(str_detect(sp_act, "[[:upper:]]"), "sp_act", "sp")) |>
+#   select(idcom, NAF1, surface, act) |>
+#   pivot_wider(id_cols = c(idcom, NAF1), names_from = act, values_from = surface)
 
 # ---- source : FLORES ----
 # flores <- data.table::fread("{DVFdata}/sources/flores/2017/TD_FLORES2017_NA88_NBSAL.csv" |> glue()) |>
@@ -210,8 +210,9 @@ surfbynaf_iris <- bind_cols(iris_region |> st_drop_geometry() |> select(idcom),
 
 
 mobpro <- fread(enqmobpro)[between(AGEREVQ,18,64),]
+mobpro <- as.data.table(dpro, keep.rownames=TRUE)
 
-mobpro[, filter_live := COMMUNE %chin% communes_residents]
+mobpro[, filter_live := "COMMUNE" %chin% scot_tot.n] #faut-il mettre ce ?
 mobpro[, filter_work := DCLT %chin% communes_emplois]
 
 mobpro <- mobpro[!(filter_live == FALSE & filter_work == FALSE)]
@@ -227,7 +228,7 @@ emplois_by_DCLT <- mobilites[, .(nb_emplois = sum(NB)), by = c("DCLT", "NA5")]
 con <- nuvolos::get_connection()
 locaux <- DBI::dbGetQuery(con, "SELECT sprincp, cconac, stoth, slocal, idcom, X, Y
                      FROM FF2018_PB0010_LOCAL
-                     WHERE ccodep IN ('16', '17', '33', '79', '85', '86') AND
+                     WHERE ccodep IN ('13', '30', '80', '84') AND
                            (cconac IS NOT NULL OR stoth > 0) ;")
 locaux_h <- locaux |> 
   filter(is.na(CCONAC)) |> 
@@ -246,10 +247,10 @@ locaux <- locaux |>
   mutate(ts = ifelse(sp!=0, sp,
                      ifelse(sh!=0, sh/2, slocal/4)))
 
-naf <- readxl::read_excel(glue("{DVFdata}/sources/Flores/naf2008_5_niveaux.xls"), sheet="naf") |>
-  select(NAF=NIV2, NAF1=NIV1, label2) |>
+naf <- readxl::read_excel(glue("~/files/naf2008_5_niveaux.xls")) |>
+  select(NAF=NIV2, NAF1=NIV1) |>
   group_by(NAF) |>
-  summarise(NAF1 = first(NAF1), label = first(label2))
+  summarise(NAF1 = dplyr::first(NAF1))
 
 naf <- naf |> mutate(group_naf = case_when(
   NAF1 == "A" ~ "AZ",
@@ -264,10 +265,12 @@ locaux <- naf[locaux, on = "NAF"]
 
 # ---- Rasterisation des surfaces au carreau 200 par code NAF ----
 surf_by_naf <- locaux |>
-  filter(ts > 0, IDCOM %in% communes_emplois) |>
+  filter(ts > 0, IDCOM %in% com_ze$nom) |>
   drop_na(group_naf, X, Y) |> 
   select(ts, group_naf, X, Y, IDCOM) |>
   st_as_sf(coords = c("X", "Y"), crs = 3035)
+
+c200ze <- c200 |> filter(com %in% com_ze$insee) #pk je n'ai pas de commune??? on pourrait faire avec les polynomes mais c chiant
 
 template_lr <- c200ze |> select(idINS) |> accesstars::idINS2stars()
 template_lr[[1]][] <- 0
