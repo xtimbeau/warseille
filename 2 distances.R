@@ -27,17 +27,17 @@ load("baselayer.rda")
 
 resol <- 200
 
-elevation <- terra::rast("{elevation}" |> glue())
+elevation <- terra::rast("~/marseille/elev_aix_marseille.tif" |> glue())
 
 # les carreaux de résidence
 c200ze <- qs::qread("{c200ze_file}" |> glue())
 c200.scot_tot <- c200ze |>
-  filter(ind>0&scot) |> 
+  filter(ind>0) |> 
   select(ind) |>
   st_centroid() 
 
 message(str_c("Nombre de carreaux sur la zone",
-              "résidents = {nrow(c200.scot3)}",
+              "résidents = {nrow(c200.scot_tot)}",
               "opportunités emploi = {c200ze |> filter(emp>0) |> nrow()}",
               "opportunités complètes = {c200ze |> filter(emp>0|ind>0) |> nrow()}",
               sep = "\n") |> glue())
@@ -82,7 +82,7 @@ future::plan("multisession", workers=1)
 rJava::.jinit(silent=TRUE)
 logger::log_threshold("INFO")
 
-r5_bike <- routing_setup_r5(path = localr5, date=jour_du_transit, n_threads = 16, mode = "BICYCLE",
+r5_bike <- routing_setup_r5(path = "~/marseille", date=jour_du_transit, n_threads = 16, mode = "BICYCLE",
                             elevation = "TOBBLER",
                             overwrite=TRUE,
                             di=FALSE, # Nécessaire pour les distances !
