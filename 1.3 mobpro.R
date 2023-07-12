@@ -265,12 +265,12 @@ locaux <- naf[locaux, on = "NAF"]
 
 # ---- Rasterisation des surfaces au carreau 200 par code NAF ----
 surf_by_naf <- locaux |>
-  filter(ts > 0, IDCOM %in% com_ze$nom) |>
+  filter(ts > 0, IDCOM %in% com_ze$insee) |>
   drop_na(group_naf, X, Y) |> 
   select(ts, group_naf, X, Y, IDCOM) |>
   st_as_sf(coords = c("X", "Y"), crs = 3035)
 
-c200ze <- c200 |> filter(com %in% com_ze$insee) #pk je n'ai pas de commune??? on pourrait faire avec les polynomes mais c chiant
+# c200ze <- c200.scot_tot |> filter(com %in% com_ze$insee) #pk je n'ai pas de commune??? on pourrait faire avec les polynomes mais c chiant
 
 template_lr <- c200ze |> select(idINS) |> accesstars::idINS2stars()
 template_lr[[1]][] <- 0
@@ -282,6 +282,9 @@ surf_by_naf.st <- map(surf_by_naf |> select(ts, group_naf) |> group_split(group_
 }) |> 
   reduce(c) 
 # on rasterize les _h
+
+communes_emplois <- c200ze$IRIS
+
 surf_by_naf_h <- locaux_h |>
   filter(ts > 0, IDCOM %in% communes_emplois) |>
   drop_na(X, Y) |> 
@@ -296,7 +299,7 @@ surf_by_naf_h.st <- st_rasterize(surf_by_naf_h, template = template_lr, options 
 # ---- Surfaces totales par NAF et commune ----
 communes.st <- c200ze |> 
   transmute(idINS,
-            DCLT = str_sub(CODE_IRIS, 1, 5) |> as.integer()) |> # rasterize trompeur sur char
+            DCLT = str_sub(IRIS, 1, 5) |> as.integer()) |> # rasterize trompeur sur char
   accesstars::idINS2stars()
 
 surf_by_naf_DCLT <- c(surf_by_naf.st, communes.st) |> 
