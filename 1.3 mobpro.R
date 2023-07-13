@@ -6,12 +6,13 @@ library(data.table)
 library(sf)
 library(glue)
 library(stars)
-remotes::install_github("OFCE/accesstars")
+# remotes::install_github("OFCE/accesstars")
 library(accesstars)
 library(tidyverse)
 library(conflicted)
 library(nuvolos)
 library(tmap)
+library(readxl)
 conflict_prefer("filter",'dplyr', quiet = TRUE)
 conflict_prefer("select",'dplyr', quiet = TRUE)
 
@@ -207,20 +208,26 @@ iris_region <- iris18[zone_emploi, ] |>
 # # 
 
 
+enqmobpro <- read_xlsx("~/files/base-flux-mobilite-domicile-lieu-travail-2019.xlsx", sheet="Flux_sup_100", skip=5)
+
+mobpro <- enqmobpro
+setDT(mobpro)
+
+# mobpro <- fread(enqmobpro)[between(AGEREVQ,18,64),]
+# mobpro <- as.data.table(dpro, keep.rownames=TRUE)
+
+communes_emplois <- c200ze$IRIS
 
 
-mobpro <- fread(enqmobpro)[between(AGEREVQ,18,64),]
-mobpro <- as.data.table(dpro, keep.rownames=TRUE)
-
-mobpro[, filter_live := "COMMUNE" %chin% scot_tot.n] #faut-il mettre ce ?
-mobpro[, filter_work := DCLT %chin% communes_emplois]
+mobpro[, filter_live := CODGEO %in% scot_tot.epci] #faut-il mettre ce ?
+mobpro[, filter_work := DCLT %in% communes_emplois]
 
 mobpro <- mobpro[!(filter_live == FALSE & filter_work == FALSE)]
 
 # ---- Synthèse MOBPRO par codes NAF et modes de transport ----
-mobilites <- mobpro[, .(NB = sum(IPONDI)), by = c("COMMUNE", "DCLT", "NA5", "TRANS")]
+mobilites <- mobpro[, .(NB = sum(IPONDI)), by = c("CODGEO", "DCLT", "NA5", "TRANS")]
 mobilites[, TRANS := factor(TRANS) |> 
-            fct_recode("none" = "1","walk" = "2", "bike" = "3", "car" = "4", "car" = "5", "transit" = "6")]
+            fct_recode("none" = "1","walk" = "2", "bike" = "3", "car" = "4", "transit" = "5")]
 
 emplois_by_DCLT <- mobilites[, .(nb_emplois = sum(NB)), by = c("DCLT", "NA5")]
 
@@ -283,7 +290,6 @@ surf_by_naf.st <- map(surf_by_naf |> select(ts, group_naf) |> group_split(group_
   reduce(c) 
 # on rasterize les _h
 
-communes_emplois <- c200ze$IRIS
 
 surf_by_naf_h <- locaux_h |>
   filter(ts > 0, IDCOM %in% communes_emplois) |>
