@@ -222,10 +222,14 @@ communes_emplois <- c200ze$IRIS
 mobpro[, filter_live := CODGEO %in% scot_tot.epci] #faut-il mettre ce ?
 mobpro[, filter_work := DCLT %in% communes_emplois]
 
+
 mobpro <- mobpro[!(filter_live == FALSE & filter_work == FALSE)]
 
+mobpro <- mobpro |> 
+  rename(COMMUNE = CODGEO) 
+
 # ---- Synthèse MOBPRO par codes NAF et modes de transport ----
-mobilites <- mobpro[, .(NB = sum(IPONDI)), by = c("CODGEO", "DCLT", "NA5", "TRANS")]
+mobilites <- mobpro[, .(NB = sum(IPONDI)), by = c("COMMUNE", "DCLT", "NA5", "TRANS")]
 mobilites[, TRANS := factor(TRANS) |> 
             fct_recode("none" = "1","walk" = "2", "bike" = "3", "car" = "4", "transit" = "5")]
 
