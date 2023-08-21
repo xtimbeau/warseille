@@ -208,7 +208,10 @@ iris_region <- iris18[zone_emploi, ] |>
 # # 
 
 
-enqmobpro <- read_xlsx("~/files/base-flux-mobilite-domicile-lieu-travail-2019.xlsx", sheet="Flux_sup_100", skip=5)
+
+library(foreign)
+
+enqmobpro <- read.dbf("~/marseille/FD_MOBPRO_2019.dbf", as.is = F)
 
 mobpro <- enqmobpro
 setDT(mobpro)
@@ -218,15 +221,12 @@ setDT(mobpro)
 
 communes_emplois <- c200ze$IRIS
 
-
-mobpro[, filter_live := CODGEO %in% scot_tot.epci] #faut-il mettre ce ?
+mobpro[, filter_live := COMMUNE %in% scot_tot.epci] #faut-il mettre ce ?
 mobpro[, filter_work := DCLT %in% communes_emplois]
 
 
 mobpro <- mobpro[!(filter_live == FALSE & filter_work == FALSE)]
 
-mobpro <- mobpro |> 
-  rename(COMMUNE = CODGEO) 
 
 # ---- Synthèse MOBPRO par codes NAF et modes de transport ----
 mobilites <- mobpro[, .(NB = sum(IPONDI)), by = c("COMMUNE", "DCLT", "NA5", "TRANS")]
@@ -408,22 +408,24 @@ mobilites <- dcast(mobilites, COMMUNE + DCLT + NA5 ~ TRANS,
                    fun.aggregate = sum, 
                    value.var = "NB") 
 
-mobilites[, DCLT := fifelse(DCLT %chin% communes_emplois, DCLT, "Hors zone")]
-mobilites[, COMMUNE := fifelse(COMMUNE %chin% communes_residents, COMMUNE, "Hors zone")]
+communes_residents <- scot_tot.epci
+
+mobilites[, DCLT := fifelse(as.character(DCLT) %in% communes_emplois, as.character(DCLT), "Hors zone")]
+mobilites[, COMMUNE := fifelse(as.character(COMMUNE) %in% communes_residents, as.character(COMMUNE), "Hors zone")]
 
 mobilites <- mobilites[COMMUNE != "Hors zone"] # ici on n'a pas besoin des travailleurs non résidents.
 
 mobilites[, tot_navetteurs := walk + bike + transit + car]
 
 # ---- Estimation des marges des actifs résidents ----
-popact <- readxl::read_xlsx("{popactive_file}" |> glue(), sheet = "COM_2018", skip=5) |>
+popact <- readxl::read_xlsx("~/files/base-cc-emploi-pop-active-2018.xlsx" |> glue(), sheet = "COM_2018", skip=5) |>
   transmute(COMMUNE=CODGEO,
             pop1564 = P18_POP1564,
             act1564 = P18_ACT1564,
             chom1564 = P18_CHOM1564) 
 
 les_actifs <- c200ze |> 
-  mutate(COMMUNE = str_sub(CODE_IRIS, 1, 5)) |> 
+  mutate(COMMUNE = str_sub(IRIS, 1, 5)) |> 
   filter(COMMUNE %in% communes_residents) |> 
   left_join(popact, by = "COMMUNE") |> 
   transmute(COMMUNE, 

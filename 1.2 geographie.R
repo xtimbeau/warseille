@@ -168,10 +168,10 @@ com2021_shp <- read_sf("~/files/communes-20210101.shp")
 # unzip("~/files/Intercommunalite_Metropole_au_01-01-2017.zip", exdir = "~/files/")
 # 
 # 
-# epcis <- readxl::read_xls(
-#   "~/files/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue(),
-#   sheet=2,
-#   skip=5)
+epcis <- readxl::read_xls(
+  "~/files/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue(),
+  sheet=2,
+  skip=5)
 # 
 # scot1.epci <- epcis |> 
 #   dplyr::filter(str_detect(LIBEPCI, str_c(scot1.n, collapse='|'))) |>
@@ -194,9 +194,9 @@ com2021_shp <- read_sf("~/files/communes-20210101.shp")
 #   dplyr::filter(str_detect(LIBEPCI, str_c(scot5.n, collapse='|'))) |>
 #   pull(CODGEO, name=LIBGEO)
 # 
-# scot_tot.epci <- epcis |>
-#   dplyr::filter(str_detect(LIBEPCI, str_c(scot_tot.n, collapse='|'))) |> 
-#   pull(CODGEO, name=LIBGEO)
+scot_tot.epci <- epcis |>
+  dplyr::filter(str_detect(LIBEPCI, str_c(scot_tot.n, collapse='|'))) |>
+  pull(CODGEO, name=LIBGEO)
 # 
 
 # geoepci <- map_dfr(scot_tot.n, ~{
