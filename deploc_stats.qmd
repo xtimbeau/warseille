@@ -1,0 +1,44 @@
+```{r, include=FALSE}
+# quelques stats descriptives sur emp2019
+
+# on essaye de reproduire les tableaux du SDES
+library(tidyverse)
+library(ofce)
+library(conflicted)
+library(here)
+conflict_prefer_all("dplyr", quiet=TRUE)
+future::plan("multisession", workers = 8)
+# deploc <- qs::qread(here::here("v2/mod/data/stat_bouc.qs"))
+# source(here("v2/mod/f.deploc_stat.r"))
+# source(here("secrets/azure.R"))
+library(pins)
+library(AzureStor) 
+
+```
+
+## France hors IdF
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, results='asis'}
+
+co2_emp_horsidf <- deploc_densite(deploc |> filter(TAA2017_RES!=5), label_reg="Fance hors IdF",
+                                  var = "DENSITECOM_RES",
+                                  labels = c("très dense", "densité intermédiaire", "peu dense", "très peu dense"))
+
+res <- trjwrite(co2_emp_horsidf)
+```
+
+## France hors IdF, Aire attraction 3 (200-700k)
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, results='asis'}
+
+deploc_densite(deploc |> filter(TAA2017_RES==3), label_reg="Aire attraction 200-700k",
+               var = "DENSITECOM_RES",
+               labels = c("très dense", "densité intermédiaire", "peu dense", "très peu dense"))
+
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, results='asis'}
+
+load(here::here("v2/output/tco2.gt.srda"))
+tco2
+```
