@@ -15,11 +15,11 @@ bl <- load("baselayer.rda")
 
 emp33km <- c200 |> st_filter(st_union(zone_emploi))
 
-emp33km <- emp33km |> 
-  as_tibble() |> 
-  # filter(emp_pred>0) |> 
-  st_as_sf(coords=c("x", "y"), crs=3035) 
-
+# emp33km <- emp33km |> 
+#   as_tibble() |> 
+#   # filter(emp_pred>0) |> 
+#   st_as_sf(coords=c("x", "y"), crs=3035) 
+# 
 # c200.src <- setDT(c200) attention car ça transofme vraiment c200 en data table.
 # rm(c200)
 # # iris18 <- read_xlsx("~/files/iris18.xlsx")
@@ -68,6 +68,10 @@ c200ze <- full_join(c200i |> as_tibble(), c200e |> as_tibble(), by = "idINS", su
 # 
 # com21 <- sf::st_read(com2021_shp) |> 
 #   sf::st_transform(3035)
+
+emp_pred <- as.tibble(emp_pred)
+emp_pred <- emp_pred |> mutate(idINS=idINS3035(x,y))
+c200ze <- c200ze |> inner_join(emp_pred, by='idINS')
 
 c200ze <- st_join(c200ze, com17 |> select(com17 = insee), join=st_intersects, largest=TRUE) |> 
   st_join(com21 |> select(com21 = insee), join=st_intersects, largest=TRUE) 
