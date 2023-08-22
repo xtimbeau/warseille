@@ -5,6 +5,7 @@
 library(tidyverse)
 library(ofce)
 library(conflicted)
+library(data.table)
 library(here)
 conflict_prefer_all("dplyr", quiet=TRUE)
 future::plan("multisession", workers = 8)
@@ -23,7 +24,6 @@ library(AzureStor)
 co2_emp_horsidf <- deploc_densite(deploc |> filter(TAA2017_RES!=5), label_reg="Fance hors IdF",
                                   var = "DENSITECOM_RES",
                                   labels = c("très dense", "densité intermédiaire", "peu dense", "très peu dense"))
-
 res <- trjwrite(co2_emp_horsidf)
 ```
 
@@ -31,10 +31,39 @@ res <- trjwrite(co2_emp_horsidf)
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, results='asis'}
 
-deploc_densite(deploc |> filter(TAA2017_RES==3), label_reg="Aire attraction 200-700k",
+co2_emp_AA3 <- deploc_densite(deploc |> filter(TAA2017_RES==3), label_reg="Aire attraction 200-700k",
                var = "DENSITECOM_RES",
                labels = c("très dense", "densité intermédiaire", "peu dense", "très peu dense"))
 
+```
+Essai uniquement sur la region PACA
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, results='asis'}
+
+deplocpaca <- deploc |> filter(str_detect(REG_ORI, 'Provence'))
+
+co2_emp_paca <- deploc_densite(deploc |> filter(str_detect(REG_ORI, 'Provence')), label_reg="Région PACA",
+                                  var = "DENSITECOM_RES",
+                                  labels = c("très dense", "densité intermédiaire", "peu dense", "très peu dense"))
+res <- trjwrite(co2_emp_paca)
+```
+
+Essai avec un autre type de variable
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, results='asis'}
+
+co2_emp_type_uu <- deploc_densite(deploc |> filter(TAA2017_RES!=5), label_reg="Fance hors IdF",
+                                  var = "TYPE_UU_DES")
+
+res <- trjwrite(co2_emp_paca)
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, results='asis'}
+
+co2_emp_type_uu_paca <- deploc_densite(deploc |> filter(str_detect(REG_ORI, 'Provence')), label_reg="Région PACA",
+                                  var = "TYPE_UU_DES")
+
+res <- trjwrite(co2_emp_paca)
 ```
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, results='asis'}
