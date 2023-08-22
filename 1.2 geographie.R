@@ -1,4 +1,5 @@
 install.packages("remotes")
+library(remotes)
 remotes::install_github("OFCE/ofce")
 remotes::install_github("OFCE/r3035")
 library(r3035)
