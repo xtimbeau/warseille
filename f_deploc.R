@@ -17,12 +17,13 @@ deploc_densite <- function(data, reg="all", K=128, label_reg = NULL,
       str_c(collapse = ", ")
   }
   data <- data |> 
-    mutate(dist = distance)  |> 
+    mutate(dist = MDISTTOT_fin )  |> 
     mutate(motifbin = if_else(motif_principal=="travail",
                               "travail",
                               "autre"),
            motifbin = factor(motifbin,
                              c("travail","autre"))) 
+  
   nobs <- nrow(data)
   individus <- data |>  
     distinct(IDENT_IND, pond_indC) |>
