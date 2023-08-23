@@ -22,6 +22,47 @@ flowmapblue(locations, flows, mapboxAccessToken='pk.eyJ1IjoieHRpbWJlYXUiLCJhIjoi
 
 
 #pour voir la distance entre les villes
+com17_com <- as.data.frame(com17)
+com17_dclt <- as.data.frame(com17)
 
-mobpro <- mobpro |> inner_join(com17, by='CODGEO')
-mobpro <- mobpro |> mutate(dist=idINS2dist(mobpro$CODGEO, mobpro$DCLT))
+enqmobpro$dist <- 0
+for (i in 1:length(enqmobpro$CODGEO)) {
+  for (j in 1:length(com17_com$insee)) {
+    for (k in 1:length(com17_dclt$insee)) {
+      if (enqmobpro$CODGEO[i]==com17_com$insee[j] & enqmobpro$DCLT[i]==com17_dclt$insee[k]) {
+        enqmobpro$dist[i] <- as.numeric(st_distance(st_centroid(com17[j,]), st_centroid(com17[k,])))/1000
+      }
+    }
+  }
+}
+
+#par commune d'origine 
+dis_moyenne_commune <- function(data,commune) {
+  sum_fd=0
+  sum_f=0
+  for (i in range(length(data[1]))) {
+    if (commune==data['CODGEO'][i,]) {
+      sum_fd <- sum_fd+data['NBFLUX_C19_ACTOCC15P'][i,]*data['dist'][i,]
+      sum_f <- sum_f+data['NBFLUX_C19_ACTOCC15P'][i,]
+    }
+  }
+  return(sum_fd/sum_f)
+}
+
+dis_moyenne(enqmobpro,'13001')
+
+#par aire urbaine
+dis_moyenne_AU <- function(data,AU) {
+  sum_fd=0
+  sum_f=0
+  for (i in range(length(data[1]))) {
+    if (AU==data['AU'][i,]) {
+      sum_fd <- sum_fd+data['NBFLUX_C19_ACTOCC15P'][i,]*data['dist'][i,]
+      sum_f <- sum_f+data['NBFLUX_C19_ACTOCC15P'][i,]
+    }
+  }
+  return(sum_fd/sum_f)
+}
+
+dis_moyenne(enqmobpro,"Marseille-Aix-Provence")
+
