@@ -2,6 +2,7 @@
 
 remotes::install_github("FlowmapBlue/flowmapblue.R")
 library(flowmapblue)
+library(tmap)
 
 locations <- data.frame(
   id = c200ze$IRIS,
@@ -20,8 +21,55 @@ flows <- data.frame(
 flowmapblue(locations, flows, mapboxAccessToken='pk.eyJ1IjoieHRpbWJlYXUiLCJhIjoiY2tmdzlqdmlrMDlrdzJybzhrZ3NkeXV1ZyJ9.dFDdu4vhAHXf9wIz38WGJw',
             clustering = TRUE, darkMode = TRUE, animation = FALSE)
 
+#pour avoir Marseille on va agréger
+for (k in 1:length(enqmobpro$DCLT)) {
+  if (str_detect(enqmobpro$L_DCLT[k],'Marseille ')==TRUE) {
+    enqmobpro$DCLT[k] <- '13055'
+    enqmobpro$L_DCLT[k] <- 'Marseille'
+  }
+}
 
-#
+for (k in 1:length(enqmobpro$DCLT)) {
+  if (str_detect(enqmobpro$LIBGEO[k],'Marseille ')==TRUE) {
+    enqmobpro$CODGEO[k] <- '13055'
+    enqmobpro$LIBGEO[k] <- 'Marseille'
+  }
+}
+
+#on fait pareil pr Lyon et Paris 
+
+for (k in 1:length(enqmobpro$DCLT)) {
+  if (str_detect(enqmobpro$L_DCLT[k],'Paris ')==TRUE) {
+    enqmobpro$DCLT[k] <- '75056'
+    enqmobpro$L_DCLT[k] <- 'Paris'
+  }
+}
+
+for (k in 1:length(enqmobpro$DCLT)) {
+  if (str_detect(enqmobpro$LIBGEO[k],'Paris  ')==TRUE) {
+    enqmobpro$CODGEO[k] <- '75056'
+    enqmobpro$LIBGEO[k] <- 'Paris'
+  }
+}
+
+for (k in 1:length(enqmobpro$DCLT)) {
+  if (str_detect(enqmobpro$L_DCLT[k],'Lyon ')==TRUE) {
+    enqmobpro$DCLT[k] <- '69123'
+    enqmobpro$L_DCLT[k] <- 'Lyon'
+  }
+}
+
+for (k in 1:length(enqmobpro$DCLT)) {
+  if (str_detect(enqmobpro$LIBGEO[k],'Lyon  ')==TRUE) {
+    enqmobpro$CODGEO[k] <- '69123'
+    enqmobpro$LIBGEO[k] <- 'Lyon'
+  }
+}
+
+enqmobpro %>% group_by(CODGEO, DCLT) %>% summarize(NBFLUX_C19_ACTOCC15P = sum(NBFLUX_C19_ACTOCC15P))
+
+
+
 com17_com <- com17 |> rename(CODGEO =insee )
 enqmobpro <- merge(enqmobpro,com17_com,by='CODGEO')
 com17_dclt <- com17 |> rename(DCLT =insee )
@@ -51,7 +99,11 @@ dis_moyenne_commune <- function(data,commune) {
 #pour Marseille
 print(dis_moyenne_commune(enqmobpro,'13001')) #Aix-en-Provence
 print(dis_moyenne_commune(enqmobpro,'13022'))
-print(dis_moyenne_commune(enqmobpro,'13055'))
+print(dis_moyenne_commune(enqmobpro,'13055')) #Marseille
+print(dis_moyenne_commune(enqmobpro,'75056')) #Paris
+print(dis_moyenne_commune(enqmobpro,'69123')) #Lyon
+
+
 
 
 dist_moyenne_mars <- c()
@@ -63,7 +115,7 @@ dist_moyenne_mars <- data.frame(scot_tot.epci, dist_moyenne_mars)
 dist_moyenne_mars <-  dist_moyenne_mars |> rename(insee = scot_tot.epci)
 dist_moyenne_mars <- dist_moyenne_mars |> inner_join(com17, by='insee')
 dist_moyenne_mars <-  dist_moyenne_mars |> rename(dist = dist_moyenne_mars)
-dist_moyenne_mars <-  dist_moyenne_mars[21:118,]
+# dist_moyenne_mars <-  dist_moyenne_mars |> filter(DEP %in% c("13","30","83","84"))
 
 dist_moyenne_mars <- st_as_sf(dist_moyenne_mars)
 
@@ -114,3 +166,16 @@ dist <- dist[1:689]
 summary(dist)
 var(dist)
 sd(dist)
+
+dist_moyenne_AU <- dist_moyenne_AU |> rename(AU2010 = AU)
+dist_moyenne_AU <- merge(dist_moyenne_AU, AU, by='AU2010')
+dist_moyenne_AU <- dist_moyenne_AU |> rename(insee = CODGEO)
+dist_moyenne_AU <- merge(dist_moyenne_AU, com17, by='insee')
+dist_moyenne_AU <- st_as_sf(dist_moyenne_AU)
+
+tmap_mode('view')
+tm_shape(dist_moyenne_AU)+
+  tm_polygons('dist')+  
+  tm_borders(col = , lwd  = 0.5)
+
+
