@@ -8,8 +8,8 @@ library(tidyverse)
 # pour télécharger OSM dernière version
 if(FALSE) {
   fs::dir_create("/scratch/OSM")
-  options(timeout = max(60*10, getOption("timeout")))
-  download.file("https://download.geofabrik.de/europe/france-latest.osm.pbf", destfile = "~/files/france-latest.osm.pbf")
+  options(timeout = max(60000*10, getOption("timeout")))
+  download.file("https://download.geofabrik.de/europe/france-latest.osm.pbf", destfile = "~/files/localr5/france-latest.osm.pbf")
 }
 
 rJava::.jinit()
