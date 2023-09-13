@@ -1,10 +1,13 @@
 # init ---------------
 setwd("~/marseille")
 library(tidyverse)
+library(tidytransit)
 library(terra)
 library(tictoc)
+remotes::install_github("OFCE/accesstars")
 library(accesstars)
 library(tmap)
+remotes::install_github("OFCE/accessibility")
 library(accessibility)
 library(r3035)
 library(glue)
@@ -43,7 +46,7 @@ message(str_c("Nombre de carreaux sur la zone",
               sep = "\n") |> glue())
 
 # Choix du jour du transit
-jour_du_transit <- plage(localr5) |> choisir_jour_transit()
+jour_du_transit <- plage('~/files/localr5/') |> choisir_jour_transit()
 message(
   "jour retenu: \n{lubridate::wday(jour_du_transit, label = TRUE, abbr = FALSE)} {jour_du_transit}" |> glue())
 
@@ -59,7 +62,7 @@ opportunites <- c200ze |>
 # penser à mettre 16vCPU
 future::plan("multisession", workers=1)
 
-r5_transit <- routing_setup_r5(path = localr5, date=jour_du_transit, n_threads = 16,
+r5_transit <- routing_setup_r5(path = '~/files/localr5/', date=jour_du_transit, n_threads = 16,
                                breakdown = TRUE)
 
 iso_transit_dt <- iso_accessibilite(quoi = opportunites, 
@@ -68,7 +71,7 @@ iso_transit_dt <- iso_accessibilite(quoi = opportunites,
                                     tmax = 120, 
                                     chunk = 1e+6,
                                     pdt = 1,
-                                    dir = "temp_t3", 
+                                    dir = "~/files/", 
                                     routing = r5_transit,
                                     ttm_out = TRUE,
                                     future=TRUE)
@@ -82,7 +85,7 @@ future::plan("multisession", workers=1)
 rJava::.jinit(silent=TRUE)
 logger::log_threshold("INFO")
 
-r5_bike <- routing_setup_r5(path = "~/marseille", date=jour_du_transit, n_threads = 16, mode = "BICYCLE",
+r5_bike <- routing_setup_r5(path = "'~/files/localr5/'", date=jour_du_transit, n_threads = 16, mode = "BICYCLE",
                             elevation = "TOBBLER",
                             overwrite=TRUE,
                             di=FALSE, # Nécessaire pour les distances !
@@ -100,7 +103,7 @@ iso_bike_dt <- iso_accessibilite(quoi = opportunites,
                                  resolution = resol,
                                  tmax = 120, 
                                  pdt = 1, chunk=1e+6,
-                                 dir = "temp_be",
+                                 dir = "~/files/",
                                  routing = r5_bike,
                                  ttm_out = TRUE,
                                  future=TRUE)
@@ -113,7 +116,7 @@ future::plan("multisession", workers=1)
 rJava::.jinit(silent=TRUE)
 logger::log_threshold("INFO")
 
-r5_walk <- routing_setup_r5(path = localr5, 
+r5_walk <- routing_setup_r5(path = '~/files/localr5/', 
                             date=jour_du_transit, 
                             n_threads = 16,
                             mode = "WALK",
@@ -128,7 +131,7 @@ iso_walk_dt <- iso_accessibilite(quoi = opportunites,
                                  resolution = resol,
                                  tmax = 90, 
                                  pdt = 1,
-                                 dir = "temp_we",
+                                 dir = "~/files/",
                                  routing = r5_walk,
                                  ttm_out = TRUE,
                                  future = TRUE)
@@ -142,7 +145,7 @@ future::plan("multisession", workers=1)
 rJava::.jinit(silent=TRUE)
 logger::log_threshold("INFO")
 
-r5_car5 <- routing_setup_r5(path = localr5, 
+r5_car5 <- routing_setup_r5(path = '~/files/localr5/', 
                             date=jour_du_transit, 
                             n_threads = 16, 
                             mode = "CAR",
@@ -157,7 +160,7 @@ iso_car5_dt <- iso_accessibilite(quoi = opportunites,
                                  tmax = 120, 
                                  pdt = 1,
                                  chunk = 1e+7,
-                                 dir = "temp_cr5",
+                                 dir = "~/files/",
                                  routing = r5_car5,
                                  ttm_out = TRUE,
                                  future = FALSE)
@@ -179,7 +182,7 @@ iso_card_dt <- iso_accessibilite(quoi = opportunites,
                                  resolution = 200,
                                  tmax = 120, 
                                  pdt = 1,
-                                 dir = "temp_dodgr", 
+                                 dir = "~/files/", 
                                  routing = car_dodgr,
                                  ttm_out = TRUE,
                                  future=FALSE)
