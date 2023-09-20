@@ -1239,68 +1239,23 @@ iso_accessibilite <- function(
 }
 
 
-choisir_jour_transit <- function(plage, start_time = "8:00:00") {
-  jours <- plage[1]:plage[2] |> 
-    as_date() |> 
-    discard( ~ wday(.x) == 1 | wday(.x) == 7)
-  jours <- jours[ceiling(length(jours) / 2)]
-  
-  return(ymd_hms(paste(jours, start_time)))
-}
-
-choix_jour <- function(directory) {
-  les_gtfs <- list.files(directory, pattern = "*gtfs*|*GTFS*") |> 
-    map( ~ read_gtfs(str_c(directory, .x, sep = "/")))
-  
-  les_jours <- map_dfr(les_gtfs, ~ {
-    if (!("calendar" %in% names(.x)) ) {
-      tmp <- .x$calendar_dates |> 
-        filter(exception_type == 1) |> 
-        group_by(date) |> 
-        summarise(n = n()) |> 
-        filter(wday(date) %in% 2:6) |> 
-        arrange(-n)
-      
-      return(tmp |> slice(1) |> transmute(min = date, max = date))
+f2si2 <- function (number, rounding=F, sep=" ") {
+  lut <- c(1e-24, 1e-21, 1e-18, 1e-15, 1e-12, 1e-09, 1e-06, 
+           0.001, 1, 1000, 1e+06, 1e+09, 1e+12, 1e+15, 1e+18, 1e+21, 
+           1e+24)
+  pre <- c("y", "z", "a", "f", "p", "n", "u", "m", "", "k", 
+           "M", "B", "T", "P", "E", "Z", "Y")
+  ix <- findInterval(number, lut)
+  if (ix>0 && lut[ix]!=1) {
+    if (rounding==T) {
+      sistring <- paste(round(number/lut[ix], 1), pre[ix], sep=sep)
+    } else {
+      sistring <- paste(number/lut[ix], pre[ix], sep=sep)
     }
-    
-    return(data.frame(min = do.call(max, map(les_gtfs, ~ min(.x$calendar$start_date))),
-                      max = do.call(min, map(les_gtfs, ~ max(.x$calendar$end_date)))))
-  })
-  
-  print(les_jours)
-  
-  les_jours <- les_jours |> 
-    summarise(min = max(min), max = min(max))
-  
-  return(c(les_jours[[1, "min"]], les_jours[[1, "max"]]))
-}
-
-
-plage <- function(directory) {
-  les_gtfs <- list.files(directory, pattern = "*gtfs*|*GTFS*") |> 
-    map( ~ read_gtfs(str_c(directory, .x, sep = "/")))
-  
-  les_plages <- map_dfr(les_gtfs, get_plage_in_calendar) |> 
-    summarise(debut = max(min.date), fin = min(max.date)) |> 
-    unlist()
-  
-  if (les_plages["debut"] > les_plages["fin"]) {
-    stop("Les gtfs ne sont pas synchrones")
   } else {
-    les_plages
+    sistring <- as.character(number)
   }
-}
-
-get_plage_in_calendar <- function(gtfs) {
-  
-  if(is.null(gtfs[["calendar"]])) {
-    plage <- data.frame(min.date = min(gtfs[["calendar_dates"]]$date, na.rm = TRUE),
-                        max.date = max(gtfs[["calendar_dates"]]$date, na.rm = TRUE))
-  } else {
-    plage <- data.frame(min.date = min(gtfs[["calendar"]]$start_date, na.rm = TRUE),
-                        max.date = max(gtfs[["calendar"]]$start_date, na.rm = TRUE))
-  }
+  return(sistring)
 }
 
 # souci avec la fonction where, non exportée de tidyselect.
