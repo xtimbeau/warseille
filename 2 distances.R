@@ -14,6 +14,8 @@ library(glue)
 library(stars)
 library(data.table)
 library(conflicted)
+library(sitools)
+library(arrow)
 
 progressr::handlers(global = TRUE)
 progressr::handlers(progressr::handler_progress(format = ":bar :percent :eta", width = 80))
@@ -22,6 +24,7 @@ arrow::set_cpu_count(8)
 
 conflict_prefer("select", "dplyr", quiet=TRUE)
 conflict_prefer("filter", "dplyr", quiet=TRUE)
+conflict_prefer('wday', 'lubridate', quiet=TRUE)
 
 ## globals --------------------
 load("baselayer.rda")
@@ -71,26 +74,28 @@ iso_transit_dt <- iso_accessibilite(quoi = opportunites,
                                     tmax = 120, 
                                     chunk = 1e+6,
                                     pdt = 1,
-                                    dir = "~/files/", 
+                                    dir = "transit", 
                                     routing = r5_transit,
                                     ttm_out = TRUE,
                                     future=TRUE)
 
 
-arrow::write_parquet(ttm_idINS(iso_transit_dt), sink="{repository_distances_emploi}/transit_ref.parquet" |> glue())
+arrow::write_parquet(ttm_idINS(iso_transit_dt), sink="~/files/transit_ref.parquet" |> glue())
 
+rm(r5_transit)
+rm(iso_transit_dt)
 ## vélo --------------
 # passer à 8*16 = 128 vCPU
 future::plan("multisession", workers=1)
 rJava::.jinit(silent=TRUE)
 logger::log_threshold("INFO")
 
-r5_bike <- routing_setup_r5(path = "'~/files/localr5/'", date=jour_du_transit, n_threads = 16, mode = "BICYCLE",
-                            elevation = "TOBBLER",
+r5_bike <- routing_setup_r5(path = '~/files/localr5/', date=jour_du_transit, n_threads = 16, mode = "BICYCLE",
+                            elevation = "TOBLER",
                             overwrite=TRUE,
                             di=FALSE, # Nécessaire pour les distances !
                             max_rows=50000, 
-                            elevation_tif = "elevation_aix_marseille.tif", # calcule les dénivelés si di est true
+                            elevation_tif = "elev_aix_marseille.tif", # calcule les dénivelés si di est true
                             max_rides=1) 
 
 # s'il marche pas pour la mémoire de Java, 
@@ -103,12 +108,15 @@ iso_bike_dt <- iso_accessibilite(quoi = opportunites,
                                  resolution = resol,
                                  tmax = 120, 
                                  pdt = 1, chunk=1e+6,
-                                 dir = "~/files/",
+                                 dir = "bike",
                                  routing = r5_bike,
                                  ttm_out = TRUE,
                                  future=TRUE)
 
-arrow::write_parquet(ttm_idINS(iso_bike_dt), sink="{repository_distances_emploi}/bike.parquet" |> glue())
+arrow::write_parquet(ttm_idINS(iso_bike_dt), sink="~/files/bike.parquet" |> glue())
+
+rm(r5_bike)
+rm(iso_bike_dt)
 
 ## marche à pied --------------
 # passer à 8*16 = 128 vCPU
@@ -131,12 +139,12 @@ iso_walk_dt <- iso_accessibilite(quoi = opportunites,
                                  resolution = resol,
                                  tmax = 90, 
                                  pdt = 1,
-                                 dir = "~/files/",
+                                 dir = "walk",
                                  routing = r5_walk,
                                  ttm_out = TRUE,
                                  future = TRUE)
 
-arrow::write_parquet(ttm_idINS(iso_walk_dt), sink="{repository_distances_emploi}/walk.parquet" |> glue())
+arrow::write_parquet(ttm_idINS(iso_walk_dt), sink="~/files/walk.parquet" |> glue())
 
 ## voiture r5 --------------
 # passer à 8*15 = 120 vCPU
@@ -160,13 +168,13 @@ iso_car5_dt <- iso_accessibilite(quoi = opportunites,
                                  tmax = 120, 
                                  pdt = 1,
                                  chunk = 1e+7,
-                                 dir = "~/files/",
+                                 dir = "car5",
                                  routing = r5_car5,
                                  ttm_out = TRUE,
                                  future = FALSE)
 
 
-arrow::write_parquet(ttm_idINS(iso_car5_dt), sink="{repository_distances_emploi}/car5.parquet" |> glue())
+arrow::write_parquet(ttm_idINS(iso_car5_dt), sink="~/files/car5.parquet" |> glue())
 
 # dodgr pour la voiture --------------------------------------------------------
 # apparement il pourrait pas marcher en futur mais on est pas sur et on sait pas pourquoi
@@ -182,12 +190,12 @@ iso_card_dt <- iso_accessibilite(quoi = opportunites,
                                  resolution = 200,
                                  tmax = 120, 
                                  pdt = 1,
-                                 dir = "~/files/", 
+                                 dir = "card", 
                                  routing = car_dodgr,
                                  ttm_out = TRUE,
                                  future=FALSE)
 
-arrow::write_parquet(ttm_idINS(iso_card_dt), sink="{repository_distances}/card.parquet" |> glue())
+arrow::write_parquet(ttm_idINS(iso_card_dt), sink="~/files/card.parquet" |> glue())
 
 ## test de vitesse excessive -----------
 
