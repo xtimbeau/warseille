@@ -63,7 +63,9 @@ write_xlsx(iris18,"~/files/iris18.xlsx")
 iris18 <- read_xlsx("~/files/iris18.xlsx")
 
 
-  # qs::qsave(iris18, file="{DVFdata}/iris18.qs" |> glue())
+qs::qsave(iris18, file="~/files/iris18.qs" |> glue())
+marseille_board %>% pin_upload("iris18")
+
   # fs::dir_delete(rep)
 #}
 # C200 ---------------
@@ -94,8 +96,8 @@ c200 <- st_read("~/files/Filosofi2017_carreaux_200m_met.shp" |> glue(), stringsA
   nas <- sf::st_nearest_feature(c200[is.na(irises),], iris18)
   irises[is.na(irises)] <- nas
   
-#write_xlsx(c200,"~/files/c200.xlsx")
-#c200 <- read_xlsx("~/files/c200.xlsx")
+qs::qsave(c200, file="~/files/c200" |> glue())
+marseille_board %>% pin_upload("c200")
   
   
   # on prend les iris pour être cohérent, un carreau peut être sur plusieurs communes
