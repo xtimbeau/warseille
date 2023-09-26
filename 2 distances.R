@@ -5,7 +5,7 @@ library(tidytransit)
 library(terra)
 library(tictoc)
 remotes::install_github("OFCE/accesstars")
-library(accesstars)
+library(accesstars) 
 library(tmap)
 remotes::install_github("OFCE/accessibility")
 library(accessibility)
@@ -126,23 +126,24 @@ logger::log_threshold("INFO")
 
 r5_walk <- routing_setup_r5(path = '~/files/localr5/', 
                             date=jour_du_transit, 
-                            n_threads = 16,
+                            n_threads = 8,
                             mode = "WALK",
                             overwrite = TRUE, 
                             di=TRUE, 
-                            elevation="NONE", 
+                            elevation="TOBLER", 
                             max_rows=50000, 
+                            elevation_tif = "elev_aix_marseille.tif", # calcule les dénivelés si di est true
                             max_rides = 1)
 
 iso_walk_dt <- iso_accessibilite(quoi = opportunites, 
                                  ou = c200.scot_tot, 
                                  resolution = resol,
                                  tmax = 90, 
-                                 pdt = 1,
+                                 pdt = 1, chunk=1e+6,
                                  dir = "walk",
                                  routing = r5_walk,
                                  ttm_out = TRUE,
-                                 future = TRUE)
+                                 future = FALSE)
 
 arrow::write_parquet(ttm_idINS(iso_walk_dt), sink="~/files/walk.parquet" |> glue())
 
