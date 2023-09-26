@@ -32,7 +32,7 @@ marseille_board <- pins::board_azure(
   AzureStor::storage_container(azure_url, sas = azure_jeton))
 
 #à faire juste une fois
-marseille_board %>% pin_upload("Mobilités des Personnes 2019")
+# marseille_board %>% pin_upload("Mobilités des Personnes 2019")
 marseille_board %>% pin_upload("emp33km.qs")
 marseille_board %>% pin_upload("c200_17.qs")
 marseille_board %>% pin_upload("grid.xlsx")
@@ -55,37 +55,38 @@ marseille_board %>% pin_upload("~/files/Intercommunalite_Metropole_au_01-01-2017
 
 # fichiers importants
 localdata <- "~/files/marseille"
-# DVFdata <- "/scratch/DVFdata"
 scripts <- "~/marseille"
-mob2019 <- marseille_board  %>% pin_download('Mobilités des Personnes 2019')
+mob2019 <- "~/files/mob2019/"
 home <- "~/marseille"
-#repository <- "/scratch"
+repository <- "/scratch"
 temp_dir <- "~/temp"
 r5files_rep <- "/scratch/distances/xt"
 newpredict_file <- "~/marseille/annexes/newpredict.r"
-enqmobstarter_file <- "~/marseille/mod/5.a enq_mob_starter.R"
-mod_rep <- "/files/marseille"
+enqmobstarter_file <- "~/marseille/enqmob_starter_V2.R"
+mod_rep <- "/files/marseille/mod"
 output_rep <- "~/marseille/output/"
 fs::dir_create(output_rep)
 
 
 # distances, probas et tutti quanti
 
+r5files_rep <- "/scratch/distances/xt"
 r5_output <- set_names(c("bike.parquet", "car5.parquet", "transit_ref.parquet", "walk.parquet"),
                        c("bike",         "car",          "transit",         "walk"))
 repository_distances <- "{repository}/distances" |> glue()
-repository_distances_scol <- "{repository_distances}/scol" |> glue()
+# repository_distances_scol <- "{repository_distances}/scol" |> glue()
 repository_distances_emploi <- "{repository_distances}/emploi" |> glue()
 idINS_emp_file <- "{repository_distances_emploi}/idINS.parquet" |> glue()
-idINS_scol_file <- "{repository_distances_scol}/idINS.parquet" |> glue()
-distances_file <- "{repository_distances}/xdistances.parquet" |> glue()
-distances_scol_file <- "{repository_distances}/xdistances_scol.parquet" |> glue()
-proproba_file <- "{repository_distances}/proba_pro.parquet" |> glue()
-nonproproba_file <- "{repository_distances}/proba_nonpro.parquet" |> glue()
-kmpro_file <- "{repository_distances}/km_pro.parquet" |> glue()
-kmscol_file <- "{repository_distances}/km_scol.parquet" |> glue()
-kmscol_ppo_file <- "{repository_distances}/km_scol_ppo.parquet" |> glue()
-kmnonpro_file <- "{repository_distances}/km_nonpro.parquet" |> glue()
+# idINS_scol_file <- "{repository_distances_scol}/idINS.parquet" |> glue()
+distances_file <- "/scratch/distances/xt/ref_xdistances.parquet"
+# distances_scol_file <- "{repository_distances}/xdistances_scol.parquet" |> glue()
+proproba_file <- "/scratch/distances/xt/ref_proba_pro.parquet"
+nonproproba_file <- "/scratch/distances/xt/ref_proba_nonpro.parquet"
+kmpro_file <- "/scratch/distances/xt/ref_km_pro.parquet"
+# kmscol_file <- "{repository_distances}/km_scol.parquet" |> glue()
+# kmscol_ppo_file <- "{repository_distances}/km_scol_ppo.parquet" |> glue()
+kmnonpro_file <- "/scratch/distances/xt/ref_km_nonpro.parquet"
+trajets_pro_file <- "/scratch/distances/xt/trajets_pro.parquet" |> glue()
 meaps_rep <- "{repository_distances}/meaps" |> glue()
 dir.create(meaps_rep)
 meaps_file <- "{meaps_rep}/meaps_est.rda" |> glue()
@@ -96,14 +97,15 @@ localr5 <- str_c(localdata, "/r5_base")
 localr5car <- str_c(localdata, "/r5car")
 
 ## informations spécifique sur la ville
-elevation_tif <- marseille_board  %>% pin_download("elevation_aix_marseille.tif") |> glue()
-emp33km_file <- marseille_board  %>% pin_download("emp33km.qs") |> glue()
-c200_file <- marseille_board  %>% pin_download("c200_17.qs") |> glue()
+elevation <- "{localr5}/elev_aix_marseille.tif" |> glue()
+emp33km_file <- "{localdata}/emp33km.qs" |> glue()
+c200_file <- "{localdata}/c200_17.qs" |> glue()
 pbf_file <- "lr.pbf"
 pbf_rep <- "{repository}/OSM/" |> glue()
-dodgr_profiles <- "{localdata}/dodgr/dodgr_profiles.json" |> glue()
-alternative_scenario <- "{localdata}/co2/filo_carbone_okok.gpkg" |> glue()
-alternative_scenario2 <- "{localdata}/co2/filosofi_scenario_s4.csv" |> glue()
+# dodgr_profiles <- "{localdata}/dodgr/dodgr_profiles.json" |> glue()
+# alternative_scenario <- "{localdata}/co2/filo_carbone_okok.gpkg" |> glue()
+# alternative_scenario2 <- "{localdata}/co2/filosofi_scenario_s4.csv" |> glue()
+
 
 ## informations qu'on peut garder car elles sont sur la France et donc 
 # seront filtrées différemment une fois qu'on change la zone
@@ -121,7 +123,7 @@ tcm_ind_kish_file <- "{mob2019}/tcm_ind_kish_public.csv" |> glue()
 enqmobpro <- marseille_board  %>% pin_download("mobpro2018.csv") |> glue()
 #enqmobscol <- "{DVFdata}/sources/MOB/mobscol2018.csv" |> glue()
 
-# c200ze_file <- "{DVFdata}/c200ze_lr.qs" |> glue()
+c200ze_file <- marseille_board  %>% pin_download(c200ze.qs) |> glue()
 # c200edu_file <- "{DVFdata}/c200edu_lr.qs" |> glue()
 # c200edu_init_file  <- "{DVFdata}/c200edu_lr_init.qs" |> glue()
 
@@ -135,7 +137,7 @@ save(list = unique(
     "alternative_scenario",
     "alternative_scenario2",
     "c200_file",
-    # "c200ze_file",
+    "c200ze_file",
     # "c200edu_file",
     # "c200edu_init_file",
     "decor_carte_file",
@@ -144,7 +146,7 @@ save(list = unique(
     "distances_file",
     "distances_scol_file",
     # "DVFdata",
-    "elevation_aix_marseille_tif",
+    "elev_aix_marseille_tif",
     "emp33km_file", 
     "enqmobpro",
     "enqmobscol",
