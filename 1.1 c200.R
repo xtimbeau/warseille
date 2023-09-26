@@ -88,4 +88,4 @@ qs::qsave(c200ze, file=c200ze_file)
 
 save(list = c(bl, "c200ze_file"), file="baselayer.rda")
 
-marseille_board %>% pin_upload(system.file("c200ze_file"))
+marseille_board %>% pin_upload("c200ze_file")
