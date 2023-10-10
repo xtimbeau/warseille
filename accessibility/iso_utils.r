@@ -1,3 +1,18 @@
+#' construit la grille pour projetter le résultat en crs 4326
+#'
+#' \code{iso_ouetquoi} projette sur 4326 les coordonnées et fabrique les grilles nécessaires en donnant en sortie les ou et quoi utilisés pour ttm
+#'
+#' @param ou positions sur lesquelles sont calculés les accessibilités. Si NULL, un raster est défini par défaut.
+#' @param quoi sf de variables numériques de différentes aménités, qui vont être agrégées au sein d'isochrones.
+#' @param res_ou resolution des positions de départ.
+#' @param res_quoi resolution des amenités/opportunités.
+#' @param opp_var liste des variables d'aménités et d'opportunités.
+#' @param fun_quoi fonction d'aggrégation des aménités/opportunités à la résolution demandée.
+#' @param resolution resolution finale. Par défaut, identique à la résolution des aménités/opportunités.
+#' @param rf suréchantillonage dui raster ou, pour cacluler les recouvrements partiels, 5 par défaut
+#'
+#' @import data.table
+#' @import sf
 iso_ouetquoi_4326 <- function(ou, quoi, res_ou, res_quoi, opp_var, fun_quoi="mean", resolution=res_quoi, rf=5)
 {
   # projection éventuelle sur une grille 3035 à la résolution res_quoi ou resolution
@@ -12,13 +27,13 @@ iso_ouetquoi_4326 <- function(ou, quoi, res_ou, res_quoi, opp_var, fun_quoi="mea
       qxy <- quoi  |>
         sf::st_transform(3035) |>
         sf::st_coordinates()
-      qins <- idINS3035(qxy, resolution = res_quoi, resinstr = FALSE)
+      qins <- r3035::idINS3035(qxy, resolution = res_quoi, resinstr = FALSE)
       qag <- quoi|>
         sf::st_drop_geometry()  |>
         as.data.frame() |>
         as.data.table()
       qag <- qag[, id:=qins] [, lapply(.SD, function(x) sum(x, na.rm=TRUE)), by=id, .SDcols=opp_var]
-      qag[, geometry:=idINS2square(qag$id, resolution=res_quoi)]
+      qag[, geometry:=r3035::idINS2square(qag$id, resolution=res_quoi)]
       quoi <- sf::st_as_sf(qag)
     }
     
@@ -42,7 +57,7 @@ iso_ouetquoi_4326 <- function(ou, quoi, res_ou, res_quoi, opp_var, fun_quoi="mea
             if(rf>1)
               rref <- raster::disaggregate(raster_ref(quoi, resolution), fact=rf)
             else
-              rref <- raster_ref(quoi, resolution)
+              rref <- r3035::raster_ref(quoi, resolution)
             un_raster <-
               fasterize::fasterize(
                 quoi |> dplyr::mutate(field = get(.x) * facteur),
@@ -91,7 +106,7 @@ iso_ouetquoi_4326 <- function(ou, quoi, res_ou, res_quoi, opp_var, fun_quoi="mea
   if (is.null(ou))
   {
     # pas de ou, on le prend égal à quoi en forme
-    ou_3035 <- raster_ref(quoi|>  sf::st_transform(3035), resolution = res_ou)
+    ou_3035 <- r3035::raster_ref(quoi|>  sf::st_transform(3035), resolution = res_ou)
     ncells <- 1:(ou_3035@ncols * ou_3035@nrows)
     xy_3035 <-  raster::xyFromCell(ou_3035, ncells)
     xy_4326 <- sf::sf_project(xy_3035, from = sf::st_crs(3035), to = sf::st_crs(4326))
@@ -109,7 +124,10 @@ iso_ouetquoi_4326 <- function(ou, quoi, res_ou, res_quoi, opp_var, fun_quoi="mea
     {
       # pas de points mais une résolution, on crée la grille
       ou_3035 <- ou|> sf::st_transform(3035)
-      rr_3035 <- fasterize::fasterize(ou_3035|>  sf::st_sf(), raster_ref(ou_3035, res_ou), fun = "any")
+      rr_3035 <- fasterize::fasterize(
+        ou_3035|>  sf::st_sf(),
+        r3035::raster_ref(ou_3035, res_ou),
+        fun = "any")
       xy_3035 <- raster::xyFromCell(rr_3035, which(raster::values(rr_3035) == 1))
       xy_4326 <- sf::sf_project(xy_3035, from = sf::st_crs(3035), to = sf::st_crs(4326))
       ou_4326 <- data.table(lon = xy_4326[, 1],
@@ -177,7 +195,7 @@ iso_split_ou <- function(ou, quoi, chunk=NULL, routing, tmax=60)
     
     subsampling <- min(max(n_t,floor(resolution/(0.1*tmax*vmaxmode(routing$mode)))),8)
     
-    idINS <- idINS3035(ou$x, ou$y, resolution, resinstr = FALSE)
+    idINS <- r3035::idINS3035(ou$x, ou$y, resolution, resinstr = FALSE)
     uidINS <- unique(idINS)
     
     out_ou <- ou
@@ -186,7 +204,7 @@ iso_split_ou <- function(ou, quoi, chunk=NULL, routing, tmax=60)
   }
   Nous <- out_ou[, .N, by=gr]
   Nous <- rlang::set_names(Nous$N, Nous$gr)
-  logger::log_success("taille:{f2si2(size)} gr:{f2si2(ngr)} res_gr:{resolution}")
+  logger::log_success("taille:{ofce::f2si2(size)} gr:{ofce::f2si2(ngr)} res_gr:{resolution}")
   list(ou=out_ou, ou_gr=ou_gr, resINS=resolution, subsampling=subsampling, Nous=Nous)
 }
 
@@ -443,9 +461,9 @@ access_on_groupe <- function(groupe, ou_4326, quoi_4326, routing, k, tmax, opp_v
           
           speed_log <- stringr::str_c(
             length(pproches),
-            " ancres ", f2si2(npea),
-            "@",f2si2(npea/dtime),"p/s demandees, ",
-            f2si2(npep),"@",f2si2(npep/dtime), "p/s retenues")
+            " ancres ", ofce::f2si2(npea),
+            "@",ofce::f2si2(npea/dtime),"p/s demandees, ",
+            ofce::f2si2(npep),"@",ofce::f2si2(npep/dtime), "p/s retenues")
           
           if(!ttm_out)
           {
@@ -533,8 +551,8 @@ minimax_euclid <- function(from, to, dist)
 
 ttm_idINS <- function(ttm, resolution=200) {
   require("data.table")
-  from <- ttm$fromId[, .(id, fromidINS = idINS3035(x,y, resolution = resolution))]
-  to <- ttm$toId[, .(id, toidINS = idINS3035(x,y, resolution = resolution))]
+  from <- ttm$fromId[, .(id, fromidINS = r3035::idINS3035(x,y, resolution = resolution))]
+  to <- ttm$toId[, .(id, toidINS = r3035::idINS3035(x,y, resolution = resolution))]
   tt <- ttm$time_table
   if(length(tt)>1)
     tt <- rbindlist(tt, use.names=TRUE, fill = TRUE)
