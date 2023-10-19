@@ -1,13 +1,12 @@
 # init ---------------
-setwd("~/marseille")
 library(tidyverse)
 library(tidytransit)
 library(terra)
 library(tictoc)
-remotes::install_github("OFCE/accesstars")
+# remotes::install_github("OFCE/accesstars")
 library(accesstars) 
 library(tmap)
-remotes::install_github("OFCE/accessibility")
+# pak::pak("xtimbeau/accessibility")
 library(accessibility)
 library(r3035)
 library(glue)
@@ -81,6 +80,28 @@ iso_transit_dt <- iso_accessibilite(quoi = opportunites,
 
 
 arrow::write_parquet(ttm_idINS(iso_transit_dt), sink="~/files/transit_ref.parquet" |> glue())
+
+
+## dodgr ----------------------
+# téléchargement du OSM en format silicate
+# c'est enregistré, donc on peut passer si c'est  déjà fait
+
+if(FALSE) {
+  
+  osm <- download_osmsc(box, elevation = TRUE, workers = 16)
+  qs::qsave(osm, "/space_mounts/data/larochelle/osm.qs")
+  unlink("/space_mounts/data/larochelle/dodgr", recursive=TRUE)
+  dir.create("/space_mounts/data/larochelle/dodgr", recursive = TRUE)
+  file.copy("/space_mounts/data/larochelle/osm.qs",
+            to = "/space_mounts/data/larochelle/dodgr/larochelle.scosm",
+            overwrite = TRUE)
+  unlink("/space_mounts/data/larochelle/dodgr_np", recursive=TRUE)
+  dir.create("/space_mounts/data/larochelle/dodgr_np", recursive = TRUE)
+  file.copy("/space_mounts/data/larochelle/osm.qs", 
+            to = "/space_mounts/data/larochelle/dodgr_np/larochelle.scosm", 
+            overwrite = TRUE)
+}
+
 
 rm(r5_transit)
 rm(iso_transit_dt)
