@@ -6,18 +6,17 @@ library(qs)
 library(dodgr)
 library(accessibility)
 library(lobstr)
-library(osmdata)
-library(pak)
-# pak::pak("ropensci/osmdata")
-pak::pak('xtimbeau/accessibility')
+library(readxl)
+# list.files("accessibility", full.names = TRUE) %>% walk(source)
 
-source('gtfs_adjusted.R')
 
 # box contient les limites des données OSM que l'on veut capturer
 # typiquement la zone d'étude un peu augmentée
+communes <- read_excel("~/files/table-appartenance-geo-communes-23.xlsx", skip = 5)
 
-com17 <- com17 |> rename(CODGEO=insee)
-communes <- communes |> inner_join(com17, by='CODGEO')
+com17 <- st_read("~/files/communes-20170112.shp") |>
+  sf::st_transform(3035)
+communes <- communes |> inner_join(com17, by=c('CODGEO'='insee'))
 communes <- st_as_sf(communes)
 
 box <- communes |> 
@@ -31,9 +30,9 @@ box <- communes |>
 # ca peut être un peu long (20m pour Paris)
 if(FALSE) {
   osm <- download_osmsc(box, workers = 16)
-  qs::qsave(osm, "~/files/data/osm.qs")
-  dir.create("~/files/dodgr/paca", recursive = TRUE)
-  file.copy("~/files/data/osm.qs", to = "~/files/dodgr/paca/paca.scosm", overwrite = TRUE)
+  qs::qsave(osm, "/space_mounts/data/osm.qs")
+  dir.create("/space_mounts/data/dodgr/paca", recursive = TRUE)
+  file.copy("/space_mounts/data/osm.qs", to = "/space_mounts/data/dodgr/paca/paca.scosm", overwrite = TRUE)
 }
 
 
