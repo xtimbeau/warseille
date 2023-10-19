@@ -13,17 +13,9 @@ conflict_prefer("filter", "dplyr")
 
 bl <- load("baselayer.rda")
 
-emp33km <- c200 |> st_filter(st_union(zone_emploi))
+c200 <- qs::qread(c200_file)
 
-# emp33km <- emp33km |> 
-#   as_tibble() |> 
-#   # filter(emp_pred>0) |> 
-#   st_as_sf(coords=c("x", "y"), crs=3035) 
-# 
-# c200.src <- setDT(c200) attention car ça transofme vraiment c200 en data table.
-# rm(c200)
-# # iris18 <- read_xlsx("~/files/iris18.xlsx")
-# c200i <- c200.src[IRIS %in% iris[ st_intersects(iris, zone_emploi, sparse=FALSE), ]$IRIS,]
+emp33km <- c200 |> st_filter(st_union(zone_emploi))
 
 c200i <- c200 |> st_filter(zone_emploi)
 setDT(c200i)

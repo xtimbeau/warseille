@@ -1,12 +1,7 @@
-install.packages("remotes")
-library(remotes)
-remotes::install_github("OFCE/ofce")
-remotes::install_github("OFCE/r3035")
 library(r3035)
 library(ofce)
 library(tidyverse)
 library(archive)
-#devtools::install_github("ofce/r3035")
 library(sf)
 library(mapboxapi)
 library(stars)
@@ -23,221 +18,184 @@ library(writexl)
 library(dplyr)
 conflict_prefer_all("dplyr", quiet = TRUE)
 
-bl <- load("~/marseille/baselayer.rda")
+bl <- load("baselayer.rda")
 
 # bloque les downloads
-download <- TRUE
+download <- FALSE
 
 # IRIS ------------------
 
-# rep <- str_c(temp_dir, "/iris2018")
-# if(download|!file.exists("{DVFdata}/iris18.qs" |> glue())) {
-#   if(fs::dir_exists(rep)) fs::dir_delete(rep)
-#   fs::dir_create(rep)
-#   # 2018
-#   curl::curl_download(
-#     "https://wxs.ign.fr/1yhlj2ehpqf3q6dt6a2y7b64/telechargement/inspire/CONTOURS-IRIS-2018-01-02$CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01/file/CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01.7z", 
-#     glue("{rep}/iris18.7z"))
-#   archive_extract(glue("{rep}/iris18.7z"), dir=rep)
+if(download|!file.exists(iris_file)) {
+  curl::curl_download(
+    "https://wxs.ign.fr/1yhlj2ehpqf3q6dt6a2y7b64/telechargement/inspire/CONTOURS-IRIS-PACK_2022-01$CONTOURS-IRIS_2-1__SHP__FRA_2022-01-01/file/CONTOURS-IRIS_2-1__SHP__FRA_2022-01-01.7z",
+    destfile = "/tmp/iris2022.7z" |> glue())
+  zz <- archive_extract("/tmp/iris2022.7z", dir = "/tmp" |> glue())
+  shp <- zz |> keep(~str_detect(.x, "LAMB93")) |> keep(~str_detect(.x, ".shp"))
+  iris22sf <- st_read(str_c("/tmp/",shp))
+  curl::curl_download(
+    url = "https://www.insee.fr/fr/statistiques/fichier/2017499/reference_IRIS_geo2022.zip",
+    destfile = "/tmp/tableiris2022.zip" |> glue())
+  unzip("/tmp/tableiris2022.zip", exdir = "/tmp" |> glue())
+  refiris22 <- readxl::read_xlsx("/tmp/reference_IRIS_geo2022.xlsx", skip=5)
   
-download.file(url = "https://wxs.ign.fr/1yhlj2ehpqf3q6dt6a2y7b64/telechargement/inspire/CONTOURS-IRIS-2018-01-02$CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01/file/CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01.7z", destfile =  "~/files/iris18.7z")
-archive_extract("~/files/iris18.7z", dir = "~/files/")
+  iris22 <- left_join(
+    refiris22, as_tibble(iris22sf) |> select(CODE_IRIS, geometry), by = "CODE_IRIS") |> 
+    st_as_sf() |> st_transform(3035)
   
-  
-  iris18.cont <- st_read("~/files/CONTOURS-IRIS_2-1__SHP__FRA_2018-01-01/CONTOURS-IRIS/1_DONNEES_LIVRAISON_2018-07-00057/CONTOURS-IRIS_2-1_SHP_LAMB93_FXX-2018/CONTOURS-IRIS.shp")
-  
+  qs::qsave(iris22, iris_file)
+}
 
-download.file("https://www.insee.fr/fr/statistiques/fichier/2017499/reference_IRIS_geo2018.zip", destfile="~/files/reference_IRIS_geo2018.zip")
-unzip("~/files/reference_IRIS_geo2018.zip", exdir = "~/files/")
-
-
-iris18.table <- read_excel("~/files/reference_IRIS_geo2018.xls" |> glue(), skip = 5)
+# carroyage c200 --------------------
+if(!file.exists(c200_file)|download) {
+  curl::curl_download(
+    "https://www.insee.fr/fr/statistiques/fichier/6215138/Filosofi2017_carreaux_200m_shp.zip",
+    destfile="/tmp/carreaux.zip") 
+  unzip("/tmp/carreaux.zip", exdir = "/tmp")
+  archive_extract("/tmp/Filosofi2017_carreaux_200m_shp.7z", dir="/tmp")
   
-iris18 <- left_join(iris18.table, 
-                      as_tibble(iris18.cont) |> select(CODE_IRIS, geometry), 
-                      by = "CODE_IRIS") |> 
-    st_as_sf() |> 
-    st_transform(3035) 
+  c200 <- st_read("/tmp/Filosofi2017_carreaux_200m_met.shp" |> glue(), stringsAsFactors=FALSE) |> 
+    mutate(idINS = str_replace(Idcar_200m, "CRS3035RES200m", "r200")) |> 
+    st_transform(3035)
   
-write_xlsx(iris18,"~/files/iris18.xlsx")
-iris18 <- read_xlsx("~/files/iris18.xlsx")
-
-
-qs::qsave(iris18, file="~/files/iris18.qs" |> glue())
-marseille_board %>% pin_upload("iris18")
-
-  # fs::dir_delete(rep)
-#}
-# C200 ---------------
-# if(download|!file.exists(c200_file)) {
-#   
-#   caro <- "~/files/DVFdata/sources/carreau"
-#   
-#   if(fs::dir_exists(caro)) fs::dir_delete(caro)
-#   fs::dir_create(caro)
-#   
-  # archive_extract("https://www.insee.fr/fr/statistiques/fichier/6215138/Filosofi2017_carreaux_200m_shp.zip",
-  #                 dir = "{caro}/2017/" |> glue())
-  # archive_extract("{caro}/2017/Filosofi2017_carreaux_200m_shp.7z" |> glue(),
-  #                 dir = "{caro}/2017/" |> glue())
-
-download.file("https://www.insee.fr/fr/statistiques/fichier/6215138/Filosofi2017_carreaux_200m_shp.zip",destfile="~/files/carreaux.zip") 
-unzip("~/files/carreaux.zip", exdir = "~/files/")
-archive_extract("~/files/Filosofi2017_carreaux_200m_met_shp", dir="~/files/")
-
-c200 <- st_read("~/files/Filosofi2017_carreaux_200m_met.shp" |> glue(), stringsAsFactors=FALSE)
+  iris22 <- qs::qread(iris_file) |>
+    filter(!st_is_empty(geometry)) |> 
+    st_make_valid() |> 
+    mutate(id = 1:n())
   
-  c200 <- c200 |> st_transform(3035) 
-  xy <- c200 |> st_centroid()
-  idINS200 <- idINS3035(xy |> st_coordinates(), resolution=200)
+  irises <- sf::st_intersects(c200, iris22) 
+  names(irises) <- 1:length(irises)
+  l_irises  <- map_int(irises, length)
+  nas <- sf::st_nearest_feature(c200[l_irises==0,"Idcar_200m"], iris22)
+  irises[l_irises==0] <- nas
   
-  irises <- sf::st_intersects(c200, iris18) 
-  irises <- map_int(irises , ~ifelse(length(.x)==0, NA, .x[[1]]))
-  nas <- sf::st_nearest_feature(c200[is.na(irises),], iris18)
-  irises[is.na(irises)] <- nas
+  l2 <- st_join(
+    c200[names(irises[l_irises>=2]),"Idcar_200m" ], 
+    iris22[, "id"], largest=TRUE)
   
-qs::qsave(c200, file="~/files/c200" |> glue())
-marseille_board %>% pin_upload("c200")
-  
+  irises[l_irises>=2] <- l2 |> pull(id)
+  flat_irises <- purrr::list_c(irises)
   
   # on prend les iris pour être cohérent, un carreau peut être sur plusieurs communes
   # on utilise donc la géographie de iris18
   
-  # c200f <- c200 |>
-  #   transmute(
-  #     idINS=idINS200, 
-  #     dep=str_sub(lcog_geo, 1,2),
-  #     com=iris18$DEPCOM[irises], 
-  #     CODE_IRIS = iris18$CODE_IRIS[irises],
-  #     ind = Ind,
-  #     men = Men,
-  #     enfants = Ind_0_3+Ind_4_5+Ind_6_10+Ind_11_17,
-  #     ecoliers_mat = Ind_4_5,
-  #     ecoliers_prim = Ind_6_10,
-  #     collegienslyceens = Ind_11_17,
-  #     adultes = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64+Ind_65_79+Ind_80p,
-  #     ind_18_64 = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64,
-  #     ind_snv = Ind_snv
-  #   )
-  # 
-  #qs::qsave(c200f, c200_file)
-
+  c200 <- c200 |>
+    transmute(
+      idINS,
+      dep=str_sub(lcog_geo, 1,2),
+      com22=iris22$DEPCOM[flat_irises], 
+      CODE_IRIS = iris22$CODE_IRIS[flat_irises],
+      ind = Ind,
+      men = Men,
+      enfants = Ind_0_3+Ind_4_5+Ind_6_10+Ind_11_17,
+      adultes = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64+Ind_65_79+Ind_80p,
+      ind_18_64 = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64,
+      ind_snv = Ind_snv
+    )
+  
+  qs::qsave(c200, c200_file)
+}
 # GEOGRAPHIES DES COMMUNES --------------------
 
-# com2017_rep <- "{DVFdata}/sources/Communes/2017" |> glue()
-# no_file <- !exists("com2017_shp")||!file.exists(com2017_shp)
-# 
-# if(download|no_file) {
-#   unlink(com2017_rep, recursive = TRUE, force = TRUE)
-#   dir.create(com2017_rep)
-#   curl::curl_download(
-#     'http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20170111-shp.zip',
-#     destfile = "{com2017_rep}/downloaded.zip" |> glue())
-#   unzip("{com2017_rep}/downloaded.zip" |> glue(),
-#         exdir = com2017_rep)
-# }
+if(!file.exists(com2021_file)|!file.exists(com2017_file)|download) {
+  curl::curl_download(
+    "http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20170111-shp.zip",
+    destfile = "/tmp/communes_2017.zip")
+  unzip("/tmp/communes_2017.zip", exdir = "/tmp")
+  com2017 <- read_sf("/tmp/communes-20170112.shp")
+  qs::qsave(com2017, com2017_file)
+  curl::curl_download(
+    "http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20210101-shp.zip",
+    destfile = "/tmp/communes_2021.zip")
+  unzip("/tmp/communes_2021.zip", exdir = "/tmp")
+  com2021 <- read_sf("/tmp/communes-20210101.shp")
+  qs::qsave(com2021, com2021_file)
+}
 
-download.file("http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20170111-shp.zip", destfile = "~/files/communes_2017.zip")
-unzip("~/files/communes_2017.zip", exdir = "~/files/")
-com2017_shp <- read_sf("~/files/communes-20170112.shp")
- 
-# com2021_rep <- "{DVFdata}/sources/Communes/2021" |> glue()
-# no_file <- !exists("com2021_shp")||!file.exists(com2021_shp)
-# if(download|no_file) {
-#   if(fs::dir_exists(com2021_rep)) fs::dir_delete(com2021_rep)
-#   dir.create(com2021_rep)
-#   curl::curl_download(
-#     'http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20210101-shp.zip',
-#     destfile = "{com2021_rep}/2021downloaded.zip" |> glue())
-#   unzip("{com2021_rep}/2021downloaded.zip" |> glue(),
-#         exdir = com2021_rep)
-# }
+# commune plus arrodissements
 
-download.file("http://osm13.openstreetmap.fr/~cquest/openfla/export/communes-20210101-shp.zip", destfile = "~/files/communes_2021.zip")
-unzip("~/files/communes_2021.zip", exdir = "~/files/")
-com2021_shp <- read_sf("~/files/communes-20210101.shp")
+if(!file.exists(com2021_file)|!file.exists(com2017_file)|download) {
+  dir.create("/tmp/communes")
+  curl::curl_download(
+    "https://wxs.ign.fr/x02uy2aiwjo9bm8ce5plwqmr/telechargement/prepackage/ADMINEXPRESS_SHP_TERRITOIRES_PACK_2023-07-04$ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-07-04/file/ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-07-04.7z",
+    destfile = "/tmp/communes/adx.7z")
+  
+  commune <- archive_extract("/tmp/communes/adx.7z", 
+                             files = archive("/tmp/communes/adx.7z") |> filter(str_detect(path, "/COMMUNE\\.")) |> pull(path),
+                             dir = "/tmp/communes")
+  
+  ar <- archive_extract("/tmp/communes/adx.7z", 
+                        files = archive("/tmp/communes/adx.7z") |> filter(str_detect(path, "/ARRONDISSEMENT_MUNICIPAL\\.")) |> pull(path),
+                        dir = "/tmp/communes")
+  
+  communes <- sf::st_read(str_c("/tmp/communes/", commune |> purrr::keep(~stringr::str_detect(.x, ".shp"))))
+  
+  ars <- sf::st_read(str_c("/tmp/communes/", ar |> purrr::keep(~stringr::str_detect(.x, ".shp")))) 
+  com_ars <- unique(ars$INSEE_COM) 
+  ars <- tibble(ars) |> 
+    mutate(COMMUNE = INSEE_COM, INSEE_COM = INSEE_ARM) |>
+    select(-INSEE_ARM) |> 
+    left_join(communes |> 
+                st_drop_geometry() |> 
+                select(INSEE_COM, INSEE_CAN, INSEE_ARR, INSEE_DEP, INSEE_REG, SIREN_EPCI), by=c("COMMUNE"="INSEE_COM"))
+  
+  communes <- as_tibble(communes) |> 
+    filter(! INSEE_COM %in% com_ars) |> 
+    anti_join(as_tibble(ars), by = "INSEE_COM") |> 
+    bind_rows(ars) |> 
+    st_as_sf() |> 
+    st_transform(3035)
+  qs::qsave(communes, communes_ar_files)
+}
 
+communes <- qs::qread(communes_ar_files)
 
-# 
 # DEFINITION DES ZONES ---------------------------------------------------------
 # on récupère les epci de 2017 pour ne pas perdre Péré
-# if(download|!file.exists("{localdata}/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue())) {
-#   archive_extract(
-#     "https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2017.zip", 
-#     dir = "{localdata}/" |> glue())
-# }
+archive_extract(
+  "https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2017.zip",
+  dir = "/tmp" |> glue())
 
-# download.file("https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2017.zip", destfile = "~/files/Intercommunalite_Metropole_au_01-01-2017.zip")
-# unzip("~/files/Intercommunalite_Metropole_au_01-01-2017.zip", exdir = "~/files/")
-# 
-# 
+curl::curl_download(
+  "https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2017.zip", 
+  destfile = "/tmp/Intercommunalite_Metropole_au_01-01-2017.zip")
+unzip("/tmp/Intercommunalite_Metropole_au_01-01-2017.zip", exdir = "/tmp")
+
 epcis <- readxl::read_xls(
-  "~/files/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue(),
+  "/tmp/Intercommunalite_Metropole_au_01-01-2017.xls" |> glue(),
   sheet=2,
   skip=5)
-# 
-# scot1.epci <- epcis |> 
-#   dplyr::filter(str_detect(LIBEPCI, str_c(scot1.n, collapse='|'))) |>
-#   pull(CODGEO, name=LIBGEO)
-# 
-# scot2.epci <- epcis |>
-#   dplyr::filter(str_detect(LIBEPCI, str_c(scot2.n, collapse='|'))) |> 
-#   pull(CODGEO, name=LIBGEO)
-# 
-# 
-# scot3.epci <- epcis |> 
-#   dplyr::filter(str_detect(LIBEPCI, str_c(scot3.n, collapse='|'))) |>
-#   pull(CODGEO, name=LIBGEO)
-# 
-# scot4.epci <- epcis |>
-#   dplyr::filter(str_detect(LIBEPCI, str_c(scot4.n, collapse='|'))) |> 
-#   pull(CODGEO, name=LIBGEO)
-# 
-# scot5.epci <- epcis |> 
-#   dplyr::filter(str_detect(LIBEPCI, str_c(scot5.n, collapse='|'))) |>
-#   pull(CODGEO, name=LIBGEO)
-# 
+
 scot_tot.epci <- epcis |>
-  dplyr::filter(str_detect(LIBEPCI, str_c(scot_tot.n, collapse='|'))) |>
+  dplyr::filter(str_detect(LIBGEO, str_c(scot_tot.n, collapse='|'))) |>
   pull(CODGEO, name=LIBGEO)
-# 
 
-# geoepci <- map_dfr(scot_tot.n, ~{
-#   coms <- epcis |> 
-#     dplyr::filter(str_detect(LIBEPCI, .x)) |>
-#     pull(CODGEO, name=LIBGEO)
-#   st_read("~/files/communes-20170112.shp") |> 
-#     dplyr::filter(insee%in%coms) |>
-#     summarise() |>
-#     mutate(epci = .x)
-# }) |> st_transform(3035)
-# 
-# version MAJ d'iris (en espérant que toutes les communes y sont)
-#iris <- qs::qread("{DVFdata}/iris18.qs" |> glue())
-# si il y a besoin de mettre à jour (même si le nouveau fichier IRIS est mis à jour en 2022)
+com2021 <- com2021 |> 
+  left_join(epcis, by=c("insee"="CODGEO"))
 
-iris <- iris18  |> 
-  rename(COM = DEPCOM, IRIS = CODE_IRIS) 
+com2021epci <- com2021 |> 
+  filter(EPCI %in% epci.metropole) |> 
+  st_transform(3035)
+
+geoepci <- com2021epci |> 
+  group_by(EPCI) |> 
+  summarize(LIBEPCI=first(LIBEPCI)) |>
+  st_transform(3035)
 
 # là c'est où c'est possible de faire des modifications aux iris 
 
-scot_tot <- iris |> filter(LIBCOM %in% scot_tot.n & DEP %in% c("13","30","83","84")) |> st_union()
-# scot4 <- iris |>
-#   dplyr::filter(COM %in% scot4.epci) |>
-#   st_union()
-zone_emploi <- scot_tot |>
+zone_emploi <- geoepci |>
   st_union() |>
-  st_buffer(33000)
-communes.scot_tot <- iris |>
-  dplyr::filter(LIBCOM %in% scot_tot.n & DEP %in% c("13","30","83","84")) |>
-  group_by(LIBCOM) |>
-  summarize()
-#c200 <- qs::qread(c200_file)
-# c200.scot3 <- c200 |> filter(st_intersects(c200, scot3, sparse=FALSE))
-# c200.scot4 <- c200 |> filter(st_intersects(c200, scot4, sparse=FALSE))
+  st_buffer(33000) |> 
+  st_as_sf()
 
-c200.scot_tot <- c200 |> filter(st_intersects(c200, scot_tot, sparse=FALSE))
+communes_ze <- communes[zone_emploi, ]
 
+qs::qsave(communes_ze, communes_file)
+
+iris <- qs::qread(iris_file)
+irises <- st_join(zone_emploi, iris) |> pull(CODE_IRIS)
+c200i <- qs::qread(c200_file) |> 
+  filter(CODE_IRIS%in%irises)
 
 # # GTFS --------------------
 # if(download) {
@@ -253,12 +211,12 @@ c200.scot_tot <- c200 |> filter(st_intersects(c200, scot_tot, sparse=FALSE))
 #                 overwrite = TRUE)
 #}
 
-base_emploi <- read_xlsx("~/files/base-cc-emploi-pop-active-2018.xlsx")
+# base_emploi <- read_xlsx("~/files/base-cc-emploi-pop-active-2018.xlsx")
 
 # fond de carte -------------------
 
 mblr3 <- mapboxapi::get_static_tiles(
-  location = scot_tot |> st_buffer(-1000) |> st_transform(4326),
+  location = st_union(com2021epci) |> st_buffer(-1000) |> st_transform(4326),
   zoom=10, 
   style_id = "ckjka0noe1eg819qrhuu1vigs", 
   username="xtimbeau") 
@@ -266,12 +224,12 @@ mblr3clair <- 255 - (255-mblr3)*0.75
 # mblr3 <-(st_as_stars(mblr3)[,,,1:3])|> st_transform(3035) |> st_rgb()
 mblr3 <- st_as_stars(mblr3)[,,,1:3]
 mblr3clair <- st_as_stars(mblr3clair)[,,,1:3]
-bbx <- st_bbox(communes.scot_tot)
+bbx <- st_bbox(com2021epci)
 
 decor_carte <- list(
   ggspatial::layer_spatial(mblr3clair) ,
-  geom_sf(data=communes.scot_tot, col="gray70", fill="gray96", alpha=0.1, size=0.1),
-  geom_sf(data=geoepci, col="gray60", fill="gray96", alpha=0.1, size=0.2),
+  geom_sf(data=com2021epci, col="gray75", fill=NA, alpha=1, size=0.1),
+  geom_sf(data=geoepci, col="gray25", fill=NA, alpha=1, size=0.25),
   coord_sf(),
   xlab(NULL),ylab(NULL),labs(title=NULL),
   scale_x_continuous(expand=c(0,0)),
@@ -293,7 +251,5 @@ decor_carte <- list(
 save(decor_carte, file=decor_carte_file)
 
 # save -------------
-save(list = c(bl, "scot1", "scot2", "scot3", "scot4", "scot5", "scot_tot", "scot3.epci", "geoepci",
-              "zone_emploi",
-              "com2021_shp", "com2017_shp", "communes.scot_tot",
-              "mblr3", "mblr3clair"), file="baselayer.rda")
+save(list = c(bl, "geoepci", "com2021epci",
+              "zone_emploi"), file="baselayer.rda")
