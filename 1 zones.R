@@ -132,6 +132,7 @@ meaps_rep <- "{dir_dist}/meaps" |> glue()
 dir.create(meaps_rep)
 meaps_file <- "{meaps_rep}/meaps_est.rda" |> glue()
 decor_carte_file <- "{mdir}/decor_carte.rda" |> glue()
+mobilites_file <- "{mdir}/mobilites.qs" |> glue()
 repository_notc <- "{temp_dir}/notc" |> glue()
 dir.create(repository_notc)
 localr5 <- str_c(localdata, "/r5_base")
@@ -139,12 +140,14 @@ localr5car <- str_c(localdata, "/r5car")
 
 ## informations spécifique sur la ville
 elevation <- "{localr5}/elev_aix_marseille.tif" |> glue()
-emp33km_file <- "{mdir}/emp33km.qs" |> glue()
+empze_file <- "{mdir}/empze.qs" |> glue()
 c200_file <- "{mdir}/c200_17.qs" |> glue()
+c200ze_file <- "{mdir}/c200ze.qs" |> glue()
 pbf_file <- "lr.pbf"
 pbf_rep <- "{mdir}/OSM/" |> glue()
 communes_file <- "{mdir}/communes.qs" |> glue()
 communes_ar_file <- "{mdir}/communes_ar.qs" |> glue()
+emp_pred_file <- "{mdir}/emp_pred.qs" |> glue()
 # dodgr_profiles <- "{localdata}/dodgr/dodgr_profiles.json" |> glue()
 # alternative_scenario <- "{localdata}/co2/filo_carbone_okok.gpkg" |> glue()
 # alternative_scenario2 <- "{localdata}/co2/filosofi_scenario_s4.csv" |> glue()
@@ -187,10 +190,12 @@ save(list = unique(
     "decor_carte_file",
     "densitescommunes",
     "deploc_file",
+    "dir_dist",
     "distances_file",
     "distances_scol_file",
     "elevation",
-    "emp33km_file", 
+    "emp_pred_file",
+    "empze_file", 
     "enqmobpro",
     "enqmobscol",
     "enqmobstarter_file",
