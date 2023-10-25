@@ -111,43 +111,7 @@ if(!file.exists(com2021_file)|!file.exists(com2017_file)|download) {
   qs::qsave(com2021, com2021_file)
 }
 
-# commune plus arrodissements
-
-if(!file.exists(com2021_file)|!file.exists(com2017_file)|download) {
-  dir.create("/tmp/communes")
-  curl::curl_download(
-    "https://wxs.ign.fr/x02uy2aiwjo9bm8ce5plwqmr/telechargement/prepackage/ADMINEXPRESS_SHP_TERRITOIRES_PACK_2023-07-04$ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-07-04/file/ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-07-04.7z",
-    destfile = "/tmp/communes/adx.7z")
-  
-  commune <- archive_extract("/tmp/communes/adx.7z", 
-                             files = archive("/tmp/communes/adx.7z") |> filter(str_detect(path, "/COMMUNE\\.")) |> pull(path),
-                             dir = "/tmp/communes")
-  
-  ar <- archive_extract("/tmp/communes/adx.7z", 
-                        files = archive("/tmp/communes/adx.7z") |> filter(str_detect(path, "/ARRONDISSEMENT_MUNICIPAL\\.")) |> pull(path),
-                        dir = "/tmp/communes")
-  
-  communes <- sf::st_read(str_c("/tmp/communes/", commune |> purrr::keep(~stringr::str_detect(.x, ".shp"))))
-  
-  ars <- sf::st_read(str_c("/tmp/communes/", ar |> purrr::keep(~stringr::str_detect(.x, ".shp")))) 
-  com_ars <- unique(ars$INSEE_COM) 
-  ars <- tibble(ars) |> 
-    mutate(COMMUNE = INSEE_COM, INSEE_COM = INSEE_ARM) |>
-    select(-INSEE_ARM) |> 
-    left_join(communes |> 
-                st_drop_geometry() |> 
-                select(INSEE_COM, INSEE_CAN, INSEE_ARR, INSEE_DEP, INSEE_REG, SIREN_EPCI), by=c("COMMUNE"="INSEE_COM"))
-  
-  communes <- as_tibble(communes) |> 
-    filter(! INSEE_COM %in% com_ars) |> 
-    anti_join(as_tibble(ars), by = "INSEE_COM") |> 
-    bind_rows(ars) |> 
-    st_as_sf() |> 
-    st_transform(3035)
-  qs::qsave(communes, communes_ar_files)
-}
-
-communes <- qs::qread(communes_ar_files)
+com2021 <- qs::qread(com2021_file)
 
 # DEFINITION DES ZONES ---------------------------------------------------------
 # on récupère les epci de 2017 pour ne pas perdre Péré
@@ -169,28 +133,87 @@ scot_tot.epci <- epcis |>
   dplyr::filter(str_detect(LIBGEO, str_c(scot_tot.n, collapse='|'))) |>
   pull(CODGEO, name=LIBGEO)
 
-com2021 <- com2021 |> 
-  left_join(epcis, by=c("insee"="CODGEO"))
+# commune plus arrondissements ----------------
 
-com2021epci <- com2021 |> 
-  filter(EPCI %in% epci.metropole) |> 
+if(!file.exists(communes_ar_file)|download) {
+  dir.create("/tmp/communes")
+  curl::curl_download(
+    "https://wxs.ign.fr/x02uy2aiwjo9bm8ce5plwqmr/telechargement/prepackage/ADMINEXPRESS_SHP_TERRITOIRES_PACK_2023-07-04$ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-07-04/file/ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-07-04.7z",
+    destfile = "/tmp/communes/adx.7z")
+  
+  commune <- archive_extract("/tmp/communes/adx.7z", 
+                             files = archive("/tmp/communes/adx.7z") |> filter(str_detect(path, "/COMMUNE\\.")) |> pull(path),
+                             dir = "/tmp/communes")
+  
+  ar <- archive_extract("/tmp/communes/adx.7z", 
+                        files = archive("/tmp/communes/adx.7z") |> filter(str_detect(path, "/ARRONDISSEMENT_MUNICIPAL\\.")) |> pull(path),
+                        dir = "/tmp/communes")
+  
+  communes <- sf::st_read(str_c("/tmp/communes/", commune |> purrr::keep(~stringr::str_detect(.x, ".shp"))))
+  
+  ars <- sf::st_read(str_c("/tmp/communes/", ar |> purrr::keep(~stringr::str_detect(.x, ".shp")))) 
+  com_ars <- unique(ars$INSEE_COM) 
+  ars <- tibble(ars) |> 
+    mutate(COMMUNE = INSEE_COM, INSEE_COM = INSEE_ARM) |>
+    select(-INSEE_ARM) |> 
+    left_join(
+      communes |> 
+        st_drop_geometry() |> 
+        select(INSEE_COM, INSEE_CAN, INSEE_ARR,
+               INSEE_DEP, INSEE_REG, SIREN_EPCI), 
+      by=c("COMMUNE"="INSEE_COM"))
+  
+  communes <- as_tibble(communes) |> 
+    filter(! INSEE_COM %in% com_ars) |> 
+    anti_join(as_tibble(ars), by = "INSEE_COM") |> 
+    bind_rows(ars) |> 
+    st_as_sf() |> 
+    st_transform(3035)
+  
+  qs::qsave(communes, communes_ar_file)
+}
+
+communes <- qs::qread(communes_ar_file)
+
+com2021epci <- communes |> 
+  filter(SIREN_EPCI %in% epci.metropole) |> 
+  mutate(EPCI = SIREN_EPCI) |> 
   st_transform(3035)
 
 geoepci <- com2021epci |> 
   group_by(EPCI) |> 
-  summarize(LIBEPCI=first(LIBEPCI)) |>
+  summarize() |>
   st_transform(3035)
 
 # là c'est où c'est possible de faire des modifications aux iris 
 
 zone_emploi <- geoepci |>
   st_union() |>
+  st_buffer(66000) |> 
+  st_as_sf()
+
+petite_zone_emploi <- geoepci |>
+  st_union() |>
   st_buffer(33000) |> 
   st_as_sf()
 
-communes_ze <- communes[zone_emploi, ]
+# pour être sûr d'avoir la commune en entier, on arrondit à la commune
+communes_ze <- communes |> 
+  st_filter(zone_emploi) |> 
+  mutate(pze = map_lgl(st_intersects(geometry, petite_zone_emploi), ~length(.x)==1))
 
 qs::qsave(communes_ze, communes_file)
+
+communes_pze <- communes_ze |> filter(pze) |> pull(INSEE_COM)
+communes_ze <- communes_ze |> pull(INSEE_COM)
+
+communes <- communes |> 
+  mutate(
+    pze = INSEE_COM %in% communes_pze,
+    ze = INSEE_COM %in% communes_ze,
+    scot = SIREN_EPCI %in% epci.metropole)
+
+qs::qsave(communes, communes_ar_file)
 
 iris <- qs::qread(iris_file)
 irises <- st_join(zone_emploi, iris) |> pull(CODE_IRIS)
@@ -252,4 +275,5 @@ save(decor_carte, file=decor_carte_file)
 
 # save -------------
 save(list = c(bl, "geoepci", "com2021epci",
-              "zone_emploi"), file="baselayer.rda")
+              "zone_emploi", "petite_zone_emploi",
+              "communes_ze", "communes_pze"), file="baselayer.rda")

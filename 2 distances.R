@@ -1,3 +1,4 @@
+setwd("~/marseille")
 # init ---------------
 library(tidyverse)
 library(tidytransit)
@@ -15,14 +16,13 @@ library(data.table)
 library(conflicted)
 library(sitools)
 library(arrow)
-
+library(furrr)
 progressr::handlers(global = TRUE)
-progressr::handlers(progressr::handler_progress(format = ":bar :percent :eta", width = 80))
+progressr::handlers("cli")
 data.table::setDTthreads(8)
 arrow::set_cpu_count(8)
 
-conflict_prefer("select", "dplyr", quiet=TRUE)
-conflict_prefer("filter", "dplyr", quiet=TRUE)
+conflict_prefer_all( "dplyr", quiet=TRUE)
 conflict_prefer('wday', 'lubridate', quiet=TRUE)
 
 ## globals --------------------
@@ -32,18 +32,22 @@ load("baselayer.rda")
 
 resol <- 200
 
-elevation <- terra::rast("~/marseille/elev_aix_marseille.tif" |> glue())
+c200ze <- qs::qread("{c200ze_file}" |> glue()) |> 
+  filter(pze)
 
-# les carreaux de résidence
-c200ze <- qs::qread("{c200ze_file}" |> glue())
-c200.scot_tot <- c200ze |>
-  filter(ind>0) |> 
+origines <- c200ze |>
+  filter(ind>0, scot) |> 
   select(ind) |>
   st_centroid() 
+opportunites <- c200ze |>
+  filter(emp>0, mobpro99) |> 
+  select(emplois=emp) |> 
+  st_centroid() |> 
+  st_transform(crs=4326)
 
 message(str_c("Nombre de carreaux sur la zone",
-              "résidents = {nrow(c200.scot_tot)}",
-              "opportunités emploi = {c200ze |> filter(emp>0) |> nrow()}",
+              "résidents = {nrow(origines)}",
+              "opportunités emploi = {nrow(opportunites)}",
               "opportunités complètes = {c200ze |> filter(emp>0|ind>0) |> nrow()}",
               sep = "\n") |> glue())
 
@@ -52,23 +56,15 @@ jour_du_transit <- plage('~/files/localr5/') |> choisir_jour_transit()
 message(
   "jour retenu: \n{lubridate::wday(jour_du_transit, label = TRUE, abbr = FALSE)} {jour_du_transit}" |> glue())
 
-# les opportunités
-opportunites <- c200ze |> 
-  select(emplois=emp, ind) |> 
-  st_centroid() |> 
-  st_transform(crs=4326)
-
-
 # ---- CALCUL DE L'ACCESSIBILITE ----
 ## transit --------------
-# penser à mettre 16vCPU
 future::plan("multisession", workers=1)
 
 r5_transit <- routing_setup_r5(path = '~/files/localr5/', date=jour_du_transit, n_threads = 16,
                                breakdown = TRUE)
 
 iso_transit_dt <- iso_accessibilite(quoi = opportunites, 
-                                    ou = c200.scot_tot, 
+                                    ou = origines, 
                                     resolution = resol,
                                     tmax = 120, 
                                     chunk = 1e+6,
@@ -81,63 +77,107 @@ iso_transit_dt <- iso_accessibilite(quoi = opportunites,
 
 arrow::write_parquet(ttm_idINS(iso_transit_dt), sink="~/files/transit_ref.parquet" |> glue())
 
-
-## dodgr ----------------------
+## dodgr car ----------------------
 # téléchargement du OSM en format silicate
 # c'est enregistré, donc on peut passer si c'est  déjà fait
 
 if(FALSE) {
-  
-  osm <- download_osmsc(box, elevation = TRUE, workers = 16)
-  qs::qsave(osm, "/space_mounts/data/larochelle/osm.qs")
-  unlink("/space_mounts/data/larochelle/dodgr", recursive=TRUE)
-  dir.create("/space_mounts/data/larochelle/dodgr", recursive = TRUE)
-  file.copy("/space_mounts/data/larochelle/osm.qs",
-            to = "/space_mounts/data/larochelle/dodgr/larochelle.scosm",
+  zone <- qs::qread(communes_ar_file) |> 
+    filter(mobpro99) |> 
+    summarize()
+  osm <- download_osmsc(zone, elevation = TRUE, workers = 16)
+  qs::qsave(osm, glue("{mdir}/osm.qs"))
+  unlink(glue("{mdir}/dodgr"), recursive=TRUE)
+  dir.create(glue("{mdir}/dodgr"), recursive = TRUE)
+  file.copy(glue("{mdir}/osm.qs"),
+            to = glue("{mdir}/dodgr/marseille.scosm"),
             overwrite = TRUE)
-  unlink("/space_mounts/data/larochelle/dodgr_np", recursive=TRUE)
-  dir.create("/space_mounts/data/larochelle/dodgr_np", recursive = TRUE)
-  file.copy("/space_mounts/data/larochelle/osm.qs", 
-            to = "/space_mounts/data/larochelle/dodgr_np/larochelle.scosm", 
-            overwrite = TRUE)
+  rm(osm)
+  gc()
 }
 
+dodgr_router <- routing_setup_dodgr(glue("{mdir}/dodgr/"), 
+                                    mode = "CAR", 
+                                    turn_penalty = TRUE,
+                                    distances = TRUE,
+                                    elevation = TRUE,
+                                    n_threads = 8L,
+                                    overwrite = FALSE,
+                                    nofuture = FALSE)
+plan("multisession", workers = 12L)
 
-rm(r5_transit)
-rm(iso_transit_dt)
-## vélo --------------
-# passer à 8*16 = 128 vCPU
-future::plan("multisession", workers=1)
-rJava::.jinit(silent=TRUE)
-logger::log_threshold("INFO")
+unlink("{mdir}/temp_dodgr" |> glue(), recursive = TRUE)
+cardgr <- iso_accessibilite(quoi = opportunites, 
+                            ou = origines, 
+                            resolution = 200,
+                            tmax = 120, 
+                            pdt = 1,
+                            dir = glue("{mdir}/temp_dodgr"),
+                            routing = dodgr_router,
+                            ttm_out = TRUE,
+                            future=TRUE)
 
-r5_bike <- routing_setup_r5(path = '~/files/localr5/', date=jour_du_transit, n_threads = 16, mode = "BICYCLE",
-                            elevation = "TOBLER",
-                            overwrite=TRUE,
-                            di=FALSE, # Nécessaire pour les distances !
-                            max_rows=50000, 
-                            elevation_tif = "elev_aix_marseille.tif", # calcule les dénivelés si di est true
-                            max_rides=1) 
+ttt <- accessibility::ttm_idINS(cardgr)
+arrow::write_parquet(ttt, glue("{dir_dist}/car.parquet"))
 
-# s'il marche pas pour la mémoire de Java, 
-# aller sur "usethis::edit_r_profile()" 
-# et insérer "options(java.parameters = '-Xmx32G')", 
-# après redémarrer pour confirmer le changement
+rm(cardgr, ttt)
+gc()
 
-iso_bike_dt <- iso_accessibilite(quoi = opportunites, 
-                                 ou = c200.scot_tot, 
-                                 resolution = resol,
-                                 tmax = 120, 
-                                 pdt = 1, chunk=1e+6,
-                                 dir = "bike",
-                                 routing = r5_bike,
-                                 ttm_out = TRUE,
-                                 future=TRUE)
+## dodgr bike ----------------------
 
-arrow::write_parquet(ttm_idINS(iso_bike_dt), sink="~/files/bike.parquet" |> glue())
+dodgr_bike <- routing_setup_dodgr(glue("{mdir}/dodgr/"), 
+                                  mode = "BICYCLE", 
+                                  turn_penalty = TRUE,
+                                  distances = TRUE,
+                                  denivele = TRUE,
+                                  n_threads = 8L,
+                                  overwrite = FALSE,
+                                  nofuture=FALSE)
 
-rm(r5_bike)
-rm(iso_bike_dt)
+plan("multisession", workers = 1L)
+
+unlink("{mdir}/temp_bikedgr" |> glue(), recursive = TRUE)
+bikedgr <- iso_accessibilite(quoi = opportunites, 
+                             ou = origines, 
+                             resolution = 200,
+                             tmax = 120, 
+                             pdt = 1,
+                             dir = glue("{mdir}/temp_bikedgr"),
+                             routing = dodgr_bike,
+                             ttm_out = TRUE,
+                             future=TRUE)
+
+ttt <- accessibility::ttm_idINS(bikedgr)
+
+arrow::write_parquet(ttt, glue("{dir_dist}/bike.parquet"))
+
+## dodgr walk ----------------------
+
+dodgr_walk <- routing_setup_dodgr(glue("{mdir}/dodgr/"), 
+                                  mode = "WALK", 
+                                  turn_penalty = FALSE,
+                                  distances = TRUE,
+                                  denivele = TRUE,
+                                  n_threads = 8L,
+                                  overwrite = FALSE,
+                                  nofuture  = FALSE)
+
+plan("multisession", workers = 2L)
+
+unlink("{mdir}/temp_walkdgr" |> glue(), recursive = TRUE)
+walkdgr <- iso_accessibilite(quoi = opportunites, 
+                             ou = origines, 
+                             resolution = 200,
+                             tmax = 120, 
+                             pdt = 1,
+                             dir = glue("{mdir}/temp_walkdgr"),
+                             routing = dodgr_walk,
+                             ttm_out = TRUE,
+                             future=TRUE)
+
+ttt <- accessibility::ttm_idINS(walkdgr)
+
+arrow::write_parquet(ttt, glue("{dir_dist}/walk.parquet"))
 
 ## marche à pied --------------
 # passer à 8*16 = 128 vCPU
@@ -282,4 +322,3 @@ trajet$geometry[[1]] |>
 # lrosm <- st_read("{localdata}/r5/lr.gpkg" |> glue())
 box <- st_bbox(bind_rows(o,d) |> st_buffer(1000))
 qtm(lrosm |> filter(st_intersects(lrosm, box |> st_as_sfc(), sparse=FALSE)))
-# 
