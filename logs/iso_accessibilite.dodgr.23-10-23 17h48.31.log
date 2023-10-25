@@ -1,0 +1,93 @@
+SUCCESS [1186] [2023-10-23 15:48:31] Calcul accessibilite version 2
+SUCCESS [1186] [2023-10-23 15:48:31] $type
+SUCCESS [1186] [2023-10-23 15:48:31] [1] "dodgr"
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $path
+SUCCESS [1186] [2023-10-23 15:48:31] /space_mounts/data/marseille//dodgr/
+SUCCESS [1186] [2023-10-23 15:48:31] FALSE
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $graph
+SUCCESS [1186] [2023-10-23 15:48:31] NULL
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $vertices
+SUCCESS [1186] [2023-10-23 15:48:31] NULL
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $distances
+SUCCESS [1186] [2023-10-23 15:48:31] [1] TRUE
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $denivele
+SUCCESS [1186] [2023-10-23 15:48:31] [1] FALSE
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $pkg
+SUCCESS [1186] [2023-10-23 15:48:31] [1] "dodgr"
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $turn_penalty
+SUCCESS [1186] [2023-10-23 15:48:31] [1] FALSE
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $graph_name
+SUCCESS [1186] [2023-10-23 15:48:31] /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet
+SUCCESS [1186] [2023-10-23 15:48:31] FALSE
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $string
+SUCCESS [1186] [2023-10-23 15:48:31] dodgr routing foot sur /space_mounts/data/marseille//dodgr/ a 2023-10-23 15:43:16.966949
+SUCCESS [1186] [2023-10-23 15:48:31] FALSE
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $departure_datetime
+SUCCESS [1186] [2023-10-23 15:48:31] [1] "2019-12-17 08:00:00 UTC"
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $mode
+SUCCESS [1186] [2023-10-23 15:48:31] [1] "foot"
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $n_threads
+SUCCESS [1186] [2023-10-23 15:48:31] [1] 8
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $future
+SUCCESS [1186] [2023-10-23 15:48:31] [1] TRUE
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $future_routing
+SUCCESS [1186] [2023-10-23 15:48:31] function (routing) 
+SUCCESS [1186] [2023-10-23 15:48:31] {
+SUCCESS [1186] [2023-10-23 15:48:31]     rout <- routing
+SUCCESS [1186] [2023-10-23 15:48:31]     rout$graph <- NULL
+SUCCESS [1186] [2023-10-23 15:48:31]     rout$vertices <- NULL
+SUCCESS [1186] [2023-10-23 15:48:31]     rout$elevation_data <- NULL
+SUCCESS [1186] [2023-10-23 15:48:31]     return(rout)
+SUCCESS [1186] [2023-10-23 15:48:31] }
+SUCCESS [1186] [2023-10-23 15:48:31] <bytecode: 0x564a6c80a8e8>
+SUCCESS [1186] [2023-10-23 15:48:31] <environment: 0x564a68df2428>
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] $core_init
+SUCCESS [1186] [2023-10-23 15:48:31] function (routing) 
+SUCCESS [1186] [2023-10-23 15:48:31] {
+SUCCESS [1186] [2023-10-23 15:48:31]     RcppParallel::setThreadOptions(numThreads = routing$n_threads)
+SUCCESS [1186] [2023-10-23 15:48:31]     rout <- routing
+SUCCESS [1186] [2023-10-23 15:48:31]     net <- dgr_load_streetnet(routing$graph_name)
+SUCCESS [1186] [2023-10-23 15:48:31]     rout$graph <- net$graph
+SUCCESS [1186] [2023-10-23 15:48:31]     rout$vertices <- net$verts_c
+SUCCESS [1186] [2023-10-23 15:48:31]     if ("dz" %in% names(rout$graph)) 
+SUCCESS [1186] [2023-10-23 15:48:31]         rout$graph$dzplus <- rout$graph$dz * (rout$graph$dz > 
+SUCCESS [1186] [2023-10-23 15:48:31]             0)
+SUCCESS [1186] [2023-10-23 15:48:31]     logger::log_info("router {graph_name} chargé")
+SUCCESS [1186] [2023-10-23 15:48:31]     return(rout)
+SUCCESS [1186] [2023-10-23 15:48:31] }
+SUCCESS [1186] [2023-10-23 15:48:31] <bytecode: 0x564a6c809ca8>
+SUCCESS [1186] [2023-10-23 15:48:31] <environment: 0x564a68df2428>
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] 
+SUCCESS [1186] [2023-10-23 15:48:31] tmax:120
+SUCCESS [1186] [2023-10-23 15:48:31] pdt:1
+SUCCESS [1186] [2023-10-23 15:48:31] chunk:20M
+SUCCESS [1186] [2023-10-23 15:48:31] resolution:200
+SUCCESS [1186] [2023-10-23 15:48:31] out:200
+SUCCESS [1186] [2023-10-23 15:48:31] les variables sont emplois
+SUCCESS [1186] [2023-10-23 15:48:32] taille:333.6M gr:17 res_gr:12800
+SUCCESS [1186] [2023-10-23 15:48:32] 26k ou, 12.8k quoi
+SUCCESS [1186] [2023-10-23 15:48:32] 33 carreaux, 8 subsampling
+SUCCESS [1186] [2023-10-23 15:48:32] future:TRUE, 1 workers
+INFO [1186] [2023-10-23 15:49:02] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [1186] [2023-10-23 15:49:06] dodgr_ttm called, TRUE, 7x21
+WARN [1186] [2023-10-23 15:49:42] dodgr::travel_time_matrix empty
+WARN [1186] [2023-10-23 15:49:42] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [1186] [2023-10-23 15:49:42] carreau:N2227200E3955200 ou_id:1,4,7,8,12,22,23 ttm_ou vide
+WARN [1186] [2023-10-23 15:49:42] la matrice des distances interne au carreau est vide
+INFO [1186] [2023-10-23 16:05:28] dodgr_ttm called, TRUE, 7x21
