@@ -22,15 +22,14 @@ iris <- qread(iris_file)
 
 c200 <- qread(c200_file) # version 2017
 
-Marseille_c200s <- accesstars::idINS2stars(c200 |> select(ind,idINS, IDCOM = com22), zone_emploi)
-
-c200ze <- c200[zone_emploi, ]
-
-iris_ze <- iris[zone_emploi, ] |>
+com_ze <- iris[zone_emploi, ] |>
   rename(COM=DEPCOM) |> 
   group_by(COM) |>
   summarize(DEP = first(DEP)) |>
   rename(idcom=COM)
+
+c200ze <- c200 |> 
+  semi_join(com_ze |> st_drop_geometry(), by=c("com22"="idcom"))
 
 mb_file <- archive_extract(
   "https://www.insee.fr/fr/statistiques/fichier/7637844/RP2020_mobpro_csv.zip",
@@ -42,9 +41,8 @@ setDT(mobpro)
 mobpro <- mobpro[between(as.numeric(AGEREVQ),18,64),]
 mobpro <- mobpro[,COMMUNE :=fifelse(ARM=="ZZZZZ", COMMUNE, ARM)]
 
-communes <- qs::qread(communes_file)
-communes_emplois <- communes$INSEE_COM
-scot <- communes |>
+communes_emplois <- com_ze$idcom
+scot <- qs::qread(communes_ar_file) |>
   filter(SIREN_EPCI %in% epci.metropole) |> 
   pull(INSEE_COM)
 
@@ -54,13 +52,44 @@ mobpro[, filter_work := DCLT %in% communes_emplois]
 mobpro <- mobpro[!(filter_live == FALSE & filter_work == FALSE)]
 
 # ---- Synthèse MOBPRO par codes NAF et modes de transport ----
+
 mobilites <- mobpro[, .(NB = sum(IPONDI), 
-                        NB_in = sum((COMMUNE%chin%scot)*IPONDI)), 
+                        NB_in = sum((COMMUNE%chin%scot)*IPONDI),
+                        fl = first(filter_live), 
+                        fw = first(filter_work)), 
                     by = c("COMMUNE", "DCLT", "NA5", "TRANS")]
+
 mobilites[, TRANS := factor(TRANS) |> 
             fct_collapse(
               "none" = "1","walk" = "2", "bike" = "3", 
               "car" = c("4", "5"), "transit" = "6")]
+
+qs::qsave(mobilites, mobilites_file)
+
+communes <- qs::qread(communes_ar_file)
+
+coms <- communes |>
+  select(insee = INSEE_COM) |> 
+  st_centroid() |> 
+  as_tibble()
+
+dist_emploi <- mobilites |> 
+  filter(fl&fw) |> 
+  left_join(coms , by = c("COMMUNE"="insee"), suffix = c("", ".o")) |> 
+  left_join(coms, by = c("DCLT"="insee"), suffix = c("", ".d") ) |> 
+  mutate(d = st_distance(geometry, geometry.d, by_element = TRUE)) |> 
+  arrange(d) |> 
+  mutate(cemp = cumsum(NB)/sum(NB)) 
+
+com99 <- dist_emploi |> 
+  filter(cemp<0.99) |> 
+  distinct(DCLT) |> 
+  pull()
+
+communes <- communes |> 
+  mutate(mobpro99 = INSEE_COM %in% com99)
+
+qs::qsave(communes, communes_ar_file)  
 
 emplois_by_DCLT <- mobilites[,
                              .(emp = sum(NB), emp_scot = sum(NB_in)),
@@ -68,17 +97,26 @@ emplois_by_DCLT <- mobilites[,
 
 # ---- Récupération des surfaces de FF2018 par code NAF ----
 con <- nuvolos::get_connection()
+
+deps <- com_ze |> 
+  distinct(DEP) |>
+  pull() |> 
+  str_c(collapse = "','") |> 
+  sort()
+deps <- str_c("('", deps , "')")
+
 locaux <- DBI::dbGetQuery(
   con, 
-  "SELECT sprincp, cconac, stoth, slocal, idcom, X, Y
+  glue("SELECT sprincp, cconac, stoth, slocal, idcom, X, Y
     FROM FF2018_PB0010_LOCAL
-    WHERE ccodep IN ('13', '30', '84', '83', '04') AND
-     (cconac IS NOT NULL OR stoth > 0) ;")
+    WHERE ccodep IN {deps} AND
+     (cconac IS NOT NULL OR stoth > 0) ;"))
 
 locaux <- locaux |> 
   filter(!is.na(CCONAC), !is.na(X), !is.na(Y)) |> 
   mutate(NAF = str_sub(CCONAC, 1, 2),
          idINS = r3035::idINS3035(X,Y)) |> 
+  semi_join(c200ze, by="idINS") |> 
   rename(sp = SPRINCP,
          sh = STOTH,
          slocal = SLOCAL) |> 
@@ -103,18 +141,19 @@ naf <- naf |> mutate(group_naf = case_when(
   TRUE ~ NA_character_)) |> 
   setDT()
 
-locaux <- naf[locaux, on = "NAF"]
+locaux <- locaux |> 
+  left_join(naf, by = "NAF")
 
 # ---- Rasterisation des surfaces au carreau 200 par code NAF ----
 
 surf_by_naf <- locaux |> 
-  filter(ts>0, IDCOM %in% communes_emplois) |> 
+  filter(ts>0) |> 
   group_by(idINS, group_naf) |> 
   summarize(ts=sum(ts),
             IDCOM = first(IDCOM), .groups="drop")
 
 surf_by_naf.h <- locaux_h |> 
-  filter(ts>0, IDCOM %in% communes_emplois) |> 
+  filter(ts>0) |> 
   group_by(idINS) |> 
   summarize(ts=sum(ts),
             IDCOM = first(IDCOM))
@@ -124,7 +163,6 @@ surf_by_naf.h <- locaux_h |>
 ind_ze <- c200ze |> 
   st_drop_geometry() |>
   select(idINS, ind, IDCOM = com22)
-  filter(ind>0) 
 
 surf_by_naf <- full_join(surf_by_naf, ind_ze, by="idINS", suffix=c("", ".ind")) |> 
   mutate(ts  = replace_na(ts, 0),
@@ -157,145 +195,111 @@ surf_by_naf_h <- surf_by_naf |>
             ts = sum(ts),
             ind = sum(ind))
 
-
-template_lr <- Marseille_c200s
-template_lr[[1]][] <- 0
-
-surf_by_naf_h.st <- st_rasterize(surf_by_naf_h, 
-                                 template = template_lr, 
-                                 options = "MERGE_ALG=ADD")
-
-# ---- Surfaces totales par NAF et commune ----
-communes.st <- c200 |> 
-  transmute(idINS,
-            DCLT = str_sub(CODE_IRIS, 1, 5) |> as.integer()) |> # rasterize trompeur sur char
-  accesstars::idINS2stars(zone_emploi)
-
-surf_by_naf_DCLT <- c(surf_by_naf.st, communes.st) |> 
-  as_tibble() |>
-  select(-x, -y) |> 
-  pivot_longer(cols = -DCLT, names_to = "NA5", values_to = "ts") |> 
-  filter(DCLT != 0, ts != 0) |> 
+surf_by_naf_DCLT <- surf_by_naf |> 
+  rename(DCLT = IDCOM, NA5 = group_naf) |> 
   group_by(DCLT, NA5) |> 
-  summarise(ts = sum(ts), .groups = "drop") |> 
-  mutate(DCLT = as.character(DCLT))
+  summarize(ts = sum(ts),
+            ind = sum(ind),
+            .groups = "drop")
 
 # ---- Estimation des emplois en fonction de la surface ----
 # ATTENTION : il y a des emplois dans des communes sans surfaces correspondantes.
-(verif <- anti_join(emplois_by_DCLT, surf_by_naf_DCLT, by = c("DCLT", "NA5")))
-verif[, sum(emp)] / emplois_by_DCLT[, sum(emp)]
-verif[, sum(emp_scot)] / emplois_by_DCLT[, sum(emp_scot)]
+# pour les communes dans le périmètre, on utilise le nombre d'individus plutôt que les surfaces
+# (pas de surface pour le code NAF)
+# Il reste alors les communes hors périmètre (il y a un flux du scot vers ces communes)
+# mais elles sont au delà de 33km
+# ca fait un flux de 2% qui va être la fuite
+
+(verif <- anti_join(as_tibble(emplois_by_DCLT), surf_by_naf_DCLT, by = c("DCLT", "NA5")))
+complement <- ind_ze |> 
+  rename(DCLT = IDCOM) |> 
+  inner_join(verif, by=c("DCLT"), relationship = "many-to-many") |> 
+  mutate(ts = ind)
+
+surf_by_naf_c <- surf_by_naf |> 
+  bind_rows(complement |> select(idINS, IDCOM = DCLT, group_naf = NA5, ts, ind))
+surf_by_naf_c_DCLT <- surf_by_naf_c |> 
+  rename(DCLT = IDCOM, NA5 = group_naf) |> 
+  group_by(DCLT, NA5) |> 
+  summarize(ts = sum(ts),
+            ind = sum(ind),
+            .groups = "drop")
+(verif2 <- anti_join(as_tibble(emplois_by_DCLT), surf_by_naf_c_DCLT, by = c("DCLT", "NA5")))
+
+sum(verif2$emp) / emplois_by_DCLT[, sum(emp)]
+sum(verif2$emp_scot) / emplois_by_DCLT[, sum(emp_scot)]
 
 emplois_by_DCLT_c <- emplois_by_DCLT |> 
   left_join( surf_by_naf_DCLT, by = c("DCLT", "NA5")) |> 
   filter(DCLT %in% communes_emplois) |> 
-  group_by(DCLT) |> 
-  mutate(zut = all(is.na(ts)),
-         orphelins = sum(emp[is.na(ts)]),
-         emp_c = emp + orphelins*emp/sum(emp[!is.na(ts)]),
-         emp_c = ifelse(is.na(ts)&!zut, 0,
-                        ifelse(zut, 0 , emp_c))) |> 
   ungroup() 
 
-emp_pred <- c(surf_by_naf.st, communes.st) |> 
-  as_tibble() |>
-  pivot_longer(cols = -c(DCLT, x, y), names_to = "NA5", values_to = "ts") |> 
-  filter(DCLT != 0, ts != 0) |> 
-  inner_join(emplois_by_DCLT_c |> mutate(DCLT=as.numeric(DCLT)), by=c("DCLT", "NA5"), suffix = c("", ".com")) |> 
-  mutate(emp_pred = ts/ts.com * emp_c,
-         emp_pred_scot = emp_pred/emp*emp_scot) |> 
-  select(x,y,emp_pred, emp_pred_scot) |>
-  st_as_sf(coords = c("x", "y"), crs=3035) |> 
-  st_rasterize(template = template_lr, options = "MERGE_ALG=ADD")
+surf_by_naf <- surf_by_naf_c
 
-# 
-# mod_surf_to_emp <- emplois_by_DCLT_c |>
+emp_pred <- surf_by_naf |>
+  rename(DCLT = IDCOM, 
+         NA5 = group_naf) |> 
+  select(-ind) |> 
+  filter(ts != 0) |> 
+  inner_join(emplois_by_DCLT_c, by=c("DCLT", "NA5"), suffix = c("", ".com")) |> 
+  mutate(emp_pred = ts/ts.com * emp,
+         emp_pred_scot = ts/ts.com *emp_scot) |> 
+  select(emp_pred, emp_pred_scot, idINS, NA5) |> 
+  group_by(idINS) |> 
+  summarize(emp_pred = sum(emp_pred, na.rm=TRUE),
+            emp_pred_scot = sum(emp_pred_scot, na.rm=TRUE))
+
+qs::qsave(emp_pred, emp_pred_file)
+
+# je pense qu'on a pas besoin de la suite, ce qui compte c'est emp_pred
+# en bonus on a emp_pred_scot
+# # ---- Estimation des marges des emplois (uniquement) pourvus par les résidents ----
+# # NB : avec MOBPRO, les emplois pris en compte sont déjà ceux uniquement des résidents
+# les_emplois <- les_emplois  |> 
 #   as_tibble() |> 
-#   nest(data_secteur = -NA5) |>
-#   mutate(lm_res = map(data_secteur, ~ {
-#     data <- filter(.x, nb_emplois_c > 0, ts > 0)
-#     if(nrow(data)<3) return(NA)
-#     lm( log(nb_emplois_c) ~ log(ts), data = data)}))
+#   filter(emp_tot > 0, DCLT !=0) |> 
+#   mutate(idINS = coord2idINS(x, y)) |> 
+#   select(-x, -y) 
+# emp_mobpro <- mobpro[filter_live==TRUE&filter_work==TRUE, .(emp_r = sum(IPONDI)), by="DCLT"]
+# les_emplois <- les_emplois |> 
+#   mutate(DCLT = as.character(DCLT)) |> 
+#   select(emp_tot, idINS, DCLT) |> 
+#   inner_join(emp_mobpro, by="DCLT") |> 
+#   group_by(DCLT) |> 
+#   mutate(emp_des_res = emp_tot*first(emp_r)/sum(emp_tot))
 # 
-# input_jobs <- function(x, ...) {
-#   if (is.na(x) | x == 0) return(0)
-#   (exp(predict(object = ..., newdata = data.frame(ts = x))))
-# }
+# # ---- Calcul mobilité professionnelle par NA5 tout mode ----
+# mobilites <- dcast(mobilites, COMMUNE + DCLT + NA5 ~ TRANS, 
+#                    fun.aggregate = sum, 
+#                    value.var = "NB") 
 # 
-# emp_pred <- imap(mod_surf_to_emp$lm_res, ~ {
-#   st_apply(X = surf_by_naf.st[mod_surf_to_emp$NA5[.y]],
-#            MARGIN = c("x", "y"),
-#            FUN = "input_jobs",
-#            object = .x)
-# })
-
-emp_pred_h <- as_tibble(c(surf_by_naf_h.st, communes.st)) |> 
-  filter(DCLT != 0, ts != 0) |> 
-  mutate(DCLT = as.character(DCLT)) |> 
-  right_join(emplois_by_DCLT_c |> 
-               filter(zut) |>
-               group_by(DCLT) |> 
-               summarise(nb_emplois=sum(nb_emplois, na.rm=TRUE)), by="DCLT") |> 
-  group_by(DCLT) |> 
-  mutate(emp_pred = ts/sum(ts)*nb_emplois) |> 
-  ungroup() |> 
-  select(x,y,emp_pred) |> 
-  drop_na(x,y) |>
-  st_as_sf(coords=c("x", "y"), crs=3035) |> 
-  st_rasterize(template = template_lr, options = "MERGE_ALG=ADD")
-
-names(emp_pred_h) <- "h" 
-les_emplois <- c(emp_pred, emp_pred_h) |> 
-  mutate(emp_tot = emp_pred + h)
-les_emplois <- c(les_emplois, communes.st)
-
-# ---- Estimation des marges des emplois (uniquement) pourvus par les résidents ----
-# NB : avec MOBPRO, les emplois pris en compte sont déjà ceux uniquement des résidents
-les_emplois <- les_emplois  |> 
-  as_tibble() |> 
-  filter(emp_tot > 0, DCLT !=0) |> 
-  mutate(idINS = coord2idINS(x, y)) |> 
-  select(-x, -y) 
-emp_mobpro <- mobpro[filter_live==TRUE&filter_work==TRUE, .(emp_r = sum(IPONDI)), by="DCLT"]
-les_emplois <- les_emplois |> 
-  mutate(DCLT = as.character(DCLT)) |> 
-  select(emp_tot, idINS, DCLT) |> 
-  inner_join(emp_mobpro, by="DCLT") |> 
-  group_by(DCLT) |> 
-  mutate(emp_des_res = emp_tot*first(emp_r)/sum(emp_tot))
-
-# ---- Calcul mobilité professionnelle par NA5 tout mode ----
-mobilites <- dcast(mobilites, COMMUNE + DCLT + NA5 ~ TRANS, 
-                   fun.aggregate = sum, 
-                   value.var = "NB") 
-
-communes_residents <- scot_tot.epci
-
-mobilites[, DCLT := fifelse(as.character(DCLT) %in% communes_emplois, as.character(DCLT), "Hors zone")]
-mobilites[, COMMUNE := fifelse(as.character(COMMUNE) %in% communes_residents, as.character(COMMUNE), "Hors zone")]
-
-mobilites <- mobilites[COMMUNE != "Hors zone"] # ici on n'a pas besoin des travailleurs non résidents.
-
-mobilites[, tot_navetteurs := walk + bike + transit + car]
-
-# ---- Estimation des marges des actifs résidents ----
-popact <- readxl::read_xlsx("~/files/base-cc-emploi-pop-active-2018.xlsx" |> glue(), sheet = "COM_2018", skip=5) |>
-  transmute(COMMUNE=CODGEO,
-            pop1564 = P18_POP1564,
-            act1564 = P18_ACT1564,
-            chom1564 = P18_CHOM1564) 
-
-les_actifs <- c200ze |> 
-  mutate(COMMUNE = str_sub(IRIS, 1, 5)) |> 
-  filter(COMMUNE %in% communes_residents) |> 
-  left_join(popact, by = "COMMUNE") |> 
-  transmute(COMMUNE, 
-            act_18_64 = ind_18_64 * (act1564-chom1564)/pop1564,
-            fromidINS = idINS) |> 
-  st_drop_geometry()
-
-# ---- Estimation des marges des fuyars résidents ----
-les_fuites <- mobilites[, .(fuite = sum(tot_navetteurs * (DCLT == "Hors zone") / sum(tot_navetteurs))),
-                        by = "COMMUNE"]
-
-les_actifs <- les_actifs |> inner_join(les_fuites, by = "COMMUNE")
+# communes_residents <- scot_tot.epci
+# 
+# mobilites[, DCLT := fifelse(as.character(DCLT) %in% communes_emplois, as.character(DCLT), "Hors zone")]
+# mobilites[, COMMUNE := fifelse(as.character(COMMUNE) %in% communes_residents, as.character(COMMUNE), "Hors zone")]
+# 
+# mobilites <- mobilites[COMMUNE != "Hors zone"] # ici on n'a pas besoin des travailleurs non résidents.
+# 
+# mobilites[, tot_navetteurs := walk + bike + transit + car]
+# 
+# # ---- Estimation des marges des actifs résidents ----
+# popact <- readxl::read_xlsx("~/files/base-cc-emploi-pop-active-2018.xlsx" |> glue(), sheet = "COM_2018", skip=5) |>
+#   transmute(COMMUNE=CODGEO,
+#             pop1564 = P18_POP1564,
+#             act1564 = P18_ACT1564,
+#             chom1564 = P18_CHOM1564) 
+# 
+# les_actifs <- c200ze |> 
+#   mutate(COMMUNE = str_sub(IRIS, 1, 5)) |> 
+#   filter(COMMUNE %in% communes_residents) |> 
+#   left_join(popact, by = "COMMUNE") |> 
+#   transmute(COMMUNE, 
+#             act_18_64 = ind_18_64 * (act1564-chom1564)/pop1564,
+#             fromidINS = idINS) |> 
+#   st_drop_geometry()
+# 
+# # ---- Estimation des marges des fuyars résidents ----
+# les_fuites <- mobilites[, .(fuite = sum(tot_navetteurs * (DCLT == "Hors zone") / sum(tot_navetteurs))),
+#                         by = "COMMUNE"]
+# 
+# les_actifs <- les_actifs |> inner_join(les_fuites, by = "COMMUNE")
