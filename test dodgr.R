@@ -1,13 +1,17 @@
 library(tidyverse)
+library(dplyr)
 library(sf)
 library(furrr)
 library(qs)
 library(dodgr)
 library(accessibility)
 library(lobstr)
+library(osmdata)
+library(pak)
+# pak::pak("ropensci/osmdata")
+pak::pak('xtimbeau/accessibility')
 
-list.files("accessibility", full.names = TRUE) %>% walk(source)
-
+source('gtfs_adjusted.R')
 
 # box contient les limites des données OSM que l'on veut capturer
 # typiquement la zone d'étude un peu augmentée
@@ -23,7 +27,7 @@ box <- communes |>
   st_transform(4326) |>
   st_bbox()
 
-# le téélpchargement d'OSM via osmdata en silicate
+# le téléchargement d'OSM via osmdata en silicate
 # ca peut être un peu long (20m pour Paris)
 if(FALSE) {
   osm <- download_osmsc(box, workers = 16)
@@ -43,7 +47,7 @@ dodgr_router <- routing_setup_dodgr("~/files/dodgr/paca" |> glue(),
                                     turn_penalty = TRUE,
                                     distances = TRUE,
                                     n_threads = 4L,
-                                    overwrite = FALSE)
+                                    overwrite = TRUE)
 # On définit les origines
 c200 <- c200ze |>
   st_centroid() |> 
@@ -71,6 +75,7 @@ iso_transit_dt <- iso_accessibilite(quoi = opp,
                                     future=TRUE)
 
 ttt <- accessibility::ttm_idINS(iso_transit_dt)
+arrow::write_parquet(ttt, sink="~/files/transit_ref_dodgr.parquet" |> glue())
 
  
 # to/from comp --------
