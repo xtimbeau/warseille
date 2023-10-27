@@ -59,7 +59,7 @@ dodgr_bike <- routing_setup_dodgr(glue("{mdir}/dodgr/"),
                                   overwrite = TRUE,
                                   nofuture=FALSE)
 
-gg <- dgr_load_streetnet(dodgr_bike$graph_name)
+gg <- accessibility:::load_streetnet(dodgr_bike$graph_name)
 meso <- (gg$verts_c[match_points_to_verts(gg$verts_c, oo[1:100,]),])$id
 mesd <- (gg$verts_c[match_points_to_verts(gg$verts_c, dd[1:100,]),])$id
 graph <- dodgr:::preprocess_spatial_cols (dodgr:::tbl_to_df(gg$graph))
@@ -73,7 +73,7 @@ pg <- process_graph(gg$graph)
   
 tic();mm <- dodgr::dodgr_dists(gg$graph, meso, mesd);toc()
 tic();mm2 <- dodgr::dodgr_dists(gg$graph, oo[1:100,], dd[1:100,]);toc()
-tic();mm3 <- dodgr::dodgr_dists_pre(pg, oo[1:100,], dd[1:100,]);toc()
+tic();mm3 <- dodgr::dodgr_dists_pre(gg, oo[1:100,], dd[1:100,]);toc()
 tic();mm4 <- dodgr::dodgr_dists_pre(pg, meso, mesd);toc()
 
 to_from_indices <- dodgr:::to_from_index_with_tp (graph, meso, mesd)
