@@ -102,9 +102,9 @@ dodgr_router <- routing_setup_dodgr(glue("{mdir}/dodgr/"),
                                     distances = TRUE,
                                     elevation = TRUE,
                                     n_threads = 8L,
-                                    overwrite = FALSE,
+                                    overwrite = TRUE,
                                     nofuture = FALSE)
-plan("multisession", workers = 12L)
+plan("multisession", workers = 4L)
 
 unlink("{mdir}/temp_dodgr" |> glue(), recursive = TRUE)
 cardgr <- iso_accessibilite(quoi = opportunites, 
@@ -134,7 +134,7 @@ dodgr_bike <- routing_setup_dodgr(glue("{mdir}/dodgr/"),
                                   overwrite = FALSE,
                                   nofuture=FALSE)
 
-plan("multisession", workers = 1L)
+plan("multisession", workers = 4L)
 
 unlink("{mdir}/temp_bikedgr" |> glue(), recursive = TRUE)
 bikedgr <- iso_accessibilite(quoi = opportunites, 
@@ -159,10 +159,10 @@ dodgr_walk <- routing_setup_dodgr(glue("{mdir}/dodgr/"),
                                   distances = TRUE,
                                   denivele = TRUE,
                                   n_threads = 8L,
-                                  overwrite = FALSE,
+                                  overwrite = TRUE,
                                   nofuture  = FALSE)
 
-plan("multisession", workers = 2L)
+plan("multisession", workers = 4L)
 
 unlink("{mdir}/temp_walkdgr" |> glue(), recursive = TRUE)
 walkdgr <- iso_accessibilite(quoi = opportunites, 

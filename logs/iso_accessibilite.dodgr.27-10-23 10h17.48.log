@@ -1,0 +1,125 @@
+SUCCESS [2023-10-27 08:17:48] Calcul accessibilite version 2
+SUCCESS [2023-10-27 08:17:48] $type
+SUCCESS [2023-10-27 08:17:48] [1] "dodgr"
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $path
+SUCCESS [2023-10-27 08:17:48] /space_mounts/data/marseille//dodgr/
+SUCCESS [2023-10-27 08:17:48] FALSE
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $pg
+SUCCESS [2023-10-27 08:17:48] NULL
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $distances
+SUCCESS [2023-10-27 08:17:48] [1] TRUE
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $denivele
+SUCCESS [2023-10-27 08:17:48] [1] TRUE
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $pkg
+SUCCESS [2023-10-27 08:17:48] [1] "dodgr"
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $turn_penalty
+SUCCESS [2023-10-27 08:17:48] [1] TRUE
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $graph_name
+SUCCESS [2023-10-27 08:17:48] /space_mounts/data/marseille//dodgr//marseille.bicycle.dodgrnet
+SUCCESS [2023-10-27 08:17:48] FALSE
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $string
+SUCCESS [2023-10-27 08:17:48] dodgr routing bicycle sur /space_mounts/data/marseille//dodgr/ a 2023-10-27 08:17:40.233569
+SUCCESS [2023-10-27 08:17:48] FALSE
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $departure_datetime
+SUCCESS [2023-10-27 08:17:48] [1] "2019-12-17 08:00:00 UTC"
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $mode
+SUCCESS [2023-10-27 08:17:48] [1] "bicycle"
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $n_threads
+SUCCESS [2023-10-27 08:17:48] [1] 8
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $future
+SUCCESS [2023-10-27 08:17:48] [1] TRUE
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $future_routing
+SUCCESS [2023-10-27 08:17:48] function (routing) 
+SUCCESS [2023-10-27 08:17:48] {
+SUCCESS [2023-10-27 08:17:48]     rout <- routing
+SUCCESS [2023-10-27 08:17:48]     rout$processed_graph <- NULL
+SUCCESS [2023-10-27 08:17:48]     rout$elevation_data <- NULL
+SUCCESS [2023-10-27 08:17:48]     return(rout)
+SUCCESS [2023-10-27 08:17:48] }
+SUCCESS [2023-10-27 08:17:48] <bytecode: 0x561fa6cb2060>
+SUCCESS [2023-10-27 08:17:48] <environment: 0x561f97626528>
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] $core_init
+SUCCESS [2023-10-27 08:17:48] function (routing) 
+SUCCESS [2023-10-27 08:17:48] {
+SUCCESS [2023-10-27 08:17:48]     RcppParallel::setThreadOptions(numThreads = routing$n_threads)
+SUCCESS [2023-10-27 08:17:48]     rout <- routing
+SUCCESS [2023-10-27 08:17:48]     rout$pg <- load_streetnet(routing$graph_name)
+SUCCESS [2023-10-27 08:17:48]     if ("dz" %in% names(rout$pg$graph)) {
+SUCCESS [2023-10-27 08:17:48]         rout$pg$graph$dzplus <- rout$pg$graph$dz * rout$pg$graph$d * 
+SUCCESS [2023-10-27 08:17:48]             (rout$pg$graph$dz > 0)
+SUCCESS [2023-10-27 08:17:48]         rout$pg$graph_compound$dzplus <- rout$pg$graph_compound$dz * 
+SUCCESS [2023-10-27 08:17:48]             rout$pg$graph_compound$d * (rout$pg$graph_compound$dz > 
+SUCCESS [2023-10-27 08:17:48]             0)
+SUCCESS [2023-10-27 08:17:48]         rout$pg$graph_compound$dzplus[is.na(rout$pg$graph_compound$dzplus)] <- 0
+SUCCESS [2023-10-27 08:17:48]     }
+SUCCESS [2023-10-27 08:17:48]     logger::log_info("router {graph_name} chargé")
+SUCCESS [2023-10-27 08:17:48]     return(rout)
+SUCCESS [2023-10-27 08:17:48] }
+SUCCESS [2023-10-27 08:17:48] <bytecode: 0x561fa6cb1768>
+SUCCESS [2023-10-27 08:17:48] <environment: 0x561f97626528>
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] 
+SUCCESS [2023-10-27 08:17:48] tmax:120
+SUCCESS [2023-10-27 08:17:48] pdt:1
+SUCCESS [2023-10-27 08:17:48] chunk:20M
+SUCCESS [2023-10-27 08:17:48] resolution:200
+SUCCESS [2023-10-27 08:17:48] out:200
+SUCCESS [2023-10-27 08:17:48] les variables sont emplois
+SUCCESS [2023-10-27 08:17:49] taille:333.6M gr:17 res_gr:12800
+SUCCESS [2023-10-27 08:17:49] 26k ou, 12.8k quoi
+SUCCESS [2023-10-27 08:17:49] 33 carreaux, 8 subsampling
+SUCCESS [2023-10-27 08:17:49] future:TRUE, 2 workers
+INFO [43356] [2023-10-27 08:19:00] router /space_mounts/data/marseille//dodgr//marseille.bicycle.dodgrnet chargé
+INFO [43357] [2023-10-27 08:19:00] router /space_mounts/data/marseille//dodgr//marseille.bicycle.dodgrnet chargé
+INFO [43356] [2023-10-27 08:19:02] dodgr_ttm called, TRUE, 8x96
+INFO [43357] [2023-10-27 08:19:02] dodgr_ttm called, TRUE, 7x21
+INFO [43357] [2023-10-27 08:19:22] dodgr_ttm called, FALSE, 7x12829
+INFO [43356] [2023-10-27 08:19:22] dodgr_ttm called, FALSE, 8x12829
+INFO [43357] [2023-10-27 08:21:33] dodgr_ttm called, FALSE, 7x1769
+INFO [43356] [2023-10-27 08:21:35] dodgr_ttm called, FALSE, 11x298
+INFO [43356] [2023-10-27 08:22:30] paquet:N2265600E3891200 ppou:8824 ttm ok 964
+INFO [43356] [2023-10-27 08:22:30] dodgr_ttm called, FALSE, 12x318
+INFO [43357] [2023-10-27 08:22:41] paquet:N2227200E3955200 ppou:8 ttm ok 11592
+INFO [43357] [2023-10-27 08:22:41] dodgr_ttm called, FALSE, 8x2073
+INFO [43356] [2023-10-27 08:23:28] paquet:N2265600E3891200 ppou:9298 ttm ok 2566
+INFO [43356] [2023-10-27 08:23:28] dodgr_ttm called, FALSE, 16x318
+INFO [43357] [2023-10-27 08:23:55] paquet:N2227200E3955200 ppou:20 ttm ok 14335
+INFO [43357] [2023-10-27 08:23:55] dodgr_ttm called, FALSE, 2x1769
+INFO [43356] [2023-10-27 08:24:27] paquet:N2265600E3891200 ppou:9556 ttm ok 3537
+INFO [43356] [2023-10-27 08:24:27] dodgr_ttm called, FALSE, 10x364
+INFO [43357] [2023-10-27 08:25:04] paquet:N2227200E3955200 ppou:24 ttm ok 3538
+INFO [43357] [2023-10-27 08:25:04] dodgr_ttm called, FALSE, 1x2028
+INFO [43356] [2023-10-27 08:25:23] paquet:N2265600E3891200 ppou:9558 ttm ok 1981
+INFO [43356] [2023-10-27 08:25:23] dodgr_ttm called, FALSE, 6x287
+INFO [43357] [2023-10-27 08:26:12] paquet:N2227200E3955200 ppou:25 ttm ok 1861
+INFO [43357] [2023-10-27 08:26:12] dodgr_ttm called, FALSE, 3x2038
+INFO [43356] [2023-10-27 08:26:19] paquet:N2265600E3891200 ppou:9682 ttm ok 1486
+INFO [43356] [2023-10-27 08:26:19] dodgr_ttm called, FALSE, 13x307
+INFO [43356] [2023-10-27 08:27:15] paquet:N2265600E3891200 ppou:9814 ttm ok 3562
+INFO [43356] [2023-10-27 08:27:15] dodgr_ttm called, FALSE, 1x244
+INFO [43357] [2023-10-27 08:27:22] paquet:N2227200E3955200 ppou:26 ttm ok 5429
+SUCCESS [43357] [2023-10-27 08:27:23] carreau:N2227200E3955200 5 ancres 130.4k@260.9p/s demandees, 51.8k@103.5p/s retenues
+INFO [43357] [2023-10-27 08:27:25] dodgr_ttm called, TRUE, 8x1333
+INFO [43357] [2023-10-27 08:27:47] dodgr_ttm called, FALSE, 8x12829
+INFO [43356] [2023-10-27 08:28:12] paquet:N2265600E3891200 ppou:9953 ttm ok 244
+INFO [43356] [2023-10-27 08:28:12] dodgr_ttm called, FALSE, 27x1012
+INFO [43356] [2023-10-27 08:29:38] paquet:N2265600E3891200 ppou:10589 ttm ok 7655
+SUCCESS [43356] [2023-10-27 08:29:38] carreau:N2265600E3891200 8 ancres 151.7k@238.6p/s demandees, 29.5k@46.3p/s retenues
+INFO [43356] [2023-10-27 08:29:41] dodgr_ttm called, TRUE, 8x500
+INFO [43357] [2023-10-27 08:29:50] dodgr_ttm called, FALSE, 86x3156
+INFO [43356] [2023-10-27 08:30:00] dodgr_ttm called, FALSE, 8x12829
+INFO [43356] [2023-10-27 08:31:56] dodgr_ttm called, FALSE, 30x1160
