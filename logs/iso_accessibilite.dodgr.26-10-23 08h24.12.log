@@ -1,0 +1,85 @@
+SUCCESS [2023-10-26 06:24:12] Calcul accessibilite version 2
+SUCCESS [2023-10-26 06:24:12] $type
+SUCCESS [2023-10-26 06:24:12] [1] "dodgr"
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $path
+SUCCESS [2023-10-26 06:24:12] /space_mounts/data/marseille//dodgr/
+SUCCESS [2023-10-26 06:24:12] FALSE
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $pg
+SUCCESS [2023-10-26 06:24:12] NULL
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $distances
+SUCCESS [2023-10-26 06:24:12] [1] TRUE
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $denivele
+SUCCESS [2023-10-26 06:24:12] [1] TRUE
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $pkg
+SUCCESS [2023-10-26 06:24:12] [1] "dodgr"
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $turn_penalty
+SUCCESS [2023-10-26 06:24:12] [1] FALSE
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $graph_name
+SUCCESS [2023-10-26 06:24:12] /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet
+SUCCESS [2023-10-26 06:24:12] FALSE
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $string
+SUCCESS [2023-10-26 06:24:12] dodgr routing foot sur /space_mounts/data/marseille//dodgr/ a 2023-10-26 06:24:09.166549
+SUCCESS [2023-10-26 06:24:12] FALSE
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $departure_datetime
+SUCCESS [2023-10-26 06:24:12] [1] "2019-12-17 08:00:00 UTC"
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $mode
+SUCCESS [2023-10-26 06:24:12] [1] "foot"
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $n_threads
+SUCCESS [2023-10-26 06:24:12] [1] 8
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $future
+SUCCESS [2023-10-26 06:24:12] [1] TRUE
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $future_routing
+SUCCESS [2023-10-26 06:24:12] function (routing) 
+SUCCESS [2023-10-26 06:24:12] {
+SUCCESS [2023-10-26 06:24:12]     rout <- routing
+SUCCESS [2023-10-26 06:24:12]     rout$processed_graph <- NULL
+SUCCESS [2023-10-26 06:24:12]     rout$elevation_data <- NULL
+SUCCESS [2023-10-26 06:24:12]     return(rout)
+SUCCESS [2023-10-26 06:24:12] }
+SUCCESS [2023-10-26 06:24:12] <bytecode: 0x56026c75f738>
+SUCCESS [2023-10-26 06:24:12] <environment: 0x56027353b3e0>
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] $core_init
+SUCCESS [2023-10-26 06:24:12] function (routing) 
+SUCCESS [2023-10-26 06:24:12] {
+SUCCESS [2023-10-26 06:24:12]     RcppParallel::setThreadOptions(numThreads = routing$n_threads)
+SUCCESS [2023-10-26 06:24:12]     rout <- routing
+SUCCESS [2023-10-26 06:24:12]     rout$pg <- load_streetnet(routing$graph_name)
+SUCCESS [2023-10-26 06:24:12]     if ("dz" %in% names(rout$pg$graph)) {
+SUCCESS [2023-10-26 06:24:12]         rout$pg$graph$dzplus <- rout$pg$graph$dz * rout$pg$graph$d * 
+SUCCESS [2023-10-26 06:24:12]             (rout$pg$graph$dz > 0)
+SUCCESS [2023-10-26 06:24:12]         rout$pg$graph_compound$dzplus <- rout$pg$graph_compound$dz * 
+SUCCESS [2023-10-26 06:24:12]             rout$pg$graph_compound$d * (rout$pg$graph_compound$dz > 
+SUCCESS [2023-10-26 06:24:12]             0)
+SUCCESS [2023-10-26 06:24:12]         rout$pg$graph_compound$dzplus[is.na(rout$pg$graph_compound$dzplus)] <- 0
+SUCCESS [2023-10-26 06:24:12]     }
+SUCCESS [2023-10-26 06:24:12]     logger::log_info("router {graph_name} chargé")
+SUCCESS [2023-10-26 06:24:12]     return(rout)
+SUCCESS [2023-10-26 06:24:12] }
+SUCCESS [2023-10-26 06:24:12] <bytecode: 0x56026c760030>
+SUCCESS [2023-10-26 06:24:12] <environment: 0x56027353b3e0>
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] 
+SUCCESS [2023-10-26 06:24:12] tmax:120
+SUCCESS [2023-10-26 06:24:12] pdt:1
+SUCCESS [2023-10-26 06:24:12] chunk:20M
+SUCCESS [2023-10-26 06:24:12] resolution:200
+SUCCESS [2023-10-26 06:24:12] out:200
+SUCCESS [2023-10-26 06:24:12] les variables sont emplois
+SUCCESS [2023-10-26 06:24:12] taille:333.6M gr:17 res_gr:12800
+SUCCESS [2023-10-26 06:24:12] 26k ou, 12.8k quoi
+SUCCESS [2023-10-26 06:24:12] 33 carreaux, 8 subsampling
+SUCCESS [2023-10-26 06:24:13] future:TRUE, 2 workers
