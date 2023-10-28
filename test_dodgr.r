@@ -30,6 +30,8 @@ resol <- 200
 c200ze <- qs::qread("{c200ze_file}" |> glue()) |> 
   filter(pze)
 
+load(empetact_file)
+
 origines <- c200ze |>
   filter(ind>0, scot) |> 
   select(ind) |>
@@ -56,7 +58,7 @@ dodgr_bike <- routing_setup_dodgr(glue("{mdir}/dodgr/"),
                                   distances = TRUE,
                                   denivele = TRUE,
                                   n_threads = 8L,
-                                  overwrite = TRUE,
+                                  overwrite = FALSE,
                                   nofuture=FALSE)
 
 gg <- accessibility:::load_streetnet(dodgr_bike$graph_name)

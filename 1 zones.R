@@ -7,7 +7,6 @@ library(glue)
 library(stringr)
 library(pins)
 library(AzureStor) 
-library(writexl)
 
 progressr::handlers(global = TRUE)
 progressr::handlers(progressr::handler_progress(format = ":bar :percent :eta", width = 80))
@@ -138,6 +137,11 @@ dir.create(repository_notc)
 localr5 <- str_c(localdata, "/r5_base")
 localr5car <- str_c(localdata, "/r5car")
 
+# résultats intermédiaires
+mobpro_file <- "{mdir}/mobpro.qs" |> glue()
+empetact <- "{mdir}/empetact.qs" |> glue()
+paires_mobpro_dataset <- "{mdir}/paires_mobpro" |> glue()
+
 ## informations spécifique sur la ville
 elevation <- "{localr5}/elev_aix_marseille.tif" |> glue()
 empze_file <- "{mdir}/empze.qs" |> glue()
@@ -215,9 +219,11 @@ save(list = unique(
     "meaps_rep",
     "mob2019", 
     "mod_rep",
+    "mobpro_file",
     "newpredict_file",
     "nonproproba_file",
     "output_rep",
+    "paires_mobpro_dataset",
     "pbf_file",
     "pbf_rep",
     "popactive_file",
