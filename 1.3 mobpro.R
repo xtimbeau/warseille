@@ -67,8 +67,6 @@ mobilites[, TRANS := factor(TRANS) |>
 mobpro <- mobilites |> 
   filter(fl|fw)
 
-qs::qsave(mobilites, mobpro_file)
-
 communes <- qs::qread(communes_ar_file)
 
 coms <- communes |>
@@ -91,6 +89,12 @@ mobpro99 <- mobilites |>
   mutate(cemp = cumsum(emp_scot)/sum(emp_scot),
          mobpro99 = cemp<=.99) |> 
   transmute(COMMUNE, DCLT, fl, fw, mobpro99)
+
+mobilites <- mobilites |> 
+  left_join(mobpro99 |> select(COMMUNE, DCLT, mobpro99), by=c("COMMUNE", "DCLT")) |> 
+  mutate(mobpro99=replace_na(mobpro99, FALSE))
+
+qs::qsave(mobilites, mobpro_file)
 
 communes <- communes |> 
   semi_join(mobpro99 |> filter(mobpro99), by=c("INSEE_COM"="DCLT"))
