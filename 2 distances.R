@@ -155,11 +155,11 @@ arrow::write_parquet(ttt, glue("{dir_dist}/bike.parquet"))
 
 dodgr_walk <- routing_setup_dodgr(glue("{mdir}/dodgr/"), 
                                   mode = "WALK", 
-                                  turn_penalty = FALSE,
+                                  turn_penalty = TRUE,
                                   distances = TRUE,
                                   denivele = TRUE,
                                   n_threads = 8L,
-                                  overwrite = TRUE,
+                                  overwrite = FALSE,
                                   nofuture  = FALSE)
 
 plan("multisession", workers = 4L)
@@ -192,8 +192,7 @@ r5_walk <- routing_setup_r5(path = '~/files/localr5/',
                             overwrite = TRUE, 
                             di=TRUE, 
                             elevation="TOBLER", 
-                            max_rows=50000, 
-                            elevation_tif = "elev_aix_marseille.tif", # calcule les dénivelés si di est true
+                            max_rows=50000,
                             max_rides = 1)
 
 iso_walk_dt <- iso_accessibilite(quoi = opportunites, 
