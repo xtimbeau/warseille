@@ -64,7 +64,10 @@ mobilites[, TRANS := factor(TRANS) |>
               "none" = "1","walk" = "2", "bike" = "3", 
               "car" = c("4", "5"), "transit" = "6")]
 
-qs::qsave(mobilites, mobilites_file)
+mobpro <- mobilites |> 
+  filter(fl|fw)
+
+qs::qsave(mobilites, mobpro_file)
 
 communes <- qs::qread(communes_ar_file)
 
@@ -73,21 +76,24 @@ coms <- communes |>
   st_centroid() |> 
   as_tibble()
 
-dist_emploi <- mobilites |> 
+mobpro99 <- mobilites |> 
+  st_drop_geometry() |> 
+  group_by(COMMUNE, DCLT) |> 
+  summarize(fl = any(fl),
+            fw = any(fw),
+            emp = sum(NB),
+            emp_scot = sum(NB_in), .groups = "drop") |> 
   filter(fl&fw) |> 
   left_join(coms , by = c("COMMUNE"="insee"), suffix = c("", ".o")) |> 
   left_join(coms, by = c("DCLT"="insee"), suffix = c("", ".d") ) |> 
   mutate(d = st_distance(geometry, geometry.d, by_element = TRUE)) |> 
   arrange(d) |> 
-  mutate(cemp = cumsum(NB)/sum(NB)) 
-
-com99 <- dist_emploi |> 
-  filter(cemp<0.99) |> 
-  distinct(DCLT) |> 
-  pull()
+  mutate(cemp = cumsum(emp_scot)/sum(emp_scot),
+         mobpro99 = cemp<=.99) |> 
+  transmute(COMMUNE, DCLT, fl, fw, mobpro99)
 
 communes <- communes |> 
-  mutate(mobpro99 = INSEE_COM %in% com99)
+  semi_join(mobpro99 |> filter(mobpro99), by=c("INSEE_COM"="DCLT"))
 
 qs::qsave(communes, communes_ar_file)  
 
@@ -208,7 +214,7 @@ surf_by_naf_DCLT <- surf_by_naf |>
 # (pas de surface pour le code NAF)
 # Il reste alors les communes hors périmètre (il y a un flux du scot vers ces communes)
 # mais elles sont au delà de 33km
-# ca fait un flux de 2% qui va être la fuite
+# ca fait un flux de 1% qui va être la fuite
 
 (verif <- anti_join(as_tibble(emplois_by_DCLT), surf_by_naf_DCLT, by = c("DCLT", "NA5")))
 complement <- ind_ze |> 
@@ -244,12 +250,60 @@ emp_pred <- surf_by_naf |>
   inner_join(emplois_by_DCLT_c, by=c("DCLT", "NA5"), suffix = c("", ".com")) |> 
   mutate(emp_pred = ts/ts.com * emp,
          emp_pred_scot = ts/ts.com *emp_scot) |> 
-  select(emp_pred, emp_pred_scot, idINS, NA5) |> 
+  select(emp_pred, emp_pred_scot, idINS, NA5, DCLT) |> 
   group_by(idINS) |> 
-  summarize(emp_pred = sum(emp_pred, na.rm=TRUE),
-            emp_pred_scot = sum(emp_pred_scot, na.rm=TRUE))
+  summarize(
+    DCLT = first(DCLT),
+    emp_pred = sum(emp_pred, na.rm=TRUE),
+    emp_pred_scot = sum(emp_pred_scot, na.rm=TRUE))
 
 qs::qsave(emp_pred, emp_pred_file)
+rm(c200, communes)
+gc()
+# on génére ensuite les paires d'idINS pertinentes (ie associées à un flux mobpro)
+
+com_paires <- mobilites |> 
+  filter(fw&fl) |> 
+  semi_join(mobpro99 |> filter(mobpro99), by = c("COMMUNE", "DCLT")) |> 
+  rename(mode = TRANS) |> 
+  group_by(COMMUNE, DCLT, mode) |> 
+  summarize(emp_scot = sum(NB_in), .groups = "drop") |> 
+  pivot_wider(id_cols = c(COMMUNE, DCLT), names_from = mode, values_from = c(emp_scot), values_fill = 0) |> 
+  transmute(COMMUNE, DCLT, across(c(car, walk, bike, transit), ~ .x>0))
+
+c200ze <- c200ze |> 
+  st_drop_geometry() 
+
+paires_mobpro <- pmap_dfr(com_paires, ~{
+  from <- c200ze |> 
+    filter(com22==..1, ind>0) |>
+    select(fromidINS = idINS)
+  if(nrow(from)>0) {
+    from_4326 <- r3035::idINS2lonlat(from$fromidINS) |> 
+      rename(o_lon = lon, o_lat = lat)
+    from <- from |> 
+      bind_cols(from_4326)
+  }
+  to <- emp_pred |>
+    filter(DCLT==..2, emp_pred>0) |> 
+    select(toidINS = idINS)
+  if(nrow(to)>0) {
+    to_4326 <- r3035::idINS2lonlat(to$toidINS) |> 
+      rename(d_lon = lon, d_lat = lat)
+    to <- to |> 
+      bind_cols(to_4326)
+  }
+  if(length(to)>0&length(from)>0) {
+    it <- dplyr::cross_join(from, to)
+    it <- it |> 
+      dplyr::mutate(COMMUNE = .x, DCLT = .y, car = ..3, walk = ..4, bike = ..5, transit = ..6,
+             euc = r3035::idINS2dist(fromidINS, toidINS)/1000) 
+  } else
+    it <- tibble::tibble()
+  it
+}) 
+unlink(paires_mobpro_dataset)
+arrow::write_dataset(paires_mobpro, paires_mobpro_dataset, partitioning = "COMMUNE")
 
 # je pense qu'on a pas besoin de la suite, ce qui compte c'est emp_pred
 # en bonus on a emp_pred_scot
