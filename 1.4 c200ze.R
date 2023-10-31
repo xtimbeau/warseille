@@ -14,8 +14,16 @@ conflict_prefer_all("dplyr", quiet=TRUE)
 bl <- load("baselayer.rda")
 
 c200 <- qread(c200_file) # version 2017
+
+mobpro <- qs::qread(mobpro_file) |> 
+  filter(mobpro95)
+
+communes <- unique(mobpro$COMMUNE)
+dclts <- unique(mobpro$DCLT)
+union_com <- unique(c(dclts, communes))
+
 iris <- qread(iris_file) |> 
-  filter(DEP %in% c('13', '30', '84', '83', '04')) |> 
+  filter(DEPCOM %in% union_com) |> 
   mutate(id = 1:n())
 
 com_ze <- iris |> 
@@ -45,21 +53,21 @@ l2 <- st_join(
 irises[l_irises>=2] <- l2 |> pull(id)
 flat_irises <- purrr::list_c(irises)
 
-coms <- qs::qread(communes_ar_file) |> 
-  st_drop_geometry() |> 
-  filter(ze)
-scot <- coms |> 
-  filter(scot) |> 
-  pull(INSEE_COM)
-pze <- coms |> 
-  filter(pze) |> 
-  pull(INSEE_COM)
-ze <- coms |> 
-  filter(ze) |> 
-  pull(INSEE_COM)
-mobpro99 <- coms |> 
-  filter(mobpro99) |> 
-  pull(INSEE_COM)
+# # coms <- qs::qread(communes_ar_file) |> 
+# #   st_drop_geometry() |> 
+# #   filter(ze)
+# # scot <- coms |> 
+# #   filter(scot) |> 
+# #   pull(INSEE_COM)
+# # pze <- coms |> 
+# #   filter(pze) |> 
+# #   pull(INSEE_COM)
+# # ze <- coms |> 
+# #   filter(ze) |> 
+# #   pull(INSEE_COM)
+# mobpro99 <- coms |> 
+#   filter(mobpro99) |> 
+#   pull(INSEE_COM)
 
 c200i <- c200 |> 
   semi_join(com_ze, by=c("com22"="idcom")) |> 
@@ -87,10 +95,8 @@ c200ze <- full_join(c200i |> st_drop_geometry(), c200e |> st_drop_geometry() |> 
   st_as_sf(crs=3035) 
 
 c200ze <- c200ze |> 
-  mutate(ze = com %in% ze,
-         pze = com %in% pze,
-         mobpro99 = com %in% mobpro99,
-         scot = com %in% scot)
+  mutate(ze = com %in% dclts,
+         scot = com %in% communes)
 
 # on ajoute les géographies 17 à 22
 

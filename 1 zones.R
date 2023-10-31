@@ -151,6 +151,7 @@ pbf_file <- "lr.pbf"
 pbf_rep <- "{mdir}/OSM/" |> glue()
 communes_file <- "{mdir}/communes.qs" |> glue()
 communes_ar_file <- "{mdir}/communes_ar.qs" |> glue()
+communes_mb99_file <- "{mdir}/communes_mb99.qs" |> glue()
 emp_pred_file <- "{mdir}/emp_pred.qs" |> glue()
 # dodgr_profiles <- "{localdata}/dodgr/dodgr_profiles.json" |> glue()
 # alternative_scenario <- "{localdata}/co2/filo_carbone_okok.gpkg" |> glue()
@@ -191,6 +192,7 @@ save(list = unique(
     "com2021_file",
     "communes_file",
     "communes_ar_file",
+    "communes_mb99_file",
     "decor_carte_file",
     "densitescommunes",
     "deploc_file",
