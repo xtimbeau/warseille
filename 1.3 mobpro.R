@@ -20,20 +20,10 @@ load("baselayer.rda") # executer 1. zones avant
 # on prend les IRIS 2022
 iris <- qread(iris_file)
 
-c200 <- qread(c200_file) # version 2017
-
-com_ze <- iris[zone_emploi, ] |>
-  rename(COM=DEPCOM) |> 
-  group_by(COM) |>
-  summarize(DEP = first(DEP)) |>
-  rename(idcom=COM)
-
-c200ze <- c200 |> 
-  semi_join(com_ze |> st_drop_geometry(), by=c("com22"="idcom"))
-
-mb_file <- archive_extract(
+ curl::curl_download(
   "https://www.insee.fr/fr/statistiques/fichier/7637844/RP2020_mobpro_csv.zip",
-  "/tmp")
+  "/tmp/mobpro.zip")
+mb_file <- archive_extract("/tmp/mobpro.zip", "/tmp")
 mobpro <- vroom("/tmp/{mb_file[[1]]}" |> glue())
 
 setDT(mobpro)
@@ -41,22 +31,19 @@ setDT(mobpro)
 mobpro <- mobpro[between(as.numeric(AGEREVQ),18,64),]
 mobpro <- mobpro[,COMMUNE :=fifelse(ARM=="ZZZZZ", COMMUNE, ARM)]
 
-communes_emplois <- com_ze$idcom
 scot <- qs::qread(communes_ar_file) |>
   filter(SIREN_EPCI %in% epci.metropole) |> 
-  pull(INSEE_COM)
+  pull(INSEE_COM) |> sort()
 
 mobpro[, filter_live := COMMUNE %in% scot] 
-mobpro[, filter_work := DCLT %in% communes_emplois]
 
-mobpro <- mobpro[!(filter_live == FALSE & filter_work == FALSE)]
+mobpro <- mobpro[(filter_live == TRUE) , ]
 
 # ---- Synthèse MOBPRO par codes NAF et modes de transport ----
 
 mobilites <- mobpro[, .(NB = sum(IPONDI), 
                         NB_in = sum((COMMUNE%chin%scot)*IPONDI),
-                        fl = first(filter_live), 
-                        fw = first(filter_work)), 
+                        fl = first(filter_live)), 
                     by = c("COMMUNE", "DCLT", "NA5", "TRANS")]
 
 mobilites[, TRANS := factor(TRANS) |> 
@@ -64,9 +51,7 @@ mobilites[, TRANS := factor(TRANS) |>
               "none" = "1","walk" = "2", "bike" = "3", 
               "car" = c("4", "5"), "transit" = "6")]
 
-mobpro <- mobilites |> 
-  filter(fl|fw)
-
+mobpro <- mobilites 
 communes <- qs::qread(communes_ar_file)
 
 coms <- communes |>
@@ -78,38 +63,42 @@ mobpro99 <- mobilites |>
   st_drop_geometry() |> 
   group_by(COMMUNE, DCLT) |> 
   summarize(fl = any(fl),
-            fw = any(fw),
             emp = sum(NB),
             emp_scot = sum(NB_in), .groups = "drop") |> 
-  filter(fl&fw) |> 
   left_join(coms , by = c("COMMUNE"="insee"), suffix = c("", ".o")) |> 
   left_join(coms, by = c("DCLT"="insee"), suffix = c("", ".d") ) |> 
   mutate(d = st_distance(geometry, geometry.d, by_element = TRUE)) |> 
   arrange(d) |> 
   mutate(cemp = cumsum(emp_scot)/sum(emp_scot),
-         mobpro99 = cemp<=.99) |> 
-  transmute(COMMUNE, DCLT, fl, fw, mobpro99)
+         mobpro99 = cemp <= .99,
+         mobpro95 = cemp <= .95) |> 
+  transmute(COMMUNE, DCLT, fl, mobpro99, mobpro95, d, cemp)
 
 mobilites <- mobilites |> 
-  left_join(mobpro99 |> select(COMMUNE, DCLT, mobpro99), by=c("COMMUNE", "DCLT")) |> 
-  mutate(mobpro99=replace_na(mobpro99, FALSE))
+  left_join(mobpro99 |> select(COMMUNE, DCLT, mobpro99, mobpro95), by=c("COMMUNE", "DCLT")) 
 
 qs::qsave(mobilites, mobpro_file)
+communes_emplois <- mobpro99 |> filter(mobpro95) |> distinct(DCLT)
+communes95 <- mobpro99 |> filter(mobpro95) |> distinct(COMMUNE, DCLT)
+communes95 <- unique(c(communes95$COMMUNE, communes95$DCLT))
+communes <- communes |>
+  filter(INSEE_COM %in% communes95)
 
-communes <- communes |> 
-  semi_join(mobpro99 |> filter(mobpro99), by=c("INSEE_COM"="DCLT"))
+qs::qsave(communes, communes_mb99_file)  
 
-qs::qsave(communes, communes_ar_file)  
-
-emplois_by_DCLT <- mobilites[,
+emplois_by_DCLT <- mobilites[ mobpro95==TRUE,
                              .(emp = sum(NB), emp_scot = sum(NB_in)),
                              by = c("DCLT", "NA5")]
+
+
+c200ze <- qread(c200_file) |> 
+  filter(com22 %in% communes95)
 
 # ---- Récupération des surfaces de FF2018 par code NAF ----
 con <- nuvolos::get_connection()
 
-deps <- com_ze |> 
-  distinct(DEP) |>
+deps <- communes |> 
+  distinct(INSEE_DEP) |>
   pull() |> 
   str_c(collapse = "','") |> 
   sort()
@@ -123,10 +112,10 @@ locaux <- DBI::dbGetQuery(
      (cconac IS NOT NULL OR stoth > 0) ;"))
 
 locaux <- locaux |> 
+  filter(IDCOM%in%communes95) |> 
   filter(!is.na(CCONAC), !is.na(X), !is.na(Y)) |> 
   mutate(NAF = str_sub(CCONAC, 1, 2),
          idINS = r3035::idINS3035(X,Y)) |> 
-  semi_join(c200ze, by="idINS") |> 
   rename(sp = SPRINCP,
          sh = STOTH,
          slocal = SLOCAL) |> 
@@ -220,13 +209,14 @@ surf_by_naf_DCLT <- surf_by_naf |>
 # mais elles sont au delà de 33km
 # ca fait un flux de 1% qui va être la fuite
 
-(verif <- anti_join(as_tibble(emplois_by_DCLT), surf_by_naf_DCLT, by = c("DCLT", "NA5")))
+(verif <- anti_join(as_tibble(emplois_by_DCLT), surf_by_naf_DCLT |> filter(ts>0), by = c("DCLT", "NA5")))
 complement <- ind_ze |> 
   rename(DCLT = IDCOM) |> 
   inner_join(verif, by=c("DCLT"), relationship = "many-to-many") |> 
   mutate(ts = ind)
 
-surf_by_naf_c <- surf_by_naf |> 
+surf_by_naf_c <- surf_by_naf |>
+  filter(ts>0) |> 
   bind_rows(complement |> select(idINS, IDCOM = DCLT, group_naf = NA5, ts, ind))
 surf_by_naf_c_DCLT <- surf_by_naf_c |> 
   rename(DCLT = IDCOM, NA5 = group_naf) |> 
@@ -240,8 +230,8 @@ sum(verif2$emp) / emplois_by_DCLT[, sum(emp)]
 sum(verif2$emp_scot) / emplois_by_DCLT[, sum(emp_scot)]
 
 emplois_by_DCLT_c <- emplois_by_DCLT |> 
-  left_join( surf_by_naf_DCLT, by = c("DCLT", "NA5")) |> 
-  filter(DCLT %in% communes_emplois) |> 
+  left_join( surf_by_naf_c_DCLT, by = c("DCLT", "NA5")) |> 
+  filter(DCLT %in% communes_emplois$DCLT) |> 
   ungroup() 
 
 surf_by_naf <- surf_by_naf_c
@@ -250,7 +240,7 @@ emp_pred <- surf_by_naf |>
   rename(DCLT = IDCOM, 
          NA5 = group_naf) |> 
   select(-ind) |> 
-  filter(ts != 0) |> 
+  filter(ts > 0) |> 
   inner_join(emplois_by_DCLT_c, by=c("DCLT", "NA5"), suffix = c("", ".com")) |> 
   mutate(emp_pred = ts/ts.com * emp,
          emp_pred_scot = ts/ts.com *emp_scot) |> 
@@ -267,8 +257,7 @@ gc()
 # on génére ensuite les paires d'idINS pertinentes (ie associées à un flux mobpro)
 
 com_paires <- mobilites |> 
-  filter(fw&fl) |> 
-  semi_join(mobpro99 |> filter(mobpro99), by = c("COMMUNE", "DCLT")) |> 
+  filter(fl, mobpro95) |> 
   rename(mode = TRANS) |> 
   group_by(COMMUNE, DCLT, mode) |> 
   summarize(emp_scot = sum(NB_in), .groups = "drop") |> 
