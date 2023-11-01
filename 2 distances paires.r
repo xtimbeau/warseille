@@ -85,7 +85,7 @@ idINSes <- qs::qread(c200ze_file) |>
          to = emp_resident>0 & com %in%DCLTs) |> 
   filter(from | to)
 
-dgr_distances_by_com(idINSes, mobpro, dodgr_router)  
+dgr_distances_by_com(idINSes, mobpro, dodgr_router, clusterize = TRUE)  
 
 dgr_distances_by_paires(idINSes, mobpro, dodgr_router, chunk = 10000)  
 
@@ -96,7 +96,7 @@ dgr_distances_by_com(idINSes, mobpro |> filter(walk>0), dodgr_router, path = "dg
 # tentative d'optimisation
 
 com2com <- mobpro |>
-  filter(car>0) |> 
+  filter(bike>0) |> 
   select(COMMUNE, DCLT) |> 
   left_join(idINSes |> filter(from) |> count(com, name = "nfrom"), 
             by=c("COMMUNE"="com")) |> 
@@ -133,28 +133,34 @@ d_pairique <- function( com1, com2, data = com2com) {
   nCOMMUNE <- data |> distinct(COMMUNE, nfrom) |> pull(nfrom, name = COMMUNE)
   n1 <- nCOMMUNE[[com1]]
   n2 <- nCOMMUNE[[com2]]
-  nto1 <- sum((data |> filter(COMMUNE==com1) |> pull(nto)))
-  nto2 <- sum((data |> filter(COMMUNE==com2) |> pull(nto)))
+  com1dclt <- data |> filter(COMMUNE==com1) |> pull(DCLT)
+  com2dclt <- data |> filter(COMMUNE==com2) |> pull(DCLT)
+  nto1 <- sum(nDCLT[com1dclt])
+  nto2 <- sum(nDCLT[com2dclt])
   np_sep <- n1 * nto1 + n2 * nto2
-  np_union <- (n1+n2) * sum(nDCLT[(data |> filter(COMMUNE%in% c(com1, com2)) |> distinct(DCLT) |> pull())])
+  np_union <- (n1+n2) * sum(nDCLT[unique(c(com1dclt, com2dclt))])
   np_cross <- n1 * nto2 + n2 * nto1
   return((np_union-np_sep)/ np_cross)
 }
-d_pairique(13001, 13002)
+
+bench::mark(d_pairique(13001, 13002))
 plan("multisession", workers = 16)
-tt <- cross_join(com2com |> distinct(COMMUNE), com2com |> distinct(COMMUNE)) |> 
-  mutate(d = future_map2_dbl(COMMUNE.x, COMMUNE.y, d_pairique, .progress=TRUE))
-mm <- tt |> arrange(COMMUNE.x, COMMUNE.y) |> 
-  pivot_wider( names_from = COMMUNE.y, id_cols = COMMUNE.x, values_from = d) |> 
-  select(-COMMUNE.x) |> 
-  as.matrix()
-rownames(mm) <- colnames(mm)
-clust <- factoextra::hcut(as.dist(mm), method = "complete", k=4)
-ggdendro::ggdendrogram(clust, rotate = TRUE)
+communes <- com2com |> distinct(COMMUNE) |> pull()
+n <- length(communes)
+
+mm <- matrix(0, nrow = n, ncol = n, dimnames = list(communes, communes))
+for(i in 2:n)
+  for(j in 1:(i-1))  
+    mm[i,j] <- mm[j,i] <- d_pairique(communes[[i]], communes[[j]]) 
+mm <- as.dist(mm)
+
+clust <- factoextra::hcut(mm, method = "complete", k=4)
+clusters <- hclust(mm, method = "complete")
+ggdendro::ggdendrogram(clusters, rotate = TRUE)
 best.cut <- NbClust::NbClust(diss=as.dist(mm), method="ward.D", distance=NULL, index="silhouette")
 best.cut$Best.partition |> sort()
 
-kk <- map_dfr(1:20, ~com2com |> 
+kk <- map_dfr(1:100, ~com2com |> 
                 mutate(clust  = factoextra::hcut(as.dist(mm), method = "complete", k=.x)$cluster[COMMUNE]) |> 
                 group_by(clust) |> 
                 summarize(ncom = sum(nCOMMUNE[unique(COMMUNE)]) ,
@@ -162,9 +168,59 @@ kk <- map_dfr(1:20, ~com2com |>
                           n = ncom*ndclt) |> 
                 summarize( 
                   k = .x,
-                  total_k = sum(n)/1000000,
-                  min_k = min(ncom*ndclt)/1000000,
-                  total = sum(nCOMMUNE)*sum(nDCLT)/1000000, 
-                  ecart = sum(n)/(sum(nCOMMUNE)*sum(nDCLT))))
+                  total_k = sum(n),
+                  min_k = min(ncom*ndclt),
+                  total = sum(nCOMMUNE)*sum(nDCLT),
+                  ecart_temps = sum((n/total) * (pmin(total, 20e+6)/pmin(n, 20e+6))^0.5), 
+                  ecart = total_k/total))
+ggplot(kk)+geom_point(aes(x=k, y=ecart_temps))+geom_point(aes(x=k, y=ecart), col="orange")
 
-
+clusterize_com2com <- function(data, seuil = 10e+6L, method = "complete") {
+  nDCLT <- data |> distinct(DCLT, nto) |> pull(nto, name = DCLT)
+  nCOMMUNE <- data |> distinct(COMMUNE, nfrom) |> pull(nfrom, name = COMMUNE)
+  d_pairique <- function( com1, com2) {
+    if(com1==com2)
+      return(0)
+    com1 <- as.character(com1)
+    com2 <- as.character(com2)
+    n1 <- nCOMMUNE[[com1]]
+    n2 <- nCOMMUNE[[com2]]
+    com1dclt <- data |> filter(COMMUNE==com1) |> pull(DCLT)
+    com2dclt <- data |> filter(COMMUNE==com2) |> pull(DCLT)
+    nto1 <- sum(nDCLT[com1dclt])
+    nto2 <- sum(nDCLT[com2dclt])
+    np_sep <- n1 * nto1 + n2 * nto2
+    np_union <- (n1+n2) * sum(nDCLT[unique(c(com1dclt, com2dclt))])
+    np_cross <- n1 * nto2 + n2 * nto1
+    return((np_union-np_sep)/ np_cross)
+  }
+  
+  communes <- data |> distinct(COMMUNE) |> pull()
+  n <- length(communes)
+  
+  mm <- matrix(0, nrow = n, ncol = n, dimnames = list(communes, communes))
+  for(i in 2:n)
+    for(j in 1:(i-1))  
+      mm[i,j] <- mm[j,i] <- d_pairique(communes[[i]], communes[[j]]) 
+  mm <- as.dist(mm)
+  
+  kk <- map_dfr(1:(n-1), ~data |> 
+                  mutate(clust  = factoextra::hcut(
+                    mm,
+                    method = method, 
+                    k=.x)$cluster[COMMUNE]) |> 
+                  group_by(clust) |> 
+                  summarize(ncom = sum(nCOMMUNE[unique(COMMUNE)]) ,
+                            ndclt = sum(nDCLT[unique(DCLT)]),
+                            n = ncom*ndclt) |> 
+                  summarize( 
+                    k = .x,
+                    total_k = sum(n),
+                    min_k = min(ncom*ndclt),
+                    total = sum(nCOMMUNE)*sum(nDCLT),
+                    ecart_temps = sum((n/total) * (pmin(total, seuil)/pmin(n, seuil))^0.5), 
+                    ecart = total_k/total))
+  k <- kk |> filter(ecart_temps==min(ecart_temps)) |> pull(k)
+  list(cluster = factoextra::hcut(mm, method = method, k=k)$cluster,
+       meta = as.list(kk |> filter(ecart_temps==min(ecart_temps))))
+}
