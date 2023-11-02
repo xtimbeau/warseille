@@ -57,13 +57,13 @@ car_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                     distances = TRUE,
                                     denivele = TRUE,
                                     n_threads = 16L,
-                                    overwrite = TRUE,
+                                    overwrite = FALSE,
                                     nofuture = TRUE)
 
 
 dgr_distances_by_com(idINSes, mobpro,
                      car_router, 
-                     path="{mdir}/distances/src/car_dgr",
+                     path=glue("{mdir}/distances/src/car_dgr"),
                      clusterize = TRUE)  
 
 # marche à pied--------------
@@ -81,13 +81,14 @@ walk_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
 dgr_distances_by_com(idINSes, 
                      mobpro |> filter(walk>0), 
                      walk_router,
+                     path=glue("{mdir}/distances/src/walk_dgr"),
                      clusterize = TRUE)  
 
 # vélo --------------
 
 bike_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"), 
                                    osm = osm_file,
-                                   mode = "BIKE", 
+                                   mode = "BICYCLE", 
                                    turn_penalty = TRUE,
                                    distances = TRUE,
                                    denivele = TRUE,
@@ -98,4 +99,5 @@ bike_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
 dgr_distances_by_com(idINSes, 
                      mobpro |> filter(bike>0), 
                      bike_router,
+                     path=glue("{mdir}/distances/src/bike_dgr"),
                      clusterize = TRUE)  

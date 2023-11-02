@@ -1,0 +1,33 @@
+SUCCESS [2023-11-01 19:26:34] Calcul accessibilite version 3
+SUCCESS [2023-11-01 19:26:34]   par commune
+1956 [19:27:08] Clusterization 186.7M paires initial               501.6M paires en agrégation complète               270.1M paires en cluster                plus petit cluster 1.7M                réduction de temps estimée à 40%
+1956 [19:27:22] router /space_mounts/data/marseille//dodgr//motorcar_tp_deniv.dodgrnet chargé
+1956 [19:27:46] cluster 1/14 48.2M paires
+1956 [19:43:07]        @52.3kp/s
+1956 [19:43:40] cluster 2/14 42.6M paires
+1956 [19:57:13]        @52.4kp/s
+1956 [19:57:45] cluster 3/14 5.5M paires
+1956 [20:01:33]        @24.4kp/s
+1956 [20:01:42] cluster 4/14 36M paires
+1956 [20:15:21]        @44kp/s
+1956 [20:15:49] cluster 5/14 23.1M paires
+1956 [20:25:06]        @41.5kp/s
+1956 [20:25:23] cluster 6/14 1.7M paires
+1956 [20:27:18]        @14.4kp/s
+1956 [20:27:24] cluster 7/14 31M paires
+1956 [20:39:33]        @42.4kp/s
+1956 [20:39:56] cluster 8/14 17M paires
+1956 [20:47:18]        @38.4kp/s
+1956 [20:47:31] cluster 9/14 18M paires
+1956 [20:56:01]        @35.2kp/s
+1956 [20:56:15] cluster 10/14 9M paires
+1956 [21:04:34]        @18kp/s
+1956 [21:04:43] cluster 11/14 18.9M paires
+1956 [21:13:15]        @36.8kp/s
+1956 [21:13:29] cluster 12/14 9M paires
+1956 [21:19:42]        @24kp/s
+1956 [21:19:51] cluster 13/14 5.6M paires
+1956 [21:23:52]        @23kp/s
+1956 [21:23:58] cluster 14/14 4.5M paires
+1956 [21:27:07]        @24kp/s
+1956 [21:27:11] Calcul terminé, dataset /space_mounts/data/marseille//distances/src/car_dgr écrit - 186.7M en 120.6 mn soit 25.8k p/s
