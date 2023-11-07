@@ -9,8 +9,6 @@ library(ofce)
 
 progressr::handlers(global = TRUE)
 progressr::handlers("cli")
-data.table::setDTthreads(8)
-arrow::set_cpu_count(8)
 
 conflict_prefer_all( "dplyr", quiet=TRUE)
 conflict_prefer('wday', 'lubridate', quiet=TRUE)
@@ -22,9 +20,9 @@ load("baselayer.rda")
 # c'est enregistré, donc on peut passer si c'est  déjà fait
 osm_file <- glue("{mdir}/osm.qs")
 if(!file.exists(osm_file)) {
-  zone <- qs::qread(communes_ar_file) |> 
-    filter(mobpro99) |> 
-    summarize()
+  zone <- qs::qread(communes_mb99_file) |> 
+     summarize() |>
+    st_buffer(5000)
   osm <- download_osmsc(zone, elevation = TRUE, workers = 16)
   qs::qsave(osm, osm_file)
   rm(osm)
@@ -57,16 +55,21 @@ car_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                     distances = TRUE,
                                     denivele = TRUE,
                                     n_threads = 16L,
-                                    overwrite = FALSE,
+                                    overwrite = TRUE,
                                     nofuture = TRUE)
-
 
 dgr_distances_by_com(idINSes, mobpro,
                      car_router, 
-                     path=glue("{mdir}/distances/src/car_dgr"),
+                     path=glue("{mdir}/distances/src/car_dgr2"),
                      clusterize = TRUE)  
 
 # marche à pied--------------
+car_distance <- arrow::open_dataset(glue::glue("{mdir}/distances/src/car_dgr2"))
+pairs <- car_distance |>
+  filter(distance <= 10000 ) |>
+  distinct(COMMUNE, DCLT) |> 
+  collect() |> 
+  mutate(COMMUNE = as.character(COMMUNE))
 
 walk_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"), 
                                     osm = osm_file,
@@ -75,16 +78,22 @@ walk_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                     distances = TRUE,
                                     denivele = TRUE,
                                     n_threads = 16L,
-                                    overwrite = FALSE,
+                                    overwrite = TRUE,
                                     nofuture = TRUE)
 
 dgr_distances_by_com(idINSes, 
-                     mobpro |> filter(walk>0), 
+                     pairs, 
                      walk_router,
-                     path=glue("{mdir}/distances/src/walk_dgr"),
+                     path=glue("{mdir}/distances/src/walk_tblr"),
                      clusterize = TRUE)  
 
 # vélo --------------
+car_distance <- arrow::open_dataset(glue::glue("{mdir}/distances/src/car_dgr2"))
+pairs <- car_distance |>
+  filter(distance <= 25000 ) |>
+  distinct(COMMUNE, DCLT) |> 
+  collect() |> 
+  mutate(COMMUNE = as.character(COMMUNE))
 
 bike_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"), 
                                    osm = osm_file,
@@ -93,11 +102,11 @@ bike_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                    distances = TRUE,
                                    denivele = TRUE,
                                    n_threads = 16L,
-                                   overwrite = FALSE,
+                                   overwrite = TRUE,
                                    nofuture = TRUE)
 
 dgr_distances_by_com(idINSes, 
-                     mobpro |> filter(bike>0), 
+                     pairs, 
                      bike_router,
-                     path=glue("{mdir}/distances/src/bike_dgr"),
+                     path=glue("{mdir}/distances/src/bike_tblr"),
                      clusterize = TRUE)  

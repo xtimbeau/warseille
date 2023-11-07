@@ -1,0 +1,888 @@
+SUCCESS [2023-11-03 10:43:23] bbox 4.42619639885071
+SUCCESS [2023-11-03 10:43:23] bbox 43.0458270943517
+SUCCESS [2023-11-03 10:43:23] bbox 6.17547909535351
+SUCCESS [2023-11-03 10:43:23] bbox 44.0246676894441
+SUCCESS [2023-11-03 10:43:35] downloaded après 0 split
+SUCCESS [2023-11-03 10:43:39] downloaded après 0 split
+SUCCESS [2023-11-03 10:43:47] downloaded après 0 split
+SUCCESS [2023-11-03 10:43:47] downloaded après 0 split
+SUCCESS [2023-11-03 10:43:52] downloaded après 0 split
+SUCCESS [2023-11-03 10:43:56] downloaded après 0 split
+INFO [2023-11-03 10:44:06] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (1)
+INFO [2023-11-03 10:44:07] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (2)
+INFO [2023-11-03 10:44:07] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (3)
+INFO [2023-11-03 10:44:08] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (4)
+INFO [2023-11-03 10:44:09] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (5)
+INFO [2023-11-03 10:44:09] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (6)
+INFO [2023-11-03 10:44:10] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (7)
+INFO [2023-11-03 10:44:10] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (8)
+SUCCESS [2023-11-03 10:44:11] downloaded après 0 split
+INFO [2023-11-03 10:44:11] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (9)
+INFO [2023-11-03 10:44:11] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 32 seconds. 
+ split (1)
+INFO [2023-11-03 10:44:11] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (10)
+INFO [2023-11-03 10:44:12] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (11)
+INFO [2023-11-03 10:44:12] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (12)
+INFO [2023-11-03 10:44:12] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (13)
+INFO [2023-11-03 10:44:12] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (14)
+INFO [2023-11-03 10:44:13] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (15)
+INFO [2023-11-03 10:44:13] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (16)
+INFO [2023-11-03 10:44:14] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (17)
+INFO [2023-11-03 10:44:14] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (18)
+INFO [2023-11-03 10:44:15] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (19)
+INFO [2023-11-03 10:44:15] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (20)
+INFO [2023-11-03 10:44:16] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (21)
+INFO [2023-11-03 10:44:16] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (22)
+INFO [2023-11-03 10:44:17] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (23)
+INFO [2023-11-03 10:44:17] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (24)
+INFO [2023-11-03 10:44:18] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (25)
+INFO [2023-11-03 10:44:18] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (26)
+INFO [2023-11-03 10:44:19] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (27)
+INFO [2023-11-03 10:44:20] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (28)
+INFO [2023-11-03 10:44:21] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (29)
+INFO [2023-11-03 10:44:21] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (30)
+INFO [2023-11-03 10:44:21] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (31)
+INFO [2023-11-03 10:44:22] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (32)
+INFO [2023-11-03 10:44:23] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (33)
+INFO [2023-11-03 10:44:23] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (34)
+INFO [2023-11-03 10:44:23] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (35)
+INFO [2023-11-03 10:44:24] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (36)
+INFO [2023-11-03 10:44:24] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (37)
+INFO [2023-11-03 10:44:24] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (38)
+INFO [2023-11-03 10:44:24] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (39)
+INFO [2023-11-03 10:44:25] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (40)
+INFO [2023-11-03 10:44:26] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (41)
+INFO [2023-11-03 10:44:26] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (42)
+INFO [2023-11-03 10:44:27] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (43)
+INFO [2023-11-03 10:44:27] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (44)
+INFO [2023-11-03 10:44:27] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (45)
+INFO [2023-11-03 10:44:27] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (46)
+INFO [2023-11-03 10:44:28] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (47)
+SUCCESS [2023-11-03 10:44:28] downloaded après 0 split
+INFO [2023-11-03 10:44:28] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (48)
+INFO [2023-11-03 10:44:29] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (49)
+INFO [2023-11-03 10:44:29] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (50)
+INFO [2023-11-03 10:44:30] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (51)
+INFO [2023-11-03 10:44:31] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (52)
+INFO [2023-11-03 10:44:32] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (53)
+INFO [2023-11-03 10:44:32] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (54)
+INFO [2023-11-03 10:44:33] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (55)
+INFO [2023-11-03 10:44:33] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (56)
+INFO [2023-11-03 10:44:33] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (57)
+INFO [2023-11-03 10:44:34] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 53 seconds. 
+ split (1)
+INFO [2023-11-03 10:44:34] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (58)
+INFO [2023-11-03 10:44:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (59)
+INFO [2023-11-03 10:44:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (60)
+INFO [2023-11-03 10:44:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (61)
+INFO [2023-11-03 10:44:36] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (62)
+SUCCESS [2023-11-03 10:44:36] downloaded après 0 split
+INFO [2023-11-03 10:44:36] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (63)
+INFO [2023-11-03 10:44:37] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (64)
+INFO [2023-11-03 10:44:37] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (65)
+INFO [2023-11-03 10:44:37] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (66)
+INFO [2023-11-03 10:44:38] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (67)
+INFO [2023-11-03 10:44:38] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (68)
+SUCCESS [2023-11-03 10:44:38] downloaded après 0 split
+INFO [2023-11-03 10:44:39] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (69)
+INFO [2023-11-03 10:44:40] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (70)
+INFO [2023-11-03 10:44:40] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (71)
+INFO [2023-11-03 10:44:40] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (72)
+INFO [2023-11-03 10:44:41] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (73)
+INFO [2023-11-03 10:44:41] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (74)
+INFO [2023-11-03 10:44:42] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (75)
+INFO [2023-11-03 10:44:42] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (76)
+INFO [2023-11-03 10:44:43] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (77)
+INFO [2023-11-03 10:44:43] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 32 seconds. 
+ split (1)
+SUCCESS [2023-11-03 10:44:44] downloaded après 1 split
+INFO [2023-11-03 10:44:44] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (78)
+INFO [2023-11-03 10:44:45] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (79)
+INFO [2023-11-03 10:44:45] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (80)
+INFO [2023-11-03 10:44:46] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (81)
+INFO [2023-11-03 10:44:47] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (82)
+INFO [2023-11-03 10:44:47] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (83)
+INFO [2023-11-03 10:44:47] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (84)
+INFO [2023-11-03 10:44:48] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (85)
+INFO [2023-11-03 10:44:48] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (86)
+INFO [2023-11-03 10:44:48] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (87)
+INFO [2023-11-03 10:44:49] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (88)
+INFO [2023-11-03 10:44:49] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (89)
+INFO [2023-11-03 10:44:49] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (90)
+INFO [2023-11-03 10:44:50] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (91)
+INFO [2023-11-03 10:44:50] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (92)
+SUCCESS [2023-11-03 10:44:50] downloaded après 0 split
+INFO [2023-11-03 10:44:50] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (93)
+INFO [2023-11-03 10:44:50] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (94)
+INFO [2023-11-03 10:44:50] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (95)
+INFO [2023-11-03 10:44:50] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (96)
+INFO [2023-11-03 10:44:51] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (97)
+SUCCESS [2023-11-03 10:44:51] downloaded après 0 split
+INFO [2023-11-03 10:44:51] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (98)
+SUCCESS [2023-11-03 10:44:51] downloaded après 0 split
+INFO [2023-11-03 10:44:51] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (99)
+INFO [2023-11-03 10:44:52] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (100)
+INFO [2023-11-03 10:44:53] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (101)
+INFO [2023-11-03 10:44:53] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (102)
+INFO [2023-11-03 10:44:53] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (103)
+SUCCESS [2023-11-03 10:44:54] downloaded après 0 split
+INFO [2023-11-03 10:44:54] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (104)
+INFO [2023-11-03 10:44:54] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (105)
+INFO [2023-11-03 10:44:54] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (106)
+INFO [2023-11-03 10:44:55] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 54 seconds. 
+ split (1)
+INFO [2023-11-03 10:44:55] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 37 seconds. 
+ split (1)
+INFO [2023-11-03 10:44:55] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 60 seconds. 
+ split (1)
+INFO [2023-11-03 10:44:55] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (107)
+INFO [2023-11-03 10:44:55] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (108)
+INFO [2023-11-03 10:44:56] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (109)
+INFO [2023-11-03 10:44:57] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (110)
+INFO [2023-11-03 10:44:58] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (111)
+INFO [2023-11-03 10:44:58] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (112)
+INFO [2023-11-03 10:44:59] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (113)
+INFO [2023-11-03 10:44:59] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (114)
+INFO [2023-11-03 10:44:59] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (115)
+INFO [2023-11-03 10:45:00] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (116)
+INFO [2023-11-03 10:45:00] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (117)
+INFO [2023-11-03 10:45:00] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (118)
+INFO [2023-11-03 10:45:01] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (119)
+INFO [2023-11-03 10:45:01] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (120)
+INFO [2023-11-03 10:45:01] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (121)
+INFO [2023-11-03 10:45:02] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (122)
+INFO [2023-11-03 10:45:02] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (123)
+INFO [2023-11-03 10:45:02] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (124)
+INFO [2023-11-03 10:45:03] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (125)
+INFO [2023-11-03 10:45:03] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (126)
+SUCCESS [2023-11-03 10:45:03] downloaded après 0 split
+INFO [2023-11-03 10:45:03] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (127)
+INFO [2023-11-03 10:45:03] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (128)
+INFO [2023-11-03 10:45:04] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (129)
+INFO [2023-11-03 10:45:04] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (130)
+INFO [2023-11-03 10:45:04] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (131)
+INFO [2023-11-03 10:45:04] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (132)
+INFO [2023-11-03 10:45:04] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 30 seconds. 
+ split (2)
+INFO [2023-11-03 10:45:05] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (133)
+INFO [2023-11-03 10:45:05] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (134)
+INFO [2023-11-03 10:45:06] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (135)
+SUCCESS [2023-11-03 10:45:07] downloaded après 0 split
+INFO [2023-11-03 10:45:07] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (136)
+INFO [2023-11-03 10:45:07] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (137)
+INFO [2023-11-03 10:45:07] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (138)
+INFO [2023-11-03 10:45:07] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (139)
+INFO [2023-11-03 10:45:08] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (140)
+INFO [2023-11-03 10:45:08] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (141)
+INFO [2023-11-03 10:45:09] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (142)
+INFO [2023-11-03 10:45:10] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (143)
+INFO [2023-11-03 10:45:10] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (144)
+INFO [2023-11-03 10:45:11] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (145)
+INFO [2023-11-03 10:45:11] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (146)
+INFO [2023-11-03 10:45:11] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (147)
+INFO [2023-11-03 10:45:12] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (148)
+INFO [2023-11-03 10:45:12] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (149)
+INFO [2023-11-03 10:45:13] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (150)
+INFO [2023-11-03 10:45:14] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (151)
+INFO [2023-11-03 10:45:14] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (152)
+SUCCESS [2023-11-03 10:45:15] downloaded après 0 split
+INFO [2023-11-03 10:45:15] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (153)
+SUCCESS [2023-11-03 10:45:15] downloaded après 0 split
+INFO [2023-11-03 10:45:15] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (154)
+SUCCESS [2023-11-03 10:45:16] downloaded après 0 split
+INFO [2023-11-03 10:45:16] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (155)
+INFO [2023-11-03 10:45:16] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (156)
+INFO [2023-11-03 10:45:17] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (157)
+INFO [2023-11-03 10:45:17] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (158)
+INFO [2023-11-03 10:45:17] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (159)
+INFO [2023-11-03 10:45:17] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (160)
+INFO [2023-11-03 10:45:17] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (161)
+INFO [2023-11-03 10:45:18] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (162)
+INFO [2023-11-03 10:45:18] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (163)
+INFO [2023-11-03 10:45:19] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (164)
+INFO [2023-11-03 10:45:19] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (165)
+INFO [2023-11-03 10:45:19] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (166)
+INFO [2023-11-03 10:45:20] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (167)
+INFO [2023-11-03 10:45:20] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (168)
+INFO [2023-11-03 10:45:21] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (169)
+INFO [2023-11-03 10:45:21] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (170)
+INFO [2023-11-03 10:45:22] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (171)
+INFO [2023-11-03 10:45:22] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (172)
+INFO [2023-11-03 10:45:22] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (173)
+INFO [2023-11-03 10:45:23] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (174)
+INFO [2023-11-03 10:45:23] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (175)
+INFO [2023-11-03 10:45:24] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (176)
+INFO [2023-11-03 10:45:24] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (177)
+INFO [2023-11-03 10:45:25] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (178)
+INFO [2023-11-03 10:45:25] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (179)
+INFO [2023-11-03 10:45:26] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (180)
+INFO [2023-11-03 10:45:26] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (181)
+INFO [2023-11-03 10:45:27] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (182)
+INFO [2023-11-03 10:45:28] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (183)
+INFO [2023-11-03 10:45:28] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (184)
+INFO [2023-11-03 10:45:28] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (185)
+INFO [2023-11-03 10:45:29] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (186)
+INFO [2023-11-03 10:45:29] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (187)
+INFO [2023-11-03 10:45:30] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (188)
+INFO [2023-11-03 10:45:30] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (189)
+SUCCESS [2023-11-03 10:45:31] downloaded après 0 split
+INFO [2023-11-03 10:45:31] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (190)
+INFO [2023-11-03 10:45:31] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (191)
+INFO [2023-11-03 10:45:32] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (192)
+INFO [2023-11-03 10:45:32] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (193)
+INFO [2023-11-03 10:45:33] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (194)
+INFO [2023-11-03 10:45:34] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (195)
+INFO [2023-11-03 10:45:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (196)
+INFO [2023-11-03 10:45:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (197)
+INFO [2023-11-03 10:45:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (198)
+INFO [2023-11-03 10:45:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (199)
+SUCCESS [2023-11-03 10:45:36] downloaded après 0 split
+INFO [2023-11-03 10:45:36] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (200)
+INFO [2023-11-03 10:45:37] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (201)
+INFO [2023-11-03 10:45:38] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (202)
+INFO [2023-11-03 10:45:39] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (203)
+INFO [2023-11-03 10:45:39] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (204)
+INFO [2023-11-03 10:45:39] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (205)
+INFO [2023-11-03 10:45:39] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (206)
+INFO [2023-11-03 10:45:39] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 55 seconds. 
+ split (2)
+INFO [2023-11-03 10:45:40] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (207)
+INFO [2023-11-03 10:45:40] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (208)
+INFO [2023-11-03 10:45:41] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (209)
+INFO [2023-11-03 10:45:41] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (210)
+INFO [2023-11-03 10:45:42] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (211)
+INFO [2023-11-03 10:45:43] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (212)
+SUCCESS [2023-11-03 10:45:43] downloaded après 0 split
+INFO [2023-11-03 10:45:43] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (213)
+INFO [2023-11-03 10:45:43] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (214)
+INFO [2023-11-03 10:45:43] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (215)
+SUCCESS [2023-11-03 10:45:44] downloaded après 2 split
+INFO [2023-11-03 10:45:44] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (216)
+INFO [2023-11-03 10:45:44] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (217)
+INFO [2023-11-03 10:45:44] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (218)
+INFO [2023-11-03 10:45:44] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (219)
+INFO [2023-11-03 10:45:45] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (220)
+INFO [2023-11-03 10:45:45] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (221)
+INFO [2023-11-03 10:45:45] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (222)
+INFO [2023-11-03 10:45:46] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (223)
+INFO [2023-11-03 10:45:46] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (224)
+INFO [2023-11-03 10:45:46] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (225)
+INFO [2023-11-03 10:45:47] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (226)
+INFO [2023-11-03 10:45:47] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (227)
+INFO [2023-11-03 10:45:48] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (228)
+INFO [2023-11-03 10:45:48] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (229)
+INFO [2023-11-03 10:45:49] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (230)
+SUCCESS [2023-11-03 10:45:49] downloaded après 0 split
+INFO [2023-11-03 10:45:49] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (231)
+INFO [2023-11-03 10:45:50] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (232)
+INFO [2023-11-03 10:45:51] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (233)
+INFO [2023-11-03 10:45:51] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (234)
+INFO [2023-11-03 10:45:51] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (235)
+INFO [2023-11-03 10:45:52] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (236)
+INFO [2023-11-03 10:45:52] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (237)
+INFO [2023-11-03 10:45:53] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (238)
+INFO [2023-11-03 10:45:53] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 58 seconds. 
+ split (2)
+INFO [2023-11-03 10:45:54] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (239)
+INFO [2023-11-03 10:45:54] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (240)
+INFO [2023-11-03 10:45:55] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (241)
+INFO [2023-11-03 10:45:55] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (242)
+INFO [2023-11-03 10:45:55] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (243)
+INFO [2023-11-03 10:45:55] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (244)
+INFO [2023-11-03 10:45:56] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (245)
+INFO [2023-11-03 10:45:57] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (246)
+INFO [2023-11-03 10:45:58] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (247)
+INFO [2023-11-03 10:45:58] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (248)
+INFO [2023-11-03 10:45:59] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (249)
+INFO [2023-11-03 10:46:00] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (250)
+INFO [2023-11-03 10:46:01] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (251)
+INFO [2023-11-03 10:46:01] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (252)
+INFO [2023-11-03 10:46:02] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (253)
+INFO [2023-11-03 10:46:02] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (254)
+INFO [2023-11-03 10:46:03] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (255)
+INFO [2023-11-03 10:46:04] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (256)
+SUCCESS [2023-11-03 10:46:04] downloaded après 1 split
+INFO [2023-11-03 10:46:04] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (257)
+INFO [2023-11-03 10:46:05] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (258)
+INFO [2023-11-03 10:46:05] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (259)
+INFO [2023-11-03 10:46:06] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (260)
+INFO [2023-11-03 10:46:07] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (261)
+INFO [2023-11-03 10:46:07] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (262)
+SUCCESS [2023-11-03 10:46:08] downloaded après 1 split
+INFO [2023-11-03 10:46:08] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (263)
+INFO [2023-11-03 10:46:08] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (264)
+INFO [2023-11-03 10:46:09] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (265)
+INFO [2023-11-03 10:46:09] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (266)
+INFO [2023-11-03 10:46:10] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (267)
+INFO [2023-11-03 10:46:11] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (268)
+INFO [2023-11-03 10:46:11] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (269)
+INFO [2023-11-03 10:46:12] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (270)
+INFO [2023-11-03 10:46:12] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (271)
+INFO [2023-11-03 10:46:13] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (272)
+INFO [2023-11-03 10:46:13] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (273)
+INFO [2023-11-03 10:46:14] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (274)
+INFO [2023-11-03 10:46:14] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (275)
+INFO [2023-11-03 10:46:15] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (276)
+INFO [2023-11-03 10:46:15] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (277)
+INFO [2023-11-03 10:46:16] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (278)
+INFO [2023-11-03 10:46:16] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (279)
+INFO [2023-11-03 10:46:16] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (280)
+INFO [2023-11-03 10:46:17] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (281)
+INFO [2023-11-03 10:46:17] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (282)
+INFO [2023-11-03 10:46:17] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (283)
+INFO [2023-11-03 10:46:18] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (284)
+INFO [2023-11-03 10:46:19] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (285)
+INFO [2023-11-03 10:46:19] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (286)
+INFO [2023-11-03 10:46:20] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (287)
+INFO [2023-11-03 10:46:21] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (288)
+INFO [2023-11-03 10:46:21] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (289)
+INFO [2023-11-03 10:46:21] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (290)
+INFO [2023-11-03 10:46:22] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (291)
+INFO [2023-11-03 10:46:23] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (292)
+INFO [2023-11-03 10:46:23] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (293)
+INFO [2023-11-03 10:46:24] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (294)
+SUCCESS [2023-11-03 10:46:24] downloaded après 2 split
+INFO [2023-11-03 10:46:24] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (295)
+INFO [2023-11-03 10:46:25] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (296)
+INFO [2023-11-03 10:46:25] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (297)
+INFO [2023-11-03 10:46:25] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (298)
+INFO [2023-11-03 10:46:26] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (299)
+INFO [2023-11-03 10:46:26] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (300)
+INFO [2023-11-03 10:46:26] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (301)
+INFO [2023-11-03 10:46:26] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (302)
+INFO [2023-11-03 10:46:27] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (303)
+INFO [2023-11-03 10:46:27] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (304)
+INFO [2023-11-03 10:46:27] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (305)
+SUCCESS [2023-11-03 10:46:28] downloaded après 2 split
+INFO [2023-11-03 10:46:28] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (306)
+INFO [2023-11-03 10:46:28] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (307)
+SUCCESS [2023-11-03 10:46:28] downloaded après 0 split
+INFO [2023-11-03 10:46:29] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (308)
+INFO [2023-11-03 10:46:29] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (309)
+INFO [2023-11-03 10:46:29] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (310)
+INFO [2023-11-03 10:46:29] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (311)
+INFO [2023-11-03 10:46:30] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (312)
+INFO [2023-11-03 10:46:30] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (313)
+INFO [2023-11-03 10:46:30] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (314)
+INFO [2023-11-03 10:46:31] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (315)
+INFO [2023-11-03 10:46:31] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (316)
+INFO [2023-11-03 10:46:31] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (317)
+INFO [2023-11-03 10:46:32] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (318)
+INFO [2023-11-03 10:46:32] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (319)
+INFO [2023-11-03 10:46:32] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (320)
+INFO [2023-11-03 10:46:32] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (321)
+INFO [2023-11-03 10:46:32] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (322)
+INFO [2023-11-03 10:46:32] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (323)
+INFO [2023-11-03 10:46:33] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (324)
+INFO [2023-11-03 10:46:33] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (325)
+INFO [2023-11-03 10:46:33] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (326)
+INFO [2023-11-03 10:46:33] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (327)
+INFO [2023-11-03 10:46:34] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (328)
+INFO [2023-11-03 10:46:34] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (329)
+INFO [2023-11-03 10:46:34] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (330)
+INFO [2023-11-03 10:46:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (331)
+INFO [2023-11-03 10:46:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (332)
+INFO [2023-11-03 10:46:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (333)
+INFO [2023-11-03 10:46:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (334)
+INFO [2023-11-03 10:46:35] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (335)
+INFO [2023-11-03 10:46:36] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (336)
+INFO [2023-11-03 10:46:36] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (337)
+SUCCESS [2023-11-03 10:46:36] downloaded après 0 split
+INFO [2023-11-03 10:46:36] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (338)
+INFO [2023-11-03 10:46:37] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (339)
+INFO [2023-11-03 10:46:37] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (340)
+INFO [2023-11-03 10:46:37] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (341)
+INFO [2023-11-03 10:46:37] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (342)
+INFO [2023-11-03 10:46:37] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (343)
+INFO [2023-11-03 10:46:38] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (344)
+INFO [2023-11-03 10:46:38] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (345)
+INFO [2023-11-03 10:46:38] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (346)
+INFO [2023-11-03 10:46:39] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (347)
+SUCCESS [2023-11-03 10:46:39] downloaded après 0 split
+INFO [2023-11-03 10:46:39] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (348)
+INFO [2023-11-03 10:46:39] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (349)
+INFO [2023-11-03 10:46:40] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (350)
+INFO [2023-11-03 10:46:40] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (351)
+INFO [2023-11-03 10:46:41] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (352)
+INFO [2023-11-03 10:46:41] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (353)
+INFO [2023-11-03 10:46:42] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (354)
+INFO [2023-11-03 10:46:42] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (355)
+INFO [2023-11-03 10:46:42] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (356)
+INFO [2023-11-03 10:46:42] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (357)
+INFO [2023-11-03 10:46:42] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (358)
+INFO [2023-11-03 10:46:43] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (359)
+INFO [2023-11-03 10:46:44] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (360)
+INFO [2023-11-03 10:46:44] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (361)
+INFO [2023-11-03 10:46:44] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (362)
+SUCCESS [2023-11-03 10:46:44] downloaded après 0 split
+INFO [2023-11-03 10:46:44] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (363)
+INFO [2023-11-03 10:46:45] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (364)
+INFO [2023-11-03 10:46:45] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (365)
+INFO [2023-11-03 10:46:45] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (366)
+INFO [2023-11-03 10:46:46] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (367)
+INFO [2023-11-03 10:46:46] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (368)
+INFO [2023-11-03 10:46:46] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (369)
+INFO [2023-11-03 10:46:46] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (370)
+INFO [2023-11-03 10:46:46] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (371)
+INFO [2023-11-03 10:46:47] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (372)
+INFO [2023-11-03 10:46:47] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (373)
+INFO [2023-11-03 10:46:47] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (374)
+INFO [2023-11-03 10:46:47] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (375)
+INFO [2023-11-03 10:46:48] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (376)
+INFO [2023-11-03 10:46:48] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (377)
+INFO [2023-11-03 10:46:49] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (378)
+INFO [2023-11-03 10:46:50] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (379)
+INFO [2023-11-03 10:46:51] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (380)
+INFO [2023-11-03 10:46:51] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (381)
+INFO [2023-11-03 10:46:52] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (382)
+INFO [2023-11-03 10:46:53] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (383)
+INFO [2023-11-03 10:46:53] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (384)
+INFO [2023-11-03 10:46:54] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (385)
+INFO [2023-11-03 10:46:54] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (386)
+INFO [2023-11-03 10:46:55] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (387)
+INFO [2023-11-03 10:46:55] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (388)
+INFO [2023-11-03 10:46:56] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (389)
+INFO [2023-11-03 10:46:56] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (390)
+INFO [2023-11-03 10:46:56] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (391)
+INFO [2023-11-03 10:46:57] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (392)
+INFO [2023-11-03 10:46:57] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (393)
+INFO [2023-11-03 10:46:57] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (394)
+INFO [2023-11-03 10:46:58] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (395)
+INFO [2023-11-03 10:46:58] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (396)
+INFO [2023-11-03 10:46:59] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (397)
+INFO [2023-11-03 10:46:59] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (398)
+INFO [2023-11-03 10:47:00] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (399)
+INFO [2023-11-03 10:47:01] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (400)
+INFO [2023-11-03 10:47:01] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (401)
+INFO [2023-11-03 10:47:01] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (402)
+INFO [2023-11-03 10:47:02] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (403)
+INFO [2023-11-03 10:47:03] Error in httr2::req_perform(req) : HTTP 504 Gateway Timeout.
+ split (404)
+INFO [2023-11-03 10:47:12] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 46 seconds. 
+ split (1)
+SUCCESS [2023-11-03 10:47:17] downloaded après 404 split
+SUCCESS [2023-11-03 10:47:36] downloaded après 0 split
+SUCCESS [2023-11-03 10:47:48] downloaded après 1 split

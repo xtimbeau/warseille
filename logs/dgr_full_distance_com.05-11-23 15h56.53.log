@@ -1,0 +1,11 @@
+1166 [14:56:53] Calcul accessibilite version 3
+1166 [14:56:53]        par commune, mode foot
+1166 [14:57:55] Clusterization 55.4M paires initial, 10 clusters
+1166 [14:57:55]                404.5M paires en agrégation complète
+1166 [14:57:55]                112.6M paires en cluster
+1166 [14:57:55]                plus petit cluster 1.5M
+1166 [14:57:55]                réduction de temps estimée à 64%
+1166 [14:58:19] router /space_mounts/data/marseille//dodgr//foot_tp_deniv.dodgrnet chargé
+1166 [14:58:38] cluster 1/10 10.4M paires
+1166 [15:10:36]         @14.5kp/s
+1166 [15:10:50] cluster 2/10 12.2M paires
