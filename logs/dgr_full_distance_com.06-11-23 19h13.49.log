@@ -1,0 +1,9 @@
+13105 [18:13:49] Calcul accessibilite version 3
+13105 [18:13:49]        par commune, mode motorcar
+13105 [18:19:06] Clusterization 581.5k paires initial, 1 clusters
+13105 [18:19:06]                691k paires en agrégation complète
+13105 [18:19:06]                691k paires en cluster
+13105 [18:19:06]                plus petit cluster 691k
+13105 [18:19:06]                réduction de temps estimée à 0%
+13105 [18:19:21] router /space_mounts/data/marseille//dodgr//motorcar_tp_deniv.dodgrnet chargé
+13105 [18:19:21] cluster 1/1 691k paires

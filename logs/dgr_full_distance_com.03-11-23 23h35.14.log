@@ -1,0 +1,125 @@
+800 [22:35:14] Calcul accessibilite version 3
+800 [22:35:14]        par commune, mode foot
+800 [22:35:55] Clusterization 26.4M paires initial, 58 clusters
+800 [22:35:55]                347.7M paires en agrégation complète
+800 [22:35:55]                45.6M paires en cluster
+800 [22:35:55]                plus petit cluster 429
+800 [22:35:55]                réduction de temps estimée à 66%
+800 [22:36:15] router /space_mounts/data/marseille//dodgr//foot_tp_deniv.dodgrnet chargé
+800 [22:36:18] cluster 1/58 10.4M paires
+800 [22:56:25]         @8.6kp/s
+800 [22:56:45] cluster 2/58 64.8k paires
+800 [23:00:30]         @287.1p/s
+800 [23:00:34] cluster 3/58 2.2k paires
+800 [23:01:47]         @30.1p/s
+800 [23:01:50] cluster 4/58 6M paires
+800 [23:22:50]         @4.7kp/s
+800 [23:23:06] cluster 5/58 311.1k paires
+800 [23:29:19]         @832.5p/s
+800 [23:29:22] cluster 6/58 2.8k paires
+800 [23:30:27]         @43.3p/s
+800 [23:30:30] cluster 7/58 7.7k paires
+800 [23:32:58]         @52.3p/s
+800 [23:33:08] cluster 8/58 239.4k paires
+800 [23:38:20]         @754.2p/s
+800 [23:38:24] cluster 9/58 24.5k paires
+800 [23:40:27]         @199.1p/s
+800 [23:40:29] cluster 10/58 10k paires
+800 [23:41:59]         @110.1p/s
+800 [23:42:03] cluster 11/58 15.3k paires
+800 [23:43:38]         @160.3p/s
+800 [23:43:40] cluster 12/58 16.4k paires
+800 [23:45:46]         @130.1p/s
+800 [23:45:48] cluster 13/58 15.7M paires
+800 [00:34:45]         @5.3kp/s
+800 [00:35:09] cluster 14/58 404.2k paires
+800 [00:43:26]         @813.4p/s
+800 [00:43:29] cluster 15/58 716.4k paires
+800 [00:51:33]         @1.5kp/s
+800 [00:51:45] cluster 16/58 95.9k paires
+800 [00:55:58]         @378.8p/s
+800 [00:56:01] cluster 17/58 247k paires
+800 [01:02:47]         @607.8p/s
+800 [01:02:49] cluster 18/58 82.3k paires
+800 [01:06:32]         @368p/s
+800 [01:06:36] cluster 19/58 35.3k paires
+800 [01:09:58]         @175.4p/s
+800 [01:10:00] cluster 20/58 174.7k paires
+800 [01:17:01]         @414.8p/s
+800 [01:17:04] cluster 21/58 58.1k paires
+800 [01:20:55]         @251.3p/s
+800 [01:20:58] cluster 22/58 41.7k paires
+800 [01:24:18]         @208.2p/s
+800 [01:24:21] cluster 23/58 23.1k paires
+800 [01:25:48]         @267.1p/s
+800 [01:25:50] cluster 24/58 406k paires
+800 [01:33:46]         @852.6p/s
+800 [01:33:50] cluster 25/58 69.2k paires
+800 [01:36:06]         @510.4p/s
+800 [01:36:08] cluster 26/58 24.5k paires
+800 [01:37:42]         @262.3p/s
+800 [01:37:44] cluster 27/58 78.4k paires
+800 [01:43:11]         @239.8p/s
+800 [01:43:13] cluster 28/58 5.7k paires
+800 [01:44:35]         @69.3p/s
+800 [01:44:37] cluster 29/58 103.7k paires
+800 [01:50:02]         @319.3p/s
+800 [01:50:04] cluster 30/58 21.2k paires
+800 [01:51:55]         @190.7p/s
+800 [01:51:58] cluster 31/58 21.8k paires
+800 [01:53:59]         @179.4p/s
+800 [01:54:03] cluster 32/58 3k paires
+800 [01:55:18]         @39.8p/s
+800 [01:55:22] cluster 33/58 194.4k paires
+800 [02:02:32]         @450.5p/s
+800 [02:02:35] cluster 34/58 10.6k paires
+800 [02:04:10]         @111.2p/s
+800 [02:04:12] cluster 35/58 542.1k paires
+800 [02:13:26]         @978.8p/s
+800 [02:13:29] cluster 36/58 30.3k paires
+800 [02:17:40]         @120.7p/s
+800 [02:17:41] cluster 37/58 26.9k paires
+800 [02:21:09]         @129.9p/s
+800 [02:21:12] cluster 38/58 200.4k paires
+800 [02:24:48]         @929.8p/s
+800 [02:24:50] cluster 39/58 11k paires
+800 [02:26:28]         @112p/s
+800 [02:26:30] cluster 40/58 78.6k paires
+800 [02:30:36]         @320p/s
+800 [02:30:37] cluster 41/58 23.1k paires
+800 [02:33:34]         @131.4p/s
+800 [02:33:36] cluster 42/58 98k paires
+800 [02:38:55]         @306.9p/s
+800 [02:38:57] cluster 43/58 48.2k paires
+800 [02:42:41]         @215p/s
+800 [02:42:43] cluster 44/58 11.7k paires
+800 [02:45:47]         @63.6p/s
+800 [02:45:49] cluster 45/58 59.5k paires
+800 [02:50:13]         @224.9p/s
+800 [02:50:17] cluster 46/58 484 paires
+800 [02:51:21]         @7.6p/s
+800 [02:51:23] cluster 47/58 31k paires
+800 [02:54:27]         @168.2p/s
+800 [02:54:29] cluster 48/58 429 paires
+800 [02:55:39]         @6.1p/s
+800 [02:55:42] cluster 49/58 12.1k paires
+800 [02:57:14]         @130p/s
+800 [02:57:18] cluster 50/58 4.6k paires
+800 [02:58:44]         @53.3p/s
+800 [02:58:45] cluster 51/58 8.1k paires
+800 [03:00:54]         @62.9p/s
+800 [03:00:58] cluster 52/58 23.6k paires
+800 [03:03:23]         @162p/s
+800 [03:03:26] cluster 53/58 8.8k paires
+800 [03:05:04]         @89.8p/s
+800 [03:05:06] cluster 54/58 96.1k paires
+800 [03:10:51]         @279p/s
+800 [03:10:52] cluster 55/58 7.4k paires
+800 [03:13:02]         @56.9p/s
+800 [03:13:05] cluster 56/58 6.5M paires
+800 [03:32:10]         @5.7kp/s
+800 [03:32:23] cluster 57/58 2.2M paires
+800 [03:43:52]         @3.1kp/s
+800 [03:43:58] cluster 58/58 3.8k paires
+800 [03:45:02]         @58.5p/s
+800 [03:45:02] Calcul terminé, dataset /space_mounts/data/marseille//distances/src/walk_tblr écrit - 26.4M en 309.8 mn soit 1.4k p/s

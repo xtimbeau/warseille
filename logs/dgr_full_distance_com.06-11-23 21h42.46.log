@@ -1,0 +1,37 @@
+SUCCESS [2023-11-06 20:42:46] Calcul accessibilite version 3
+SUCCESS [2023-11-06 20:42:46]        par commune, mode motorcar
+14564 [20:43:31] Clusterization 186.7M paires initial, 14 clusters
+14564 [20:43:31]                501.6M paires en agrégation complète
+14564 [20:43:31]                270.1M paires en cluster
+14564 [20:43:31]                plus petit cluster 1.7M
+14564 [20:43:31]                réduction de temps estimée à 40%
+14564 [20:43:45] router /space_mounts/data/marseille//dodgr//motorcar_tp_deniv.dodgrnet chargé
+14564 [20:44:10] cluster 1/14 48.2M paires
+14564 [20:51:48]         @105.3kp/s
+14564 [20:52:32] cluster 2/14 42.6M paires
+14564 [20:58:51]         @112.6kp/s
+14564 [20:59:29] cluster 3/14 5.5M paires
+14564 [21:00:49]         @69.3kp/s
+14564 [21:00:59] cluster 4/14 36M paires
+14564 [21:06:10]         @116.1kp/s
+14564 [21:06:44] cluster 5/14 23.1M paires
+14564 [21:10:26]         @103.9kp/s
+14564 [21:10:49] cluster 6/14 1.7M paires
+14564 [21:11:32]         @38.4kp/s
+14564 [21:11:37] cluster 7/14 31M paires
+14564 [21:16:18]         @110.1kp/s
+14564 [21:16:46] cluster 8/14 17M paires
+14564 [21:19:30]         @103.5kp/s
+14564 [21:19:48] cluster 9/14 18M paires
+14564 [21:23:03]         @92.3kp/s
+14564 [21:23:19] cluster 10/14 9M paires
+14564 [21:25:59]         @56.2kp/s
+14564 [21:26:11] cluster 11/14 18.9M paires
+14564 [21:29:41]         @89.8kp/s
+14564 [21:30:00] cluster 12/14 9M paires
+14564 [21:32:03]         @72.6kp/s
+14564 [21:32:15] cluster 13/14 5.6M paires
+14564 [21:33:47]         @60.4kp/s
+14564 [21:33:55] cluster 14/14 4.5M paires
+14564 [21:35:06]         @64.2kp/s
+14564 [21:35:09] Calcul terminé, dataset /space_mounts/data/marseille//distances/src/car_dgr2 écrit - 186.7M en 52.4 mn soit 59.4k p/s
