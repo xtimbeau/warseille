@@ -25,13 +25,14 @@ load("baselayer.rda")
 modes <- names(r5_output)
 files <- r5_output
 
-data <- map(files, ~{
-  setDT(arrow::read_parquet("{repository_distances_emploi}/{.x}" |> glue(),
-                            col_select = c("fromidINS", "toidINS")))
-})
+# data <- map(files, ~{
+#   setDT(arrow::read_parquet("{repository_distances_emploi}/{.x}" |> glue(),
+#                             col_select = c("fromidINS", "toidINS")))
+# })
 
 c200ze <- qs::qread(c200ze_file)
-fromidINSs <- unique(c200ze |> filter(com17 %in% scot_tot.epci, ind>0) |> pull(idINS))
+scot_tot.epci <- com2021epci |> pull(INSEE_COM)
+fromidINSs <- unique(c200ze |> filter(com22 %in% scot_tot.epci, ind>0) |> pull(idINS))
 toidINSs <- unique(c200ze |> filter(emp>0|ind>0) |> pull(idINS)) ##?? ind>0
 
 # On calcule une distance euclidienne et on crée un id pour les paires
