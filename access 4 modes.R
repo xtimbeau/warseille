@@ -36,13 +36,14 @@ data <- map( modes, ~ arrow::open_dataset("/space_mounts/data/marseille/distance
     collect() |>
     mutate(COMMUNE = as.character(COMMUNE)))
 
-transit <- read_parquet('~/files/transit_ref.parquet') |> 
-  select(fromidINS, toidINS, travel_time) |>
-  rename(travel_time_transit = travel_time) 
-
-data <- c()
-data <- append(data, list(transit), 0)
-rm(transit)
+#pour transit
+data <- map( modes, ~ arrow::open_dataset("/space_mounts/data/marseille/distances/src/{.x}" |> glue()) |>
+               select(fromidINS, toidINS, travel_time, COMMUNE, DCLT) |>
+               rename(travel_time_transit = travel_time) |>
+               # filter(distance <= 25000 ) |>
+               # distinct(COMMUNE, DCLT) |>
+               collect() |>
+               mutate(COMMUNE = as.character(COMMUNE)))
 
 access <- imap(data, ~{
   ld <- merge(.x, 
@@ -70,7 +71,7 @@ access <- access |>
 qs::qsave(access, "output/acces4modes.sqs")
 qs::qsave(decor_carte, "output/decor_carte.sqs")
 
-(access_4modes_transit <- ggplot()+
+(access_4modes_ <- ggplot()+
     # decor_carte +
     ofce::theme_ofce_void(base_family = "Roboto", axis.text = element_blank()) +
     geom_sf(data=access, aes(fill=to10k), col=NA)+
@@ -79,7 +80,7 @@ qs::qsave(decor_carte, "output/decor_carte.sqs")
                      text_cex = 0.4, pad_y = unit(0.1, "cm"))+
     facet_wrap(vars(mode)))
 
-ofce::graph2png(access_4modes_transit, rep=output_rep)
+ofce::graph2png(access_4modes_, rep=output_rep)
 
 # ggplot()+
 #   decor_carte +
