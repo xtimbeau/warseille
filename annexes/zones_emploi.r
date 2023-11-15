@@ -5,14 +5,14 @@ library(sf)
 library(tidyverse)
 
 c200 <- qs::qread(c200ze_file)
-ze.communes <- c200 |> pull(com21) |> unique() # la géographie de mobpro 2018 est celle de 2021
+ze.communes <- c200 |> pull(com22) |> unique() # la géographie de mobpro 2018 est celle de 2021
 
 # ---- Fichier Mobilité professionnelle 2018 ----
 mobpro <- fread(file = "~/files/FD_MOBPRO_2019.csv")
 
-com21_scot <- filter(c200, scot) |> pull(com22) |> unique() # communes du scot selmon la géométrie 2021
+com22_scot <- filter(c200, scot) |> pull(com22) |> unique() # communes du scot selmon la géométrie 2021
 
-mobpro[, live_in := (COMMUNE %in% com21_scot)]
+mobpro[, live_in := (COMMUNE %in% com22_scot)]
 mobpro[, work_in := (DCLT %in% ze.communes)]
 
 mobpro[, statut := ifelse(STAT == 10,
