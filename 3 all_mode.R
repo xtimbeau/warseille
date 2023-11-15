@@ -26,8 +26,9 @@ arrow::set_cpu_count(8)
 cli::cli_alert_info("lecture de baselayer dans {.path {getwd()}}")
 load("baselayer.rda")
 
-modes <- names(r5_output)
-files <- r5_output
+modes <- set_names(c("walk_tblr", 'bike_tblr', 'car_dgr2', 'transit5'))
+files <- c("walk_tblr", 'bike_tblr', 'car_dgr2', 'transit5')
+r5files_rep <- 'space_mounts/data/marseille/distances/src' |> glue()
 
 cli::cli_alert_info("lecture de {.path {idINS_emp_file}}")
 
@@ -41,9 +42,9 @@ cli::cli_alert_info(
   "lecture des fichiers de distance
   ....{str_c(files, collapse = ', ')}
   ....dans {.path {r5files_rep}}")
-data <- map(files, ~{
-  setDT(read_parquet("{r5files_rep}/{.x}" |> glue()) |> as.data.frame())
-})
+
+data <- map(files,  ~ arrow::open_dataset("/space_mounts/data/marseille/distances/src/{.x}" |> glue()) |> collect())
+
 
 data <- map(data, ~{
   cols <- intersect(
