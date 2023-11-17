@@ -238,6 +238,7 @@ c200i <- qs::qread(c200_file) |>
 
 # fond de carte -------------------
 
+
 mblr3 <- mapboxapi::get_static_tiles(
   location = st_union(com2021epci) |> st_buffer(-1000) |> st_transform(4326),
   zoom=10, 

@@ -71,8 +71,8 @@ access <- access |>
 qs::qsave(access, "output/acces4modes.sqs")
 qs::qsave(decor_carte, "output/decor_carte.sqs")
 
-(access_4modes_ <- ggplot()+
-    # decor_carte +
+(access_4modes_walk <- ggplot()+
+    decor_carte +
     ofce::theme_ofce_void(base_family = "Roboto", axis.text = element_blank()) +
     geom_sf(data=access, aes(fill=to10k), col=NA)+
     scico::scale_fill_scico(palette="hawaii", na.value=NA, direction=-1, name = "mn")+
@@ -80,7 +80,7 @@ qs::qsave(decor_carte, "output/decor_carte.sqs")
                      text_cex = 0.4, pad_y = unit(0.1, "cm"))+
     facet_wrap(vars(mode)))
 
-ofce::graph2png(access_4modes_, rep=output_rep)
+ofce::graph2png(access_4modes_walk, rep=output_rep)
 
 # ggplot()+
 #   decor_carte +
