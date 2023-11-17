@@ -26,7 +26,7 @@ arrow::set_cpu_count(8)
 cli::cli_alert_info("lecture de baselayer dans {.path {getwd()}}")
 load("baselayer.rda")
 
-modes <- set_names(c("walk_tblr", 'bike_tblr', 'car_dgr2', 'transit5'))
+modes <- set_names(c("walk_tblr", 'bike_tblr', 'car_dgr2'))
 
 cli::cli_alert_info("lecture de {.path {idINS_emp_file}}")
 
@@ -46,25 +46,29 @@ cli::cli_alert_info(
 communes <- com2021epci |> pull(INSEE_COM)
 
 distances <- imap(communes, ~{
-  data <- map(modes, ~ open_dataset('/space_mounts/data/marseille/distances/src/{.y}') |> distinct(.x) |> 
-                select(fromId, toId, travel_time, COMMUNE, DCLT, distance, access_time, egress_time, n_rides) |>
+  data <- map(modes, ~ arrow::open_dataset("/space_mounts/data/marseille/distances/src/{modes}" |> glue()) |>
+                select(fromId, toId, travel_time, COMMUNE, DCLT, distance) |>
                 # rename(travel_time_transit = travel_time) |>
                 rename(fromidINS=fromId) |>
                 rename(toidINS=toId) |>
+                distinct(COMMUNE) |>
+                filter(as.character(COMMUNE)==communes) |>
                 collect() |>
                 mutate(COMMUNE = as.character(COMMUNE)))
-  transit <- arrow::open_dataset("/space_mounts/data/marseille/distances/src/{.y}" |> distinct(.x) |> glue()) |>
-    select(fromidINS, toidINS, travel_time, COMMUNE, DCLT, distance, access_time, egress_time, n_rides) |>
+  transit <- arrow::open_dataset("/space_mounts/data/marseille/distances/src/{modes}" |> glue()) |>
+    select(fromidINS, toidINS, travel_time, COMMUNE, DCLT, distance) |>
     # rename(travel_time_transit = travel_time) |>
     # filter(distance <= 25000 ) |>
+    distinct(COMMUNE) |>
+    filter(as.character(COMMUNE)==communes) |>
     collect() |>
     mutate(COMMUNE = as.character(COMMUNE))
   data <- append(data, list(transit), 0)
   data <- map(data, ~{
     cols <- intersect(
-      names(.y),
-      c("fromidINS", "toidINS", "travel_time", "distance", "access_time", "egress_time", "n_rides"))
-    dd <- na.omit(.y[, ..cols], "travel_time")
+      names(modes),
+      c("fromidINS", "toidINS", "travel_time", "distance"))
+    dd <- na.omit(modes[, ..cols], "travel_time")
     dd <- merge(dd, idINS[, .(id, fromidINS, toidINS)], by=c("fromidINS", "toidINS"), all.x = TRUE)
     dd <- dd[, `:=`(fromidINS=NULL, toidINS=NULL)]
     setkey(dd, id)
@@ -82,8 +86,8 @@ distances <- imap(communes, ~{
   
   
   
-  all_mode <- all_mode[travel_time_car <= 90, ]
-  all_mode[n_rides==0, access_time := travel_time_transit]
+  all_mode <- all_mode[travel_time <= 90, ]
+  all_mode[access_time := travel_time_transit]
   setkey(all_mode, id)
   
   
@@ -106,18 +110,18 @@ distances <- imap(communes, ~{
     c("travel_time_bike", "travel_time_walk"),
     ~{
       gc()
-      form <- as.formula("log({.y})~log(euc)" |> glue())
-      data <- all_mode[euc>=200&is.finite(all_mode[[.y]])&all_mode[[.y]]>0,]
+      form <- as.formula("log({modes})~log(euc)" |> glue())
+      data <- all_mode[euc>=200&is.finite(all_mode[[modes]])&all_mode[[modes]]>0,]
       data <- data[sample.int(n=nrow(data), size=min(nrow(data), 1e+6)), ]
       model <- lm(form, data=data)
       pred <- as.integer(exp(predict(model, all_mode)))
-      xx <- all_mode[[.y]]
+      xx <- all_mode[[modes]]
       grand_ecart <- all_mode[["euc"]]!=0 & abs(log(xx)-log(pred))>1
       grand_ecart[is.na(grand_ecart)] <- FALSE
       garde <- !is.na(xx) & !grand_ecart
       pred[garde] <- xx[garde]
       dd <- data.table(pred, garde)
-      names(dd) <- c(.y, str_c("o_", .y))
+      names(dd) <- c(modes, str_c("o_", modes))
       dd
     })
   
