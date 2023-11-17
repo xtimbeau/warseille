@@ -26,8 +26,8 @@ modes <- set_names(c("bike_tblr"))
 modes <- set_names(c("car_dgr2"))
 
 
-data <- map( modes, ~ arrow::open_dataset("/space_mounts/data/marseille/distances/src/{.x}" |> glue()) |>
-    select(fromId, toId, travel_time, COMMUNE, DCLT) |>
+data <- map(modes, ~ arrow::open_dataset("/space_mounts/data/marseille/distances/src/{modes}" |> glue()) |>
+    # select(fromId, toId, travel_time, COMMUNE, DCLT) |>
     rename(travel_time_transit = travel_time) |>
     rename(fromidINS=fromId) |>
     rename(toidINS=toId) |>
