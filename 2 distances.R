@@ -43,14 +43,16 @@ origines <- idINSes |>
   filter(ind>0) |> 
   mutate(lon = r3035::idINS2lonlat(idINS)$lon,
          lat = r3035::idINS2lonlat(idINS)$lat) |> 
-  select(lon, lat, idINS, ind)
+  select(lon, lat, idINS, ind) |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
 destinations <- idINSes |> 
   semi_join(mobpro |> distinct(DCLT), by = c("com"="DCLT")) |> 
   filter(emp_resident>0) |> 
   mutate(lon = r3035::idINS2lonlat(idINS)$lon,
          lat = r3035::idINS2lonlat(idINS)$lat) |> 
-  select(lon, lat, idINS, emp_resident)
+  select(lon, lat, idINS, emp_resident) |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
 message(str_c("Nombre de carreaux sur la zone",
               "résidents = {nrow(origines)}",
@@ -64,17 +66,17 @@ message(
 
 # ---- CALCUL DE L'ACCESSIBILITE ----
 ## transit --------------
-future::plan("multisession", workers=1)
+future::plan("multisession", workers=4L)
 
 r5_transit <- routing_setup_r5(
   path = '~/files/localr5/', 
   date=jour_du_transit,
   n_threads = 16,
-  breakdown = TRUE)
+  extended = TRUE)
 
-iso_transit_dt <- iso_accessibilite(quoi = opportunites, 
+iso_transit_dt <- iso_accessibilite(quoi = destinations, 
                                     ou = origines, 
-                                    resolution = resol,
+                                    resolution = 200,
                                     tmax = 120, 
                                     chunk = 1e+6,
                                     pdt = 1,
@@ -83,6 +85,42 @@ iso_transit_dt <- iso_accessibilite(quoi = opportunites,
                                     ttm_out = TRUE,
                                     future=TRUE)
 
+transit <- ttm_idINS(iso_transit_dt) |> 
+  left_join(idINSes |> select(fromidINS = idINS, COMMUNE = com), by = "fromidINS") |> 
+  left_join(idINSes |> select(toidINS = idINS, DCLT = com), by = "toidINS") |> 
+  select(fromidINS, toidINS, travel_time, access_time=acces_time, egress_time, COMMUNE, DCLT)
 arrow::write_dataset(
-  ttm_idINS(iso_transit_dt),
+  transit, 
+  partitioning = "COMMUNE",
   path="{mdir}/distances/src/transit" |> glue())
+
+## transit 95 --------------
+future::plan("multisession", workers=2L)
+r5_transit5 <- routing_setup_r5(
+  path = '~/files/localr5/', 
+  date=jour_du_transit,
+  percentiles = .05,
+  time_window = 60L,
+  montecarlo = 1L, 
+  n_threads = 16,
+  extended = TRUE)
+
+iso_transit_dt <- iso_accessibilite(quoi = destinations, 
+                                    ou = origines, 
+                                    resolution = 200,
+                                    tmax = 120, 
+                                    chunk = 1e+5,
+                                    pdt = 1,
+                                    dir = "transit5", 
+                                    routing = r5_transit5,
+                                    ttm_out = TRUE,
+                                    future=TRUE)
+
+transit <- ttm_idINS(iso_transit_dt) |> 
+  left_join(idINSes |> select(fromidINS = idINS, COMMUNE = com), by = "fromidINS") |> 
+  left_join(idINSes |> select(toidINS = idINS, DCLT = com), by = "toidINS") |> 
+  select(fromidINS, toidINS, travel_time, access_time, egress_time, COMMUNE, DCLT)
+arrow::write_dataset(
+  transit, 
+  partitioning = "COMMUNE",
+  path="{mdir}/distances/src/transit5" |> glue())
