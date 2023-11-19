@@ -1,9 +1,0 @@
-SUCCESS [2023-11-03 17:06:06] Calcul accessibilite version 3
-SUCCESS [2023-11-03 17:06:06]        par commune, mode motorcar
-171 [17:07:23] Clusterization 186.7M paires initial, 14 clusters
-171 [17:07:23]                501.6M paires en agrégation complète
-171 [17:07:23]                270.1M paires en cluster
-171 [17:07:23]                plus petit cluster 1.7M
-171 [17:07:23]                réduction de temps estimée à 40%
-171 [17:07:36] router /space_mounts/data/marseille//dodgr//motorcar_tp_deniv.dodgrnet chargé
-171 [17:08:42] cluster 1/14 48.2M paires
