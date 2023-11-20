@@ -26,8 +26,8 @@ modes <- set_names(c("bike_tblr"))
 modes <- set_names(c("car_dgr2"))
 
 
-data <- map(modes, ~ arrow::open_dataset("/space_mounts/data/marseille/distances/src/{modes}" |> glue()) |>
-    # select(fromId, toId, travel_time, COMMUNE, DCLT) |>
+data <- map(modes, ~ arrow::open_dataset("/space_mounts/data/marseille/distances/src/{.x}" |> glue()) |>
+    select(fromId, toId, travel_time, COMMUNE, DCLT) |>
     rename(travel_time_transit = travel_time) |>
     rename(fromidINS=fromId) |>
     rename(toidINS=toId) |>
@@ -71,7 +71,7 @@ access <- access |>
 qs::qsave(access, "output/acces4modes.sqs")
 qs::qsave(decor_carte, "output/decor_carte.sqs")
 
-(access_4modes_walk <- ggplot()+
+(access_4modes_bike_tblr <- ggplot()+
     decor_carte +
     ofce::theme_ofce_void(base_family = "Roboto", axis.text = element_blank()) +
     geom_sf(data=access, aes(fill=to10k), col=NA)+
@@ -80,10 +80,51 @@ qs::qsave(decor_carte, "output/decor_carte.sqs")
                      text_cex = 0.4, pad_y = unit(0.1, "cm"))+
     facet_wrap(vars(mode)))
 
-ofce::graph2png(access_4modes_walk, rep=output_rep)
+ofce::graph2png(access_4modes_bike, rep=output_rep)
 
 # ggplot()+
 #   decor_carte +
 #   geom_sf(data=diff, aes(fill=to5k), col="white", linewidth=0.01)+
 #   geom_sf(data=stops.sf, aes(), col="red", size=0.25, alpha=0.75,show.legend = FALSE) +
 #   scico::scale_fill_scico(palette="vik", na.value=NA, midpoint=0)
+
+#on compare bike et bike_tblr
+
+
+data_ntblr <- c()
+bike_ntblr <- read_parquet('/space_mounts/data/marseille/distances/bike.parquet')
+data_ntblr <- append(data_ntblr, list(bike_ntblr), 0)
+rm(bike_ntblr)
+
+access_ntblr <- imap(data_ntblr, ~{
+  ld <- merge(.x, 
+              c200ze[emp>0, .(toidINS=idINS, emp, geometry)],
+              by=c("toidINS"), all.y=TRUE) %>%
+    drop_na(fromidINS) %>% 
+    st_as_sf(crs=3035)
+  setDT(ld)
+  res <- ld[ , lapply(times, \(.x) sum(emp*(travel_time<=.x), na.rm=TRUE)), by="fromidINS"]
+  res <- accessibility::iso2time(dt2r(res), seuils = seuils) 
+  res <- r2dt(res)
+  res[, `:=`(x=NULL, y=NULL, mode=.y)]
+  res
+}) |> 
+  bind_rows() 
+
+access_ntblr <- access_ntblr |> 
+  mutate(geometry=idINS2square(idINS200),
+         mode = factor(mode, 
+                       c("car", "transit", "bike", "walk"), 
+                       c("Voiture", "Transport en commun", "Vélo", "Marche à pied"))) |> 
+  st_as_sf(crs=3035)
+
+
+(access_4modes_bike_ntblr <- ggplot()+
+    decor_carte +
+    ofce::theme_ofce_void(base_family = "Roboto", axis.text = element_blank()) +
+    geom_sf(data=access_ntblr, aes(fill=to10k), col=NA)+
+    scico::scale_fill_scico(palette="hawaii", na.value=NA, direction=-1, name = "mn")+
+    annotation_scale(line_width = 0.2, height = unit(0.1, "cm"), 
+                     text_cex = 0.4, pad_y = unit(0.1, "cm"))+
+    facet_wrap(vars(mode)))
+
