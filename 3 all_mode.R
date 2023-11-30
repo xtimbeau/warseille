@@ -41,9 +41,9 @@ idINS <- read_parquet(idINS_emp_file) |>
 
 communes <- com2021epci |> pull(INSEE_COM)
 
-dir.create('/space_mounts/data/marseille/distances/distance_dataset')
+dir.create('/space_mounts/data/marseille/distances/src/distances_dataset_v3')
 
-distances <- map_dfr(communes, \(commune) {
+distances <- walk(communes, \(commune) {
   data <- map_dfr(modes, \(mode) {
      arrow::open_dataset("/space_mounts/data/marseille/distances/src/{mode}" |> glue()) |>
                 select(fromId, toId, travel_time, COMMUNE, DCLT, distance) |>
@@ -60,8 +60,7 @@ distances <- map_dfr(communes, \(commune) {
     filter(as.character(COMMUNE)==commune) |>
     collect() |>
     mutate(COMMUNE = as.character(COMMUNE), mode='transit')
-  data <- data |>
-    bind_rows(transit) 
+  data <- data |> bind_rows(transit)
   # extrapol <- map(
   #   c("travel_time_bike", "travel_time_walk"),
   #   ~{
@@ -110,11 +109,15 @@ distances <- map_dfr(communes, \(commune) {
   #             o_travel_time_walk,
   #             o_travel_time_transit)]
   # 
-  dir.create('/space_mounts/data/marseille/distances/distance_dataset/{commune}')
+  dir.create('/space_mounts/data/marseille/distances/src/distances_dataset_v3/{commune}' |> glue())
   
+  write_parquet(data, '/space_mounts/data/marseille/distances/src/distances_dataset_v3/{commune}/distance_{commune}.parquet' |> glue())
+
+  fname <- '/space_mounts/data/marseille/distances/src/distances_dataset_v3/{commune}/distance_{commune}.parquet' |> glue()
+
+  return(fname)
   
-  write_parquet(data, '/space_mounts/data/marseille/distances/distance_dataset/{commune}/distance_{commune}.parquet')
-})
+  })
 
 
 
