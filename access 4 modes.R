@@ -23,6 +23,7 @@ seuils <- c(1000, 2000, 5000, 10000, 20000, 25000, 50000, 100000)
 
 modes <- set_names(c("walk_tblr"))
 modes <- set_names(c("bike_tblr"))
+modes <- set_names(c('transit5'))
 modes <- set_names(c("car_dgr2"))
 
 
@@ -71,7 +72,7 @@ access <- access |>
 qs::qsave(access, "output/acces4modes.sqs")
 qs::qsave(decor_carte, "output/decor_carte.sqs")
 
-(access_4modes_bike_tblr <- ggplot()+
+(access_4modes_walk <- ggplot()+
     decor_carte +
     ofce::theme_ofce_void(base_family = "Roboto", axis.text = element_blank()) +
     geom_sf(data=access, aes(fill=to10k), col=NA)+
@@ -127,4 +128,48 @@ access_ntblr <- access_ntblr |>
     annotation_scale(line_width = 0.2, height = unit(0.1, "cm"), 
                      text_cex = 0.4, pad_y = unit(0.1, "cm"))+
     facet_wrap(vars(mode)))
+
+
+#on essaye avec to_duckdb() pour la voiture
+data <- arrow::open_dataset("/space_mounts/data/marseille/distances/src/car_dgr2") |>
+    to_duckdb() |>
+    group_by(COMMUNE) |> 
+    select(fromId, toId, travel_time, COMMUNE, DCLT) |>
+    rename(travel_time_transit = travel_time) |>
+    rename(fromidINS=fromId) |>
+    rename(toidINS=toId) |>
+    merge(c200ze[emp>0, .(toidINS=idINS, emp, geometry)], by=c("toidINS"), all.y=TRUE) |>
+    drop_na(fromidINS) |>
+    st_as_sf(crs=3035)
+    collect() |>
+    mutate(COMMUNE = as.character(COMMUNE))
+    
+setDT(data)
+access <- imap(data, ~ {
+res <- data[ , lapply(times, \(.x) sum(emp*(travel_time_transit<=.x), na.rm=TRUE)), by="fromidINS"]
+res <- accessibility::iso2time(dt2r(res), seuils = seuils) 
+res <- r2dt(res)
+res[, `:=`(x=NULL, y=NULL, mode=.y)]
+res
+}) |> bind_rows()
+
+
+access <- res |> 
+  mutate(geometry=idINS2square(idINS200),
+         mode = factor(mode, 
+                       c("car", "transit", "bike", "walk"), 
+                       c("Voiture", "Transport en commun", "Vélo", "Marche à pied"))) |> 
+  st_as_sf(crs=3035)
+
+(access_4modes_car <- ggplot()+
+    decor_carte +
+    ofce::theme_ofce_void(base_family = "Roboto", axis.text = element_blank()) +
+    geom_sf(data=access, aes(fill=to10k), col=NA)+
+    scico::scale_fill_scico(palette="hawaii", na.value=NA, direction=-1, name = "mn")+
+    annotation_scale(line_width = 0.2, height = unit(0.1, "cm"), 
+                     text_cex = 0.4, pad_y = unit(0.1, "cm"))+
+    facet_wrap(vars(mode)))
+
+
+    
 
