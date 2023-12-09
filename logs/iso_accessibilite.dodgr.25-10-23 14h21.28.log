@@ -1,0 +1,82 @@
+SUCCESS [5181] [2023-10-25 12:21:28] Calcul accessibilite version 2
+SUCCESS [5181] [2023-10-25 12:21:28] $type
+SUCCESS [5181] [2023-10-25 12:21:28] [1] "dodgr"
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $path
+SUCCESS [5181] [2023-10-25 12:21:28] /space_mounts/data/marseille//dodgr/
+SUCCESS [5181] [2023-10-25 12:21:28] FALSE
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $pg
+SUCCESS [5181] [2023-10-25 12:21:28] NULL
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $distances
+SUCCESS [5181] [2023-10-25 12:21:28] [1] TRUE
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $denivele
+SUCCESS [5181] [2023-10-25 12:21:28] [1] TRUE
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $pkg
+SUCCESS [5181] [2023-10-25 12:21:28] [1] "dodgr"
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $turn_penalty
+SUCCESS [5181] [2023-10-25 12:21:28] [1] TRUE
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $graph_name
+SUCCESS [5181] [2023-10-25 12:21:28] /space_mounts/data/marseille//dodgr//marseille.bicycle.dodgrnet
+SUCCESS [5181] [2023-10-25 12:21:28] FALSE
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $string
+SUCCESS [5181] [2023-10-25 12:21:28] dodgr routing bicycle sur /space_mounts/data/marseille//dodgr/ a 2023-10-25 11:46:44.656921
+SUCCESS [5181] [2023-10-25 12:21:28] FALSE
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $departure_datetime
+SUCCESS [5181] [2023-10-25 12:21:28] [1] "2019-12-17 08:00:00 UTC"
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $mode
+SUCCESS [5181] [2023-10-25 12:21:28] [1] "bicycle"
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $n_threads
+SUCCESS [5181] [2023-10-25 12:21:28] [1] 8
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $future
+SUCCESS [5181] [2023-10-25 12:21:28] [1] TRUE
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $future_routing
+SUCCESS [5181] [2023-10-25 12:21:28] function(routing) {
+SUCCESS [5181] [2023-10-25 12:21:28]       rout <- routing
+SUCCESS [5181] [2023-10-25 12:21:28]       rout$processed_graph <- NULL
+SUCCESS [5181] [2023-10-25 12:21:28]       rout$elevation_data <- NULL
+SUCCESS [5181] [2023-10-25 12:21:28]       return(rout)
+SUCCESS [5181] [2023-10-25 12:21:28]     }
+SUCCESS [5181] [2023-10-25 12:21:28] <environment: 0x55b508cfa398>
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] $core_init
+SUCCESS [5181] [2023-10-25 12:21:28] function(routing){
+SUCCESS [5181] [2023-10-25 12:21:28]       RcppParallel::setThreadOptions(numThreads = routing$n_threads)
+SUCCESS [5181] [2023-10-25 12:21:28]       rout <- routing
+SUCCESS [5181] [2023-10-25 12:21:28]       rout$pg <- load_streetnet(routing$graph_name)
+SUCCESS [5181] [2023-10-25 12:21:28]       if("dz"%in% names(rout$pg$graph)) {
+SUCCESS [5181] [2023-10-25 12:21:28]         rout$pg$graph$dzplus <-
+SUCCESS [5181] [2023-10-25 12:21:28]           rout$pg$graph$dz * rout$pg$graph$d * (rout$pg$graph$dz >0)
+SUCCESS [5181] [2023-10-25 12:21:28]         rout$pg$graph_compound$dzplus <- 
+SUCCESS [5181] [2023-10-25 12:21:28]           rout$pg$graph_compound$dz * rout$pg$graph_compound$d * (rout$pg$graph_compound$dz >0)
+SUCCESS [5181] [2023-10-25 12:21:28]         rout$pg$graph_compound$dzplus[is.na(rout$pg$graph_compound$dzplus)] <- 0
+SUCCESS [5181] [2023-10-25 12:21:28]         }
+SUCCESS [5181] [2023-10-25 12:21:28]       logger::log_info("router {graph_name} chargé")
+SUCCESS [5181] [2023-10-25 12:21:28]       return(rout)
+SUCCESS [5181] [2023-10-25 12:21:28]     }
+SUCCESS [5181] [2023-10-25 12:21:28] <environment: 0x55b508cfa398>
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] 
+SUCCESS [5181] [2023-10-25 12:21:28] tmax:120
+SUCCESS [5181] [2023-10-25 12:21:28] pdt:1
+SUCCESS [5181] [2023-10-25 12:21:28] chunk:20M
+SUCCESS [5181] [2023-10-25 12:21:28] resolution:200
+SUCCESS [5181] [2023-10-25 12:21:28] out:200
+SUCCESS [5181] [2023-10-25 12:21:28] les variables sont emplois
+SUCCESS [5181] [2023-10-25 12:21:29] taille:333.6M gr:17 res_gr:12800
+SUCCESS [5181] [2023-10-25 12:21:29] 26k ou, 12.8k quoi
+SUCCESS [5181] [2023-10-25 12:21:29] 33 carreaux, 8 subsampling
+SUCCESS [5181] [2023-10-25 12:21:29] future:TRUE, 1 workers
+INFO [5181] [2023-10-25 12:24:19] router /space_mounts/data/marseille//dodgr//marseille.bicycle.dodgrnet chargé
+INFO [5181] [2023-10-25 12:24:26] dodgr_ttm called, TRUE, 7x21

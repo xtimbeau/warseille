@@ -1,0 +1,420 @@
+SUCCESS [2023-10-23 09:27:37] Calcul accessibilite version 2
+SUCCESS [2023-10-23 09:27:37] $type
+SUCCESS [2023-10-23 09:27:37] [1] "dodgr"
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $path
+SUCCESS [2023-10-23 09:27:37] /space_mounts/data/marseille//dodgr/
+SUCCESS [2023-10-23 09:27:37] FALSE
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $graph
+SUCCESS [2023-10-23 09:27:37] NULL
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $vertices
+SUCCESS [2023-10-23 09:27:37] NULL
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $distances
+SUCCESS [2023-10-23 09:27:37] [1] TRUE
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $denivele
+SUCCESS [2023-10-23 09:27:37] [1] FALSE
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $pkg
+SUCCESS [2023-10-23 09:27:37] [1] "dodgr"
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $turn_penalty
+SUCCESS [2023-10-23 09:27:37] [1] TRUE
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $graph_name
+SUCCESS [2023-10-23 09:27:37] /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet
+SUCCESS [2023-10-23 09:27:37] FALSE
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $string
+SUCCESS [2023-10-23 09:27:37] dodgr routing foot sur /space_mounts/data/marseille//dodgr/ a 2023-10-23 09:27:35.873951
+SUCCESS [2023-10-23 09:27:37] FALSE
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $departure_datetime
+SUCCESS [2023-10-23 09:27:37] [1] "2019-12-17 08:00:00 UTC"
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $mode
+SUCCESS [2023-10-23 09:27:37] [1] "foot"
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $n_threads
+SUCCESS [2023-10-23 09:27:37] [1] 8
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $future
+SUCCESS [2023-10-23 09:27:37] [1] TRUE
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $future_routing
+SUCCESS [2023-10-23 09:27:37] function (routing) 
+SUCCESS [2023-10-23 09:27:37] {
+SUCCESS [2023-10-23 09:27:37]     rout <- routing
+SUCCESS [2023-10-23 09:27:37]     rout$graph <- NULL
+SUCCESS [2023-10-23 09:27:37]     rout$vertices <- NULL
+SUCCESS [2023-10-23 09:27:37]     rout$elevation_data <- NULL
+SUCCESS [2023-10-23 09:27:37]     return(rout)
+SUCCESS [2023-10-23 09:27:37] }
+SUCCESS [2023-10-23 09:27:37] <bytecode: 0x556ce1546700>
+SUCCESS [2023-10-23 09:27:37] <environment: 0x556ce09e6d90>
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] $core_init
+SUCCESS [2023-10-23 09:27:37] function (routing) 
+SUCCESS [2023-10-23 09:27:37] {
+SUCCESS [2023-10-23 09:27:37]     RcppParallel::setThreadOptions(numThreads = routing$n_threads)
+SUCCESS [2023-10-23 09:27:37]     rout <- routing
+SUCCESS [2023-10-23 09:27:37]     net <- dgr_load_streetnet(routing$graph_name)
+SUCCESS [2023-10-23 09:27:37]     rout$graph <- net$graph
+SUCCESS [2023-10-23 09:27:37]     rout$vertices <- net$verts_c
+SUCCESS [2023-10-23 09:27:37]     if ("dz" %in% names(rout$graph)) 
+SUCCESS [2023-10-23 09:27:37]         rout$graph$dzplus <- rout$graph$dz * (rout$graph$dz > 
+SUCCESS [2023-10-23 09:27:37]             0)
+SUCCESS [2023-10-23 09:27:37]     logger::log_info("router {graph_name} chargé")
+SUCCESS [2023-10-23 09:27:37]     return(rout)
+SUCCESS [2023-10-23 09:27:37] }
+SUCCESS [2023-10-23 09:27:37] <bytecode: 0x556ce1547340>
+SUCCESS [2023-10-23 09:27:37] <environment: 0x556ce09e6d90>
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] 
+SUCCESS [2023-10-23 09:27:37] tmax:120
+SUCCESS [2023-10-23 09:27:37] pdt:1
+SUCCESS [2023-10-23 09:27:37] chunk:5M
+SUCCESS [2023-10-23 09:27:37] resolution:200
+SUCCESS [2023-10-23 09:27:37] out:200
+SUCCESS [2023-10-23 09:27:37] les variables sont emplois
+SUCCESS [2023-10-23 09:27:37] taille:333.6M gr:67 res_gr:6400
+SUCCESS [2023-10-23 09:27:37] 26k ou, 12.8k quoi
+SUCCESS [2023-10-23 09:27:37] 106 carreaux, 8 subsampling
+SUCCESS [2023-10-23 09:27:37] future:TRUE, 16 workers
+INFO [23961] [2023-10-23 09:55:17] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23961] [2023-10-23 09:55:23] dodgr_ttm called, TRUE, 6x21
+WARN [23961] [2023-10-23 09:56:25] dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 09:56:25] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 09:56:25] carreau:N2233600E3961600 ou_id:1,2,3,12,23,25 ttm_ou vide
+WARN [23961] [2023-10-23 09:56:25] la matrice des distances interne au carreau est vide
+INFO [23961] [2023-10-23 09:56:30] dodgr_ttm called, FALSE, 1x12829
+INFO [23966] [2023-10-23 09:57:28] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23966] [2023-10-23 09:57:34] dodgr_ttm called, TRUE, 2x7
+WARN [23966] [2023-10-23 09:58:35] dodgr::travel_time_matrix empty
+WARN [23966] [2023-10-23 09:58:35] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [23966] [2023-10-23 09:58:35] carreau:N2240000E3936000 ou_id:713,714 ttm_ou vide
+WARN [23966] [2023-10-23 09:58:35] la matrice des distances interne au carreau est vide
+WARN [23961] [2023-10-23 09:58:38] dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 09:58:38] carreau:N2233600E3955200 ou_id:21 erreur ttm_0 dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 09:58:38] carreau:N2233600E3955200 ou_id:21 ttm_0 vide
+WARN [23961] [2023-10-23 09:58:38] la matrice des distances entre les ancres et les opportunites est vide
+INFO [23966] [2023-10-23 09:58:40] dodgr_ttm called, TRUE, 8x587
+INFO [23961] [2023-10-23 09:58:43] dodgr_ttm called, TRUE, 8x175
+INFO [23966] [2023-10-23 09:59:24] dodgr_ttm called, FALSE, 8x12829
+INFO [23961] [2023-10-23 09:59:29] dodgr_ttm called, FALSE, 8x12829
+INFO [23958] [2023-10-23 09:59:39] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23958] [2023-10-23 09:59:45] dodgr_ttm called, TRUE, 1x6
+WARN [23958] [2023-10-23 10:00:56] dodgr::travel_time_matrix empty
+WARN [23958] [2023-10-23 10:00:56] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [23958] [2023-10-23 10:00:56] carreau:N2246400E3974400 ou_id:1371 ttm_ou vide
+WARN [23958] [2023-10-23 10:00:56] la matrice des distances interne au carreau est vide
+INFO [23958] [2023-10-23 10:01:02] dodgr_ttm called, TRUE, 8x732
+INFO [23966] [2023-10-23 10:01:29] dodgr_ttm called, FALSE, 9x10
+INFO [23961] [2023-10-23 10:01:40] dodgr_ttm called, FALSE, 2x3
+INFO [23958] [2023-10-23 10:01:59] dodgr_ttm called, FALSE, 8x12829
+INFO [23963] [2023-10-23 10:02:01] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23963] [2023-10-23 10:02:08] dodgr_ttm called, TRUE, 8x230
+INFO [23966] [2023-10-23 10:03:01] paquet:N2246400E3942400 ppou:1107 ttm ok 48
+INFO [23966] [2023-10-23 10:03:01] dodgr_ttm called, FALSE, 1x6
+INFO [23961] [2023-10-23 10:03:14] paquet:N2240000E3955200 ppou:622 ttm ok 6
+WARN [23961] [2023-10-23 10:03:14] paquet:N2240000E3955200 ppou:765 ttm vide
+WARN [23961] [2023-10-23 10:03:14] pas de cibles
+SUCCESS [23961] [2023-10-23 10:03:14] carreau:N2240000E3955200 2 ancres 38.5k@141.9p/s demandees, 11@40.5mp/s retenues
+INFO [23963] [2023-10-23 10:03:16] dodgr_ttm called, FALSE, 8x12829
+INFO [23961] [2023-10-23 10:03:20] dodgr_ttm called, TRUE, 8x538
+WARN [23961] [2023-10-23 10:04:10] dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 10:04:10] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 10:04:10] carreau:N2240000E3961600 ou_id:94,311,348,370,437,507,686,773 ttm_ou vide
+WARN [23961] [2023-10-23 10:04:10] la matrice des distances interne au carreau est vide
+INFO [23970] [2023-10-23 10:04:14] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23961] [2023-10-23 10:04:16] dodgr_ttm called, TRUE, 4x15
+INFO [23958] [2023-10-23 10:04:18] dodgr_ttm called, FALSE, 8x15
+INFO [23970] [2023-10-23 10:04:21] dodgr_ttm called, TRUE, 8x335
+INFO [23966] [2023-10-23 10:04:33] paquet:N2246400E3942400 ppou:2028 ttm ok 5
+SUCCESS [23966] [2023-10-23 10:04:33] carreau:N2246400E3942400 2 ancres 102.7k@291.4p/s demandees, 86@244mp/s retenues
+INFO [23966] [2023-10-23 10:04:38] dodgr_ttm called, TRUE, 8x161
+WARN [23961] [2023-10-23 10:05:05] dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 10:05:05] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 10:05:05] carreau:N2240000E3968000 ou_id:115,137,200,797 ttm_ou vide
+WARN [23961] [2023-10-23 10:05:05] la matrice des distances interne au carreau est vide
+INFO [23961] [2023-10-23 10:05:11] dodgr_ttm called, TRUE, 2x6
+INFO [23966] [2023-10-23 10:05:23] dodgr_ttm called, FALSE, 8x12829
+INFO [23963] [2023-10-23 10:05:24] dodgr_ttm called, FALSE, 3x4
+INFO [23970] [2023-10-23 10:05:29] dodgr_ttm called, FALSE, 8x12829
+INFO [23958] [2023-10-23 10:05:57] paquet:N2252800E3942400 ppou:2979 ttm ok 55
+INFO [23958] [2023-10-23 10:05:57] dodgr_ttm called, FALSE, 2x3
+WARN [23961] [2023-10-23 10:05:58] dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 10:05:58] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 10:05:58] carreau:N2240000E3942400 ou_id:666,716 ttm_ou vide
+WARN [23961] [2023-10-23 10:05:58] la matrice des distances interne au carreau est vide
+INFO [23961] [2023-10-23 10:06:04] dodgr_ttm called, TRUE, 1x3
+INFO [23959] [2023-10-23 10:06:24] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23959] [2023-10-23 10:06:30] dodgr_ttm called, TRUE, 8x489
+WARN [23961] [2023-10-23 10:06:52] dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 10:06:52] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [23961] [2023-10-23 10:06:52] carreau:N2240000E3948800 ou_id:742 ttm_ou vide
+WARN [23961] [2023-10-23 10:06:52] la matrice des distances interne au carreau est vide
+INFO [23963] [2023-10-23 10:07:00] paquet:N2259200E3923200 ppou:5253 ttm ok 8
+INFO [23963] [2023-10-23 10:07:00] dodgr_ttm called, FALSE, 1x3
+WARN [23966] [2023-10-23 10:07:34] paquet:N2246400E3948800 ppou:1183 ttm vide
+WARN [23966] [2023-10-23 10:07:34] pas de cibles
+WARN [23966] [2023-10-23 10:07:34] paquet:N2246400E3948800 ppou:1752 ttm vide
+WARN [23966] [2023-10-23 10:07:34] pas de cibles
+SUCCESS [23966] [2023-10-23 10:07:34] carreau:N2246400E3948800 2 ancres 12.8k@73p/s demandees, 1@5.7mp/s retenues
+INFO [23958] [2023-10-23 10:07:35] paquet:N2252800E3942400 ppou:3189 ttm ok 6
+INFO [23958] [2023-10-23 10:07:35] dodgr_ttm called, FALSE, 2x2
+WARN [23970] [2023-10-23 10:07:40] dodgr::travel_time_matrix empty
+WARN [23970] [2023-10-23 10:07:40] carreau:N2259200E3916800 ou_id:6534,7712,7868,7955,7965,8051,8130,8143 erreur ttm_0 dodgr::travel_time_matrix empty
+WARN [23970] [2023-10-23 10:07:40] carreau:N2259200E3916800 ou_id:6534,7712,7868,7955,7965,8051,8130,8143 ttm_0 vide
+WARN [23970] [2023-10-23 10:07:40] la matrice des distances entre les ancres et les opportunites est vide
+INFO [23966] [2023-10-23 10:07:40] dodgr_ttm called, TRUE, 8x385
+INFO [23970] [2023-10-23 10:07:45] dodgr_ttm called, TRUE, 8x183
+INFO [23959] [2023-10-23 10:07:47] dodgr_ttm called, FALSE, 8x12829
+INFO [23966] [2023-10-23 10:08:26] dodgr_ttm called, FALSE, 8x12829
+INFO [23970] [2023-10-23 10:08:30] dodgr_ttm called, FALSE, 8x12829
+INFO [23967] [2023-10-23 10:08:41] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23963] [2023-10-23 10:08:41] paquet:N2259200E3923200 ppou:5357 ttm ok 1
+SUCCESS [23963] [2023-10-23 10:08:41] carreau:N2259200E3923200 2 ancres 38.5k@98.1p/s demandees, 17@43.3mp/s retenues
+INFO [23963] [2023-10-23 10:08:47] dodgr_ttm called, TRUE, 8x270
+INFO [23967] [2023-10-23 10:08:47] dodgr_ttm called, TRUE, 8x543
+INFO [23958] [2023-10-23 10:09:13] paquet:N2252800E3942400 ppou:4316 ttm ok 4
+SUCCESS [23958] [2023-10-23 10:09:13] carreau:N2252800E3942400 3 ancres 89.9k@183.1p/s demandees, 89@181.2mp/s retenues
+INFO [23958] [2023-10-23 10:09:19] dodgr_ttm called, TRUE, 8x880
+INFO [23963] [2023-10-23 10:09:36] dodgr_ttm called, FALSE, 8x12829
+INFO [23967] [2023-10-23 10:10:09] dodgr_ttm called, FALSE, 8x12829
+INFO [23958] [2023-10-23 10:10:12] dodgr_ttm called, FALSE, 8x12829
+INFO [23959] [2023-10-23 10:10:19] dodgr_ttm called, FALSE, 5x4
+INFO [23966] [2023-10-23 10:10:47] dodgr_ttm called, FALSE, 8x15
+INFO [23970] [2023-10-23 10:10:50] dodgr_ttm called, FALSE, 1x2
+INFO [23965] [2023-10-23 10:11:09] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23965] [2023-10-23 10:11:15] dodgr_ttm called, TRUE, 8x27
+INFO [23963] [2023-10-23 10:11:56] dodgr_ttm called, FALSE, 2x2
+INFO [23959] [2023-10-23 10:12:22] paquet:N2265600E3929600 ppou:8660 ttm ok 20
+INFO [23959] [2023-10-23 10:12:22] dodgr_ttm called, FALSE, 6x28
+INFO [23965] [2023-10-23 10:12:24] dodgr_ttm called, FALSE, 8x12829
+INFO [23966] [2023-10-23 10:12:28] paquet:N2246400E3955200 ppou:2147 ttm ok 76
+INFO [23966] [2023-10-23 10:12:28] dodgr_ttm called, FALSE, 1x6
+INFO [23970] [2023-10-23 10:12:28] paquet:N2259200E3936000 ppou:6746 ttm ok 2
+INFO [23970] [2023-10-23 10:12:28] dodgr_ttm called, FALSE, 2x1
+INFO [23958] [2023-10-23 10:12:36] dodgr_ttm called, FALSE, 6x5
+WARN [23967] [2023-10-23 10:12:41] paquet:N2265600E3948800 ppou:9393 ttm vide
+WARN [23967] [2023-10-23 10:12:41] pas de cibles
+WARN [23967] [2023-10-23 10:12:41] paquet:N2265600E3948800 ppou:11822 ttm vide
+WARN [23967] [2023-10-23 10:12:41] pas de cibles
+SUCCESS [23967] [2023-10-23 10:12:41] carreau:N2265600E3948800 2 ancres 12.8k@54.9p/s demandees, 1@4.3mp/s retenues
+INFO [23967] [2023-10-23 10:12:47] dodgr_ttm called, TRUE, 8x208
+INFO [23963] [2023-10-23 10:13:36] paquet:N2259200E3929600 ppou:8261 ttm ok 4
+SUCCESS [23963] [2023-10-23 10:13:36] carreau:N2259200E3929600 1 ancres 25.7k@88.9p/s demandees, 7@24.3mp/s retenues
+INFO [23957] [2023-10-23 10:13:37] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23963] [2023-10-23 10:13:41] dodgr_ttm called, TRUE, 8x572
+INFO [23967] [2023-10-23 10:13:43] dodgr_ttm called, FALSE, 8x12829
+INFO [23957] [2023-10-23 10:13:43] dodgr_ttm called, TRUE, 8x38
+INFO [23966] [2023-10-23 10:14:06] paquet:N2246400E3955200 ppou:2225 ttm ok 6
+INFO [23966] [2023-10-23 10:14:06] dodgr_ttm called, FALSE, 8x15
+INFO [23970] [2023-10-23 10:14:06] paquet:N2259200E3936000 ppou:8181 ttm ok 2
+SUCCESS [23970] [2023-10-23 10:14:07] carreau:N2259200E3936000 2 ancres 38.5k@101p/s demandees, 8@21mp/s retenues
+INFO [23959] [2023-10-23 10:14:10] paquet:N2265600E3929600 ppou:9461 ttm ok 135
+WARN [23959] [2023-10-23 10:14:10] paquet:N2265600E3929600 ppou:9714 ttm vide
+WARN [23959] [2023-10-23 10:14:10] pas de cibles
+INFO [23959] [2023-10-23 10:14:10] dodgr_ttm called, FALSE, 11x24
+INFO [23970] [2023-10-23 10:14:14] dodgr_ttm called, TRUE, 1x4
+INFO [23958] [2023-10-23 10:14:18] paquet:N2252800E3948800 ppou:4418 ttm ok 28
+INFO [23958] [2023-10-23 10:14:18] dodgr_ttm called, FALSE, 1x1
+WARN [23965] [2023-10-23 10:14:35] dodgr::travel_time_matrix empty
+WARN [23965] [2023-10-23 10:14:35] carreau:N2272000E3936000 ou_id:12414,12415,12416,12515,12618,14057,14725,15222 erreur ttm_0 dodgr::travel_time_matrix empty
+WARN [23965] [2023-10-23 10:14:35] carreau:N2272000E3936000 ou_id:12414,12415,12416,12515,12618,14057,14725,15222 ttm_0 vide
+WARN [23965] [2023-10-23 10:14:35] la matrice des distances entre les ancres et les opportunites est vide
+INFO [23963] [2023-10-23 10:14:36] dodgr_ttm called, FALSE, 8x12829
+INFO [23965] [2023-10-23 10:14:43] dodgr_ttm called, TRUE, 8x439
+INFO [23957] [2023-10-23 10:14:51] dodgr_ttm called, FALSE, 8x12829
+INFO [23970] [2023-10-23 10:15:01] dodgr_ttm called, FALSE, 1x12820
+INFO [23965] [2023-10-23 10:15:40] dodgr_ttm called, FALSE, 8x12829
+INFO [23966] [2023-10-23 10:15:50] paquet:N2246400E3955200 ppou:2327 ttm ok 109
+SUCCESS [23966] [2023-10-23 10:15:50] carreau:N2246400E3955200 3 ancres 38.7k@79.1p/s demandees, 230@469.8mp/s retenues
+INFO [23966] [2023-10-23 10:15:56] dodgr_ttm called, TRUE, 8x177
+INFO [23958] [2023-10-23 10:15:59] paquet:N2252800E3948800 ppou:4894 ttm ok 1
+SUCCESS [23958] [2023-10-23 10:15:59] carreau:N2252800E3948800 2 ancres 51.3k@128.6p/s demandees, 37@92.7mp/s retenues
+INFO [23959] [2023-10-23 10:15:59] paquet:N2265600E3929600 ppou:9842 ttm ok 119
+INFO [23959] [2023-10-23 10:15:59] dodgr_ttm called, FALSE, 31x48
+INFO [23964] [2023-10-23 10:16:01] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23958] [2023-10-23 10:16:04] dodgr_ttm called, TRUE, 8x557
+INFO [23964] [2023-10-23 10:16:09] dodgr_ttm called, TRUE, 8x538
+INFO [23967] [2023-10-23 10:16:13] dodgr_ttm called, FALSE, 1x1
+INFO [23966] [2023-10-23 10:16:53] dodgr_ttm called, FALSE, 8x12829
+INFO [23958] [2023-10-23 10:16:57] dodgr_ttm called, FALSE, 8x12829
+WARN [23963] [2023-10-23 10:17:12] paquet:N2259200E3942400 ppou:5920 ttm vide
+INFO [23957] [2023-10-23 10:17:12] dodgr_ttm called, FALSE, 7x29
+WARN [23963] [2023-10-23 10:17:12] pas de cibles
+WARN [23963] [2023-10-23 10:17:12] paquet:N2259200E3942400 ppou:7110 ttm vide
+WARN [23963] [2023-10-23 10:17:12] pas de cibles
+SUCCESS [23963] [2023-10-23 10:17:12] carreau:N2259200E3942400 2 ancres 25.7k@122p/s demandees, 2@9.5mp/s retenues
+INFO [23963] [2023-10-23 10:17:19] dodgr_ttm called, TRUE, 8x394
+WARN [23970] [2023-10-23 10:17:23] dodgr::travel_time_matrix empty
+WARN [23970] [2023-10-23 10:17:24] carreau:N2259200E3910400 ou_id:7865 erreur ttm_0 dodgr::travel_time_matrix empty
+WARN [23970] [2023-10-23 10:17:24] carreau:N2259200E3910400 ou_id:7865 ttm_0 vide
+WARN [23970] [2023-10-23 10:17:24] la matrice des distances entre les ancres et les opportunites est vide
+INFO [23964] [2023-10-23 10:17:29] dodgr_ttm called, FALSE, 8x12829
+INFO [23970] [2023-10-23 10:17:31] dodgr_ttm called, TRUE, 1x1
+INFO [23959] [2023-10-23 10:17:50] paquet:N2265600E3929600 ppou:9983 ttm ok 694
+INFO [23959] [2023-10-23 10:17:50] dodgr_ttm called, FALSE, 17x60
+INFO [23967] [2023-10-23 10:18:08] paquet:N2265600E3910400 ppou:10427 ttm ok 1
+INFO [23967] [2023-10-23 10:18:08] dodgr_ttm called, FALSE, 2x7
+WARN [23965] [2023-10-23 10:18:16] paquet:N2272000E3942400 ppou:13102 ttm vide
+WARN [23965] [2023-10-23 10:18:16] pas de cibles
+INFO [23965] [2023-10-23 10:18:16] dodgr_ttm called, FALSE, 2x6
+INFO [23962] [2023-10-23 10:18:19] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23963] [2023-10-23 10:18:19] dodgr_ttm called, FALSE, 8x12829
+WARN [23970] [2023-10-23 10:18:22] dodgr::travel_time_matrix empty
+WARN [23970] [2023-10-23 10:18:22] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [23970] [2023-10-23 10:18:22] carreau:N2259200E3904000 ou_id:7788 ttm_ou vide
+WARN [23970] [2023-10-23 10:18:22] la matrice des distances interne au carreau est vide
+INFO [23962] [2023-10-23 10:18:26] dodgr_ttm called, TRUE, 8x145
+INFO [23970] [2023-10-23 10:18:28] dodgr_ttm called, FALSE, 1x12819
+INFO [23957] [2023-10-23 10:18:54] paquet:N2272000E3904000 ppou:13761 ttm ok 130
+INFO [23957] [2023-10-23 10:18:54] dodgr_ttm called, FALSE, 6x29
+INFO [23958] [2023-10-23 10:19:16] dodgr_ttm called, FALSE, 3x14
+WARN [23966] [2023-10-23 10:19:24] dodgr::travel_time_matrix empty
+WARN [23966] [2023-10-23 10:19:24] carreau:N2246400E3968000 ou_id:1414,1583,1669,1670,1714,1783,1940,2089 erreur ttm_0 dodgr::travel_time_matrix empty
+WARN [23966] [2023-10-23 10:19:24] carreau:N2246400E3968000 ou_id:1414,1583,1669,1670,1714,1783,1940,2089 ttm_0 vide
+WARN [23966] [2023-10-23 10:19:24] la matrice des distances entre les ancres et les opportunites est vide
+INFO [23966] [2023-10-23 10:19:31] dodgr_ttm called, TRUE, 1x1
+INFO [23959] [2023-10-23 10:19:39] paquet:N2265600E3929600 ppou:10633 ttm ok 393
+SUCCESS [23959] [2023-10-23 10:19:39] carreau:N2265600E3929600 6 ancres 79.9k@101.4p/s demandees, 1.5k@1.9p/s retenues
+INFO [23962] [2023-10-23 10:19:41] dodgr_ttm called, FALSE, 8x12829
+INFO [23959] [2023-10-23 10:19:46] dodgr_ttm called, TRUE, 8x513
+INFO [23967] [2023-10-23 10:19:55] paquet:N2265600E3910400 ppou:10921 ttm ok 5
+WARN [23967] [2023-10-23 10:19:55] paquet:N2265600E3910400 ppou:11061 ttm vide
+WARN [23967] [2023-10-23 10:19:55] pas de cibles
+INFO [23967] [2023-10-23 10:19:55] dodgr_ttm called, FALSE, 1x1
+INFO [23965] [2023-10-23 10:20:00] paquet:N2272000E3942400 ppou:13694 ttm ok 10
+INFO [23965] [2023-10-23 10:20:00] dodgr_ttm called, FALSE, 6x8
+INFO [23964] [2023-10-23 10:20:00] dodgr_ttm called, FALSE, 3x1
+WARN [23966] [2023-10-23 10:20:20] dodgr::travel_time_matrix empty
+WARN [23966] [2023-10-23 10:20:20] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [23966] [2023-10-23 10:20:20] carreau:N2246400E3936000 ou_id:848 ttm_ou vide
+WARN [23966] [2023-10-23 10:20:20] la matrice des distances interne au carreau est vide
+INFO [23966] [2023-10-23 10:20:29] dodgr_ttm called, TRUE, 8x211
+INFO [23957] [2023-10-23 10:20:41] paquet:N2272000E3904000 ppou:13935 ttm ok 117
+INFO [23957] [2023-10-23 10:20:41] dodgr_ttm called, FALSE, 8x43
+INFO [23959] [2023-10-23 10:20:44] dodgr_ttm called, FALSE, 8x12829
+WARN [23970] [2023-10-23 10:20:49] dodgr::travel_time_matrix empty
+WARN [23970] [2023-10-23 10:20:49] carreau:N2259200E3897600 ou_id:8128 erreur ttm_0 dodgr::travel_time_matrix empty
+WARN [23970] [2023-10-23 10:20:49] carreau:N2259200E3897600 ou_id:8128 ttm_0 vide
+WARN [23970] [2023-10-23 10:20:49] la matrice des distances entre les ancres et les opportunites est vide
+INFO [23963] [2023-10-23 10:20:55] dodgr_ttm called, FALSE, 6x8
+INFO [23970] [2023-10-23 10:20:56] dodgr_ttm called, TRUE, 8x303
+INFO [23958] [2023-10-23 10:20:57] paquet:N2252800E3955200 ppou:2429 ttm ok 42
+SUCCESS [23958] [2023-10-23 10:20:57] carreau:N2252800E3955200 1 ancres 38.5k@131.6p/s demandees, 58@198.1mp/s retenues
+INFO [23958] [2023-10-23 10:21:02] dodgr_ttm called, TRUE, 8x570
+INFO [23956] [2023-10-23 10:21:04] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23956] [2023-10-23 10:21:10] dodgr_ttm called, TRUE, 8x103
+INFO [23966] [2023-10-23 10:21:20] dodgr_ttm called, FALSE, 8x12829
+INFO [23964] [2023-10-23 10:21:39] paquet:N2278400E3942400 ppou:15959 ttm ok 2
+WARN [23964] [2023-10-23 10:21:39] paquet:N2278400E3942400 ppou:17648 ttm vide
+WARN [23964] [2023-10-23 10:21:39] pas de cibles
+WARN [23964] [2023-10-23 10:21:39] paquet:N2278400E3942400 ppou:17872 ttm vide
+WARN [23964] [2023-10-23 10:21:39] pas de cibles
+SUCCESS [23964] [2023-10-23 10:21:40] carreau:N2278400E3942400 3 ancres 12.8k@38.8p/s demandees, 3@9.1mp/s retenues
+INFO [23967] [2023-10-23 10:21:43] paquet:N2265600E3910400 ppou:11212 ttm ok 1
+SUCCESS [23967] [2023-10-23 10:21:43] carreau:N2265600E3910400 4 ancres 64.2k@119.8p/s demandees, 18@33.6mp/s retenues
+INFO [23965] [2023-10-23 10:21:43] paquet:N2272000E3942400 ppou:14333 ttm ok 41
+WARN [23965] [2023-10-23 10:21:43] paquet:N2272000E3942400 ppou:15073 ttm vide
+WARN [23965] [2023-10-23 10:21:43] pas de cibles
+SUCCESS [23965] [2023-10-23 10:21:44] carreau:N2272000E3942400 4 ancres 51.4k@122.3p/s demandees, 67@159.4mp/s retenues
+INFO [23964] [2023-10-23 10:21:46] dodgr_ttm called, TRUE, 8x912
+INFO [23970] [2023-10-23 10:21:48] dodgr_ttm called, FALSE, 8x12829
+INFO [23967] [2023-10-23 10:21:49] dodgr_ttm called, TRUE, 1x2
+INFO [23965] [2023-10-23 10:21:50] dodgr_ttm called, TRUE, 8x653
+INFO [23958] [2023-10-23 10:21:54] dodgr_ttm called, FALSE, 8x12829
+WARN [23962] [2023-10-23 10:21:57] paquet:N2284800E3910400 ppou:19410 ttm vide
+WARN [23962] [2023-10-23 10:21:57] pas de cibles
+INFO [23962] [2023-10-23 10:21:57] dodgr_ttm called, FALSE, 2x3
+INFO [23957] [2023-10-23 10:22:23] paquet:N2272000E3904000 ppou:13937 ttm ok 147
+INFO [23957] [2023-10-23 10:22:23] dodgr_ttm called, FALSE, 4x32
+INFO [23956] [2023-10-23 10:22:24] dodgr_ttm called, FALSE, 8x12829
+INFO [23964] [2023-10-23 10:22:38] dodgr_ttm called, FALSE, 8x12829
+WARN [23967] [2023-10-23 10:22:40] dodgr::travel_time_matrix empty
+WARN [23967] [2023-10-23 10:22:40] erreur de routeur ttm_ou dodgr::travel_time_matrix empty
+WARN [23967] [2023-10-23 10:22:40] carreau:N2265600E3974400 ou_id:11200 ttm_ou vide
+WARN [23967] [2023-10-23 10:22:40] la matrice des distances interne au carreau est vide
+INFO [23965] [2023-10-23 10:22:44] dodgr_ttm called, FALSE, 8x12829
+INFO [23967] [2023-10-23 10:22:46] dodgr_ttm called, FALSE, 1x12782
+INFO [23963] [2023-10-23 10:22:51] paquet:N2259200E3948800 ppou:5432 ttm ok 38
+INFO [23963] [2023-10-23 10:22:51] dodgr_ttm called, FALSE, 10x4
+INFO [23959] [2023-10-23 10:23:11] dodgr_ttm called, FALSE, 7x6
+INFO [23960] [2023-10-23 10:23:25] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23960] [2023-10-23 10:23:33] dodgr_ttm called, TRUE, 8x200
+INFO [23962] [2023-10-23 10:23:45] paquet:N2284800E3910400 ppou:19551 ttm ok 4
+INFO [23962] [2023-10-23 10:23:45] dodgr_ttm called, FALSE, 1x1
+INFO [23966] [2023-10-23 10:23:46] dodgr_ttm called, FALSE, 2x1
+INFO [23957] [2023-10-23 10:24:15] paquet:N2272000E3904000 ppou:14029 ttm ok 79
+INFO [23957] [2023-10-23 10:24:15] dodgr_ttm called, FALSE, 1x1
+WARN [23958] [2023-10-23 10:24:20] paquet:N2252800E3961600 ppou:4986 ttm vide
+WARN [23958] [2023-10-23 10:24:20] pas de cibles
+SUCCESS [23958] [2023-10-23 10:24:20] carreau:N2252800E3961600 1 ancres 12.8k@65.1p/s demandees, 6@30.4mp/s retenues
+INFO [23970] [2023-10-23 10:24:23] dodgr_ttm called, FALSE, 3x7
+INFO [23963] [2023-10-23 10:24:43] paquet:N2259200E3948800 ppou:5548 ttm ok 24
+SUCCESS [23963] [2023-10-23 10:24:43] carreau:N2259200E3948800 2 ancres 38.6k@86.9p/s demandees, 75@168.9mp/s retenues
+INFO [23960] [2023-10-23 10:24:49] dodgr_ttm called, FALSE, 8x12829
+WARN [23956] [2023-10-23 10:24:53] dodgr::travel_time_matrix empty
+WARN [23956] [2023-10-23 10:24:53] carreau:N2284800E3961600 ou_id:20409,20964,20966,20967,20968,21043,21213,21215 erreur ttm_0 dodgr::travel_time_matrix empty
+WARN [23956] [2023-10-23 10:24:53] carreau:N2284800E3961600 ou_id:20409,20964,20966,20967,20968,21043,21213,21215 ttm_0 vide
+WARN [23956] [2023-10-23 10:24:53] la matrice des distances entre les ancres et les opportunites est vide
+INFO [23964] [2023-10-23 10:25:02] dodgr_ttm called, FALSE, 3x5
+WARN [23967] [2023-10-23 10:25:03] dodgr::travel_time_matrix empty
+WARN [23967] [2023-10-23 10:25:03] carreau:N2265600E3891200 ou_id:11492 erreur ttm_0 dodgr::travel_time_matrix empty
+WARN [23967] [2023-10-23 10:25:03] carreau:N2265600E3891200 ou_id:11492 ttm_0 vide
+WARN [23967] [2023-10-23 10:25:03] la matrice des distances entre les ancres et les opportunites est vide
+INFO [23965] [2023-10-23 10:25:07] dodgr_ttm called, FALSE, 5x3
+INFO [23959] [2023-10-23 10:25:08] paquet:N2265600E3936000 ppou:9082 ttm ok 35
+INFO [23959] [2023-10-23 10:25:08] dodgr_ttm called, FALSE, 3x2
+INFO [23962] [2023-10-23 10:25:27] paquet:N2284800E3910400 ppou:19951 ttm ok 1
+INFO [23962] [2023-10-23 10:25:27] dodgr_ttm called, FALSE, 1x1
+INFO [23966] [2023-10-23 10:25:32] paquet:N2246400E3961600 ppou:1150 ttm ok 2
+INFO [23966] [2023-10-23 10:25:32] dodgr_ttm called, FALSE, 9x11
+INFO [23971] [2023-10-23 10:25:39] router /space_mounts/data/marseille//dodgr//marseille.foot.dodgrnet chargé
+INFO [23971] [2023-10-23 10:25:45] dodgr_ttm called, TRUE, 6x20
+INFO [23957] [2023-10-23 10:25:55] paquet:N2272000E3904000 ppou:14956 ttm ok 1
+SUCCESS [23957] [2023-10-23 10:25:55] carreau:N2272000E3904000 5 ancres 90.7k@123.9p/s demandees, 669@914.3mp/s retenues
+INFO [23970] [2023-10-23 10:26:08] paquet:N2265600E3916800 ppou:10446 ttm ok 18
+WARN [23970] [2023-10-23 10:26:08] paquet:N2265600E3916800 ppou:11506 ttm vide
+WARN [23970] [2023-10-23 10:26:08] pas de cibles
+SUCCESS [23970] [2023-10-23 10:26:08] carreau:N2265600E3916800 2 ancres 51.3k@164.4p/s demandees, 28@89.7mp/s retenues
+INFO [23964] [2023-10-23 10:26:39] paquet:N2278400E3948800 ppou:15787 ttm ok 9
+INFO [23964] [2023-10-23 10:26:39] dodgr_ttm called, FALSE, 6x9
+INFO [23965] [2023-10-23 10:26:44] paquet:N2272000E3948800 ppou:13038 ttm ok 15
+SUCCESS [23965] [2023-10-23 10:26:44] carreau:N2272000E3948800 1 ancres 12.8k@43.6p/s demandees, 18@61.1mp/s retenues
+INFO [23971] [2023-10-23 10:26:50] dodgr_ttm called, FALSE, 6x12829
+INFO [23959] [2023-10-23 10:26:51] paquet:N2265600E3936000 ppou:9474 ttm ok 6
+INFO [23959] [2023-10-23 10:26:51] dodgr_ttm called, FALSE, 7x7
+INFO [23960] [2023-10-23 10:26:55] dodgr_ttm called, FALSE, 14x2
+INFO [23962] [2023-10-23 10:27:01] paquet:N2284800E3910400 ppou:19953 ttm ok 1
+INFO [23962] [2023-10-23 10:27:01] dodgr_ttm called, FALSE, 32x7
+INFO [23966] [2023-10-23 10:27:11] paquet:N2246400E3961600 ppou:2001 ttm ok 79
+INFO [23966] [2023-10-23 10:27:11] dodgr_ttm called, FALSE, 4x2
+INFO [23964] [2023-10-23 10:28:14] paquet:N2278400E3948800 ppou:16444 ttm ok 21
+SUCCESS [23964] [2023-10-23 10:28:14] carreau:N2278400E3948800 2 ancres 38.6k@99.2p/s demandees, 48@123.6mp/s retenues
+INFO [23960] [2023-10-23 10:28:30] paquet:N2291200E3929600 ppou:21852 ttm ok 28
+INFO [23960] [2023-10-23 10:28:30] dodgr_ttm called, FALSE, 1x2
+INFO [23959] [2023-10-23 10:28:36] paquet:N2265600E3936000 ppou:10144 ttm ok 35
+INFO [23959] [2023-10-23 10:28:36] dodgr_ttm called, FALSE, 10x9
+INFO [23962] [2023-10-23 10:28:38] paquet:N2284800E3910400 ppou:20655 ttm ok 204
+INFO [23962] [2023-10-23 10:28:38] dodgr_ttm called, FALSE, 4x5
+INFO [23966] [2023-10-23 10:28:46] paquet:N2246400E3961600 ppou:2085 ttm ok 8
+SUCCESS [23966] [2023-10-23 10:28:46] carreau:N2246400E3961600 3 ancres 51.4k@103.5p/s demandees, 104@209.3mp/s retenues
+WARN [23971] [2023-10-23 10:28:55] paquet:N2291200E3974400 ppou:23618 ttm vide
+WARN [23971] [2023-10-23 10:28:55] pas de cibles
+SUCCESS [23971] [2023-10-23 10:28:56] carreau:N2291200E3974400 1 ancres 25.7k@134.7p/s demandees, 4@21mp/s retenues
+INFO [23960] [2023-10-23 10:30:02] paquet:N2291200E3929600 ppou:21962 ttm ok 2
+WARN [23960] [2023-10-23 10:30:02] paquet:N2291200E3929600 ppou:22563 ttm vide
+WARN [23960] [2023-10-23 10:30:02] pas de cibles
+SUCCESS [23960] [2023-10-23 10:30:02] carreau:N2291200E3929600 3 ancres 25.7k@66.1p/s demandees, 34@87.4mp/s retenues
+INFO [23959] [2023-10-23 10:30:05] paquet:N2265600E3936000 ppou:10480 ttm ok 44
+INFO [23959] [2023-10-23 10:30:05] dodgr_ttm called, FALSE, 15x2
+INFO [23962] [2023-10-23 10:30:07] paquet:N2284800E3910400 ppou:20985 ttm ok 20
+SUCCESS [23962] [2023-10-23 10:30:07] carreau:N2284800E3910400 6 ancres 77.2k@110.2p/s demandees, 260@371.2mp/s retenues
+INFO [23959] [2023-10-23 10:31:34] paquet:N2265600E3936000 ppou:10653 ttm ok 30
+SUCCESS [23959] [2023-10-23 10:31:34] carreau:N2265600E3936000 5 ancres 64.4k@90.9p/s demandees, 176@248.7mp/s retenues

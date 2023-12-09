@@ -20,10 +20,20 @@ load("baselayer.rda") # executer 1. zones avant
 # on prend les IRIS 2022
 iris <- qread(iris_file)
 
- curl::curl_download(
+c200 <- qread(c200_file) # version 2017
+
+com_ze <- iris[zone_emploi, ] |>
+  rename(COM=DEPCOM) |> 
+  group_by(COM) |>
+  summarize(DEP = first(DEP)) |>
+  rename(idcom=COM)
+
+c200ze <- c200 |> 
+  semi_join(com_ze |> st_drop_geometry(), by=c("com22"="idcom"))
+
+mb_file <- archive_extract(
   "https://www.insee.fr/fr/statistiques/fichier/7637844/RP2020_mobpro_csv.zip",
-  "/tmp/mobpro.zip")
-mb_file <- archive_extract("/tmp/mobpro.zip", "/tmp")
+  "/tmp")
 mobpro <- vroom("/tmp/{mb_file[[1]]}" |> glue())
 
 setDT(mobpro)
