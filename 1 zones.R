@@ -105,7 +105,7 @@ scripts <- "~/marseille"
 mob2019 <- "{mdir}/mob2019/" |> glue()
 home <- "~/marseille"
 temp_dir <- "/tmp"
-r5files_rep <- "{mdir}/distances" |> glue()
+r5files_rep <- "{mdir}/distances/src/" |> glue()
 newpredict_file <- "annexes/newpredict.r"
 enqmobstarter_file <- "enqmob_starter_V2.R"
 mod_rep <- "{mdir}/mod" |> glue()

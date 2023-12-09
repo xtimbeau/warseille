@@ -1,0 +1,21 @@
+SUCCESS [2023-10-21 08:45:53] bbox 3.92068376124877
+SUCCESS [2023-10-21 08:45:53] bbox 42.5616315509576
+SUCCESS [2023-10-21 08:45:53] bbox 6.63028773684205
+SUCCESS [2023-10-21 08:45:53] bbox 44.3671969649598
+SUCCESS [2023-10-21 08:45:57] downloaded après 0 split
+SUCCESS [2023-10-21 08:45:58] downloaded après 0 split
+SUCCESS [2023-10-21 08:45:59] downloaded après 0 split
+SUCCESS [2023-10-21 08:46:07] downloaded après 0 split
+SUCCESS [2023-10-21 08:46:12] downloaded après 0 split
+SUCCESS [2023-10-21 08:46:12] downloaded après 0 split
+SUCCESS [2023-10-21 08:46:17] downloaded après 0 split
+SUCCESS [2023-10-21 08:46:17] downloaded après 0 split
+SUCCESS [2023-10-21 08:46:39] downloaded après 0 split
+SUCCESS [2023-10-21 08:46:52] downloaded après 0 split
+INFO [2023-10-21 08:46:53] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 27 seconds. 
+ split (1)
+SUCCESS [2023-10-21 08:46:59] downloaded après 0 split
+SUCCESS [2023-10-21 08:47:00] downloaded après 0 split
+SUCCESS [2023-10-21 08:47:18] downloaded après 1 split
