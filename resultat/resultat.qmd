@@ -1,18 +1,15 @@
 ---
 # modifer les champs à votre convenance
-title: Métropole d'Aix-Marseille
+title: "Métropole d'Aix-Marseille"
 subtitle: Premiers résultats
 author:
   - name: Xavier Timbeau
   - name: Jeanne Devineau
+  - name: Maxime Parodi
 institution: "OFCE"
 date: today
 date-modified: today
 lang: fr
-citation:
-  type: article
-  container-title: "Document de travail de l'OFCE n° 0"
-  url: https://ofce.github.io/nofuture
 wp: tbc
 annee: 2023
 draft: true
@@ -21,11 +18,15 @@ format:
   wp-pdf: default
 bibliography: resultat_references.bib
 editor: visual
+execute: 
+  echo: false
+  warning: false
 ---
 
 ```{r, include=FALSE}
 # Les options qui se trouvent là sont fortement conseillées
 library(knitr)
+library(sf)
 library(tidyverse)
 library(showtext)
 library(mapdeck)
@@ -39,11 +40,91 @@ opts_chunk$set(
   dev="ragg_png",
   fig.showtext=TRUE,
   cache=FALSE)
-
+source("../secrets/azure.R")
 showtext_opts(dpi=200)
 showtext_auto()
+trim <- function(x, xm, xp) ifelse( x<= xm, xm, ifelse(x>= xp, xp, x))
+
+communes <- bd_read("communes")
+centre <- communes |> 
+  filter(INSEE_COM==13015) |> 
+  st_transform(4326) |> 
+  st_centroid() |> 
+  st_coordinates()
+centre <- as.vector(centre)
+
+c200ze <- bd_read("c200ze") |> st_transform(4326)
+
 ```
 
+## Localisation des résidents, des actifs et des emplois
+
+On limite l'analyse à la métropole d'Aix-Marseille-Provence.
+Cela représente 26 000 carreaux 200m x 200m pour 107 communes/arrondissements
+Les opportunités sont les emplois, 95% des emplois occupés par les actifs de la métropole sont couverts. On a retenu 21 143 carreaux d'opportunité pour un peu moins de 680 emplois.
+
+::: {.panel-tabset .column-screen}
+
+## résidents
+
+```{r}
+#| label: fig-resident
+#| fig-cap: localisation des résidents
+c200ze |> 
+  mutate(
+    act = tactocc1564 * ind_18_64) |> 
+  filter(ind > 0, scot) |> 
+  left_join(communes |>
+              st_drop_geometry() |>
+              select(com22=INSEE_COM, NOM, POPULATION)) |> 
+  mutate(tooltip=glue::glue(
+    "{NOM} {com22}<br>
+     {ind} ind dans le carreau<br>
+     {round(act)} actifs dans le carreau<br>
+     {POPULATION} dans la commune"),
+    ind = trim(ind/4, 0, 500)) |> 
+  st_transform(4326) |> 
+  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi') |> 
+  add_polygon(fill_colour = "ind", 
+              elevation = "ind", 
+              elevation_scale = 3, 
+              palette= "oranges",
+              legend = TRUE, 
+              tooltip = "tooltip",
+              legend_options = list(title = "pers./ha"),
+              legend_format = list(fill_colour = as.integer)) |> 
+  mapdeck_view(location = centre, zoom = 8)
+
+```
+## emplois
+
+```{r}
+#| label: fig-emplois
+#| fig-cap: Localisation des emplois occupés par des actifs de la métropole
+c200ze |> 
+  filter(emp > 0) |> 
+  left_join(communes |>
+              st_drop_geometry() |>
+              select(com22=INSEE_COM, NOM, POPULATION)) |> 
+  mutate(tooltip=glue::glue(
+    "{NOM} {com22}<br>
+     {round(emp)} emplois occupés dans le carreau<br>
+     {POPULATION} dans la commune"),
+    ind = trim(emp/4, 0, 500)) |> 
+  st_transform(4326) |> 
+  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi') |> 
+  add_polygon(fill_colour = "ind", 
+              elevation = "ind", 
+              elevation_scale = 3, 
+              palette= "purples",
+              legend = TRUE, 
+              tooltip = "tooltip",
+              legend_options = list(title = "emp./ha"),
+              legend_format = list(fill_colour = as.integer)) |> 
+  mapdeck_view(location = centre, zoom = 8)
+
+```
+:::
 ## Calcul des distances {#sec-introduction .unnumbered}
 
 Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont été calculées en utilisant :
@@ -58,50 +139,137 @@ Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont ét�
 
 ## Accessibilité par mode de transport
 
+::: {.panel-tabset .column-screen}
+
+## voiture
+
 ```{r}
 #| label: fig-access-car
-#| fig-cap: Accessibilité en voiture
+#| fig-cap: Accessibilité à 100 000 emplois en voiture
+communes <- bd_read("communes")
+centre <- communes |> 
+  filter(INSEE_COM==13015) |> 
+  st_transform(4326) |> 
+  st_centroid() |> 
+  st_coordinates()
+centre <- as.vector(centre)
+t_access <- bd_read("t_access")
+t_access |> 
+  filter(mode == "car_dgr2") |> 
+  left_join(communes |>
+              st_drop_geometry() |>
+              select(com22=INSEE_COM, NOM, POPULATION)) |> 
+  mutate(tooltip=glue::glue(
+    "{NOM} {com22}<br>
+     {ind} ind dans le carreau<br>
+     {POPULATION} dans la commune<br>
+     accès à 20k: {round(to20k)} min<br>
+     accès à 50k: {round(to50k)} min<br>
+     accès à 100k: {round(to100k)} min<br>"),
+    to100k = trim(to100k, 0,45)) |> 
+  st_transform(4326) |> 
+  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi') |> 
+  add_polygon(fill_colour = "to100k", 
+              elevation = "ind", 
+              elevation_scale = .3, 
+              palette= "rainbow",
+              legend = TRUE, 
+              tooltip = "tooltip",
+              legend_options = list(title = "minutes"),
+              legend_format = list(fill_colour = as.integer)) |> 
+  mapdeck_view(location = centre, zoom = 8)
+```
+## transit
 
-
-ggplot(cars)+
-    geom_point(aes(x=speed, y=dist))+
-    theme_ofce()
+```{r}
+#| label: fig-access-transit
+#| fig-cap: Accessibilité à 100 000 emplois en transit (q5%)
+t_access |> 
+  filter(mode == "transit5") |> 
+  left_join(communes |>
+              st_drop_geometry() |>
+              select(com22=INSEE_COM, NOM, POPULATION)) |> 
+  mutate(tooltip=glue::glue(
+    "{NOM} {com22}<br>
+     {ind} ind dans le carreau<br>
+     {POPULATION} dans la commune<br>
+     accès à 20k: {round(to20k)} min<br>
+     accès à 50k: {round(to50k)} min<br>
+     accès à 100k: {round(to100k)} min<br>"),
+    to100k = trim(to100k, 0,45)) |> 
+  st_transform(4326) |> 
+  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi') |> 
+  add_polygon(fill_colour = "to100k", 
+              elevation = "ind", 
+              elevation_scale = .3, 
+              palette= "rainbow",
+              legend = TRUE, 
+              tooltip = "tooltip",
+              legend_options = list(title = "minutes"),
+              legend_format = list(fill_colour = as.integer)) |> 
+  mapdeck_view(location = centre, zoom = 8)
 ```
 
-# Une section de niveau 1 pour commencer {#sec-ledebut}
+## vélo
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Dolor morbi non arcu risus quis varius quam quisque.
+```{r}
+#| label: fig-access-bike
+#| fig-cap: Accessibilité à 100 000 emplois en vélo
+t_access |> 
+  filter(mode == "bike_tblr") |> 
+  left_join(communes |>
+              st_drop_geometry() |>
+              select(com22=INSEE_COM, NOM, POPULATION)) |> 
+  mutate(tooltip=glue::glue(
+    "{NOM} {com22}<br>
+     {ind} ind dans le carreau<br>
+     {POPULATION} dans la commune<br>
+     accès à 20k: {round(to20k)} min<br>
+     accès à 50k: {round(to50k)} min<br>
+     accès à 100k: {round(to100k)} min<br>"),
+    to100k = trim(to100k, 0,45)) |> 
+  st_transform(4326) |> 
+  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi') |> 
+  add_polygon(fill_colour = "to100k", 
+              elevation = "ind", 
+              elevation_scale = .3, 
+              palette= "rainbow",
+              legend = TRUE, 
+              tooltip = "tooltip",
+              legend_options = list(title = "minutes"),
+              legend_format = list(fill_colour = as.integer)) |> 
+  mapdeck_view(location = centre, zoom = 8)
+```
 
-## Section niveau 2 {#sec-cacontinue}
+## marche
 
-Faucibus turpis in eu mi bibendum. Etiam tempor orci eu lobortis. Sit amet consectetur adipiscing elit pellentesque habitant. Quam viverra orci sagittis eu volutpat odio facilisis mauris sit.
+```{r}
+#| label: fig-access-walk
+#| fig-cap: Accessibilité à 100 000 emplois en vélo
+t_access |> 
+  filter(mode == "walk_tblr") |> 
+  left_join(communes |>
+              st_drop_geometry() |>
+              select(com22=INSEE_COM, NOM, POPULATION)) |> 
+  mutate(tooltip=glue::glue(
+    "{NOM} {com22}<br>
+     {ind} ind dans le carreau<br>
+     {POPULATION} dans la commune<br>
+     accès à 20k: {round(to20k)} min<br>
+     accès à 50k: {round(to50k)} min<br>
+     accès à 100k: {round(to100k)} min<br>"),
+    to100k = trim(to100k, 0,45)) |> 
+  st_transform(4326) |> 
+  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi') |> 
+  add_polygon(fill_colour = "to100k", 
+              elevation = "ind", 
+              elevation_scale = .3, 
+              palette= "rainbow",
+              legend = TRUE, 
+              tooltip = "tooltip",
+              legend_options = list(title = "minutes"),
+              legend_format = list(fill_colour = as.integer)) |> 
+  mapdeck_view(location = centre, zoom = 8)
+```
 
-## Section niveau 2 {#sec-encore}
-
-Scelerisque in dictum non consectetur a erat nam at. Elementum facilisis leo vel fringilla est. Libero enim sed faucibus turpis in eu. Ut lectus arcu bibendum at varius vel pharetra vel.
-
-# Une autre section de niveau 1 {#sec-etencore}
-
-Ultrices neque ornare aenean euismod elementum nisi quis eleifend. Vivamus arcu felis bibendum ut tristique. Non nisi est sit amet facilisis magna. Consectetur libero id faucibus nisl tincidunt eget.
-
-::: {.callout-tip collapse="true" icon="false"}
-## les encadrés
-
-Pour faire un encadré, il faut créer un div .callout-tip. Le titre de l'encadré est en niveau 2 (##)
-
-En ajoutant l'attribute `collpase=true`, cet encadré sera replié en HTML.
-
-En ajoutant l'attribute `icon=false`, Il n'y a pas d'icone dans le titre
-
-Il faut utiliser callout-tip, les autres callouts donnent les résultats standards.
-
-Dans le futur, ce sera plus simple. Pour le moment, il faut les numéroter à la main.
 :::
-
-## Section niveau 2 {#sec-ca-continue}
-
-Amet est placerat in egestas erat imperdiet sed. Non enim praesent elementum facilisis leo vel fringilla est. Iaculis eu non diam phasellus vestibulum lorem.
-
-## Section niveau 2 {#sec-encoreetencore}
-
-Eleifend donec pretium vulputate sapien nec sagittis aliquam malesuada bibendum. Auctor elit sed vulputate mi sit amet.
