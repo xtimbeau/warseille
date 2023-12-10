@@ -33,5 +33,3 @@ docs/
 po/*~
 # RStudio Connect folder
 rsconnect/
-secrets.r
-azure.R
