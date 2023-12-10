@@ -142,6 +142,29 @@ bike_ntblr <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
 
 dgr_distances_by_com(idINSes, 
                      pairs, 
-                     bike_router,
-                     path=glue("{mdir}/distances/src/bike_tblr"),
+                     bike_ntblr,
+                     path=glue("{mdir}/distances/src/bike_ntblr"),
+                     clusterize = TRUE)  
+
+pairs <- car_distance |>
+  filter(distance <= 10000 ) |>
+  distinct(COMMUNE, DCLT) |> 
+  collect() |> 
+  mutate(COMMUNE = as.character(COMMUNE))
+
+walk_ntblr <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"), 
+                                  osm = osm_file,
+                                  mode = "WALK_NT", 
+                                  wt_profile_file = "distances/dodgr_profiles.json",
+                                  turn_penalty = TRUE,
+                                  distances = TRUE,
+                                  denivele = TRUE,
+                                  n_threads = 16L,
+                                  overwrite = TRUE,
+                                  nofuture = TRUE)
+
+dgr_distances_by_com(idINSes, 
+                     pairs, 
+                     walk_ntblr,
+                     path=glue("{mdir}/distances/src/walk_ntblr"),
                      clusterize = TRUE)  
