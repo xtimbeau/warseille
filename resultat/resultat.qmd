@@ -1,0 +1,107 @@
+---
+# modifer les champs à votre convenance
+title: Métropole d'Aix-Marseille
+subtitle: Premiers résultats
+author:
+  - name: Xavier Timbeau
+  - name: Jeanne Devineau
+institution: "OFCE"
+date: today
+date-modified: today
+lang: fr
+citation:
+  type: article
+  container-title: "Document de travail de l'OFCE n° 0"
+  url: https://ofce.github.io/nofuture
+wp: tbc
+annee: 2023
+draft: true
+format:
+  wp-html: default
+  wp-pdf: default
+bibliography: resultat_references.bib
+editor: visual
+---
+
+```{r, include=FALSE}
+# Les options qui se trouvent là sont fortement conseillées
+library(knitr)
+library(tidyverse)
+library(showtext)
+library(mapdeck)
+library(ofce)
+opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.pos="H", 
+  out.extra="",
+  dev="ragg_png",
+  fig.showtext=TRUE,
+  cache=FALSE)
+
+showtext_opts(dpi=200)
+showtext_auto()
+```
+
+## Calcul des distances {#sec-introduction .unnumbered}
+
+Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont été calculées en utilisant :
+
+-   Les **données MOBPRO** pour sélectionner les paires de communes. Cela évite de calculer des distances entre des origines destinations sans lien. L'inconvénient est qu'on ne produit pas les distances pour des communes non reliées et donc on ne comprend pas l'absence de lien.
+
+-   Pour les **transports en commun**, les GTFS répertoriés sur [Open Data - lepilote](https://www.lepilote.com/fr/open-data/83), le moteur employé est R^5^ e Conveyal. On a retenu soit la médianne, soit le quantile 5% sur une plage horaire d'une heure (de 8h à 9h, le matin, un jour de semaine hors période de congé). Ceci permet de tenir compte des fréquences et des temps de correspondance. Le quantile 5% représente la possibilité de choisir son horaire pour optimiser son temps de trajet.
+
+-   Pour la **voiture,** les données OSM (téléchargées en novembre 2023) et le moteur de routage `dodgr` qui a été optimisé pour un calcul bien plus rapide. En plus des distances et des temps de trajet, on calcule les dénivelés et on pourra en tenir compte pour les émissions ultérieurement. Les vitesses de déplacement sont les limitations de vitesse en vigueur (ou renseignées sur OSM), modulées en fonction des types de route. Une pénalité pour les feux rouges ainsi que pour les changements de direction (traversée d'un carrefour) est appliquée. A ce stade, faute de données convaincantes, on a pas intégré la congestion. En utilisant la couche de mapbox sur le traffic habituel, il est envisageable de calculer les temps de parcours avec la congestion habituelle moyennant quelques hypothèses)
+
+-   Pour le **vélo** et la **marche**, le moteur de calcul et les données sont les mêmes que pour la voiture, en utilisant bien sûr des vitesses conformes. Un coût du dénivelé positif est introduit pour ces deux modes, réduisant la vitesse lors des montées et l'augmentant pour le vélo uniquement pour les pentes inférieures à 5%. Aucun élément de stress à vélo n'est pris en compte, cela pourra être fait ultérieurement.
+
+## Accessibilité par mode de transport
+
+```{r}
+#| label: fig-access-car
+#| fig-cap: Accessibilité en voiture
+
+
+ggplot(cars)+
+    geom_point(aes(x=speed, y=dist))+
+    theme_ofce()
+```
+
+# Une section de niveau 1 pour commencer {#sec-ledebut}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Dolor morbi non arcu risus quis varius quam quisque.
+
+## Section niveau 2 {#sec-cacontinue}
+
+Faucibus turpis in eu mi bibendum. Etiam tempor orci eu lobortis. Sit amet consectetur adipiscing elit pellentesque habitant. Quam viverra orci sagittis eu volutpat odio facilisis mauris sit.
+
+## Section niveau 2 {#sec-encore}
+
+Scelerisque in dictum non consectetur a erat nam at. Elementum facilisis leo vel fringilla est. Libero enim sed faucibus turpis in eu. Ut lectus arcu bibendum at varius vel pharetra vel.
+
+# Une autre section de niveau 1 {#sec-etencore}
+
+Ultrices neque ornare aenean euismod elementum nisi quis eleifend. Vivamus arcu felis bibendum ut tristique. Non nisi est sit amet facilisis magna. Consectetur libero id faucibus nisl tincidunt eget.
+
+::: {.callout-tip collapse="true" icon="false"}
+## les encadrés
+
+Pour faire un encadré, il faut créer un div .callout-tip. Le titre de l'encadré est en niveau 2 (##)
+
+En ajoutant l'attribute `collpase=true`, cet encadré sera replié en HTML.
+
+En ajoutant l'attribute `icon=false`, Il n'y a pas d'icone dans le titre
+
+Il faut utiliser callout-tip, les autres callouts donnent les résultats standards.
+
+Dans le futur, ce sera plus simple. Pour le moment, il faut les numéroter à la main.
+:::
+
+## Section niveau 2 {#sec-ca-continue}
+
+Amet est placerat in egestas erat imperdiet sed. Non enim praesent elementum facilisis leo vel fringilla est. Iaculis eu non diam phasellus vestibulum lorem.
+
+## Section niveau 2 {#sec-encoreetencore}
+
+Eleifend donec pretium vulputate sapien nec sagittis aliquam malesuada bibendum. Auctor elit sed vulputate mi sit amet.
