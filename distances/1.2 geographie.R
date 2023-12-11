@@ -154,7 +154,7 @@ if(!file.exists(communes_ar_file)|download) {
   ars <- sf::st_read(str_c("/tmp/communes/", ar |> purrr::keep(~stringr::str_detect(.x, ".shp")))) 
   com_ars <- unique(ars$INSEE_COM) 
   ars <- tibble(ars) |> 
-    mutate(COMMUNE = INSEE_COM, INSEE_COM = INSEE_ARM) |>
+    mutate(COMMUNE = INSEE_COM, INSEE_COM = INSEE_ARM, ar = TRUE, com = FALSE) |>
     select(-INSEE_ARM) |> 
     left_join(
       communes |> 
@@ -163,17 +163,17 @@ if(!file.exists(communes_ar_file)|download) {
                INSEE_DEP, INSEE_REG, SIREN_EPCI), 
       by=c("COMMUNE"="INSEE_COM"))
   
-  communes <- as_tibble(communes) |> 
-    filter(! INSEE_COM %in% com_ars) |> 
-    anti_join(as_tibble(ars), by = "INSEE_COM") |> 
+  communes <- as_tibble(communes) |>
+    mutate(COMMUNE = INSEE_COM, ar = !(COMMUNE %in% com_ars), com = TRUE) |> 
     bind_rows(ars) |> 
     st_as_sf() |> 
     st_transform(3035)
   
-  qs::qsave(communes, communes_ar_file)
+  qs::qsave(communes, communes_ref_file)
 }
 
-communes <- qs::qread(communes_ar_file)
+communes <- qs::qread(communes_ref_file) |> 
+  filter(ar)
 
 com2021epci <- communes |> 
   filter(SIREN_EPCI %in% epci.metropole) |> 

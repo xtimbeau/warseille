@@ -105,9 +105,12 @@ c200ze <- c200ze |>
 # 
 # com21 <- sf::st_read(com2021_shp) |> 
 #   sf::st_transform(3035)
-archive::archive_extract("https://www.insee.fr/fr/statistiques/fichier/5395838/base-ccx-emploi-pop-active-2018.zip",
-                    "/tmp")
-popact <- readxl::read_xlsx("/tmp/base-cc-emploi-pop-active-2018.xlsx" |> glue(),sheet = "COM_2018", skip=5) |> 
+archive::archive_extract(
+  "https://www.insee.fr/fr/statistiques/fichier/5395838/base-ccx-emploi-pop-active-2018.zip",
+  "/tmp")
+popact <- readxl::read_xlsx(
+  "/tmp/base-cc-emploi-pop-active-2018.xlsx" |> glue(),
+  sheet = "COM_2018", skip=5) |> 
   transmute(com21=CODGEO,
             tact1564 = P18_ACT1564/P18_POP1564,
             tactocc1564 = P18_ACTOCC1564/P18_POP1564)
