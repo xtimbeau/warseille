@@ -16,14 +16,20 @@ conflict_prefer_all("dplyr", quiet = TRUE)
 source("secrets/azure.R")
 
 c200ze <- qs::qread(c200ze_file)
-setDT(c200ze)
+bd_write(c200ze)
 times <- seq(1, 120, 1)
 times <- set_names(times, str_c("t", times))
-seuils <- c(1000, 2000, 5000, 10000, 20000, 25000, 50000, 100000, 250000)
+seuils <- c(10000, 20000, 50000, 100000, 200000, 300000, 4000000, 500000)
 
 modes <- set_names(c("walk_tblr", "walk_ntblr", "bike_tblr", "bike_ntblr",
                      'transit', 'transit5',"car_dgr2"))
-emploi <- c200ze |> filter(emp>0) |> select(toidINS=idINS, emp) |> 
+emploi <- c200ze |> 
+  st_drop_geometry() |> 
+  filter(emp>0) |>
+  select(toidINS=idINS, emp, ind) |> 
+  write_dataset(("/tmp/emploi"))
+
+emploi <- open_dataset("/tmp/emploi") |> 
   to_duckdb()
 
 temps <- 1:120
@@ -67,7 +73,7 @@ t_access <- imap(modes, ~{
   bind_rows() 
 
 t_access <- t_access |> 
-  left_join(c200ze |> select(idINS200=idINS, com22), by="idINS200") |> 
+  left_join(c200ze |> select(idINS200=idINS, com22, ind), by="idINS200") |> 
   mutate(
     geometry=idINS2square(idINS200),
     mode_lib = factor(
