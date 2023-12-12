@@ -1,0 +1,48 @@
+SUCCESS [2023-12-11 22:15:22] bbox 4.67211380436013
+SUCCESS [2023-12-11 22:15:22] bbox 43.1122699475165
+SUCCESS [2023-12-11 22:15:22] bbox 5.87530671444631
+SUCCESS [2023-12-11 22:15:22] bbox 43.8171619453746
+SUCCESS [2023-12-11 22:15:24] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:25] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:26] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:26] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:29] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:30] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:30] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:31] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:36] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:36] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:36] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:37] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:38] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:38] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:39] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:39] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:40] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:41] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:42] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:43] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:44] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:45] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:47] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:48] downloaded après 0 split
+SUCCESS [2023-12-11 22:15:55] downloaded après 0 split
+SUCCESS [2023-12-11 22:16:04] downloaded après 0 split
+SUCCESS [2023-12-11 22:16:05] downloaded après 0 split
+SUCCESS [2023-12-11 22:16:06] downloaded après 0 split
+SUCCESS [2023-12-11 22:16:08] downloaded après 0 split
+INFO [2023-12-11 22:16:11] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 44 seconds. 
+ split (1)
+INFO [2023-12-11 22:16:11] Error in check_for_error(paste0(doc)) : 
+  General overpass server error; returned:
+The data included in this document is from www.openstreetmap.org. The data is made available under ODbL. runtime error: Query timed out in "recurse" at line 31 after 42 seconds. 
+ split (1)
+SUCCESS [2023-12-11 22:16:20] downloaded après 1 split
+SUCCESS [2023-12-11 22:16:21] downloaded après 0 split
+SUCCESS [2023-12-11 22:16:23] downloaded après 0 split
+SUCCESS [2023-12-11 22:16:32] downloaded après 0 split
+SUCCESS [2023-12-11 22:16:37] downloaded après 1 split
+SUCCESS [2023-12-11 22:16:39] downloaded après 0 split
+SUCCESS [2023-12-11 22:16:46] downloaded après 0 split

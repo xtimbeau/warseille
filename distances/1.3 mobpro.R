@@ -32,9 +32,10 @@ com_ze <- iris[zone_emploi, ] |>
 c200ze <- c200 |> 
   semi_join(com_ze |> st_drop_geometry(), by=c("com22"="idcom"))
 
-mb_file <- archive_extract(
+curl::curl_download(
   "https://www.insee.fr/fr/statistiques/fichier/7637844/RP2020_mobpro_csv.zip",
-  "/tmp")
+  "/tmp/mobpro20.zip")
+mb_file <- archive_extract("/tmp/mobpro20.zip", dir = "/tmp")
 mobpro <- vroom("/tmp/{mb_file[[1]]}" |> glue())
 
 setDT(mobpro)
@@ -90,7 +91,7 @@ mobpro99 <- mobilites |>
 dclt95 <- mobpro99 |> filter(mobpro95) |> distinct(DCLT) |> pull()
 com95 <- mobpro99 |> distinct(COMMUNE) |> pull()
 communes <- communes |>
-  filter(INSEE_COM %in% com95)
+  filter(INSEE_COM %in% com95 | INSEE_COM %in% dclt95)
 
 mobilites95 <- mobilites |>
   filter(DCLT %in% dclt95) |> 
@@ -100,8 +101,8 @@ qs::qsave(mobilites95, mobpro_file)
 qs::qsave(communes, communes_mb99_file)  
 
 emplois_by_DCLT <- mobilites95[,
-                             .(emp = sum(NB), emp_scot = sum(NB_in)),
-                             by = c("DCLT", "NA5")]
+                               .(emp = sum(NB), emp_scot = sum(NB_in)),
+                               by = c("DCLT", "NA5")]
 
 
 c200ze <- qread(c200_file) |> 
@@ -148,7 +149,49 @@ pubsuf <-  st_rasterize(rfp_r, template = r200, options = c("MERGE_ALG=ADD")) |>
     tsstar = 200*200*dens,
     group_naf = "OQ",
     idINS = r3035::idINS3035(x, y)) |> 
-  select(-x,-y, dens, sprincp)
+  select(-x,-y, dens, sprincp, tsstar) |> 
+  mutate(geometry = r3035::idINS2square(idINS)) |> 
+  st_as_sf(crs=3035)
+
+# on rajoute les idcom/iris
+iris <- qread(iris_file) |> 
+  filter(DEPCOM %in% unique(c200ze$com22)) |> 
+  mutate(id = 1:n())
+
+coms <- c200ze |> 
+  st_drop_geometry() |> 
+  distinct(com22, dep) |> 
+  rename(idcom=com22, DEP=dep) 
+
+# empze <- qs::qread(emp_pred_file) |> 
+#   rename(emp = emp_pred,
+#          emp_resident = emp_pred_scot) |> 
+#   mutate(geometry = r3035::idINS2square(idINS)) |> 
+#   st_as_sf(crs=3035)
+
+irises <- sf::st_intersects(pubsuf, iris) 
+names(irises) <- 1:length(irises)
+l_irises  <- map_int(irises, length)
+nas <- sf::st_nearest_feature(pubsuf |> filter(l_irises==0), iris)
+irises[l_irises==0] <- nas
+
+l2 <- st_join(
+  pubsuf |> filter(l_irises>=2), 
+  iris |> select(id), largest=TRUE)
+
+irises[l_irises>=2] <- l2 |> pull(id)
+flat_irises <- purrr::list_c(irises)
+
+pubsuf <- pubsuf |>
+  st_drop_geometry() |> 
+  transmute(
+    idINS, 
+    group_naf,
+    dep=iris$DEP[flat_irises],
+    idcom=iris$DEPCOM[flat_irises], # on prend les iris pour être cohérent, un carreau peut être sur plusieurs communes
+    IRIS = iris$CODE_IRIS[flat_irises],
+    tsstar, dens
+  ) 
 
 rfp_locaux <- rfp |>
   filter(sprincp>0) |> 
@@ -196,10 +239,13 @@ surf_by_naf <- locaux |>
   group_by(idINS, group_naf) |> 
   summarize(ts=sum(ts),
             idcom = first(idcom), .groups="drop") |> 
-  full_join(pubsuf, by=c("group_naf", "idINS")) |> 
-  mutate( ts = ifelse(is.na(ts), 0, ts),
-          tsstar = ifelse(is.na(tsstar), 0, tsstar),
-          tsfull = ts + tsstar)
+  full_join(pubsuf |> select(idINS, group_naf, com, tsstar), by=c("group_naf", "idINS")) |> 
+  mutate( 
+    idcom = ifelse(is.na(idcom), com, idcom),
+    ts = ifelse(is.na(ts), 0, ts),
+    tsstar = ifelse(is.na(tsstar), 0, tsstar),
+    tsfull = ts + tsstar) |> 
+  select(-com, -tsstar)
 
 # surf_by_naf.h <- locaux_h |> 
 #   filter(ts>0) |> 
@@ -282,15 +328,25 @@ sum(verif2$emp_scot) / emplois_by_DCLT[, sum(emp_scot)]
 library(MetricsWeighted)
 
 emplois_by_DCLT_c <- emplois_by_DCLT |> 
-  left_join( surf_by_naf_c_DCLT, by = c("DCLT", "NA5")) |> 
+  left_join(surf_by_naf_c_DCLT, by = c("DCLT", "NA5")) |> 
   ungroup()
 
 surf2emp <- lm(log(emp)~log(tsfull)*NA5, data = emplois_by_DCLT_c)
+gsurf2emp <- ggplot(emplois_by_DCLT_c)+
+  aes(x=tsfull, y=emp, col=NA5) +
+  geom_point(alpha=.5)+
+  facet_wrap(vars(NA5))+
+  scale_x_log10("surface professionnelle", labels=ofce::f2si2)+ scale_y_log10("emploi (MOBPRO)") + 
+  geom_abline(slope=1, col="orange")+
+  geom_smooth(method = "lm", show.legend = FALSE) +
+  ofce::theme_ofce()
+source("secrets/azure.R")
+bd_write(gsurf2emp)
 
-emplois_by_DCLT_c |> 
-  mutate(se = emp/ts) |> 
-  group_by(NA5) |> 
-  reframe(q = weighted_quantile(se, w=emp, probs= c(0.1, .5, .9)), qq = c(0.1, .5, .9))
+# emplois_by_DCLT_c |> 
+#   mutate(se = emp/ts) |> 
+#   group_by(NA5) |> 
+#   reframe(q = weighted_quantile(se, w=emp, probs= c(0.1, .5, .9)), qq = c(0.1, .5, .9))
 
 emp_pred.tib <- surf_by_naf_c |>
   rename(DCLT = idcom, 
@@ -304,8 +360,9 @@ emp_pred.tib <- emp_pred.tib |>
     emp_pred = !!emp_pred,
     emp_pred_scot = emp_pred / emp * emp_scot) |> 
   group_by(DCLT, NA5) |> 
-  mutate( emp_pred  = emp_pred / sum(emp_pred)* emp,
-          emp_pred_scot = emp_pred / emp * emp_scot) |> 
+  mutate( 
+    emp_pred  = emp_pred / sum(emp_pred) * emp,
+    emp_pred_scot = emp_pred / emp * emp_scot) |> 
   select(emp_pred, emp_pred_scot, idINS, NA5, DCLT) |> 
   group_by(idINS) |> 
   summarize(
@@ -314,55 +371,55 @@ emp_pred.tib <- emp_pred.tib |>
     emp_pred_scot = sum(emp_pred_scot, na.rm=TRUE))
 
 qs::qsave(emp_pred.tib, emp_pred_file)
-rm(c200, communes)
+
 gc()
 # on génére ensuite les paires d'idINS pertinentes (ie associées à un flux mobpro)
-
-com_paires <- mobilites95 |> 
-  rename(mode = TRANS) |> 
-  group_by(COMMUNE, DCLT, mode) |> 
-  summarize(emp_scot = sum(NB_in, na.rm=TRUE),
-            .groups = "drop") |> 
-  pivot_wider(id_cols = c(COMMUNE, DCLT),
-              names_from = mode, 
-              values_from = c(emp_scot), values_fill = 0) |> 
-  transmute(COMMUNE, DCLT, across(c(car, walk, bike, transit), ~ .x>0)) |> 
-  filter(car|walk|bike|transit)
-
-c200ze <- c200ze |> 
-  st_drop_geometry() 
-
-paires_mobpro <- pmap_dfr(com_paires, ~{
-  from <- c200ze |> 
-    filter(com22==..1, ind>0) |>
-    select(fromidINS = idINS)
-  if(nrow(from)>0) {
-    from_4326 <- r3035::idINS2lonlat(from$fromidINS) |> 
-      rename(o_lon = lon, o_lat = lat)
-    from <- from |> 
-      bind_cols(from_4326)
-  }
-  to <- emp_pred |>
-    filter(DCLT==..2, emp_pred>0) |> 
-    select(toidINS = idINS)
-  if(nrow(to)>0) {
-    to_4326 <- r3035::idINS2lonlat(to$toidINS) |> 
-      rename(d_lon = lon, d_lat = lat)
-    to <- to |> 
-      bind_cols(to_4326)
-  }
-  if(length(to)>0&length(from)>0) {
-    it <- dplyr::cross_join(from, to)
-    it <- it |> 
-      dplyr::mutate(COMMUNE = .x, DCLT = .y, car = ..3, walk = ..4, bike = ..5, transit = ..6,
-             euc = r3035::idINS2dist(fromidINS, toidINS)/1000) 
-  } else
-    it <- tibble::tibble()
-  it
-}) 
-unlink(paires_mobpro_dataset)
-arrow::write_dataset(paires_mobpro, paires_mobpro_dataset, partitioning = "COMMUNE")
-
+# n'est plus utile
+# com_paires <- mobilites95 |> 
+#   rename(mode = TRANS) |> 
+#   group_by(COMMUNE, DCLT, mode) |> 
+#   summarize(emp_scot = sum(NB_in, na.rm=TRUE),
+#             .groups = "drop") |> 
+#   pivot_wider(id_cols = c(COMMUNE, DCLT),
+#               names_from = mode, 
+#               values_from = c(emp_scot), values_fill = 0) |> 
+#   transmute(COMMUNE, DCLT, across(c(car, walk, bike, transit), ~ .x>0)) |> 
+#   filter(car|walk|bike|transit)
+# 
+# c200ze <- c200ze |> 
+#   st_drop_geometry() 
+# 
+# paires_mobpro <- pmap_dfr(com_paires, ~{
+#   from <- c200ze |> 
+#     filter(com22==..1, ind>0) |>
+#     select(fromidINS = idINS)
+#   if(nrow(from)>0) {
+#     from_4326 <- r3035::idINS2lonlat(from$fromidINS) |> 
+#       rename(o_lon = lon, o_lat = lat)
+#     from <- from |> 
+#       bind_cols(from_4326)
+#   }
+#   to <- emp_pred |>
+#     filter(DCLT==..2, emp_pred>0) |> 
+#     select(toidINS = idINS)
+#   if(nrow(to)>0) {
+#     to_4326 <- r3035::idINS2lonlat(to$toidINS) |> 
+#       rename(d_lon = lon, d_lat = lat)
+#     to <- to |> 
+#       bind_cols(to_4326)
+#   }
+#   if(length(to)>0&length(from)>0) {
+#     it <- dplyr::cross_join(from, to)
+#     it <- it |> 
+#       dplyr::mutate(COMMUNE = .x, DCLT = .y, car = ..3, walk = ..4, bike = ..5, transit = ..6,
+#              euc = r3035::idINS2dist(fromidINS, toidINS)/1000) 
+#   } else
+#     it <- tibble::tibble()
+#   it
+# }) 
+# unlink(paires_mobpro_dataset)
+# arrow::write_dataset(paires_mobpro, paires_mobpro_dataset, partitioning = "COMMUNE")
+# 
 # je pense qu'on a pas besoin de la suite, ce qui compte c'est emp_pred
 # en bonus on a emp_pred_scot
 # # ---- Estimation des marges des emplois (uniquement) pourvus par les résidents ----
