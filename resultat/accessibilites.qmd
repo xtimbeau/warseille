@@ -44,6 +44,7 @@ centre <- communes |>
   st_centroid() |> 
   st_coordinates()
 centre <- as.vector(centre)
+tkn <- Sys.getenv("mapbox_token")
 t_access <- bd_read("t_access")
 t_access |> 
   filter(mode == "car_dgr2") |> 
@@ -63,7 +64,8 @@ t_access |>
   st_transform(4326) |> 
   mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi',
           height = "50vh",
-          width = "100%") |> 
+          width = "100%", 
+          token = tkn) |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
               elevation_scale = 3, 
