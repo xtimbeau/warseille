@@ -150,6 +150,7 @@ c200ze_file <- "{mdir}/c200ze.qs" |> glue()
 pbf_file <- "lr.pbf"
 pbf_rep <- "{mdir}/OSM/" |> glue()
 communes_file <- "{mdir}/communes.qs" |> glue()
+communes_ref_file <- "{mdir}/communes_ref.qs" |> glue()
 communes_ar_file <- "{mdir}/communes_ar.qs" |> glue()
 communes_mb99_file <- "{mdir}/communes_mb99.qs" |> glue()
 emp_pred_file <- "{mdir}/emp_pred.qs" |> glue()
@@ -192,6 +193,7 @@ save(list = unique(
     "com2021_file",
     "communes_file",
     "communes_ar_file",
+    "communes_ref_file",
     "communes_mb99_file",
     "decor_carte_file",
     "densitescommunes",
