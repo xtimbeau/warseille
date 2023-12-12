@@ -1,0 +1,34 @@
+project:
+  type: book
+
+date: 12/14/2023
+date-modified: today
+
+book:
+  title: "Métropole d'Aix Marseille Provence"
+  subtitle: "Premiers résultats"
+  author:
+    - name: Xavier Timbeau
+    - name: Maxime Parodi
+    - name: Jeanne Devineau
+  navbar: false
+  page-navigation: true
+  back-to-top-navigation: true 
+  page-footer: "*Premiers résultats, ne pas diffuser*"
+  chapters:
+    - index.qmd
+    - localisations.qmd
+    - accessibilites.qmd
+    - next.qmd
+execute: 
+  echo: false
+  warning: false
+  
+bibliography: references.bib
+
+lang: fr
+
+format:
+  ofce-html: default
+
+editor: visual

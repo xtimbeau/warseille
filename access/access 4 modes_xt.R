@@ -200,5 +200,20 @@ access_par_com_wtblr <- ggplot(
 
 
 # distribution de l'accessibilité
+c200ze <- bd_read("c200ze")
+t_access <- bd_read("t_access")
+t_access  <- t_access |> 
+  mutate(zone = case_match(
+    com22,
+    str_c(13201:13216) ~ "Marseille",
+    "13039"  ~ 'Fos-sur-Mer',
+    "13001" ~ 'Aix-en-Provence', 
+    .default = "autres"))
 
-t_access
+ggplot(t_access |> filter(mode!="transit"))+
+  geom_density(aes(x=to10k, weight=ind , fill = zone, col= zone, y = after_stat(count) ), alpha=.5, position="stack") + 
+  scale_color_manual(
+    aesthetics = c("color", "fill"), 
+    values = c("Marseille" = "chartreuse2", "Aix-en-Provence"="darkorchid1", "Fos-sur-Mer"="blue3", "autres" = "grey") ) +
+  facet_wrap(vars(mode)) +
+  theme_ofce()
