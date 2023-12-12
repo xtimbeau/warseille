@@ -21,7 +21,7 @@ times <- seq(1, 120, 1)
 times <- set_names(times, str_c("t", times))
 seuils <- c(10000, 20000, 50000, 100000, 200000, 300000, 4000000, 500000)
 
-modes <- set_names(c("walk_tblr", "walk_ntblr", "bike_tblr", "bike_ntblr",
+modes <- set_names(c("walk_tblr", "bike_tblr",
                      'transit', 'transit5',"car_dgr2"))
 emploi <- c200ze |> 
   st_drop_geometry() |> 
@@ -72,7 +72,8 @@ t_access <- imap(modes, ~{
 }) |> 
   bind_rows() 
 
-t_access <- t_access |> 
+t_access <- t_access |>
+  st_drop_geometry() |> 
   left_join(c200ze |> select(idINS200=idINS, com22, ind), by="idINS200") |> 
   mutate(
     geometry=idINS2square(idINS200),
@@ -85,7 +86,7 @@ t_access <- t_access |>
   st_as_sf(crs=3035)
 
 bd_write(t_access)
-write_csv(t_access |> st_drop_geometry(), file="output/access.csv")
+ vwrite_csv(t_access |> st_drop_geometry(), file="output/access.csv")
 qs::qsave(t_access, "output/acces4modes.sqs")
 load(decor_carte_file)
 qs::qsave(decor_carte, "output/decor_carte.sqs")

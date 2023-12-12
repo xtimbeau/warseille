@@ -15,10 +15,11 @@ bl <- load("baselayer.rda")
 
 c200 <- qread(c200_file) # version 2017
 
-mobpro <- qs::qread(mobpro_file) 
+mobpro95 <- qs::qread(mobpro_file) |> 
+  filter(mobpro95)
 
-communes <- unique(mobpro$COMMUNE)
-dclts <- unique(mobpro$DCLT)
+communes <- unique(mobpro95$COMMUNE)
+dclts <- unique(mobpro95$DCLT)
 union_com <- unique(c(dclts, communes))
 
 iris <- qread(iris_file) |> 
@@ -26,7 +27,6 @@ iris <- qread(iris_file) |>
   mutate(id = 1:n())
 
 com_ze <- iris |> 
-  st_filter(zone_emploi) |>
   rename(COM=DEPCOM) |> 
   group_by(COM) |>
   st_drop_geometry() |> 
@@ -68,9 +68,9 @@ flat_irises <- purrr::list_c(irises)
 #   filter(mobpro99) |> 
 #   pull(INSEE_COM)
 
-act_mobpro <- mobpro |> 
+act_mobpro <- qs::qread(mobpro_file) |> 
   group_by(COMMUNE) |> 
-  summarize(act_mobpro.tot = sum(NB_in))
+  summarize(act_mobpro.tot = sum(NB))
 
 c200i <- c200 |> 
   semi_join(com_ze, by=c("com22"="idcom")) |> 
@@ -79,8 +79,7 @@ c200i <- c200 |>
   left_join(act_mobpro, by = c("com22"= "COMMUNE")) |> 
   group_by(com22) |> 
   mutate(
-    act_mobpro = ind / sum(ind, na.rm=TRUE) * act_mobpro.tot
-  ) |> 
+    act_mobpro = ind / sum(ind, na.rm=TRUE) * act_mobpro.tot) |> 
   ungroup() |> 
   select(-act_mobpro.tot, -CODE_IRIS)
 
