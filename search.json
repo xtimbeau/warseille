@@ -1,0 +1,42 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Métropole d’Aix Marseille Provence",
+    "section": "",
+    "text": "1 Avertissement\nCe site présente les premiers résultats du travail OFCE pour la métropole d’Aix-Marseille dans le cadre du projet OFCE/Villes Vivantes\nMerci de ne pas diffuser le lien ; les résultats (provisoires encore) seront mis à jour régulièrement.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Avertissement</span>"
+    ]
+  },
+  {
+    "objectID": "localisations.html",
+    "href": "localisations.html",
+    "title": "2  Localisation des résidents, des actifs et des emplois",
+    "section": "",
+    "text": "On limite l’analyse à la métropole d’Aix-Marseille-Provence. Cela représente 26 000 carreaux 200m x 200m pour 107 communes/arrondissements Les opportunités sont les emplois, 95% des emplois occupés par les actifs de la métropole sont couverts. On a retenu 21 143 carreaux d’opportunité pour un peu moins de 680k emplois.\nL’analyse est basée sur les données du recensement (MOBPRO). La définition de l’emploi est donc celle de l’emploi au sens large (salairés, non salariés, fonctionnaires) et peut différer des sources entreprises (DSN, FLORES). L’avantage est la cohérence entre les actifs et les emplois. L’année de référence est la dernière disponible, 2020.\nLa source MOBPRO nous permet de disinguer l’emploi de l’emploi « résident », ce dernier étant l’emploi occupé par des résidents du périmètre retenu (EPCI Métropole d’Aix-Marseille Provence).\nPour la localisation des résidents, on exploite les données carroyées de l’INSEE (pour l’année 2017) sur lesquelles on applique les données MOPBRO, donc l’année 2020. Les données carroyées définissent donc la répartition spatiale infra communale alors que les données de résident sont calées au niveau communal/arrondissement sur MOBPRO.\nPour la localisation des emplois, on utilise les fichiers fonciers (CEREMA) pour l’année 2022 ainsi que le Référentiel présumé Public Foncier (2022) pour la répartition spatiale infra-communal. L’emploi est calé sur le niveau communal par MOBPRO (année 2020) en cohérence avec les résidents et les actifs. Pour la répartition spatiale, on utilise un modèle log-log reliant l’emploi au surface pour une division de l’emploi et des surfaces en 5 secteurs (AZ agriculture, BE industrie, FZ construction, GU services, OQ secteur public), telle que définie dans MOBPRO. Cete approche permet de tenir compte de certaines très grandes surfaces (comme le port de Marseille, l’Aeroport) pour lesquelles la densité d’emploi n’est pas la même aque de plus petites surfaces. Néanmoins, la très grande surface du port de Marseille (classé en OQ) conduit à imputer beaucoup de l’emploi public du 2eme arrondissement de Marseille à ce lieu. Une analyse plus fine (grand établissement par grand établissement) est possible mais très coûteuse pour un gain probablement marginal en précision. Pour l’agriculture, les surfaces professionnelles ne sont pas bien identifiées (en tout cas par notre méthode). On utilise donc une répartition suivant les individus pour les communes agricoles. Les emplois concernés sont très faibles (voir figure 2.1).\n\n\n\n\n\nFigure 2.1: modélisation du lien entre emploi et surface\n\n\n\n\n\n\n\n\n\nrésidents c200 (2017)actifs MOBPRO (2020)emploi MOBPRO (2020)\n\n\n\n\n\n\nFigure 2.2: localisation des résidents\n\n\n\n\n\n\n\n\n\n\n données ind&actifs au carreau\n\n\n\n\n\n\n\n\nFigure 2.3: localisation des actifs (MOBPRO, 2020)\n\n\n\n\n\n\n\n\n\n\n données ind&actifs au carreau\n\n\n\n\n\n\n\n\nFigure 2.4: Localisation des emplois occupés par des actifs de la métropole\n\n\n\n\n\n\n\n\n\n\n données emploi&emploi résident au carreau",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Localisation des résidents, des actifs et des emplois</span>"
+    ]
+  },
+  {
+    "objectID": "accessibilites.html#accessibilité-par-mode-de-transport",
+    "href": "accessibilites.html#accessibilité-par-mode-de-transport",
+    "title": "3  Calcul des distances",
+    "section": "3.1 Accessibilité par mode de transport",
+    "text": "3.1 Accessibilité par mode de transport\nL’accessibilité consiste à mesure pour chque lieu de résidence le temps d’accès à un seuil d’emploi (par exemple 100 000 emplois). Cette notion n’est pas directement reliée aux distances parcourues, puisque in fine chqeu individu n’occupe qu’un emploi. L’accessibilité permet en revanche de mesurer le potentiel d’emploi qui s’offre à partir d’un lieu de résidence.\nOn relie facilement et nettement l’accessibilité à la valeur du foncier.\nL’accessibilité permet également de comparer l’efficacité relative des modes de transports et illustre la domination de la voiture sur la plupart des lieux du territoire.\nL’accessibilité permet également de caractériser le territoire et de commencer à approcher les questions de distribution spatiale.\nLes cartes suivantes présentent l’accessibilité à 50 000 emplois pour 4 modes de transport.\nPour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a été introduite. Cette fonction de coût pénalise par des vitesses de déplacement moindre les dénivelés positifs. Les acccessibilités sans ces fonctions sont téléchargeables en dessous des cartes.\n\nvoituretransitvélomarche à pied\n\n\n\n\n\n\nFigure 3.1: Accessibilité à 50 000 emplois en voiture\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 3.2: Accessibilité à 50 000 emplois en transit (q5%)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 3.3: Accessibilité à 50 000 emplois en vélo\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 3.4: Accessibilité à 50 000 emplois en vélo\n\n\n\n\n\n\n\n\n\n\n\n\n\n données temps d'accessibilité au carreau\n\n\n\n3.1.1 Accessibilité par commune\nOn reconstruit la relation entre le nombre d’emploi accessible (axe des y) et le temps de déplacement pour chaque mode pour chaque commune. Cette relation est basée sur une moyenne pondérée par le nombre d’actifs sur chacun des carreaux de l’emploi accessible pour un temps donné.\n\n\n\n\n\n\n\n\n\nLes arrondissements de Marseille (dont le 3e et le 7e sont colorés) sont les seuls à disposer d’une accessibilité assez élevée en transit. On constate également la domination de la voiture sur l’ensemble du territoire.\nIl est à noter que la restriction aux paires de communes issues de MOBPRO empêche certains territoires de pouvoir accéder à des niveaux d’emplois élevé (comme Fos-sur Mer).\n\n\n3.1.2 Distribution de l’accessibilité",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Calcul des distances</span>"
+    ]
+  },
+  {
+    "objectID": "next.html",
+    "href": "next.html",
+    "title": "4  Prochaines étapes",
+    "section": "",
+    "text": "Génération des flux carreau carreau par MEAPS (et par un modèle gravitaire)\nEstimation d’un modèle MEAPS sur MOPBRO, comparaison avec La Rochelle\nProjection, sur la base de l’EMP 2019, des km par habitant\nEstimation sur la base EMC2 MetAM des modèles de projection, comparaison avec EMP 2019\nAutres motifs\n\nEcole/études à partir de MOBSCOL\nCommerces à partir de la densité de commerces (fichiers fonciers) ou de la densité inversée (accessibilité aux personnes)\nAutres motifs en se calant sur la densité de personnes\nles trajets IRIS vers IRIS pourront être pertinents\nL’accès aux informations de localisation de l’EMC2 peut apporter beaucoup\n\nIntégration de la congestion\n\ncouche mapbox trafic usuel\nautres données de trafic (WAZE, extraction mapbox spécifiques, google)\ngénérations de flux à partir de MEAPS et dodgr (en particulier pour les scénarios)",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Prochaines étapes</span>"
+    ]
+  }
+]
