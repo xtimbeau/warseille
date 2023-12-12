@@ -199,7 +199,7 @@ t_access |>
     to100k = trim(to100k, 0,45)) |> 
   st_transform(4326) |> 
   mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi') |> 
-  add_polygon(fill_colour = "to100k", 
+  add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
               elevation_scale = .3, 
               palette= "rainbow",
