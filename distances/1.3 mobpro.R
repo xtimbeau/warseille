@@ -239,13 +239,13 @@ surf_by_naf <- locaux |>
   group_by(idINS, group_naf) |> 
   summarize(ts=sum(ts),
             idcom = first(idcom), .groups="drop") |> 
-  full_join(pubsuf |> select(idINS, group_naf, com, tsstar), by=c("group_naf", "idINS")) |> 
+  full_join(pubsuf |> select(idINS, group_naf, com=idcom, tsstar), by=c("group_naf", "idINS")) |> 
   mutate( 
     idcom = ifelse(is.na(idcom), com, idcom),
     ts = ifelse(is.na(ts), 0, ts),
     tsstar = ifelse(is.na(tsstar), 0, tsstar),
     tsfull = ts + tsstar) |> 
-  select(-com, -tsstar)
+  select(-tsstar, -com)
 
 # surf_by_naf.h <- locaux_h |> 
 #   filter(ts>0) |> 
