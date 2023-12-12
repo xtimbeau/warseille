@@ -1,0 +1,9 @@
+5274 [21:02:30] Calcul accessibilite version 3
+5274 [21:02:30]        par commune, mode motorcar
+5274 [21:03:23] Clusterization 238.9M paires initial, 14 clusters
+5274 [21:03:24]                645.2M paires en agrégation complète
+5274 [21:03:24]                349.9M paires en cluster
+5274 [21:03:24]                plus petit cluster 1.7M
+5274 [21:03:24]                réduction de temps estimée à 41%
+5274 [21:03:36] router /space_mounts/data/marseille//dodgr//motorcar_tp_deniv.dodgrnet chargé
+5274 [21:04:30] cluster 1/14 75.1M paires
