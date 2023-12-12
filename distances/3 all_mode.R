@@ -30,13 +30,13 @@ modes <- set_names(c("walk_tblr", 'bike_tblr', 'car_dgr2'))
 
 cli::cli_alert_info("lecture de {.path {idINS_emp_file}}")
 
-idINS_emp_file <- '/space_mounts/data/marseille/distances/src/idINS.parquet' |> glue()
-
-idINS <- read_parquet(idINS_emp_file) |> 
-  select(id, fromidINS, toidINS, euc) |> 
-  collect() |> 
-  as.data.frame() |> 
-  setDT()
+# idINS_emp_file <- '/space_mounts/data/marseille/distances/src/idINS.parquet' |> glue()
+# 
+# idINS <- read_parquet(idINS_emp_file) |> 
+#   select(id, fromidINS, toidINS, euc) |> 
+#   collect() |> 
+#   as.data.frame() |> 
+#   setDT()
 
 
 communes <- com2021epci |> pull(INSEE_COM)
