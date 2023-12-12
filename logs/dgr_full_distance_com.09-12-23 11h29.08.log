@@ -1,0 +1,41 @@
+4873 [10:29:08] Calcul accessibilite version 3
+4873 [10:29:08]        par commune, mode bicycle_ntblr
+4873 [10:29:55] Clusterization 153.7M paires initial, 16 clusters
+4873 [10:29:55]                482.2M paires en agrégation complète
+4873 [10:29:55]                203.1M paires en cluster
+4873 [10:29:55]                plus petit cluster 1.1M
+4873 [10:29:55]                réduction de temps estimée à 48%
+4873 [10:30:20] router /space_mounts/data/marseille//dodgr//bicycle_ntblr_tp_deniv.dodgrnet chargé
+4873 [10:30:46] cluster 1/16 37.6M paires
+4873 [10:39:06]         @75.3kp/s
+4873 [10:39:35] cluster 2/16 20.2M paires
+4873 [10:45:25]         @57.7kp/s
+4873 [10:45:43] cluster 3/16 25.7M paires
+4873 [10:52:46]         @60.8kp/s
+4873 [10:53:06] cluster 4/16 8.4M paires
+4873 [10:58:17]         @26.9kp/s
+4873 [10:58:26] cluster 5/16 20.5M paires
+4873 [11:04:22]         @57.5kp/s
+4873 [11:04:39] cluster 6/16 13.3M paires
+4873 [11:08:55]         @52kp/s
+4873 [11:09:09] cluster 7/16 3.1M paires
+4873 [11:10:43]         @33.3kp/s
+4873 [11:10:48] cluster 8/16 4.8M paires
+4873 [11:13:01]         @36.2kp/s
+4873 [11:13:07] cluster 9/16 1.1M paires
+4873 [11:14:06]         @18.7kp/s
+4873 [11:14:10] cluster 10/16 12.2M paires
+4873 [11:18:23]         @48.4kp/s
+4873 [11:18:34] cluster 11/16 15.2M paires
+4873 [11:23:38]         @50.1kp/s
+4873 [11:23:50] cluster 12/16 19.2M paires
+4873 [11:28:44]         @65.3kp/s
+4873 [11:28:58] cluster 13/16 4.2M paires
+4873 [11:31:01]         @34.1kp/s
+4873 [11:31:08] cluster 14/16 8.3M paires
+4873 [11:34:54]         @36.9kp/s
+4873 [11:35:01] cluster 15/16 4.3M paires
+4873 [11:40:14]         @13.8kp/s
+4873 [11:40:19] cluster 16/16 4.8M paires
+4873 [11:42:31]         @36.4kp/s
+4873 [11:42:35] Calcul terminé, dataset /space_mounts/data/marseille//distances/src/bike_ntblr écrit - 153.7M en 73.5 mn soit 34.9k p/s

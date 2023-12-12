@@ -1,0 +1,86 @@
+SUCCESS [2023-10-22 19:25:56] Calcul accessibilite version 2
+SUCCESS [2023-10-22 19:25:56] $type
+SUCCESS [2023-10-22 19:25:56] [1] "dodgr"
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $path
+SUCCESS [2023-10-22 19:25:56] /space_mounts/data/marseille//dodgr/
+SUCCESS [2023-10-22 19:25:56] FALSE
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $graph
+SUCCESS [2023-10-22 19:25:56] NULL
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $vertices
+SUCCESS [2023-10-22 19:25:56] NULL
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $distances
+SUCCESS [2023-10-22 19:25:56] [1] TRUE
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $denivele
+SUCCESS [2023-10-22 19:25:56] [1] FALSE
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $pkg
+SUCCESS [2023-10-22 19:25:56] [1] "dodgr"
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $turn_penalty
+SUCCESS [2023-10-22 19:25:56] [1] TRUE
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $graph_name
+SUCCESS [2023-10-22 19:25:56] /space_mounts/data/marseille//dodgr//marseille.bicycle.dodgrnet
+SUCCESS [2023-10-22 19:25:56] FALSE
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $string
+SUCCESS [2023-10-22 19:25:56] dodgr routing bicycle sur /space_mounts/data/marseille//dodgr/ a 2023-10-22 19:23:47.483454
+SUCCESS [2023-10-22 19:25:56] FALSE
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $departure_datetime
+SUCCESS [2023-10-22 19:25:56] [1] "2019-12-17 08:00:00 UTC"
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $mode
+SUCCESS [2023-10-22 19:25:56] [1] "bicycle"
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $n_threads
+SUCCESS [2023-10-22 19:25:56] [1] 8
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $future
+SUCCESS [2023-10-22 19:25:56] [1] TRUE
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $future_routing
+SUCCESS [2023-10-22 19:25:56] function (routing) 
+SUCCESS [2023-10-22 19:25:56] {
+SUCCESS [2023-10-22 19:25:56]     rout <- routing
+SUCCESS [2023-10-22 19:25:56]     rout$graph <- NULL
+SUCCESS [2023-10-22 19:25:56]     rout$vertices <- NULL
+SUCCESS [2023-10-22 19:25:56]     rout$elevation_data <- NULL
+SUCCESS [2023-10-22 19:25:56]     return(rout)
+SUCCESS [2023-10-22 19:25:56] }
+SUCCESS [2023-10-22 19:25:56] <bytecode: 0x55e859bdc0d8>
+SUCCESS [2023-10-22 19:25:56] <environment: 0x55e8644c2208>
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] $core_init
+SUCCESS [2023-10-22 19:25:56] function (routing) 
+SUCCESS [2023-10-22 19:25:56] {
+SUCCESS [2023-10-22 19:25:56]     RcppParallel::setThreadOptions(numThreads = routing$n_threads)
+SUCCESS [2023-10-22 19:25:56]     rout <- routing
+SUCCESS [2023-10-22 19:25:56]     net <- dgr_load_streetnet(routing$graph_name)
+SUCCESS [2023-10-22 19:25:56]     rout$graph <- net$graph
+SUCCESS [2023-10-22 19:25:56]     rout$vertices <- net$verts_c
+SUCCESS [2023-10-22 19:25:56]     if ("dz" %in% names(rout$graph)) 
+SUCCESS [2023-10-22 19:25:56]         rout$graph$dzplus <- rout$graph$dz * (rout$graph$dz > 
+SUCCESS [2023-10-22 19:25:56]             0)
+SUCCESS [2023-10-22 19:25:56]     logger::log_info("router {graph_name} chargé")
+SUCCESS [2023-10-22 19:25:56]     return(rout)
+SUCCESS [2023-10-22 19:25:56] }
+SUCCESS [2023-10-22 19:25:56] <bytecode: 0x55e859bdcd18>
+SUCCESS [2023-10-22 19:25:56] <environment: 0x55e8644c2208>
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] 
+SUCCESS [2023-10-22 19:25:56] tmax:120
+SUCCESS [2023-10-22 19:25:56] pdt:1
+SUCCESS [2023-10-22 19:25:56] chunk:5M
+SUCCESS [2023-10-22 19:25:56] resolution:200
+SUCCESS [2023-10-22 19:25:56] out:200
+SUCCESS [2023-10-22 19:25:56] les variables sont emplois
+SUCCESS [2023-10-22 19:25:56] taille:333.6M gr:67 res_gr:6400
+SUCCESS [2023-10-22 19:25:56] 26k ou, 12.8k quoi
+SUCCESS [2023-10-22 19:25:56] 106 carreaux, 8 subsampling
+SUCCESS [2023-10-22 19:25:56] future:TRUE, 16 workers
