@@ -21,6 +21,7 @@ book:
     - accessibilites.qmd
     - next.qmd
 execute: 
+  freeze: false
   echo: false
   warning: false
   

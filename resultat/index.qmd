@@ -1,4 +1,4 @@
-# Avertissement
+# Avertissement {.unnumbered}
 
 ![](images/clipboard-3095589276.png){fig-align="center" width="538"}
 
