@@ -16,14 +16,20 @@ conflict_prefer_all("dplyr", quiet = TRUE)
 source("secrets/azure.R")
 
 c200ze <- qs::qread(c200ze_file)
-setDT(c200ze)
+bd_write(c200ze)
 times <- seq(1, 120, 1)
 times <- set_names(times, str_c("t", times))
-seuils <- c(1000, 2000, 5000, 10000, 20000, 25000, 50000, 100000, 250000)
+seuils <- c(10000, 20000, 50000, 100000, 200000, 300000, 4000000, 500000)
 
 modes <- set_names(c("walk_tblr", "walk_ntblr", "bike_tblr", "bike_ntblr",
                      'transit', 'transit5',"car_dgr2"))
-emploi <- c200ze |> filter(emp>0) |> select(toidINS=idINS, emp) |> 
+emploi <- c200ze |> 
+  st_drop_geometry() |> 
+  filter(emp>0) |>
+  select(toidINS=idINS, emp, ind) |> 
+  write_dataset(("/tmp/emploi"))
+
+emploi <- open_dataset("/tmp/emploi") |> 
   to_duckdb()
 
 temps <- 1:120
@@ -67,7 +73,7 @@ t_access <- imap(modes, ~{
   bind_rows() 
 
 t_access <- t_access |> 
-  left_join(c200ze |> select(idINS200=idINS, com22), by="idINS200") |> 
+  left_join(c200ze |> select(idINS200=idINS, com22, ind), by="idINS200") |> 
   mutate(
     geometry=idINS2square(idINS200),
     mode_lib = factor(
@@ -92,8 +98,6 @@ bd_write(decor_carte)
     annotation_scale(line_width = 0.2, height = unit(0.1, "cm"), 
                      text_cex = 0.4, pad_y = unit(0.1, "cm"))+
     facet_wrap(vars(mode)))
-
-ofce::graph2png(access_4modes_bike, rep=output_rep)
 
 # accessibilité par communes
 
@@ -193,3 +197,8 @@ access_par_com_wtblr <- ggplot(
         plot.margin = margin(l = 6, r= 6),
         panel.grid.major.x = element_line(color="gray80", linewidth = 0.1))+
   facet_wrap(vars(mode))
+
+
+# distribution de l'accessibilité
+
+t_access

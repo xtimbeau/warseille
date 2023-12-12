@@ -15,8 +15,7 @@ bl <- load("baselayer.rda")
 
 c200 <- qread(c200_file) # version 2017
 
-mobpro <- qs::qread(mobpro_file) |> 
-  filter(mobpro95)
+mobpro <- qs::qread(mobpro_file) 
 
 communes <- unique(mobpro$COMMUNE)
 dclts <- unique(mobpro$DCLT)
@@ -69,10 +68,21 @@ flat_irises <- purrr::list_c(irises)
 #   filter(mobpro99) |> 
 #   pull(INSEE_COM)
 
+act_mobpro <- mobpro |> 
+  group_by(COMMUNE) |> 
+  summarize(act_mobpro.tot = sum(NB_in))
+
 c200i <- c200 |> 
   semi_join(com_ze, by=c("com22"="idcom")) |> 
   mutate(IRIS = CODE_IRIS, 
-         com=com22)
+         com=com22) |> 
+  left_join(act_mobpro, by = c("com22"= "COMMUNE")) |> 
+  group_by(com22) |> 
+  mutate(
+    act_mobpro = ind / sum(ind, na.rm=TRUE) * act_mobpro.tot
+  ) |> 
+  ungroup() |> 
+  select(-act_mobpro.tot, -CODE_IRIS)
 
 c200e <- empze |>
   transmute(
@@ -89,7 +99,7 @@ c200ze <- full_join(c200i |> st_drop_geometry(), c200e |> st_drop_geometry() |> 
     dep = if_else(is.na(dep), dep.e, dep),
     com = if_else(is.na(com), com.e, com),
     IRIS = if_else(is.na(IRIS), IRIS.e, IRIS),
-    across(c(emp, emp_resident, ind, men, adultes, ind_18_64, ind_snv),~replace_na(.x, 0))) |>
+    across(c(emp, emp_resident, ind, men, adultes, ind_18_64, ind_snv, act_mobpro),~replace_na(.x, 0))) |>
   select(-ends_with(".e")) |> 
   mutate(geometry = r3035::idINS2square(idINS)) |> 
   st_as_sf(crs=3035) 
@@ -105,9 +115,12 @@ c200ze <- c200ze |>
 # 
 # com21 <- sf::st_read(com2021_shp) |> 
 #   sf::st_transform(3035)
-archive::archive_extract("https://www.insee.fr/fr/statistiques/fichier/5395838/base-ccx-emploi-pop-active-2018.zip",
-                    "/tmp")
-popact <- readxl::read_xlsx("/tmp/base-cc-emploi-pop-active-2018.xlsx" |> glue(),sheet = "COM_2018", skip=5) |> 
+archive::archive_extract(
+  "https://www.insee.fr/fr/statistiques/fichier/5395838/base-ccx-emploi-pop-active-2018.zip",
+  "/tmp")
+popact <- readxl::read_xlsx(
+  "/tmp/base-cc-emploi-pop-active-2018.xlsx" |> glue(),
+  sheet = "COM_2018", skip=5) |> 
   transmute(com21=CODGEO,
             tact1564 = P18_ACT1564/P18_POP1564,
             tactocc1564 = P18_ACTOCC1564/P18_POP1564)
@@ -116,3 +129,5 @@ c200ze <- c200ze |>
   left_join(popact, by=c("com"="com21"))
 
 qs::qsave(c200ze, file=c200ze_file)
+source("secrets/azure.R")
+bd_write(c200ze)
