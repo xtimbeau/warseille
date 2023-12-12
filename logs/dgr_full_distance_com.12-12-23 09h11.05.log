@@ -1,0 +1,9 @@
+SUCCESS [2023-12-12 08:11:05] Calcul accessibilite version 3
+SUCCESS [2023-12-12 08:11:05]        par commune, mode foot_ntblr
+8340 [08:11:53] Clusterization 70.6M paires initial, 9 clusters
+8340 [08:11:53]                503.1M paires en agrégation complète
+8340 [08:11:53]                148.2M paires en cluster
+8340 [08:11:53]                plus petit cluster 6.4M
+8340 [08:11:53]                réduction de temps estimée à 67%
+8340 [08:12:16] router /space_mounts/data/marseille//dodgr//foot_ntblr_tp_deniv.dodgrnet chargé
+8340 [08:12:37] cluster 1/9 24.6M paires

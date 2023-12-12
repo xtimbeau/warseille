@@ -57,31 +57,14 @@ c200ze <- bd_read("c200ze") |> st_transform(4326)
 
 ## Localisation des résidents, des actifs et des emplois
 
-On limite l'analyse à la métropole d'Aix-Marseille-Provence. Cela représente 26 000 carreaux 200m x 200m pour 107 communes/arrondissements Les opportunités sont les emplois, 95% des emplois occupés par les actifs de la métropole sont couverts. On a retenu 21 143 carreaux d'opportunité pour un peu moins de 680k emplois.
-
-L'analyse est basée sur les données du recensement (MOBPRO). La définition de l'emploi est donc celle de l'emploi au sens large (salairés, non salariés, fonctionnaires) et peut différer des sources entreprises (DSN, FLORES). L'avantage est la cohérence entre les actifs et les emplois. L'année de référence est la [dernière disponible, 2020](https://www.insee.fr/fr/statistiques/7637844?sommaire=7637890&q=mobilite+professionnelle).
-
-La source MOBPRO nous permet de disinguer l'emploi de l'emploi "résident", ce dernier étant l'emploi occupé par des résidents du périmètre retenu (EPCI Métropole d'Aix-Marseille Provence).
-
-Pour la localisation des résidents, on exploite les [données carroyées de l'INSEE (pour l'année 2017)](https://www.insee.fr/fr/statistiques/6215138?sommaire=6215217) sur lesquelles on applique les données MOPBRO, donc l'année 2020. Les données carroyées définissent donc la répartition spatiale infra communale alors que les données de résident sont calées au niveau communal/arrondissement sur MOBPRO.
-
-Pour la localisation des emplois, on utilise les [fichiers fonciers (CEREMA) pour l'année 202](https://datafoncier.cerema.fr/fichiers-fonciers)2 ainsi que le [Référentiel présumé Public Foncier (2022)](https://datafoncier.cerema.fr/referentiel-foncier-presume-public) pour la répartition spatiale infra-communal. L'emploi est calé sur le niveau communal par MOBPRO (année 2020) en cohérence avec les résidents et les actifs. Pour la répartition spatiale, on utilise un modèle log-log reliant l'emploi au surface pour une division de l'emploi et des surfaces en 5 secteurs (AZ agriculture, BE industrie, FZ construction, GU services, OQ secteur public), telle que définie dans MOBPRO. Cete approche permet de tenir compte de certaines très grandes surfaces (comme le port de Marseille, l'Aeroport) pour lesquelles la densité d'emploi n'est pas la même aque de plus petites surfaces. Néanmoins, la très grande surface du port de Marseille (classé en OQ) conduit à imputer beaucoup de l'emploi public du 2eme arrondissement de Marseille à ce lieu. Une analyse plus fine (grand établissement par grand établissement) est possible mais très coûteuse pour un gain probablement marginal en précision. Pour l'agriculture, les surfaces professionnelles ne sont pas bien identifiées (en tout cas par notre méthode). On utilise donc une répartition suivant les individus pour les communes agricoles. Les emplois concernés sont très faibles (voir @fig-surf2emp).
-
-```{r}
-#| label: fig-surf2emp
-#| fig-cap: modélisation du lien entre emploi et surface
-
-bd_read("gsurf2emp")  
-```
+On limite l'analyse à la métropole d'Aix-Marseille-Provence. Cela représente 26 000 carreaux 200m x 200m pour 107 communes/arrondissements Les opportunités sont les emplois, 95% des emplois occupés par les actifs de la métropole sont couverts. On a retenu 21 143 carreaux d'opportunité pour un peu moins de 680 emplois.
 
 ::: {.panel-tabset .column-screen}
-
-## résidents c200 (2017)
+## individus (c200, 2017)
 
 ```{r}
 #| label: fig-resident
-#| fig-cap: localisation des résidents
-
+#| fig-cap: localisation des résidents (2017)
 c200ze |> 
   mutate(
     act = tactocc1564 * ind_18_64) |> 
@@ -113,24 +96,11 @@ c200ze |>
 
 ```
 
-```{r}
-download_this(
-  c200ze |> 
-    st_drop_geometry() |> 
-  filter(ind > 0, scot) |> 
-  transmute(
-    idINS, ind, dep, idcom=com22, IRIS,
-    act = tactocc1564 * ind_18_64),
-  button_label  = "données ind&actifs au carreau",
-  output_name = "ind_act_idINS_MetAM"
-)
-```
-
-## actifs MOBPRO (2020)
+## actifs (MOBPRO, 2020)
 
 ```{r}
-#| label: fig-actif
-#| fig-cap: localisation des actifs (MOBPRO, 2020)
+#| label: fig-actifs
+#| fig-cap: localisation des actifs (2020)
 c200ze |> 
   mutate(
     act = tactocc1564 * ind_18_64) |> 
@@ -138,44 +108,27 @@ c200ze |>
   left_join(communes |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 
-  transmute(
-    tooltip=glue::glue(
+  mutate(tooltip=glue::glue(
     "{NOM} {com22}<br>
      {ind} ind dans le carreau<br>
      {round(act_mobpro)} actifs dans le carreau<br>
      {POPULATION} dans la commune"),
-    act_mobpro = trim(act_mobpro/4, 0, 500)) |> 
+    ind = trim(ind/4, 0, 500)) |> 
   st_transform(4326) |> 
-  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi',
-          height = "50vh",
-          width = "100%") |> 
+  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi') |> 
   add_polygon(fill_colour = "act_mobpro", 
               elevation = "act_mobpro", 
               elevation_scale = 3, 
-              palette= "blues",
+              palette= "oranges",
               legend = TRUE, 
               tooltip = "tooltip",
               legend_options = list(title = "pers./ha"),
               legend_format = list(fill_colour = as.integer)) |> 
-  mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
-
+  mapdeck_view(location = centre, zoom = 8)
 
 ```
 
-```{r}
-download_this(
-  c200ze |> 
-    st_drop_geometry() |> 
-  filter(ind > 0, scot) |> 
-  transmute(
-    idINS, ind, dep, idcom=com22, IRIS,
-    act = tactocc1564 * ind_18_64),
-  button_label  = "données ind&actifs au carreau",
-  output_name = "ind_act_idINS_MetAM"
-)
-```
-
-## emploi MOBPRO (2020)
+## emplois (MOBPRO, 2020)
 
 ```{r}
 #| label: fig-emplois
@@ -235,18 +188,6 @@ Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont ét�
 
 ## Accessibilité par mode de transport
 
-L'accessibilité consiste à mesure pour chque lieu de résidence le temps d'accès à un seuil d'emploi (par exemple 100 000 emplois). Cette notion n'est pas directement reliée aux distances parcourues, puisque *in fine* chqeu individu n'occupe qu'un emploi. L'accessibilité permet en revanche de mesurer le potentiel d'emploi qui s'offre à partir d'un lieu de résidence.
-
-On relie facilement et nettement l'accessibilité à la valeur du foncier.
-
-L'accessibilité permet également de comparer l'efficacité relative des modes de transports et illustre la domination de la voiture sur la plupart des lieux du territoire.
-
-L'accessibilité permet également de caractériser le territoire et de commencer à approcher les questions de distribution spatiale.
-
-Les cartes suivantes présentent l'accessibilité à 100 000 emplois pour 4 modes de transport.
-
-Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a été introduite. Cette fonction de coût pénalise par des vitesses de déplacement moindre les dénivelés positifs. Les acccessibilités sans ces fonctions sont téléchargeables en dessous des cartes.
-
 ::: {.panel-tabset .column-screen}
 ## voiture
 
@@ -266,7 +207,9 @@ t_access |>
   left_join(communes |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 
-  mutate(tooltip=glue::glue(
+  mutate(
+    ind, 
+    tooltip=glue::glue(
     "{NOM} {com22}<br>
      {ind} ind dans le carreau<br>
      {POPULATION} dans la commune<br>

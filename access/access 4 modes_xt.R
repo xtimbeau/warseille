@@ -99,8 +99,6 @@ bd_write(decor_carte)
                      text_cex = 0.4, pad_y = unit(0.1, "cm"))+
     facet_wrap(vars(mode)))
 
-ofce::graph2png(access_4modes_bike, rep=output_rep)
-
 # accessibilité par communes
 
 c_access <- access |>
@@ -199,3 +197,8 @@ access_par_com_wtblr <- ggplot(
         plot.margin = margin(l = 6, r= 6),
         panel.grid.major.x = element_line(color="gray80", linewidth = 0.1))+
   facet_wrap(vars(mode))
+
+
+# distribution de l'accessibilité
+
+t_access
