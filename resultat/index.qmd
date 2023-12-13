@@ -1,6 +1,6 @@
 # Avertissement {.unnumbered}
 
-![](images/clipboard-3095589276.png){fig-align="center" width="683"}
+![Marseille, carte de 1584](images/Marseille_-_vieille_carte.jpg){fig-align="center"}
 
 Ce site présente les premiers résultats du travail OFCE pour la métropole d'Aix-Marseille dans le cadre du projet OFCE/Villes Vivantes
 
@@ -8,11 +8,8 @@ Merci de ne pas diffuser le lien ;
 
 {{< fa exclamation-triangle >}} les résultats sont encore provisoires et seront mis à jour régulièrement.
 
-
-
 **Licence :**
 
 ```{=html}
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />Cette œuvre est mise à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Licence Creative Commons Attribution 4.0 International</a>.
 ```
-
