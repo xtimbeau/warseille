@@ -20,11 +20,11 @@
     ]
   },
   {
-    "objectID": "localisations.html#cartes",
-    "href": "localisations.html#cartes",
+    "objectID": "localisations.html#cartes-des-localisations",
+    "href": "localisations.html#cartes-des-localisations",
     "title": "1  Localisation des résidents, des actifs et des emplois",
-    "section": "1.2 Cartes",
-    "text": "1.2 Cartes\nLes onglets permettent de passer des résidents, aux actifs et aux emplois.\nLa carte peut être basculée et la dimension « z » indique comme la couleur le nombre de personnes ou d’emplois par carreau. Des boutons en dessous des cartes permettent de télécharger les données.\n\nrésidents c200 (2017)actifs MOBPRO (2020)emploi MOBPRO (2020)\n\n\n\n\n\n\nFigure 1.2: localisation des résidents\n\n\n\n\n\n\n\n\n\n\n données ind&actifs au carreau\n\n\n\n\n\n\n\n\nFigure 1.3: localisation des actifs (MOBPRO, 2020)\n\n\n\n\n\n\n\n\n\n\n données ind&actifs au carreau\n\n\n\n\n\n\n\n\nFigure 1.4: Localisation des emplois occupés par des actifs de la métropole\n\n\n\n\n\n\n\n\n\n\n données emploi&emploi résident au carreau",
+    "section": "1.2 Cartes des localisations",
+    "text": "1.2 Cartes des localisations\nLes onglets permettent de passer des résidents, aux actifs et aux emplois.\nLa carte peut être basculée et la dimension « z » indique comme la couleur le nombre de personnes ou d’emplois par carreau. Des boutons en dessous des cartes permettent de télécharger les données.\n\nrésidents c200 (2017)actifs MOBPRO (2020)emploi MOBPRO (2020)\n\n\n\n\n\n\nFigure 1.2: localisation des résidents\n\n\n\n\n\n\n\n\n\n\n données ind&actifs au carreau\n\n\n\n\n\n\n\n\nFigure 1.3: localisation des actifs (MOBPRO, 2020)\n\n\n\n\n\n\n\n\n\n\n données ind&actifs au carreau\n\n\n\n\n\n\n\n\nFigure 1.4: Localisation des emplois occupés par des actifs de la métropole\n\n\n\n\n\n\n\n\n\n\n données emploi&emploi résident au carreau",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Localisation des résidents, des actifs et des emplois</span>"
     ]
