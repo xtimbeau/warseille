@@ -64,7 +64,7 @@
     "href": "accessibilites.html#distribution-de-laccessibilité",
     "title": "2  Calcul des distances et accessibilité",
     "section": "2.4 Distribution de l’accessibilité",
-    "text": "2.4 Distribution de l’accessibilité\n\n10k20k50k100k200k",
+    "text": "2.4 Distribution de l’accessibilité\nOn regarde ici le nombre d’individus selon leur temsp d’accès à différents seuils d’emploi (auxquels on accède par les onglets). Plus le seuil est important, plus les individus sont décalés vers la droite. L’axe des x est limité et donc des individus (dont le temps d’accès au seuil d’emploi est supérieur à 120 minutes) disparaissent du graphique.\nLes courbes représentent la densité de population en fonction du temps d’accessibilité. Les colorations identifient certains territoires suivant la même règle que pour le graphique d’accessibilité par commune. L’échelle des y est limitée à 1500 pour la lisibilité. L’aire des courbes est proportionelle à la population (moins les inidividus dont les temps d’accès sont supérieurs à 120 minutes).\n\n10k20k50k100k200k\n\n\n\n\n\n\n\nFigure 2.5: Distribution selon le temps d’accès à 10k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.6: Distribution selon le temps d’accès à 20k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.7: Distribution selon le temps d’accès à 50k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.8: Distribution selon le temps d’accès à 100k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.9: Distribution selon le temps d’accès à 200k emplois",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Calcul des distances et accessibilité</span>"
     ]
@@ -77,6 +77,16 @@
     "text": "Génération des flux carreau carreau par MEAPS (et par un modèle gravitaire)\nEstimation d’un modèle MEAPS sur MOPBRO, comparaison avec La Rochelle\nProjection, sur la base de l’EMP 2019, des km par habitant\nEstimation sur la base EMC2 MetAM des modèles de projection, comparaison avec EMP 2019\nAutres motifs\n\nEcole/études à partir de MOBSCOL\nCommerces à partir de la densité de commerces (fichiers fonciers) ou de la densité inversée (accessibilité aux personnes)\nAutres motifs en se calant sur la densité de personnes\nles trajets IRIS vers IRIS pourront être pertinents\nL’accès aux informations de localisation de l’EMC2 peut apporter beaucoup\n\nIntégration de la congestion\n\ncouche mapbox trafic usuel\nautres données de trafic (WAZE, extraction mapbox spécifiques, google)\ngénérations de flux à partir de MEAPS et dodgr (en particulier pour les scénarios)",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Prochaines étapes</span>"
+    ]
+  },
+  {
+    "objectID": "accessibilites.html#accessibilité-et-revenu",
+    "href": "accessibilites.html#accessibilité-et-revenu",
+    "title": "2  Calcul des distances et accessibilité",
+    "section": "2.5 Accessibilité et revenu",
+    "text": "2.5 Accessibilité et revenu\nOn utilise le revenu moyen par unité de consommation au carreau (et donc une donnée de 2017) pour représenter le lien entre niveau de vie et accessibilité.\n Attention, ce niveau de vie est appliqué de façon homogène à tous les habitants du carreau, ce qui conduit à une « moyennisation » de la donnée. On peut avec Fidéli améliorer ce point et disposer de données plus récentes.\n La répartiton des déciles dans les zones sélectionnées est loin d’être homogène. Le graphique figure 2.10 matérialise cette remarque.\n\n\n\n\n\nFigure 2.10: Répartition de la population par décile par zone\n\n\n\n\n\n\n\n\n\n10k20k50k100k200k\n\n\n\n\n\n\n\nFigure 2.11: Distribution selon le revenu des accès à 10k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.12: Distribution selon le revenu des accès à 20k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.13: Distribution selon le revenu des accès à 50k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.14: Distribution selon le revenu des accès à 100k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.15: Distribution selon le revenu des accès à 200k emplois",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Calcul des distances et accessibilité</span>"
     ]
   }
 ]
