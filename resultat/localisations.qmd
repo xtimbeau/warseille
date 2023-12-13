@@ -18,7 +18,7 @@ La source MOBPRO nous permet de disinguer l'emploi de l'emploi "résident", ce d
 
 Pour la localisation des résidents, on exploite les [données carroyées de l'INSEE (pour l'année 2017)](https://www.insee.fr/fr/statistiques/6215138?sommaire=6215217) sur lesquelles on applique les données MOPBRO, donc l'année 2020. Les données carroyées définissent donc la répartition spatiale infra communale alors que les données de résident sont calées au niveau communal/arrondissement sur MOBPRO.
 
-Pour la localisation des emplois, on utilise les [fichiers fonciers (CEREMA) pour l'année 202](https://datafoncier.cerema.fr/fichiers-fonciers)2 ainsi que le [Référentiel présumé Public Foncier (2022)](https://datafoncier.cerema.fr/referentiel-foncier-presume-public) pour la répartition spatiale infra-communal. L'emploi est calé sur le niveau communal par MOBPRO (année 2020) en cohérence avec les résidents et les actifs. Pour la répartition spatiale, on utilise un modèle log-log reliant l'emploi au surface pour une division de l'emploi et des surfaces en 5 secteurs (AZ agriculture, BE industrie, FZ construction, GU services, OQ secteur public), telle que définie dans MOBPRO. Cette approche permet de tenir compte de certaines très grandes surfaces (comme le port de Marseille, l'Aeroport) pour lesquelles la densité d'emploi n'est pas la même aque de plus petites surfaces. Néanmoins, la très grande surface du port de Marseille (classé en OQ) conduit à imputer beaucoup de l'emploi public du 2eme arrondissement de Marseille à ce lieu. Une analyse plus fine (grand établissement par grand établissement) est possible mais très coûteuse pour un gain probablement marginal en précision. Pour l'agriculture, les surfaces professionnelles ne sont pas bien identifiées (en tout cas par notre méthode). On utilise donc une répartition suivant les individus pour les communes agricoles. Les emplois concernés sont très faibles (voir @fig-surf2emp).
+Pour la localisation des emplois, on utilise les [fichiers fonciers (CEREMA) pour l'année 2022](https://datafoncier.cerema.fr/fichiers-fonciers) ainsi que le [Référentiel présumé Public Foncier (2022)](https://datafoncier.cerema.fr/referentiel-foncier-presume-public) pour la répartition spatiale infra-communal. L'emploi est calé sur le niveau communal par MOBPRO (année 2020) en cohérence avec les résidents et les actifs. Pour la répartition spatiale, on utilise un modèle log-log reliant l'emploi au surface pour une division de l'emploi et des surfaces en 5 secteurs (AZ agriculture, BE industrie, FZ construction, GU services, OQ secteur public), telle que définie dans MOBPRO. Cette approche permet de tenir compte de certaines très grandes surfaces (comme le port de Marseille, l'Aeroport) pour lesquelles la densité d'emploi n'est pas la même aque de plus petites surfaces. Néanmoins, la très grande surface du port de Marseille (classé en OQ) conduit à imputer beaucoup de l'emploi public du 2eme arrondissement de Marseille à ce lieu. Une analyse plus fine (grand établissement par grand établissement) est possible mais très coûteuse pour un gain probablement marginal en précision. Pour l'agriculture, les surfaces professionnelles ne sont pas bien identifiées (en tout cas par notre méthode). On utilise donc une répartition suivant les individus pour les communes agricoles. Les emplois concernés sont très faibles (voir @fig-surf2emp).
 
 ```{r}
 #| label: fig-surf2emp
@@ -27,7 +27,7 @@ Pour la localisation des emplois, on utilise les [fichiers fonciers (CEREMA) pou
 bd_read("gsurf2emp")  
 ```
 
-## Cartes
+## Cartes des localisations
 
 Les onglets permettent de passer des résidents, aux actifs et aux emplois.
 
@@ -53,14 +53,15 @@ c200ze |>
      {round(ind)} ind dans le carreau<br>
      {round(act_mobpro)} actifs dans le carreau<br>
      {POPULATION} dans la commune"),
-    ind = trim(ind/4, 0, 500)) |> 
+    indc = trim(ind/4, 0, 500),
+    ind = ind/4) |> 
   st_transform(4326) |> 
   mapdeck(style = style,
           height = "50vh",
           width = "100%") |> 
-  add_polygon(fill_colour = "ind", 
+  add_polygon(fill_colour = "indc", 
               elevation = "ind", 
-              elevation_scale = 1.5, 
+              elevation_scale = 3, 
               palette= "oranges",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -109,15 +110,13 @@ c200ze |>
           width = "100%") |> 
   add_polygon(fill_colour = "act_mobpro", 
               elevation = "act_mobpro", 
-              elevation_scale = 1.5, 
+              elevation_scale = 3, 
               palette= "blues",
               legend = TRUE, 
               tooltip = "tooltip",
               legend_options = list(title = "pers./ha"),
               legend_format = list(fill_colour = as.integer)) |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
-
-
 ```
 
 ```{r}
@@ -157,7 +156,7 @@ c200ze |>
           width = "100%") |> 
   add_polygon(fill_colour = "emp_resident", 
               elevation = "emp_resident", 
-              elevation_scale = 1.5, 
+              elevation_scale = 3, 
               palette= "purples",
               legend = TRUE, 
               tooltip = "tooltip",
