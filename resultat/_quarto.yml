@@ -15,7 +15,9 @@ book:
   navbar: false
   page-navigation: true
   back-to-top-navigation: true 
-  page-footer: "*Premiers résultats, ne pas diffuser*"
+  page-footer:
+    left: "*Premiers résultats, ne pas diffuser*"
+    right: "**CC BY 4.0**"
   chapters:
     - index.qmd
     - localisations.qmd

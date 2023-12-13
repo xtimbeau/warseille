@@ -16,7 +16,7 @@ Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont ét�
 
 -   Les **données MOBPRO** pour sélectionner les paires de communes. Cela évite de calculer des distances entre des origines destinations sans lien. L'inconvénient est qu'on ne produit pas les distances pour des communes non reliées et donc on ne comprend pas l'absence de lien.
 
--   Pour les **transports en commun**, les GTFS répertoriés sur [Open Data - lepilote](https://www.lepilote.com/fr/open-data/83), le moteur employé est R^5^ e Conveyal. On a retenu soit la médiane, soit le quantile 5% sur une plage horaire d'une heure (de 8h à 9h, le matin, un jour de semaine hors période de congé). Ceci permet de tenir compte des fréquences et des temps de correspondance. Le quantile 5% représente la possibilité de choisir son horaire pour optimiser son temps de trajet.
+-   Pour les **transports en commun**, les GTFS répertoriés sur [Open Data - lepilote](https://www.lepilote.com/fr/open-data/83), le moteur employé est R^5^ e Conveyal. On a retenu soit la médiane, soit le quantile 5% sur une plage horaire d'une heure (de 8h à 9h, le matin, un jour de semaine hors période de congé, en l'occurence le 14/06/2022). Ceci permet de tenir compte des fréquences et des temps de correspondance (en fonction des horaires diffusés pour ce jour là). Le quantile 5% représente la possibilité de choisir son horaire de départ entre 8h et 9h pour minimiser son temps de trajet.
 
 -   Pour la **voiture,** les données OSM (téléchargées en décembre 2023) et le moteur de routage `dodgr` qui a été optimisé pour un calcul bien plus rapide. En plus des distances et des temps de trajet, on calcule les dénivelés et on pourra en tenir compte pour les émissions ultérieurement. Les vitesses de déplacement sont les limitations de vitesse en vigueur (ou renseignées sur OSM), modulées en fonction des types de route. Une pénalité pour les feux rouges ainsi que pour les changements de direction (traversée d'un carrefour) est appliquée. A ce stade, faute de données convaincantes, la **congestion** n'est pas intégrée. En utilisant la couche de mapbox sur le trafic habituel, il est envisageable de calculer les temps de parcours avec la congestion habituelle moyennant quelques hypothèses).
 
@@ -32,7 +32,7 @@ L'accessibilité permet également de comparer l'efficacité relative des modes 
 
 L'accessibilité permet également de caractériser le territoire et de commencer à approcher les questions de distribution spatiale.
 
-Les cartes suivantes présentent l'accessibilité à 50 000 emplois pour 4 modes de transport.
+Les cartes suivantes présentent l'accessibilité à 50 000 emplois pour 4 modes de transport. La dimension "z" (ou la hauteur des colonnes) représente la population du carreau.
 
 Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a été introduite. Cette fonction de coût pénalise par des vitesses de déplacement moindre les dénivelés positifs. Les accessibilités sans ces fonctions sont téléchargeables en dessous des cartes.
 
@@ -42,7 +42,7 @@ Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a
 
 ```{r}
 #| label: fig-access-car
-#| fig-cap: Accessibilité à 50 000 emplois en voiture
+#| fig-cap: Accessibilité à 50k emplois en voiture
 communes <- bd_read("communes")
 centre <- communes |> 
   filter(INSEE_COM==13015) |> 
@@ -87,7 +87,7 @@ t_access |>
 
 ```{r}
 #| label: fig-access-transit
-#| fig-cap: Accessibilité à 50 000 emplois en transit (q5%)
+#| fig-cap: Accessibilité à 50k emplois en transit (q5%)
 t_access |> 
   filter(mode == "transit5") |> 
   left_join(communes |>
@@ -122,7 +122,7 @@ t_access |>
 
 ```{r}
 #| label: fig-access-bike
-#| fig-cap: Accessibilité à 50 000 emplois en vélo
+#| fig-cap: Accessibilité à 50k emplois en vélo
 t_access |> 
   filter(mode == "bike_tblr") |> 
   left_join(communes |>
@@ -157,7 +157,7 @@ t_access |>
 
 ```{r}
 #| label: fig-access-walk
-#| fig-cap: Accessibilité à 50 000 emplois en vélo
+#| fig-cap: Accessibilité à 50k emplois en vélo
 t_access |> 
   filter(mode == "walk_tblr") |> 
   left_join(communes |>
@@ -193,6 +193,8 @@ t_access |>
 download_this(
   t_access |> 
     st_drop_geometry(),
+  icon = "fa fa-download",
+  class = "dnwld_button",
   button_label = "données temps d'accessibilité au carreau",
   output_name = "temsp_accessibilite_idINS_MetAM"
 )
@@ -235,11 +237,21 @@ ggplot(
 
 ```
 
+```{r}
+download_this(
+access_par_com,
+  class  = "dnwld_button",
+  icon = "fa fa-download",
+  button_label  = "données temps d'accès par commune",
+  output_name = "access_commune_metAM"
+)
+```
+
 Les arrondissements de Marseille (dont le 3e et le 7e sont colorés) sont les seuls à disposer d'une accessibilité assez élevée en transit. On constate également la domination de la voiture sur l'ensemble du territoire.
 
 Il est à noter que la restriction aux paires de communes issues de MOBPRO empêche certains territoires de pouvoir accéder à des niveaux d'emplois élevé (comme Fos-sur Mer).
 
-## Distribution de l'accessibilité
+## Population et accessibilité
 
 On regarde ici le nombre d'individus selon leur temsp d'accès à différents seuils d'emploi (auxquels on accède par les onglets). Plus le seuil est important, plus les individus sont décalés vers la droite. L'axe des x est limité et donc des individus (dont le temps d'accès au seuil d'emploi est supérieur à 120 minutes) disparaissent du graphique. 
 
@@ -264,9 +276,10 @@ gg_cmd <- list(
   scale_color_manual(
     aesthetics = c("color", "fill"), 
     values = colors ),
-  scale_y_continuous(oob=scales::squish, limits = c(0,1500)),
+  scale_y_continuous(oob=scales::squish, limits = c(0,1500), name = "population"),
   scale_x_continuous(breaks = c(0:6)*20, limits=c(0,120)),
   theme_ofce(base_size = 9),
+  labs(caption = "Source : INSEE, Fichiers fonciers ; Calcul : OFCE"),
   guides(
     color = guide_legend(keywidth = 1, keyheight = .5),
     alpha="none"),
@@ -338,9 +351,6 @@ On utilise le revenu moyen par unité de consommation au carreau (et donc une do
 ```{r}
 library(MetricsWeighted)
 library(santoku)
-library(ggExtra)
-library(ggbeeswarm)
-library(ggside)
 
 c200ze <- c200ze |> 
   mutate(
@@ -358,6 +368,7 @@ d_access <- t_access |>
   filter(mode %in% c("bike_tblr", "car_dgr2", "transit5", "walk_tblr")) 
 
 deciles <- c200ze |> 
+  st_drop_geometry() |> 
   mutate(
     zone = case_match(com22,
                       str_c(13201:13216) ~ "Marseille",
@@ -377,6 +388,7 @@ gg_cmd <- list(
     aesthetics = c("color", "fill"), 
     values = colors ),
   theme(legend.position = "bottom"),
+  labs(caption = "Source : INSEE, Fichiers fonciers ; Calcul : OFCE"),
   guides(
     color = guide_legend(keywidth = 1, keyheight = .5)))
 
@@ -384,7 +396,8 @@ colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="deeppink", "Fos-sur-
 
 
 ```
-{{< fa excalamtion-triangle >}} La répartiton des déciles dans les zones sélectionnées est loin d'être homogène. Le graphique @fig-repartition matérialise cette remarque.
+
+{{< fa exclamation-triangle >}} La répartiton des déciles dans les zones sélectionnées est loin d'être homogène. Le graphique @fig-repartition matérialise cette remarque. Par construction, chaque décile de revenu comporte le même nombre d'individus, 
 
 ```{r}
 #| label: fig-repartition
@@ -393,15 +406,27 @@ colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="deeppink", "Fos-sur-
 ggplot(deciles)+
   geom_bar(aes(x=decile, fill=zone, weight = ind), 
            col="white", width = 0.5)+
-  scale_y_continuous(labels = ofce::f2si2)+
+  scale_y_continuous(labels = ofce::f2si2, name="population")+
   scale_fill_manual(name=NULL, values = colors)+
   theme_ofce()+
   xlab(NULL)+
+  labs(caption = "Source : données carroyées INSEE 2017 ; Calcul : OFCE") +
   theme(legend.position = "bottom",
         legend.key.size = unit(8, "pt")) 
 
 ```
 
+```{r}
+download_this(
+  deciles,
+  class  = "dnwld_button",
+  icon = "fa fa-download",
+  button_label  = "données répartition des deciles",
+  output_name = "deciles_metAM"
+)
+```
+
+Pour chaque décile de niveau de vie, on représente la distribution des temps d'accès au seuil indiqué.
 
 ::: {.panel-tabset}
 
@@ -457,3 +482,14 @@ ggplot(d_access) +
 ```
 
 :::
+
+```{r}
+download_this(
+d_access,
+  class  = "dnwld_button",
+  icon = "fa fa-download",
+  button_label  = "données accessibilité et revenu au carreau",
+  output_name = "access_revenu_metAM"
+)
+```
+

@@ -6,7 +6,7 @@
 
 -   Projection, sur la base de l'EMP 2019, des km par habitant
 
--   Estimation sur la base EMC2 MetAM des modèles de projection, comparaison avec EMP 2019
+-   Estimation sur la base EMC^2^ metAM des modèles de projection, comparaison avec EMP 2019
 
 -   Autres motifs
 
@@ -18,7 +18,7 @@
 
     -   les trajets IRIS vers IRIS pourront être pertinents
 
-    -   L'accès aux informations de localisation de l'EMC2 peut apporter beaucoup
+    -   L'accès aux informations de localisation de l'EMC^2^ peut apporter beaucoup
 
 -   Intégration de la congestion
 
