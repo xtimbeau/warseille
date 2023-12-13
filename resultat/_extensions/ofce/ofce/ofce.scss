@@ -18,7 +18,7 @@ $green: #079D10;
 $blue: #000080;
 $navbar-hl: #e6142d;
 $sidebar-hl: #e6142d;
-
+//$link-color: $scpored;
 $navbar-bg: $lightgrey;
 
 $callout-color-tip: #DDD;
@@ -156,11 +156,12 @@ figcaption.quarto-float-caption,caption  {
 
 .dnwld_button {
   font-size: .8rem;
-  background-color: #EEE;
-  border-color: $scpodarkred;
+  background-color: #FFF;
+  border-color: $link-color;
   border-width: 1px;
-  border-radius: 5%;
-  color: #222;
+  border-radius: 12px;
+  color: $link-color;
+  text-align: center;
   margin-top: 6px;
   margin-bottom: 12px;
 }

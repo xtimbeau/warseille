@@ -61,7 +61,7 @@ t_access |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 
   transmute(
-    ind,
+    ind=ind/4,
     tooltip=glue::glue(
     "{NOM} {com22}<br>
      {ind} ind dans le carreau<br>
@@ -77,7 +77,7 @@ t_access |>
           token = tkn) |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
-              elevation_scale = 1.5, 
+              elevation_scale = 3, 
               palette= "rainbow",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -97,7 +97,7 @@ t_access |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 
   transmute(
-    ind,
+    ind=ind/4,
     tooltip=glue::glue(
     "{NOM} {com22}<br>
      {ind} ind dans le carreau<br>
@@ -112,7 +112,7 @@ t_access |>
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
-              elevation_scale = 1.5, 
+              elevation_scale = 3, 
               palette= "rainbow",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -132,7 +132,7 @@ t_access |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 
   transmute(
-    ind, 
+    ind=ind/4, 
     tooltip=glue::glue(
     "{NOM} {com22}<br>
      {ind} ind dans le carreau<br>
@@ -147,7 +147,7 @@ t_access |>
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
-              elevation_scale = 1.5, 
+              elevation_scale = 3, 
               palette= "rainbow",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -167,7 +167,7 @@ t_access |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 
   transmute(
-    ind, 
+    ind=ind/4, 
     tooltip=glue::glue(
     "{NOM} {com22}<br>
      {ind} ind dans le carreau<br>
@@ -182,7 +182,7 @@ t_access |>
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
-              elevation_scale = 1.5, 
+              elevation_scale = 3, 
               palette= "rainbow",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -367,7 +367,13 @@ d_access <- t_access |>
   left_join(
     c200ze |> st_drop_geometry() |> select(idINS200 = idINS, ndv, decile),
     by = "idINS200") |> 
-  filter(mode %in% c("bike_tblr", "car_dgr2", "transit5", "walk_tblr")) 
+  filter(mode %in% c("bike_tblr", "car_dgr2", "transit5", "walk_tblr")) |> 
+  mutate(
+    zone = case_match(com22,
+                      str_c(13201:13216) ~ "Marseille",
+                      "13039"  ~ 'Fos-sur-Mer',
+                      "13001" ~ 'Aix-en-Provence', 
+                      .default = "autres"))
 
 deciles <- c200ze |> 
   st_drop_geometry() |> 
@@ -387,6 +393,7 @@ gg_cmd <- list(
   facet_wrap(vars(mode)),
   ylim(c(0,60)),
   scale_color_manual(
+    name=NULL,
     aesthetics = c("color", "fill"), 
     values = colors ),
   theme(legend.position = "bottom"),
