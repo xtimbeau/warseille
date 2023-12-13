@@ -4,11 +4,15 @@ source("init.R")
 
 # Calcul des distances et accessibilité
 
-L'accessibilité découle du calcul des distances par mode et des localisations des opportunités (ici les emplois) sur le territoire. Elle emsure le potentiel de mobilité en chaque point, qui ne doit pas être confondu avec la pratique de mobilité qui sera évaluée ensuite.
+L'accessibilité découle du calcul des distances par mode et des localisations des opportunités (ici les emplois) sur le territoire. Elle mesurele potentiel de mobilité en chaque point, qui ne doit pas être confondu avec la pratique de mobilité qui sera évaluée ensuite.
+
+L'accessibilité est définie comme le nombre d'opportunité – des emplois – que l'on peut atteindre en un temps donné en partant d'un lieu donné. On utilise également le terme accessibilité pour désigner le temps qu'il faut pour atteindre un nombre d'emplois donné. Les deux notions sont réciproquement liées.
+
+Le calcul de l'accessibilité suppose le calcul de toutes les distances entre les paires de lieux de résidence - lieux d'emploi. Pour la métropole d'Aix-Marseille, la volumétrie est importante ( $26k \times 21k \times4= 2,1G$ paires de distances calculées. En plus des distances, on calcule systématiquement les temps de parcours et les dénivelés positifs le long du parcours.
 
 Parce que l'accessibilité mesure un potentiel, elle est un facteur puissant pour expliquer les prix de l'immobilier, du moins en général. La forme urbain particulière, la forte ségragation et la valorisation d'aménité comme la proximité de la mer, d'espaces naturels ou simplement le facteur "vue" peuvent contredire l'analyse univariée par l'accessibilité.
 
-Malgré ces réserves, l'accessibilité permet une cartographie orginale.
+Malgré ces réserves, l'accessibilité permet une cartographie originale.
 
 ## Méthodologie
 
@@ -34,10 +38,9 @@ L'accessibilité permet également de caractériser le territoire et de commence
 
 Les cartes suivantes présentent l'accessibilité à 50 000 emplois pour 4 modes de transport. La dimension "z" (ou la hauteur des colonnes) représente la population du carreau.
 
-Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a été introduite. Cette fonction de coût pénalise par des vitesses de déplacement moindre les dénivelés positifs. Les accessibilités sans ces fonctions sont téléchargeables en dessous des cartes.
+Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a été introduite. Cette fonction de coût pénalise par des vitesses de déplacement moindres les dénivelés positifs. Les accessibilités calculées sans ces fonctions de coût sont téléchargeables en dessous des cartes.
 
 ::: {.panel-tabset .column-screen}
-
 ## voiture
 
 ```{r}
@@ -68,13 +71,13 @@ t_access |>
      accès à 100k: {round(to100k)} min<br>"),
     to50k = trim(to50k, 0, 60)) |> 
   st_transform(4326) |> 
-  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi',
+  mapdeck(style = style,
           height = "50vh",
           width = "100%", 
           token = tkn) |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
-              elevation_scale = 3, 
+              elevation_scale = 1.5, 
               palette= "rainbow",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -104,12 +107,12 @@ t_access |>
      accès à 100k: {round(to100k)} min<br>"),
     to50k = trim(to50k, 0, 60)) |> 
   st_transform(4326) |> 
-  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi',
+  mapdeck(style = style,
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
-              elevation_scale = 3, 
+              elevation_scale = 1.5, 
               palette= "rainbow",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -139,12 +142,12 @@ t_access |>
      accès à 100k: {round(to100k)} min<br>"),
     to50k = trim(to50k, 0, 60)) |> 
   st_transform(4326) |> 
-  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi',
+  mapdeck(style = style,
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
-              elevation_scale = 3, 
+              elevation_scale = 1.5, 
               palette= "rainbow",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -174,12 +177,12 @@ t_access |>
      accès à 100k: {round(to100k)} min<br>"),
     to50k = trim(to50k, 0, 60)) |> 
   st_transform(4326) |> 
-  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi',
+  mapdeck(style = style,
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
-              elevation_scale = 3, 
+              elevation_scale = 1.5, 
               palette= "rainbow",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -202,7 +205,7 @@ download_this(
 
 ## Accessibilité par commune
 
-On reconstruit la relation entre le nombre d'emploi accessible (axe des y)  et le temps de déplacement pour chaque mode pour chaque commune. Cette relation est basée sur une moyenne pondérée par le nombre d'actifs sur chacun des carreaux de l'emploi accessible pour un temps donné.
+On reconstruit la relation entre le nombre d'emploi accessible (axe des y) et le temps de déplacement pour chaque mode pour chaque commune. Cette relation est basée sur une moyenne pondérée par le nombre d'actifs sur chacun des carreaux de l'emploi accessible pour un temps donné.
 
 ```{r}
 # fig-label: fig-acces-com
@@ -253,12 +256,11 @@ Il est à noter que la restriction aux paires de communes issues de MOBPRO empê
 
 ## Population et accessibilité
 
-On regarde ici le nombre d'individus selon leur temsp d'accès à différents seuils d'emploi (auxquels on accède par les onglets). Plus le seuil est important, plus les individus sont décalés vers la droite. L'axe des x est limité et donc des individus (dont le temps d'accès au seuil d'emploi est supérieur à 120 minutes) disparaissent du graphique. 
+On regarde ici le nombre d'individus selon leur temsp d'accès à différents seuils d'emploi (auxquels on accède par les onglets). Plus le seuil est important, plus les individus sont décalés vers la droite. L'axe des x est limité et donc des individus (dont le temps d'accès au seuil d'emploi est supérieur à 120 minutes) disparaissent du graphique.
 
 Les courbes représentent la densité de population en fonction du temps d'accessibilité. Les colorations identifient certains territoires suivant la même règle que pour le graphique d'accessibilité par commune. L'échelle des y est limitée à 1500 pour la lisibilité. L'aire des courbes est proportionelle à la population (moins les inidividus dont les temps d'accès sont supérieurs à 120 minutes).
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ```{r}
 t_access  <- t_access |> 
   mutate(zone = case_match(
@@ -344,7 +346,7 @@ ggplot(t_access |> filter(mode!="transit"))+
 
 ## Accessibilité et revenu
 
-On utilise le revenu moyen par unité de consommation au carreau (et donc une donnée de 2017) pour représenter le lien entre niveau de vie et accessibilité. 
+On utilise le revenu moyen par unité de consommation au carreau (et donc une donnée de 2017) pour représenter le lien entre niveau de vie et accessibilité.
 
 {{< fa exclamation-triangle >}} Attention, ce niveau de vie est appliqué de façon homogène à tous les habitants du carreau, ce qui conduit à une "moyennisation" de la donnée. On peut avec Fidéli améliorer ce point et disposer de données plus récentes.
 
@@ -397,7 +399,7 @@ colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="deeppink", "Fos-sur-
 
 ```
 
-{{< fa exclamation-triangle >}} La répartiton des déciles dans les zones sélectionnées est loin d'être homogène. Le graphique @fig-repartition matérialise cette remarque. Par construction, chaque décile de revenu comporte le même nombre d'individus, 
+{{< fa exclamation-triangle >}} La répartiton des déciles dans les zones sélectionnées est loin d'être homogène. Le graphique @fig-repartition matérialise cette remarque. Par construction, chaque décile de revenu comporte le même nombre d'individus,
 
 ```{r}
 #| label: fig-repartition
@@ -428,8 +430,7 @@ download_this(
 
 Pour chaque décile de niveau de vie, on représente la distribution des temps d'accès au seuil indiqué.
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ## 10k
 
 ```{r}
@@ -440,6 +441,7 @@ ggplot(d_access) +
   aes(x = decile, y = to10k, weight= ind,  col = zone) +
   gg_cmd 
 ```
+
 ## 20k
 
 ```{r}
@@ -450,6 +452,7 @@ ggplot(d_access) +
   aes(x = decile, y = to20k, weight= ind,  col = zone) +
   gg_cmd
 ```
+
 ## 50k
 
 ```{r}
@@ -460,6 +463,7 @@ ggplot(d_access) +
   aes(x = decile, y = to50k, weight= ind,  col = zone) +
   gg_cmd
 ```
+
 ## 100k
 
 ```{r}
@@ -470,6 +474,7 @@ ggplot(d_access) +
   aes(x = decile, y = to100k, weight= ind,  col = zone) +
   gg_cmd
 ```
+
 ## 200k
 
 ```{r}
@@ -480,7 +485,6 @@ ggplot(d_access) +
   aes(x = decile, y = to200k, weight= ind,  col = zone) +
   gg_cmd
 ```
-
 :::
 
 ```{r}
@@ -492,4 +496,3 @@ d_access,
   output_name = "access_revenu_metAM"
 )
 ```
-

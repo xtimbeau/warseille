@@ -31,7 +31,7 @@ bd_read("gsurf2emp")
 
 Les onglets permettent de passer des résidents, aux actifs et aux emplois.
 
-La carte peut être basculée. Des boutons en dessous des cartes permettent de télécharger les données.
+La carte peut être basculée et la dimension "z" indique comme la couleur le nombre de personnes ou d'emplois par carreau. Des boutons en dessous des cartes permettent de télécharger les données.
 
 ::: {.panel-tabset .column-screen}
 ## résidents c200 (2017)
@@ -55,12 +55,12 @@ c200ze |>
      {POPULATION} dans la commune"),
     ind = trim(ind/4, 0, 500)) |> 
   st_transform(4326) |> 
-  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi',
+  mapdeck(style = style,
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "ind", 
               elevation = "ind", 
-              elevation_scale = 3, 
+              elevation_scale = 1.5, 
               palette= "oranges",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -104,12 +104,12 @@ c200ze |>
      {POPULATION} dans la commune"),
     act_mobpro = trim(act_mobpro/4, 0, 500)) |> 
   st_transform(4326) |> 
-  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi',
+  mapdeck(style = style,
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "act_mobpro", 
               elevation = "act_mobpro", 
-              elevation_scale = 3, 
+              elevation_scale = 1.5, 
               palette= "blues",
               legend = TRUE, 
               tooltip = "tooltip",
@@ -152,12 +152,12 @@ c200ze |>
      {POPULATION} dans la commune"),
     emp_resident = trim(emp_resident/4, 0, 500)) |> 
   st_transform(4326) |> 
-  mapdeck(style = 'mapbox://styles/xtimbeau/ckg2d9ypq0lzv19m8p6a7xqoi',
+  mapdeck(style = style,
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "emp_resident", 
               elevation = "emp_resident", 
-              elevation_scale = 3, 
+              elevation_scale = 1.5, 
               palette= "purples",
               legend = TRUE, 
               tooltip = "tooltip",
