@@ -4,6 +4,12 @@ source("init.R")
 
 # Calcul des distances et accessibilité
 
+L'accessibilité découle du calcul des distances par mode et des localisations des opportunités (ici les emplois) sur le territoire. Elle emsure le potentiel de mobilité en chaque point, qui ne doit pas être confondu avec la pratique de mobilité qui sera évaluée ensuite.
+
+Parce que l'accessibilité mesure un potentiel, elle est un facteur puissant pour expliquer les prix de l'immobilier, du moins en général. La forme urbain particulière, la forte ségragation et la valorisation d'aménité comme la proximité de la mer, d'espaces naturels ou simplement le facteur "vue" peuvent contredire l'analyse univariée par l'accessibilité.
+
+Malgré ces réserves, l'accessibilité permet une cartographie orginale.
+
 ## Méthodologie
 
 Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont été calculées en utilisant :
@@ -196,12 +202,15 @@ download_this(
 
 On reconstruit la relation entre le nombre d'emploi accessible (axe des y)  et le temps de déplacement pour chaque mode pour chaque commune. Cette relation est basée sur une moyenne pondérée par le nombre d'actifs sur chacun des carreaux de l'emploi accessible pour un temps donné.
 
-
-
 ```{r}
 # fig-label: fig-acces-com
 # fig-caption: Accessibilité à l'emploi par communes
 access_par_com <- bd_read("access_par_com")
+colors <- c("Marseille 3e" = "chartreuse",
+            "Marseille 7e" = "chartreuse3", 
+            "Aix-en-Provence"="deeppink", 
+            "Fos-sur-Mer"="deepskyblue",
+            "Tout le territoire" = "orange")
 
 ggplot(
   access_par_com |> 
@@ -209,6 +218,7 @@ ggplot(
   geom_line(aes(x=temps, y=emp, group=com22), col="gray80", linewidth=0.2) +
   geom_line(data = ~filter(.x, !str_detect(label, "^n")),
             aes(x=temps, y=emp, color=label)) +
+  scale_color_manual(values = colors)+
   scale_x_continuous(breaks  = c(0, 20,40,60,80,100,120), limits = c(0,60))+
   scale_y_continuous(labels = ofce::f2si2)+
   ofce::theme_ofce(base_size = 8)+
@@ -217,7 +227,7 @@ ggplot(
   labs(color="Communes")+
   theme(legend.position = c(0.01, 0.99),
         legend.justification = c(0,1),
-        legend.key.size = unit(6, "pt"),
+        legend.key.size = unit(8, "pt"),
         panel.spacing = unit(12, "pt"),
         plot.margin = margin(l = 6, r= 6),
         panel.grid.major.x = element_line(color="gray80", linewidth = 0.1))+
@@ -231,7 +241,11 @@ Il est à noter que la restriction aux paires de communes issues de MOBPRO empê
 
 ## Distribution de l'accessibilité
 
-::: {.panel-tabset .column-screen}
+On regarde ici le nombre d'individus selon leur temsp d'accès à différents seuils d'emploi (auxquels on accède par les onglets). Plus le seuil est important, plus les individus sont décalés vers la droite. L'axe des x est limité et donc des individus (dont le temps d'accès au seuil d'emploi est supérieur à 120 minutes) disparaissent du graphique. 
+
+Les courbes représentent la densité de population en fonction du temps d'accessibilité. Les colorations identifient certains territoires suivant la même règle que pour le graphique d'accessibilité par commune. L'échelle des y est limitée à 1500 pour la lisibilité. L'aire des courbes est proportionelle à la population (moins les inidividus dont les temps d'accès sont supérieurs à 120 minutes).
+
+::: {.panel-tabset}
 
 ```{r}
 t_access  <- t_access |> 
@@ -241,70 +255,205 @@ t_access  <- t_access |>
     "13039"  ~ 'Fos-sur-Mer',
     "13001" ~ 'Aix-en-Provence', 
     .default = "autres"))
+
+colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="deeppink", "Fos-sur-Mer"="deepskyblue", "autres" = "darkgoldenrod2")
+
+gg_cmd <- list(
+  geom_density(alpha=.5, position="stack", bw = 5, linewidth = 0.2), 
+  facet_wrap(vars(mode)),
+  scale_color_manual(
+    aesthetics = c("color", "fill"), 
+    values = colors ),
+  scale_y_continuous(oob=scales::squish, limits = c(0,1500)),
+  scale_x_continuous(breaks = c(0:6)*20, limits=c(0,120)),
+  theme_ofce(base_size = 9),
+  guides(
+    color = guide_legend(keywidth = 1, keyheight = .5),
+    alpha="none"),
+  theme(legend.text = element_text(margin=margin(t=2, unit="pt"))))
 ```
+
 ## 10k
 
 ```{r}
+#| label: fig-dist10k
+#| fig-cap: Distribution selon le temps d'accès à 10k emplois
+
 ggplot(t_access |> filter(mode!="transit"))+
-  geom_density(aes(x=to10k, weight=ind , fill = zone, col= zone, y = after_stat(count) ), alpha=.5, position="stack") + 
-  scale_color_manual(
-    aesthetics = c("color", "fill"), 
-    values = c("Marseille" = "chartreuse2", "Aix-en-Provence"="darkorchid1", "Fos-sur-Mer"="blue3", "autres" = "grey") ) +
-  facet_wrap(vars(mode)) +
-  ylim(c(0, 3000))+
-  theme_ofce(base_size = 9)
+  aes(x=to10k, weight=ind , fill = zone, col= zone, y = after_stat(count))+
+  gg_cmd
 ```
 
 ## 20k
 
-
 ```{r}
+#| label: fig-dist20k
+#| fig-cap: Distribution selon le temps d'accès à 20k emplois
+
 ggplot(t_access |> filter(mode!="transit"))+
-  geom_density(aes(x=to20k, weight=ind , fill = zone, col= zone, y = after_stat(count) ), alpha=.5, position="stack") + 
-  scale_color_manual(
-    aesthetics = c("color", "fill"), 
-    values = c("Marseille" = "chartreuse2", "Aix-en-Provence"="darkorchid1", "Fos-sur-Mer"="blue3", "autres" = "grey") ) +
-  facet_wrap(vars(mode)) +
-  ylim(c(0, 3000))+
-  theme_ofce(base_size = 9)
+  aes(x=to20k, weight=ind , fill = zone, col= zone, y = after_stat(count) )+
+  gg_cmd
 ```
 
 ## 50k
 
 ```{r}
+#| label: fig-dist50k
+#| fig-cap: Distribution selon le temps d'accès à 50k emplois
+
 ggplot(t_access |> filter(mode!="transit"))+
-  geom_density(aes(x=to50k, weight=ind , fill = zone, col= zone, y = after_stat(count) ), alpha=.5, position="stack") + 
-  scale_color_manual(
-    aesthetics = c("color", "fill"), 
-    values = c("Marseille" = "chartreuse2", "Aix-en-Provence"="darkorchid1", "Fos-sur-Mer"="blue3", "autres" = "grey") ) +
-  facet_wrap(vars(mode)) +
-  ylim(c(0, 3000))+
-  theme_ofce(base_size = 9)
+  aes(x=to50k, weight=ind , fill = zone, col= zone, y = after_stat(count))+
+        gg_cmd
 ```
 
 ## 100k
 
 ```{r}
+#| label: fig-dist100k
+#| fig-cap: Distribution selon le temps d'accès à 100k emplois
+
 ggplot(t_access |> filter(mode!="transit"))+
-  geom_density(aes(x=to100k, weight=ind , fill = zone, col= zone, y = after_stat(count) ), alpha=.5, position="stack") + 
-  scale_color_manual(
-    aesthetics = c("color", "fill"), 
-    values = c("Marseille" = "chartreuse2", "Aix-en-Provence"="darkorchid1", "Fos-sur-Mer"="blue3", "autres" = "grey") ) +
-  facet_wrap(vars(mode)) +
-  ylim(c(0, 3000))+
-  theme_ofce(base_size = 9)
+  aes(x=to100k, weight=ind , fill = zone, col= zone, y = after_stat(count))+
+  gg_cmd
 ```
 
 ## 200k
 
 ```{r}
+#| label: fig-dist200k
+#| fig-cap: Distribution selon le temps d'accès à 200k emplois
+
 ggplot(t_access |> filter(mode!="transit"))+
-  geom_density(aes(x=to200k, weight=ind , fill = zone, col= zone, y = after_stat(count) ), alpha=.5, position="stack") + 
+  aes(x=to200k, weight=ind , fill = zone, col= zone, y = after_stat(count))+
+  gg_cmd
+```
+:::
+
+## Accessibilité et revenu
+
+On utilise le revenu moyen par unité de consommation au carreau (et donc une donnée de 2017) pour représenter le lien entre niveau de vie et accessibilité. 
+
+{{< fa exclamation-triangle >}} Attention, ce niveau de vie est appliqué de façon homogène à tous les habitants du carreau, ce qui conduit à une "moyennisation" de la donnée. On peut avec Fidéli améliorer ce point et disposer de données plus récentes.
+
+```{r}
+library(MetricsWeighted)
+library(santoku)
+library(ggExtra)
+library(ggbeeswarm)
+library(ggside)
+
+c200ze <- c200ze |> 
+  mutate(
+    ndv = ind_snv/ind,
+    decile = chop(
+      ndv,
+      weighted_quantile(ndv, w = ind, probs = 1:10/10, names=FALSE),
+      labels = str_c("d", 1:10)))
+  
+d_access <- t_access |>
+  st_drop_geometry() |>
+  left_join(
+    c200ze |> st_drop_geometry() |> select(idINS200 = idINS, ndv, decile),
+    by = "idINS200") |> 
+  filter(mode %in% c("bike_tblr", "car_dgr2", "transit5", "walk_tblr")) 
+
+deciles <- c200ze |> 
+  mutate(
+    zone = case_match(com22,
+                      str_c(13201:13216) ~ "Marseille",
+                      "13039"  ~ 'Fos-sur-Mer',
+                      "13001" ~ 'Aix-en-Provence', 
+                      .default = "autres")) |> 
+  group_by(zone, decile) |> 
+  summarize(ind = sum(ind), .groups = "drop")
+
+gg_cmd <- list(
+  theme_ofce(),
+  geom_boxplot(outlier.shape = NA, alpha=0.5, varwidth=FALSE, 
+               linewidth= 0.2),
+  facet_wrap(vars(mode)),
+  ylim(c(0,60)),
   scale_color_manual(
     aesthetics = c("color", "fill"), 
-    values = c("Marseille" = "chartreuse2", "Aix-en-Provence"="darkorchid1", "Fos-sur-Mer"="blue3", "autres" = "grey") ) +
-  facet_wrap(vars(mode)) +
-  ylim(c(0, 3000))+
-  theme_ofce(base_size = 9)
+    values = colors ),
+  theme(legend.position = "bottom"),
+  guides(
+    color = guide_legend(keywidth = 1, keyheight = .5)))
+
+colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="deeppink", "Fos-sur-Mer"="deepskyblue", "autres" = "darkgoldenrod2")
+
+
 ```
+{{< fa excalamtion-triangle >}} La répartiton des déciles dans les zones sélectionnées est loin d'être homogène. Le graphique @fig-repartition matérialise cette remarque.
+
+```{r}
+#| label: fig-repartition
+#| fig-cap: Répartition de la population par décile par zone
+
+ggplot(deciles)+
+  geom_bar(aes(x=decile, fill=zone, weight = ind), 
+           col="white", width = 0.5)+
+  scale_y_continuous(labels = ofce::f2si2)+
+  scale_fill_manual(name=NULL, values = colors)+
+  theme_ofce()+
+  xlab(NULL)+
+  theme(legend.position = "bottom",
+        legend.key.size = unit(8, "pt")) 
+
+```
+
+
+::: {.panel-tabset}
+
+## 10k
+
+```{r}
+#| label: fig-dec10k
+#| fig-cap: Distribution selon le revenu des accès à 10k emplois
+
+ggplot(d_access) +
+  aes(x = decile, y = to10k, weight= ind,  col = zone) +
+  gg_cmd 
+```
+## 20k
+
+```{r}
+#| label: fig-dec20k
+#| fig-cap: Distribution selon le revenu des accès à 20k emplois
+
+ggplot(d_access) +
+  aes(x = decile, y = to20k, weight= ind,  col = zone) +
+  gg_cmd
+```
+## 50k
+
+```{r}
+#| label: fig-dec50k
+#| fig-cap: Distribution selon le revenu des accès à 50k emplois
+
+ggplot(d_access) +
+  aes(x = decile, y = to50k, weight= ind,  col = zone) +
+  gg_cmd
+```
+## 100k
+
+```{r}
+#| label: fig-dec100k
+#| fig-cap: Distribution selon le revenu des accès à 100k emplois
+
+ggplot(d_access) +
+  aes(x = decile, y = to100k, weight= ind,  col = zone) +
+  gg_cmd
+```
+## 200k
+
+```{r}
+#| label: fig-dec200k
+#| fig-cap: Distribution selon le revenu des accès à 200k emplois
+
+ggplot(d_access) +
+  aes(x = decile, y = to200k, weight= ind,  col = zone) +
+  gg_cmd
+```
+
 :::

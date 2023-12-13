@@ -28,3 +28,6 @@ centre <- communes |>
 centre <- as.vector(centre)
 
 c200ze <- bd_read("c200ze") |> st_transform(4326)
+
+tkn <- Sys.getenv("mapbox_token")
+mapdeck::set_token(tkn)
