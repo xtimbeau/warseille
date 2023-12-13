@@ -62,9 +62,13 @@ access <- map_dfr(
       collect() |> 
       mutate(mode = .x)
   }, .progress=TRUE)
+unlink("space_mounts/data/marseille/distances/access", recursive =TRUE)
+arrow::write_dataset(access, "/space_mounts/data/marseille/distances/access")
+access <- arrow::open_dataset("/space_mounts/data/marseille/distances/access") |> 
+  to_duckdb()
 
 t_access <- imap(modes, ~{
-  res <- access |> filter(mode== .x) |> select(-mode)
+  res <- access |> filter(mode== .x) |> select(-mode) |> collect()
   res <- accessibility::iso2time(dt2r(res), seuils = seuils) 
   res <- r2dt(res)
   res[, `:=`(x=NULL, y=NULL, mode=.x)]
@@ -86,7 +90,7 @@ t_access <- t_access |>
   st_as_sf(crs=3035)
 
 bd_write(t_access)
- write_csv(t_access |> st_drop_geometry(), file="output/access.csv")
+write_csv(t_access |> st_drop_geometry(), file="output/access.csv")
 qs::qsave(t_access, "output/acces4modes.sqs")
 load(decor_carte_file)
 qs::qsave(decor_carte, "output/decor_carte.sqs")
@@ -103,7 +107,7 @@ bd_write(decor_carte)
 # accessibilité par communes
 
 c_access <- access |>
-  st_drop_geometry() |> 
+  collect() |> 
   rename(idINS = fromidINS) |> 
   left_join(c200ze |> select(com22, idINS, ind), by="idINS") |> 
   pivot_longer(cols = starts_with("emp"), names_to = "temps", values_to = "emp") |> 
