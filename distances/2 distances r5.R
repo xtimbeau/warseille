@@ -88,7 +88,7 @@ iso_transit_dt <- iso_accessibilite(quoi = destinations,
 transit <- ttm_idINS(iso_transit_dt) |> 
   left_join(idINSes |> select(fromidINS = idINS, COMMUNE = com), by = "fromidINS") |> 
   left_join(idINSes |> select(toidINS = idINS, DCLT = com), by = "toidINS") |> 
-  select(fromidINS, toidINS, travel_time, access_time=acces_time, egress_time, COMMUNE, DCLT)
+  select(fromidINS, toidINS, travel_time, access_time, egress_time, COMMUNE, DCLT)
 arrow::write_dataset(
   transit, 
   partitioning = "COMMUNE",
