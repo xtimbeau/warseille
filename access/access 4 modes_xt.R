@@ -86,7 +86,7 @@ t_access <- t_access |>
   st_as_sf(crs=3035)
 
 bd_write(t_access)
- vwrite_csv(t_access |> st_drop_geometry(), file="output/access.csv")
+ write_csv(t_access |> st_drop_geometry(), file="output/access.csv")
 qs::qsave(t_access, "output/acces4modes.sqs")
 load(decor_carte_file)
 qs::qsave(decor_carte, "output/decor_carte.sqs")
