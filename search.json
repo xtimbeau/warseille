@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "Métropole d’Aix Marseille Provence",
     "section": "",
-    "text": "Avertissement\n\n\n\n\n\nCe site présente les premiers résultats du travail OFCE pour la métropole d’Aix-Marseille dans le cadre du projet OFCE/Villes Vivantes\nMerci de ne pas diffuser le lien ;\n les résultats sont encore provisoires et seront mis à jour régulièrement.",
+    "text": "Avertissement\n\n\n\n\n\nCe site présente les premiers résultats du travail OFCE pour la métropole d’Aix-Marseille dans le cadre du projet OFCE/Villes Vivantes\nMerci de ne pas diffuser le lien ;\n les résultats sont encore provisoires et seront mis à jour régulièrement.\nLicence :\nCette œuvre est mise à disposition selon les termes de la Licence Creative Commons Attribution 4.0 International.",
     "crumbs": [
       "Avertissement"
     ]
@@ -60,11 +60,11 @@
     ]
   },
   {
-    "objectID": "accessibilites.html#distribution-de-laccessibilité",
-    "href": "accessibilites.html#distribution-de-laccessibilité",
+    "objectID": "accessibilites.html#population-et-accessibilité",
+    "href": "accessibilites.html#population-et-accessibilité",
     "title": "2  Calcul des distances et accessibilité",
-    "section": "2.4 Distribution de l’accessibilité",
-    "text": "2.4 Distribution de l’accessibilité\nOn regarde ici le nombre d’individus selon leur temsp d’accès à différents seuils d’emploi (auxquels on accède par les onglets). Plus le seuil est important, plus les individus sont décalés vers la droite. L’axe des x est limité et donc des individus (dont le temps d’accès au seuil d’emploi est supérieur à 120 minutes) disparaissent du graphique.\nLes courbes représentent la densité de population en fonction du temps d’accessibilité. Les colorations identifient certains territoires suivant la même règle que pour le graphique d’accessibilité par commune. L’échelle des y est limitée à 1500 pour la lisibilité. L’aire des courbes est proportionelle à la population (moins les inidividus dont les temps d’accès sont supérieurs à 120 minutes).\n\n10k20k50k100k200k\n\n\n\n\n\n\n\nFigure 2.5: Distribution selon le temps d’accès à 10k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.6: Distribution selon le temps d’accès à 20k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.7: Distribution selon le temps d’accès à 50k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.8: Distribution selon le temps d’accès à 100k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.9: Distribution selon le temps d’accès à 200k emplois",
+    "section": "2.4 Population et accessibilité",
+    "text": "2.4 Population et accessibilité\nOn regarde ici le nombre d’individus selon leur temsp d’accès à différents seuils d’emploi (auxquels on accède par les onglets). Plus le seuil est important, plus les individus sont décalés vers la droite. L’axe des x est limité et donc des individus (dont le temps d’accès au seuil d’emploi est supérieur à 120 minutes) disparaissent du graphique.\nLes courbes représentent la densité de population en fonction du temps d’accessibilité. Les colorations identifient certains territoires suivant la même règle que pour le graphique d’accessibilité par commune. L’échelle des y est limitée à 1500 pour la lisibilité. L’aire des courbes est proportionelle à la population (moins les inidividus dont les temps d’accès sont supérieurs à 120 minutes).\n\n10k20k50k100k200k\n\n\n\n\n\n\n\nFigure 2.5: Distribution selon le temps d’accès à 10k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.6: Distribution selon le temps d’accès à 20k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.7: Distribution selon le temps d’accès à 50k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.8: Distribution selon le temps d’accès à 100k emplois\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2.9: Distribution selon le temps d’accès à 200k emplois",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Calcul des distances et accessibilité</span>"
     ]
