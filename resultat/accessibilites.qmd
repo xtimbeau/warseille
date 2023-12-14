@@ -4,7 +4,7 @@ source("init.R")
 
 # Calcul des distances et accessibilité
 
-L'accessibilité découle du calcul des distances par mode et des localisations des opportunités (ici les emplois) sur le territoire. Elle mesurele potentiel de mobilité en chaque point, qui ne doit pas être confondu avec la pratique de mobilité qui sera évaluée ensuite.
+L'accessibilité découle du calcul des distances par mode et des localisations des opportunités (ici les emplois) sur le territoire. Elle mesure le potentiel de mobilité en chaque point, qui ne doit pas être confondu avec la pratique de mobilité qui sera évaluée ensuite.
 
 L'accessibilité est définie comme le nombre d'opportunités – des emplois – que l'on peut atteindre en un temps donné en partant d'un lieu donné. On utilise également le terme accessibilité pour désigner le temps qu'il faut pour atteindre un nombre d'emplois donné. Les deux notions sont réciproquement liées.
 
