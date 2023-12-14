@@ -32,4 +32,4 @@ c200ze <- bd_read("c200ze") |> st_transform(4326)
 tkn <- Sys.getenv("mapbox_token")
 mapdeck::set_token(tkn)
 
-style <- "mapbox://styles/mapbox/light-v10"
+style <- mapdeck::mapdeck_style("light")
