@@ -22,8 +22,8 @@
 
 -   Intégration de la congestion
 
-    -   couche mapbox trafic usuel
+    -   Couche mapbox trafic usuel
 
-    -   autres données de trafic (WAZE, extraction mapbox spécifiques, google)
+    -   Autres données de trafic (WAZE, extractions mapbox spécifiques, Google)
 
-    -   générations de flux à partir de MEAPS et dodgr (en particulier pour les scénarios)
+    -   Générations de flux à partir de MEAPS et dodgr (en particulier pour les scénarios)
