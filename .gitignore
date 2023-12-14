@@ -33,4 +33,6 @@ docs/
 po/*~
 # RStudio Connect folder
 rsconnect/
+
+# génération du site
 resultat/_book

@@ -43,13 +43,6 @@ Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a
 #| label: fig-access-car
 #| fig-cap: Accessibilité à 50k emplois en voiture
 communes <- bd_read("communes")
-centre <- communes |> 
-  filter(INSEE_COM==13015) |> 
-  st_transform(4326) |> 
-  st_centroid() |> 
-  st_coordinates()
-centre <- as.vector(centre)
-tkn <- Sys.getenv("mapbox_token")
 t_access <- bd_read("t_access")
 t_access |> 
   filter(mode == "car_dgr2") |> 
