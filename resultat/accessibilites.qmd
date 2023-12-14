@@ -1,5 +1,5 @@
 ```{r init, include=FALSE}
-source("init.R")gt
+source("init.R")
 ```
 
 # Calcul des distances et accessibilité
@@ -66,7 +66,7 @@ t_access |>
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
               elevation_scale = 3, 
-              palette= "rainbow",
+              palette= "blues",
               legend = TRUE, 
               tooltip = "tooltip",
               legend_options = list(title = "minutes"),
