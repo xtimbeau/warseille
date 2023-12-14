@@ -1,5 +1,5 @@
 ```{r init, include=FALSE}
-source("init.R")
+source("init.R")gt
 ```
 
 # Calcul des distances et accessibilité
