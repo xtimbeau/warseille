@@ -6,7 +6,7 @@ source("init.R")
 
 L'accessibilité découle du calcul des distances par mode et des localisations des opportunités (ici les emplois) sur le territoire. Elle mesure le potentiel de mobilité en chaque point, qui ne doit pas être confondu avec la pratique de mobilité qui sera évaluée ensuite.
 
-L'accessibilité est définie comme le nombre d'opportunités – des emplois – que l'on peut atteindre en un temps donné en partant d'un lieu donné. On utilise également le terme accessibilité pour désigner le temps qu'il faut pour atteindre un nombre d'emplois donné. Les deux notions sont réciproquement liées.
+L'accessibilité est définie comme le nombre d'opportunités – d'emplois – que l'on peut atteindre en un temps donné en partant d'un lieu donné. On utilise également le terme accessibilité pour désigner le temps qu'il faut pour atteindre un nombre d'emplois donné. Les deux notions sont réciproquement liées.
 
 Le calcul de l'accessibilité suppose le calcul de toutes les distances entre les paires de lieux de résidence - lieux d'emploi. Pour la métropole d'Aix-Marseille, la volumétrie est importante ( $26k \times 21k \times4= 2,1G$ paires de distances calculées. En plus des distances, on calcule systématiquement les temps de parcours et les dénivelés positifs le long du parcours.
 
@@ -16,19 +16,19 @@ Malgré ces réserves, l'accessibilité permet une cartographie originale du ter
 
 ## Méthodologie
 
-Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont été calculées en utilisant :
+Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont été calculés en utilisant :
 
--   Les **données MOBPRO** pour sélectionner les paires de communes. Cela évite de calculer des distances entre des origines destinations sans lien. L'inconvénient est qu'on ne produit pas les distances pour des communes non reliées et donc on ne comprend pas l'absence de lien. La notion d'emploi est celle déclarée pour le recensement, qui peut différer de sources "entreprises". C'est une notion couvrant toutes les formes contractuelles (salariés, non salariés, emploi public).
+-   Les **données MOBPRO** pour sélectionner les paires de communes. Cela évite de calculer des distances entre des origines et des destinations sans lien. L'inconvénient est que l'on ne produit pas les distances pour des communes non reliées et donc on ne comprend pas l'absence de lien. La notion d'emploi est celle déclarée pour le recensement, qui peut différer de sources "entreprises". C'est une notion couvrant toutes les formes contractuelles (salariés, non salariés, emploi public).
 
--   Pour les **transports en commun**, les GTFS répertoriés sur [Open Data - lepilote](https://www.lepilote.com/fr/open-data/83), le moteur employé est R^5^ e Conveyal. On a retenu soit la médiane, soit le quantile 5% sur une plage horaire d'une heure (de 8h à 9h, le matin, un jour de semaine hors période de congé, en l’occurrence le 14/06/2022). Ceci permet de tenir compte des fréquences et des temps de correspondance (en fonction des horaires diffusés pour ce jour là). Le quantile 5% représente la possibilité de choisir son horaire de départ entre 8h et 9h pour minimiser son temps de trajet.
+-   Pour les **transports en commun**, les GTFS répertoriés sur [Open Data - lepilote](https://www.lepilote.com/fr/open-data/83), le moteur employé est R^5^ e Conveyal. On a retenu soit la médiane, soit le quantile 5% sur une plage horaire d'une heure (de 8h à 9h, le matin, un jour de semaine hors période de congé, en l’occurrence le 14/06/2023). Ceci permet de tenir compte des fréquences et des temps de correspondance (en fonction des horaires diffusés pour ce jour là). Le quantile 5% représente la possibilité de choisir son horaire de départ entre 8h et 9h pour minimiser son temps de trajet.
 
--   Pour la **voiture,** les données OSM (téléchargées en décembre 2023) et le moteur de routage `dodgr` qui a été optimisé pour un calcul bien plus rapide. En plus des distances et des temps de trajet, on calcule les dénivelés et on pourra en tenir compte pour les émissions ultérieurement. Les vitesses de déplacement sont les limitations de vitesse en vigueur (ou renseignées sur OSM), modulées en fonction des types de route. Une pénalité pour les feux rouges ainsi que pour les changements de direction (traversée d'un carrefour) est appliquée. A ce stade, faute de données convaincantes, la **congestion** n'est pas intégrée. En utilisant la couche de mapbox sur le trafic habituel, il est envisageable de calculer les temps de parcours avec la congestion habituelle moyennant quelques hypothèses).
+-   Pour la **voiture,** les données OSM (téléchargées en décembre 2023) et le moteur de routage `dodgr` qui a été optimisé pour un calcul bien plus rapide. En plus des distances et des temps de trajet, on calcule les dénivelés et on pourra en tenir compte pour les émissions ultérieurement. Les vitesses de déplacement sont les limitations de vitesse en vigueur (ou renseignées sur OSM), modulées en fonction des types de route. Une pénalité pour les feux rouges ainsi que pour les changements de direction (traversée d'un carrefour) est appliquée. A ce stade, faute de données convaincantes, la **congestion** n'est pas intégrée. En utilisant la couche de mapbox sur le trafic habituel, il est envisageable de calculer les temps de parcours avec la congestion habituelle (moyennant quelques hypothèses).
 
 -   Pour le **vélo** et la **marche**, le moteur de calcul et les données sont les mêmes que pour la voiture, en utilisant bien sûr des vitesses conformes. Un coût du dénivelé positif est introduit pour ces deux modes, réduisant la vitesse lors des montées et l'augmentant pour le vélo uniquement pour les pentes inférieures à 5%. Aucun élément de "stress" à vélo n'est pris en compte, cela pourra être fait ultérieurement.
 
 ## Accessibilité par mode de transport
 
-L'accessibilité consiste à mesure pour chaque lieu de résidence le temps d'accès à un seuil d'emploi (par exemple 100 000 emplois). Cette notion n'est pas directement reliée aux distances parcourues, puisque *in fine* chaque individu n'occupe qu'un emploi et que les comportements de choix, de mode de transport conditionneront la pratique. L'accessibilité permet en revanche de mesurer le potentiel d'emploi qui s'offre à partir d'un lieu de résidence. On relie ainsi nettement l'accessibilité à la valeur du foncier.
+L'accessibilité consiste à mesurer pour chaque lieu de résidence le temps d'accès à un seuil d'emploi (par exemple 100 000 emplois). Cette notion n'est pas directement reliée aux distances parcourues, puisqu'*in fine* chaque individu n'occupe qu'un emploi et que les comportements de choix, de mode de transport conditionneront la pratique. L'accessibilité permet en revanche de mesurer le potentiel d'emploi qui s'offre à partir d'un lieu de résidence. On relie ainsi nettement l'accessibilité à la valeur du foncier.
 
 L'accessibilité permet également de comparer l'efficacité relative des modes de transports et illustre la domination de la voiture sur la plupart des lieux du territoire. L'accessibilité permet également de caractériser le territoire et de commencer à approcher les questions de distribution spatiale.
 
@@ -193,7 +193,7 @@ download_this(
 
 ## Accessibilité par commune
 
-On reconstruit la relation entre le nombre d'emploi accessible (axe des *y*) et le temps de déplacement pour chaque mode et pour chaque commune. Cette relation est basée sur une moyenne pondérée par le nombre d'actifs sur chacun des carreaux de l'emploi accessible en un temps donné.
+On reconstruit la relation entre le nombre d'emplois accessibles (axe des *y*) et le temps de déplacement pour chaque mode et pour chaque commune. Cette relation est basée sur une moyenne pondérée par le nombre d'actifs sur chacun des carreaux de l'emploi accessible en un temps donné.
 
 ```{r}
 # fig-label: fig-acces-com
@@ -238,9 +238,9 @@ access_par_com,
 )
 ```
 
-Les arrondissements de Marseille (dont le 3e et le 7e sont colorés) sont les seuls à disposer d'une accessibilité assez élevée en transit. On constate également la domination de la voiture sur l'ensemble du territoire.
+Les arrondissements de Marseille (dont le 3ème et le 7ème sont colorés) sont les seuls à disposer d'une accessibilité assez élevée en transit. On constate également la domination de la voiture sur l'ensemble du territoire.
 
-Il est à noter que la restriction aux paires de communes issues de MOBPRO empêche certains territoires de pouvoir accéder à des niveaux d'emplois élevé (comme Fos-sur Mer).
+Il est à noter que la restriction aux paires de communes issues de MOBPRO empêche certains territoires de pouvoir accéder à des niveaux d'emplois élevés (comme Fos-sur Mer).
 
 ## Population et accessibilité
 
