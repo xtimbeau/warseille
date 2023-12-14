@@ -21,7 +21,7 @@ trim <- function(x, xm, xp) ifelse( x<= xm, xm, ifelse(x>= xp, xp, x))
 
 communes <- bd_read("communes")
 centre <- communes |> 
-  filter(INSEE_COM=="13019") |> 
+  filter(INSEE_COM=="13215") |> 
   st_transform(4326) |> 
   st_centroid() |> 
   st_coordinates()
