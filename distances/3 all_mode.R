@@ -38,7 +38,6 @@ cli::cli_alert_info("lecture de {.path {idINS_emp_file}}")
 #   as.data.frame() |> 
 #   setDT()
 
-
 communes <- com2021epci |> pull(INSEE_COM)
 
 dir.create('/space_mounts/data/marseille/distances/src/distances_dataset_v3')

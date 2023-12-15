@@ -22,7 +22,7 @@ times <- set_names(times, str_c("t", times))
 seuils <- c(10000, 20000, 50000, 100000, 200000, 300000, 4000000, 500000)
 
 modes <- set_names(c("walk_tblr", "bike_tblr",
-                     'transit', 'transit5',"car_dgr2"))
+                     'transit', 'transit5',"car_dgr"))
 emploi <- c200ze |> 
   st_drop_geometry() |> 
   filter(emp>0) |>
@@ -44,13 +44,20 @@ close(ff)
 access <- map_dfr(
   modes, ~{
     dd <- arrow::open_dataset("/space_mounts/data/marseille/distances/src/{.x}" |> glue()) |>
-      to_duckdb() 
+      to_duckdb()
+    
     if(str_detect(.x, "transit") )
       dd <- dd |>
         select(fromidINS, toidINS, travel_time, COMMUNE, DCLT)
-    else 
-      dd <- dd |>
-        select(fromidINS=fromId, toidINS=toId, travel_time, COMMUNE, DCLT)
+    else {
+      if(str_detect(.x, "car") )
+        dd <- dd |>
+          select(fromidINS=fromId, toidINS=toId, travel_time=travel_time_park, COMMUNE, DCLT)
+      else 
+        dd <- dd |>
+          select(fromidINS=fromId, toidINS=toId, travel_time, COMMUNE, DCLT)
+      
+    } 
     dd <- dd |> 
       mutate(COMMUNE = as.character(COMMUNE)) |> 
       left_join(emploi, by="toidINS") |>
@@ -62,6 +69,7 @@ access <- map_dfr(
       collect() |> 
       mutate(mode = .x)
   }, .progress=TRUE)
+
 unlink("space_mounts/data/marseille/distances/access", recursive =TRUE)
 arrow::write_dataset(access, "/space_mounts/data/marseille/distances/access")
 access <- arrow::open_dataset("/space_mounts/data/marseille/distances/access") |> 
@@ -222,3 +230,4 @@ ggplot(t_access |> filter(mode!="transit"))+
     values = c("Marseille" = "chartreuse2", "Aix-en-Provence"="darkorchid1", "Fos-sur-Mer"="blue3", "autres" = "grey") ) +
   facet_wrap(vars(mode)) +
   theme_ofce()
+

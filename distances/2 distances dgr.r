@@ -53,6 +53,7 @@ car_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                   osm = osm_file,
                                   mode = "CAR", 
                                   turn_penalty = TRUE,
+                                  wt_profile_file = "distances/dodgr_profiles_altcar.json",
                                   distances = TRUE,
                                   denivele = TRUE,
                                   n_threads = 16L,
@@ -63,6 +64,36 @@ dgr_distances_by_com(idINSes, mobpro,
                      car_router, 
                      path=glue("{mdir}/distances/src/car_dgr2"),
                      clusterize = TRUE)  
+
+# on patche les distances en voiture afin d'introduire un coût fixe de démarrage et 
+# d'arrivée
+
+# on ajoute 1 min au départ et à l'arrivée pour la densite la plus faible
+# on ajoute 5 min pour la densité la plus élevé (en log)
+
+gc()
+
+car_dgr2 <- open_dataset(glue("{mdir}/distances/src/car_dgr2")) |> 
+  to_duckdb()
+
+qs::qread(c200ze_file) |> 
+  mutate(dens = santoku::chop_quantiles(ind, 1:5/5),
+         dens = as.numeric(dens)) |> 
+  st_drop_geometry() |> 
+  write_dataset("/tmp/c200ze") 
+c200ze <- open_dataset("/tmp/c200ze") |> 
+  to_duckdb() 
+
+car_dgr2 |> 
+  left_join(c200ze |> select(fromId = idINS, from_dens = dens), by="fromId") |> 
+  left_join(c200ze |> select(toId = idINS, to_dens = dens), by="toId") |> 
+  mutate(
+    from_cf = from_dens - 1,
+    to_cf = to_dens - 1,
+    travel_time_park = travel_time + from_cf + to_cf + 1) |> 
+  select(-to_cf, -from_cf, -from_dens, -to_dens) |> 
+  to_arrow() |> 
+  write_dataset(glue("{mdir}/distances/src/car_dgr"), partitioning = "COMMUNE")
 
 # marche à pied--------------
 car_distance <- arrow::open_dataset(glue::glue("{mdir}/distances/src/car_dgr2"))
