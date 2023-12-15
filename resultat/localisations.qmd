@@ -33,13 +33,14 @@ Les onglets permettent de passer des résidents, aux actifs et aux emplois.
 
 La carte peut être basculée et la dimension "*z*" indique comme la couleur le nombre de personnes ou d'emplois par carreau. Des boutons en dessous des cartes permettent de télécharger les données utilisées pour les cartes.
 
+:::: {#fig-localisation}
+
 ::: {.panel-tabset .column-screen}
+
 ## résidents c200 (2017)
 
-```{r}
-#| label: fig-resident
-#| fig-cap: localisation des résidents
 
+```{r}
 c200ze |> 
   mutate(
     act = tactocc1564 * ind_18_64) |> 
@@ -81,7 +82,7 @@ download_this(
     idINS, ind, dep, idcom=com22, IRIS,
     act_mobpro),
   icon = "fa fa-download",
-  class = "dnwld_button",
+  class = "dbtn",
   button_label  = "données ind&actifs au carreau",
   output_name = "ind_act_idINS_MetAM"
 )
@@ -90,8 +91,6 @@ download_this(
 ## actifs MOBPRO (2020)
 
 ```{r}
-#| label: fig-actif
-#| fig-cap: localisation des actifs (MOBPRO, 2020)
 c200ze |> 
   filter(act_mobpro > 0, scot) |> 
   left_join(communes |>
@@ -128,7 +127,7 @@ download_this(
     idINS, ind, dep, idcom=com22, IRIS,
     act_mobpro),
   icon = "fa fa-download",
-  class = "dnwld_button",
+  class = "dbtn",
   button_label  = "données ind&actifs au carreau",
   output_name = "ind_act_idINS_MetAM"
 )
@@ -137,8 +136,6 @@ download_this(
 ## emploi MOBPRO (2020)
 
 ```{r}
-#| label: fig-emplois
-#| fig-cap: Localisation des emplois occupés par des actifs de la métropole
 c200ze |> 
   filter(emp > 0) |> 
   left_join(communes |>
@@ -175,9 +172,13 @@ download_this(
     idINS, emp, emp_resident, idcom=com22, IRIS,
     act = tactocc1564 * ind_18_64),
   icon = "fa fa-download",
-  class = "dnwld_button",
+  class = "dbtn",
   button_label  = "données emploi&emploi résident au carreau",
   output_name = "emp_empres_idINS_MetAM"
 )
 ```
 :::
+
+Localisation des résidents, des actifs et des emplois
+
+::::

@@ -8,7 +8,7 @@ L'accessibilité découle du calcul des distances par mode et des localisations 
 
 L'accessibilité est définie comme le nombre d'opportunités – d'emplois – que l'on peut atteindre en un temps donné en partant d'un lieu donné. On utilise également le terme accessibilité pour désigner le temps qu'il faut pour atteindre un nombre d'emplois donné. Les deux notions sont réciproquement liées.
 
-Le calcul de l'accessibilité suppose le calcul de toutes les distances entre les paires de lieux de résidence - lieux d'emploi. Pour la métropole d'Aix-Marseille, la volumétrie est importante ( $26k \times 21k \times4= 2,1G$ paires de distances calculées. En plus des distances, on calcule systématiquement les temps de parcours et les dénivelés positifs le long du parcours.
+Le calcul de l'accessibilité suppose le calcul de toutes les distances entre les paires de lieux de résidence - lieux d'emploi. Pour la métropole d'Aix-Marseille, la volumétrie est importante ($26k \times 21k \times4= 2,1G$ paires de distances calculées). En plus des distances, on calcule systématiquement les temps de parcours et les dénivelés positifs le long du parcours.
 
 Parce que l'accessibilité mesure un potentiel, elle est un facteur puissant pour expliquer les prix de l'immobilier, du moins en général. La forme urbaine particulière, la forte ségrégation et la valorisation d'aménités comme la proximité de la mer, d'espaces naturels ou simplement la "vue" peuvent contredire l'analyse univariée par l'accessibilité seule.
 
@@ -36,16 +36,21 @@ Les cartes suivantes présentent l'accessibilité à 50 000 emplois pour 4 modes
 
 Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a été introduite. Cette fonction de coût pénalise par des vitesses de déplacement moindres les dénivelés positifs. Les accessibilités calculées sans ces fonctions de coût sont téléchargeables en dessous des cartes, en même temps que les données utilisées pour les cartes.
 
+::: {#fig-access_map}
 ::: {.panel-tabset .column-screen}
 ## voiture
 
 ```{r}
-#| label: fig-access-car
-#| fig-cap: Accessibilité à 50k emplois en voiture
+library(colourvalues)
+pal <- grDevices::colorRamp(c("seagreen4", "springgreen1", "hotpink", "deeppink3"), bias =1)( (0:60)/60)
+color_txxk <- function(x, min = 0, max = 60, palette = pal) color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
+legend <- color_values(0:60, palette = pal, summary=TRUE, n_summaries=4)
+le <- legend_element(as.integer(legend$summary_values), legend$summary_colours, "fill", "gradient", "minutes") |> 
+  mapdeck_legend()
 communes <- bd_read("communes")
 t_access <- bd_read("t_access")
 t_access |> 
-  filter(mode == "car_dgr2") |> 
+  filter(mode == "car_dgr") |> 
   left_join(communes |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 
@@ -58,7 +63,7 @@ t_access |>
      accès à 20k: {round(to20k)} min<br>
      accès à 50k: {round(to50k)} min<br>
      accès à 100k: {round(to100k)} min<br>"),
-    to50k = trim(to50k, 0, 60)) |> 
+    to50k = color_txxk(to50k)) |> 
   st_transform(4326) |> 
   mapdeck(style = style,
           height = "50vh",
@@ -66,19 +71,15 @@ t_access |>
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
               elevation_scale = 3, 
-              palette= "blues",
-              legend = TRUE, 
-              tooltip = "tooltip",
-              legend_options = list(title = "minutes"),
-              legend_format = list(fill_colour = as.integer)) |> 
+              palette= palette,
+              legend = le, 
+              tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 
 ## transit
 
 ```{r}
-#| label: fig-access-transit
-#| fig-cap: Accessibilité à 50k emplois en transit (q5%)
 t_access |> 
   filter(mode == "transit5") |> 
   left_join(communes |>
@@ -93,7 +94,7 @@ t_access |>
      accès à 20k: {round(to20k)} min<br>
      accès à 50k: {round(to50k)} min<br>
      accès à 100k: {round(to100k)} min<br>"),
-    to50k = trim(to50k, 0, 60)) |> 
+    to50k = color_txxk(to50k)) |> 
   st_transform(4326) |> 
   mapdeck(style = style,
           height = "50vh",
@@ -101,19 +102,16 @@ t_access |>
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
               elevation_scale = 3, 
-              palette= "rainbow",
-              legend = TRUE, 
-              tooltip = "tooltip",
-              legend_options = list(title = "minutes"),
-              legend_format = list(fill_colour = as.integer)) |> 
+              palette= palette,
+              legend = le, 
+              tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 
 ## vélo
 
 ```{r}
-#| label: fig-access-bike
-#| fig-cap: Accessibilité à 50k emplois en vélo
+
 t_access |> 
   filter(mode == "bike_tblr") |> 
   left_join(communes |>
@@ -128,7 +126,7 @@ t_access |>
      accès à 20k: {round(to20k)} min<br>
      accès à 50k: {round(to50k)} min<br>
      accès à 100k: {round(to100k)} min<br>"),
-    to50k = trim(to50k, 0, 60)) |> 
+    to50k = color_txxk(to50k)) |> 
   st_transform(4326) |> 
   mapdeck(style = style,
           height = "50vh",
@@ -136,19 +134,16 @@ t_access |>
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
               elevation_scale = 3, 
-              palette= "rainbow",
-              legend = TRUE, 
-              tooltip = "tooltip",
-              legend_options = list(title = "minutes"),
-              legend_format = list(fill_colour = as.integer)) |> 
+              palette= palette,
+              legend = le, 
+              tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 
 ## marche à pied
 
 ```{r}
-#| label: fig-access-walk
-#| fig-cap: Accessibilité à 50k emplois en vélo
+
 t_access |> 
   filter(mode == "walk_tblr") |> 
   left_join(communes |>
@@ -163,7 +158,7 @@ t_access |>
      accès à 20k: {round(to20k)} min<br>
      accès à 50k: {round(to50k)} min<br>
      accès à 100k: {round(to100k)} min<br>"),
-    to50k = trim(to50k, 0, 60)) |> 
+    to50k = color_txxk(to50k)) |> 
   st_transform(4326) |> 
   mapdeck(style = style,
           height = "50vh",
@@ -171,11 +166,9 @@ t_access |>
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
               elevation_scale = 3, 
-              palette= "rainbow",
-              legend = TRUE, 
-              tooltip = "tooltip",
-              legend_options = list(title = "minutes"),
-              legend_format = list(fill_colour = as.integer)) |> 
+              palette= palette,
+              legend = le, 
+              tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 :::
@@ -185,19 +178,23 @@ download_this(
   t_access |> 
     st_drop_geometry(),
   icon = "fa fa-download",
-  class = "dnwld_button",
+  class = "dbtn",
   button_label = "données temps d'accessibilité au carreau",
   output_name = "temsp_accessibilite_idINS_MetAM"
 )
 ```
+
+Cartes d'accessibilité pour différents modes
+:::
 
 ## Accessibilité par commune
 
 On reconstruit la relation entre le nombre d'emplois accessibles (axe des *y*) et le temps de déplacement pour chaque mode et pour chaque commune. Cette relation est basée sur une moyenne pondérée par le nombre d'actifs sur chacun des carreaux de l'emploi accessible en un temps donné.
 
 ```{r}
-# fig-label: fig-acces-com
-# fig-caption: Accessibilité à l'emploi par communes
+#| label: fig-acces-com
+#| fig-cap: "Accessibilité à l'emploi par communes"
+#| 
 access_par_com <- bd_read("access_par_com")
 colors <- c("Marseille 3e" = "chartreuse",
             "Marseille 7e" = "chartreuse3", 
@@ -207,7 +204,7 @@ colors <- c("Marseille 3e" = "chartreuse",
 
 ggplot(
   access_par_com |> 
-    filter(mode %in% c("car_dgr2", "transit5", "bike_tblr", "walk_tblr"))) +
+    filter(mode %in% c("car_dgr", "transit5", "bike_tblr", "walk_tblr"))) +
   geom_line(aes(x=temps, y=emp, group=com22), col="gray80", linewidth=0.2) +
   geom_line(data = ~filter(.x, !str_detect(label, "^n")),
             aes(x=temps, y=emp, color=label)) +
@@ -231,7 +228,7 @@ ggplot(
 ```{r}
 download_this(
 access_par_com,
-  class  = "dnwld_button",
+  class  = "dbtn",
   icon = "fa fa-download",
   button_label  = "données temps d'accès par commune",
   output_name = "access_commune_metAM"
@@ -247,6 +244,8 @@ Il est à noter que la restriction aux paires de communes issues de MOBPRO empê
 On regarde ici le nombre d'individus selon leur temps d'accès à différents seuils d'emploi (auxquels on accède par les onglets). Plus le seuil est important, plus les individus sont décalés vers la droite. L'axe des x est limité et donc des individus (dont le temps d'accès au seuil d'emploi est supérieur à 120 minutes) disparaissent du graphique.
 
 Les courbes représentent la densité de population en fonction du temps d'accessibilité. Les colorations identifient certains territoires suivant la même règle que pour le graphique d'accessibilité par commune. L'échelle des y est limitée à 1500 pour la lisibilité. L'aire des courbes est proportionnelle à la population (moins les individus dont les temps d'accès sont supérieurs à 120 minutes).
+
+:::: {#fig-popaccess}
 
 ::: panel-tabset
 ```{r}
@@ -279,8 +278,6 @@ gg_cmd <- list(
 ## 10k
 
 ```{r}
-#| label: fig-dist10k
-#| fig-cap: Distribution selon le temps d'accès à 10k emplois
 
 ggplot(t_access |> filter(mode!="transit"))+
   aes(x=to10k, weight=ind , fill = zone, col= zone, y = after_stat(count))+
@@ -290,8 +287,6 @@ ggplot(t_access |> filter(mode!="transit"))+
 ## 20k
 
 ```{r}
-#| label: fig-dist20k
-#| fig-cap: Distribution selon le temps d'accès à 20k emplois
 
 ggplot(t_access |> filter(mode!="transit"))+
   aes(x=to20k, weight=ind , fill = zone, col= zone, y = after_stat(count) )+
@@ -301,8 +296,6 @@ ggplot(t_access |> filter(mode!="transit"))+
 ## 50k
 
 ```{r}
-#| label: fig-dist50k
-#| fig-cap: Distribution selon le temps d'accès à 50k emplois
 
 ggplot(t_access |> filter(mode!="transit"))+
   aes(x=to50k, weight=ind , fill = zone, col= zone, y = after_stat(count))+
@@ -312,8 +305,6 @@ ggplot(t_access |> filter(mode!="transit"))+
 ## 100k
 
 ```{r}
-#| label: fig-dist100k
-#| fig-cap: Distribution selon le temps d'accès à 100k emplois
 
 ggplot(t_access |> filter(mode!="transit"))+
   aes(x=to100k, weight=ind , fill = zone, col= zone, y = after_stat(count))+
@@ -323,14 +314,16 @@ ggplot(t_access |> filter(mode!="transit"))+
 ## 200k
 
 ```{r}
-#| label: fig-dist200k
-#| fig-cap: Distribution selon le temps d'accès à 200k emplois
 
 ggplot(t_access |> filter(mode!="transit"))+
   aes(x=to200k, weight=ind , fill = zone, col= zone, y = after_stat(count))+
   gg_cmd
 ```
 :::
+
+Accessibilité et densité de population
+
+::::
 
 ## Accessibilité et revenu
 
@@ -355,7 +348,7 @@ d_access <- t_access |>
   left_join(
     c200ze |> st_drop_geometry() |> select(idINS200 = idINS, ndv, decile),
     by = "idINS200") |> 
-  filter(mode %in% c("bike_tblr", "car_dgr2", "transit5", "walk_tblr")) |> 
+  filter(mode %in% c("bike_tblr", "car_dgr", "transit5", "walk_tblr")) |> 
   mutate(
     zone = case_match(com22,
                       str_c(13201:13216) ~ "Marseille",
@@ -396,6 +389,8 @@ colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="deeppink", "Fos-sur-
 
 {{< fa exclamation-triangle >}} La répartition des déciles dans les zones sélectionnées est loin d'être homogène. Le graphique @fig-repartition matérialise cette remarque. Par construction, chaque décile de revenu comporte le même nombre d'individus,
 
+
+
 ```{r}
 #| label: fig-repartition
 #| fig-cap: Répartition de la population par décile par zone
@@ -416,21 +411,22 @@ ggplot(deciles)+
 ```{r}
 download_this(
   deciles,
-  class  = "dnwld_button",
+  class  = "dbtn",
   icon = "fa fa-download",
-  button_label  = "données répartition des deciles",
+  button_label  = "données répartition des déciles",
   output_name = "deciles_metAM"
 )
 ```
 
 Pour chaque décile de niveau de vie, on représente la distribution des temps d'accès au seuil indiqué.
 
+:::: {#fig-accessdec}
+
 ::: panel-tabset
+
 ## 10k
 
 ```{r}
-#| label: fig-dec10k
-#| fig-cap: Distribution selon le revenu des accès à 10k emplois
 
 ggplot(d_access) +
   aes(x = decile, y = to10k, weight= ind,  col = zone) +
@@ -440,8 +436,6 @@ ggplot(d_access) +
 ## 20k
 
 ```{r}
-#| label: fig-dec20k
-#| fig-cap: Distribution selon le revenu des accès à 20k emplois
 
 ggplot(d_access) +
   aes(x = decile, y = to20k, weight= ind,  col = zone) +
@@ -451,8 +445,6 @@ ggplot(d_access) +
 ## 50k
 
 ```{r}
-#| label: fig-dec50k
-#| fig-cap: Distribution selon le revenu des accès à 50k emplois
 
 ggplot(d_access) +
   aes(x = decile, y = to50k, weight= ind,  col = zone) +
@@ -462,8 +454,6 @@ ggplot(d_access) +
 ## 100k
 
 ```{r}
-#| label: fig-dec100k
-#| fig-cap: Distribution selon le revenu des accès à 100k emplois
 
 ggplot(d_access) +
   aes(x = decile, y = to100k, weight= ind,  col = zone) +
@@ -473,8 +463,6 @@ ggplot(d_access) +
 ## 200k
 
 ```{r}
-#| label: fig-dec200k
-#| fig-cap: Distribution selon le revenu des accès à 200k emplois
 
 ggplot(d_access) +
   aes(x = decile, y = to200k, weight= ind,  col = zone) +
@@ -485,9 +473,12 @@ ggplot(d_access) +
 ```{r}
 download_this(
 d_access,
-  class  = "dnwld_button",
+  class  = "dbtn",
   icon = "fa fa-download",
   button_label  = "données accessibilité et revenu au carreau",
   output_name = "access_revenu_metAM"
 )
 ```
+Accessibilités en fonction du décile de niveau de vie
+
+::::
