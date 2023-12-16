@@ -20,9 +20,9 @@ Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont ét�
 
 -   Les **données MOBPRO** pour sélectionner les paires de communes. Cela évite de calculer des distances entre des origines et des destinations sans lien. L'inconvénient est que l'on ne produit pas les distances pour des communes non reliées et donc on ne comprend pas l'absence de lien. La notion d'emploi est celle déclarée pour le recensement, qui peut différer de sources "entreprises". C'est une notion couvrant toutes les formes contractuelles (salariés, non salariés, emploi public).
 
--   Pour les **transports en commun**, les GTFS répertoriés sur [Open Data - lepilote](https://www.lepilote.com/fr/open-data/83), le moteur employé est R^5^ e Conveyal. On a retenu soit la médiane, soit le quantile 5% sur une plage horaire d'une heure (de 8h à 9h, le matin, un jour de semaine hors période de congé, en l’occurrence le 14/06/2023). Ceci permet de tenir compte des fréquences et des temps de correspondance (en fonction des horaires diffusés pour ce jour là). Le quantile 5% représente la possibilité de choisir son horaire de départ entre 8h et 9h pour minimiser son temps de trajet.
+-   Pour les **transports en commun**, les GTFS répertoriés sur [Open Data - lepilote](https://www.lepilote.com/fr/open-data/83), le moteur employé est R^5^ de Conveyal. On a retenu soit la médiane, soit le quantile 5% des temps de trajet sur une plage horaire d'une heure (de 8h à 9h, le matin, un jour de semaine hors période de congé, en l’occurrence le 14/06/2023). Ceci permet de tenir compte des fréquences et des temps de correspondance (en fonction des horaires diffusés pour ce jour là). Le quantile 5% représente la possibilité de choisir son horaire de départ entre 8h et 9h pour minimiser son temps de trajet.
 
--   Pour la **voiture,** les données OSM (téléchargées en décembre 2023) et le moteur de routage `dodgr` qui a été optimisé pour un calcul bien plus rapide. En plus des distances et des temps de trajet, on calcule les dénivelés et on pourra en tenir compte pour les émissions ultérieurement. Les vitesses de déplacement sont les limitations de vitesse en vigueur (ou renseignées sur OSM), modulées en fonction des types de route. Une pénalité pour les feux rouges ainsi que pour les changements de direction (traversée d'un carrefour) est appliquée. A ce stade, faute de données convaincantes, la **congestion** n'est pas intégrée. En utilisant la couche de mapbox sur le trafic habituel, il est envisageable de calculer les temps de parcours avec la congestion habituelle (moyennant quelques hypothèses).
+-   Pour la **voiture,** les données OSM (téléchargées en décembre 2023) et le moteur de routage `dodgr` qui a été optimisé pour un calcul bien plus rapide. En plus des distances et des temps de trajet, on calcule les dénivelés et on pourra en tenir compte pour les émissions ultérieurement. Les vitesses de déplacement sont les limitations de vitesse en vigueur (ou renseignées sur OSM), modulées en fonction des types de route. Une pénalité pour les feux rouges ainsi que pour les changements de direction (traversée d'un carrefour) est appliquée ainsi qu'une pénalité de "parking" au départ et à l'arrivée d'autant plus importante que la densité de population est grande dans le carreau origine ou destination. A ce stade, faute de données convaincantes, la **congestion** n'est pas intégrée. En utilisant la [couche de mapbox sur le trafic habituel](https://www.mapbox.com/traffic-data), il est envisageable de calculer les temps de parcours avec la congestion habituelle pour différents jours d'une semaine moyenne et pour les moments avec un pas de temps de 5 minutes.
 
 -   Pour le **vélo** et la **marche**, le moteur de calcul et les données sont les mêmes que pour la voiture, en utilisant bien sûr des vitesses conformes. Un coût du dénivelé positif est introduit pour ces deux modes, réduisant la vitesse lors des montées et l'augmentant pour le vélo uniquement pour les pentes inférieures à 5%. Aucun élément de "stress" à vélo n'est pris en compte, cela pourra être fait ultérieurement.
 
@@ -32,7 +32,7 @@ L'accessibilité consiste à mesurer pour chaque lieu de résidence le temps d'a
 
 L'accessibilité permet également de comparer l'efficacité relative des modes de transports et illustre la domination de la voiture sur la plupart des lieux du territoire. L'accessibilité permet également de caractériser le territoire et de commencer à approcher les questions de distribution spatiale.
 
-Les cartes suivantes présentent l'accessibilité à 50 000 emplois pour 4 modes de transport. La dimension "*z*" (ou la hauteur des colonnes) représente la population du carreau.
+Les cartes suivantes présentent l'accessibilité à 50 000 emplois pour 4 modes de transport. La dimension *z* (ou la hauteur des colonnes) représente la population du carreau.
 
 Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a été introduite. Cette fonction de coût pénalise par des vitesses de déplacement moindres les dénivelés positifs. Les accessibilités calculées sans ces fonctions de coût sont téléchargeables en dessous des cartes, en même temps que les données utilisées pour les cartes.
 
@@ -42,7 +42,7 @@ Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a
 
 ```{r}
 library(colourvalues)
-pal <- grDevices::colorRamp(c("seagreen4", "springgreen1", "hotpink", "deeppink3"), bias =1)( (0:60)/60)
+pal <- grDevices::colorRamp(c("green4","chartreuse", "yellow", "orangered3"), bias =1)( (0:60)/60)
 color_txxk <- function(x, min = 0, max = 60, palette = pal) color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
 legend <- color_values(0:60, palette = pal, summary=TRUE, n_summaries=4)
 le <- legend_element(as.integer(legend$summary_values), legend$summary_colours, "fill", "gradient", "minutes") |> 
@@ -53,7 +53,7 @@ t_access |>
   filter(mode == "car_dgr") |> 
   left_join(communes |>
               st_drop_geometry() |>
-              select(com22=INSEE_COM, NOM, POPULATION)) |> 
+              select(com22=INSEE_COM, NOM, POPULATION), by="com22") |> 
   transmute(
     ind=ind/4,
     tooltip=glue::glue(
@@ -71,7 +71,6 @@ t_access |>
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
               elevation_scale = 3, 
-              palette= palette,
               legend = le, 
               tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -102,7 +101,6 @@ t_access |>
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
               elevation_scale = 3, 
-              palette= palette,
               legend = le, 
               tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -133,8 +131,7 @@ t_access |>
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
-              elevation_scale = 3, 
-              palette= palette,
+              elevation_scale = 3,
               legend = le, 
               tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -166,7 +163,6 @@ t_access |>
   add_polygon(fill_colour = "to50k", 
               elevation = "ind", 
               elevation_scale = 3, 
-              palette= palette,
               legend = le, 
               tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -200,7 +196,7 @@ colors <- c("Marseille 3e" = "chartreuse",
             "Marseille 7e" = "chartreuse3", 
             "Aix-en-Provence"="deeppink", 
             "Fos-sur-Mer"="deepskyblue",
-            "Tout le territoire" = "orange")
+            "Tout le territoire" = "orangered")
 
 ggplot(
   access_par_com |> 
@@ -245,8 +241,7 @@ On regarde ici le nombre d'individus selon leur temps d'accès à différents se
 
 Les courbes représentent la densité de population en fonction du temps d'accessibilité. Les colorations identifient certains territoires suivant la même règle que pour le graphique d'accessibilité par commune. L'échelle des y est limitée à 1500 pour la lisibilité. L'aire des courbes est proportionnelle à la population (moins les individus dont les temps d'accès sont supérieurs à 120 minutes).
 
-:::: {#fig-popaccess}
-
+::: {#fig-popaccess}
 ::: panel-tabset
 ```{r}
 t_access  <- t_access |> 
@@ -257,7 +252,7 @@ t_access  <- t_access |>
     "13001" ~ 'Aix-en-Provence', 
     .default = "autres"))
 
-colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="deeppink", "Fos-sur-Mer"="deepskyblue", "autres" = "darkgoldenrod2")
+colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="pink2", "Fos-sur-Mer"="deepskyblue", "autres" = "darkgoldenrod1")
 
 gg_cmd <- list(
   geom_density(alpha=.5, position="stack", bw = 5, linewidth = 0.2), 
@@ -322,8 +317,7 @@ ggplot(t_access |> filter(mode!="transit"))+
 :::
 
 Accessibilité et densité de population
-
-::::
+:::
 
 ## Accessibilité et revenu
 
@@ -382,14 +376,12 @@ gg_cmd <- list(
   guides(
     color = guide_legend(keywidth = 1, keyheight = .5)))
 
-colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="deeppink", "Fos-sur-Mer"="deepskyblue", "autres" = "darkgoldenrod2")
+colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="pink2", "Fos-sur-Mer"="deepskyblue", "autres" = "darkgoldenrod2")
 
 
 ```
 
 {{< fa exclamation-triangle >}} La répartition des déciles dans les zones sélectionnées est loin d'être homogène. Le graphique @fig-repartition matérialise cette remarque. Par construction, chaque décile de revenu comporte le même nombre d'individus,
-
-
 
 ```{r}
 #| label: fig-repartition
@@ -420,10 +412,8 @@ download_this(
 
 Pour chaque décile de niveau de vie, on représente la distribution des temps d'accès au seuil indiqué.
 
-:::: {#fig-accessdec}
-
+::: {#fig-accessdec}
 ::: panel-tabset
-
 ## 10k
 
 ```{r}
@@ -479,6 +469,6 @@ d_access,
   output_name = "access_revenu_metAM"
 )
 ```
-Accessibilités en fonction du décile de niveau de vie
 
-::::
+Accessibilités en fonction du décile de niveau de vie
+:::
