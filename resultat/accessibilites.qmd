@@ -22,7 +22,7 @@ Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont ét�
 
 -   Pour les **transports en commun**, les GTFS répertoriés sur [Open Data - lepilote](https://www.lepilote.com/fr/open-data/83), le moteur employé est R^5^ de Conveyal. On a retenu soit la médiane, soit le quantile 5% des temps de trajet sur une plage horaire d'une heure (de 8h à 9h, le matin, un jour de semaine hors période de congé, en l’occurrence le 14/06/2023). Ceci permet de tenir compte des fréquences et des temps de correspondance (en fonction des horaires diffusés pour ce jour là). Le quantile 5% représente la possibilité de choisir son horaire de départ entre 8h et 9h pour minimiser son temps de trajet.
 
--   Pour la **voiture,** les données OSM (téléchargées en décembre 2023) et le moteur de routage `dodgr` qui a été optimisé pour un calcul bien plus rapide. En plus des distances et des temps de trajet, on calcule les dénivelés et on pourra en tenir compte pour les émissions ultérieurement. Les vitesses de déplacement sont les limitations de vitesse en vigueur (ou renseignées sur OSM), modulées en fonction des types de route. Une pénalité pour les feux rouges ainsi que pour les changements de direction (traversée d'un carrefour) est appliquée ainsi qu'une pénalité de "parking" au départ et à l'arrivée d'autant plus importante que la densité de population est grande dans le carreau origine ou destination. A ce stade, faute de données convaincantes, la **congestion** n'est pas intégrée. En utilisant la [couche de mapbox sur le trafic habituel](https://www.mapbox.com/traffic-data), il est envisageable de calculer les temps de parcours avec la congestion habituelle pour différents jours d'une semaine moyenne et pour les moments avec un pas de temps de 5 minutes.
+-   Pour la **voiture**, les données OSM (téléchargées en décembre 2023) et le moteur de routage `dodgr` qui a été optimisé pour un calcul bien plus rapide. En plus des distances et des temps de trajet, on calcule les dénivelés et on pourra en tenir compte pour les émissions ultérieurement. Les vitesses de déplacement sont les limitations de vitesse en vigueur (ou renseignées sur OSM), modulées en fonction des types de route. Une pénalité pour les feux rouges ainsi que pour les changements de direction (traversée d'un carrefour) est appliquée ainsi qu'une pénalité de "parking" au départ et à l'arrivée d'autant plus importante que la densité de population est grande dans le carreau origine ou destination. A ce stade, faute de données convaincantes, la **congestion** n'est pas intégrée. En utilisant la [couche de mapbox sur le trafic habituel](https://www.mapbox.com/traffic-data), il est envisageable de calculer les temps de parcours avec la congestion habituelle pour différents jours d'une semaine moyenne et pour les moments avec un pas de temps de 5 minutes.
 
 -   Pour le **vélo** et la **marche**, le moteur de calcul et les données sont les mêmes que pour la voiture, en utilisant bien sûr des vitesses conformes. Un coût du dénivelé positif est introduit pour ces deux modes, réduisant la vitesse lors des montées et l'augmentant pour le vélo uniquement pour les pentes inférieures à 5%. Aucun élément de "stress" à vélo n'est pris en compte, cela pourra être fait ultérieurement.
 
@@ -30,11 +30,7 @@ Les distances et les temps de trajet pour la métropole d'Aix-Marseille ont ét�
 
 L'accessibilité consiste à mesurer pour chaque lieu de résidence le temps d'accès à un seuil d'emploi (par exemple 100 000 emplois). Cette notion n'est pas directement reliée aux distances parcourues, puisqu'*in fine* chaque individu n'occupe qu'un emploi et que les comportements de choix, de mode de transport conditionneront la pratique. L'accessibilité permet en revanche de mesurer le potentiel d'emploi qui s'offre à partir d'un lieu de résidence. On relie ainsi nettement l'accessibilité à la valeur du foncier.
 
-L'accessibilité permet également de comparer l'efficacité relative des modes de transports et illustre la domination de la voiture sur la plupart des lieux du territoire. L'accessibilité permet également de caractériser le territoire et de commencer à approcher les questions de distribution spatiale.
-
 Les cartes suivantes présentent l'accessibilité à 50 000 emplois pour 4 modes de transport. La dimension *z* (ou la hauteur des colonnes) représente la population du carreau.
-
-Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a été introduite. Cette fonction de coût pénalise par des vitesses de déplacement moindres les dénivelés positifs. Les accessibilités calculées sans ces fonctions de coût sont téléchargeables en dessous des cartes, en même temps que les données utilisées pour les cartes.
 
 ::: {#fig-access_map}
 ::: {.panel-tabset .column-screen}
@@ -42,20 +38,24 @@ Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a
 
 ```{r}
 library(colourvalues)
-pal <- grDevices::colorRamp(c("green4","chartreuse", "yellow", "orangered3"), bias =1)( (0:60)/60)
+pal <- grDevices::colorRamp(c("darkgreen","green", "yellow", "orangered2"), bias =1)( (0:60)/60)
 color_txxk <- function(x, min = 0, max = 60, palette = pal) color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
 legend <- color_values(0:60, palette = pal, summary=TRUE, n_summaries=4)
 le <- legend_element(as.integer(legend$summary_values), legend$summary_colours, "fill", "gradient", "minutes") |> 
   mapdeck_legend()
 communes <- bd_read("communes")
-t_access <- bd_read("t_access")
+c200zea <- bd_read("c200ze") |> 
+  st_drop_geometry() |> 
+  select(idINS, act_mobpro)
+t_access <- bd_read("t_access") |> 
+  left_join(c200zea, by = c("idINS200"="idINS"))
 t_access |> 
   filter(mode == "car_dgr") |> 
   left_join(communes |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION), by="com22") |> 
   transmute(
-    ind=ind/4,
+    act_mobpro=act_mobpro/4,
     tooltip=glue::glue(
     "{NOM} {com22}<br>
      {ind} ind dans le carreau<br>
@@ -69,7 +69,7 @@ t_access |>
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
-              elevation = "ind", 
+              elevation = "act_mobpro", 
               elevation_scale = 3, 
               legend = le, 
               tooltip = "tooltip") |> 
@@ -85,7 +85,7 @@ t_access |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 
   transmute(
-    ind=ind/4,
+    act_mobpro=act_mobpro/4,
     tooltip=glue::glue(
     "{NOM} {com22}<br>
      {ind} ind dans le carreau<br>
@@ -99,7 +99,7 @@ t_access |>
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
-              elevation = "ind", 
+              elevation = "act_mobpro", 
               elevation_scale = 3, 
               legend = le, 
               tooltip = "tooltip") |> 
@@ -116,7 +116,7 @@ t_access |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 
   transmute(
-    ind=ind/4, 
+    act_mobpro=act_mobpro/4, 
     tooltip=glue::glue(
     "{NOM} {com22}<br>
      {ind} ind dans le carreau<br>
@@ -130,7 +130,7 @@ t_access |>
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
-              elevation = "ind", 
+              elevation = "act_mobpro", 
               elevation_scale = 3,
               legend = le, 
               tooltip = "tooltip") |> 
@@ -147,7 +147,7 @@ t_access |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 
   transmute(
-    ind=ind/4, 
+    act_mobpro=act_mobpro/4, 
     tooltip=glue::glue(
     "{NOM} {com22}<br>
      {ind} ind dans le carreau<br>
@@ -161,7 +161,7 @@ t_access |>
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
-              elevation = "ind", 
+              elevation = "act_mobpro", 
               elevation_scale = 3, 
               legend = le, 
               tooltip = "tooltip") |> 
@@ -183,6 +183,12 @@ download_this(
 Cartes d'accessibilité pour différents modes
 :::
 
+L'accessibilité permet également de comparer l'efficacité relative des modes de transports et illustre la domination de la voiture sur la plupart des lieux du territoire. La voiture joue un rôle d'égalisateur. Pour l'accès à 50k emplois, on peut constater une grande homogénéité du territoire. Quelque soit l'endroit où on habite ou presque, on dispose d'un potentiel élevé. Les transports en commun sont au contraire l'apanage des habitants de Marseille ou d'Aix-en-Provence, plus particulièrement de leurs centre-ville.
+
+L'accessibilité permet également de caractériser le territoire et de commencer à approcher les questions de distribution spatiale.
+
+Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a été introduite. Cette fonction de coût pénalise par des vitesses de déplacement moindres les dénivelés positifs. Les accessibilités calculées sans ces fonctions de coût sont téléchargeables en dessous des cartes, en même temps que les données utilisées pour les cartes.
+
 ## Accessibilité par commune
 
 On reconstruit la relation entre le nombre d'emplois accessibles (axe des *y*) et le temps de déplacement pour chaque mode et pour chaque commune. Cette relation est basée sur une moyenne pondérée par le nombre d'actifs sur chacun des carreaux de l'emploi accessible en un temps donné.
@@ -194,7 +200,7 @@ On reconstruit la relation entre le nombre d'emplois accessibles (axe des *y*) e
 access_par_com <- bd_read("access_par_com")
 colors <- c("Marseille 3e" = "chartreuse",
             "Marseille 7e" = "chartreuse3", 
-            "Aix-en-Provence"="deeppink", 
+            "Aix-en-Provence"="pink", 
             "Fos-sur-Mer"="deepskyblue",
             "Tout le territoire" = "orangered")
 
@@ -252,7 +258,7 @@ t_access  <- t_access |>
     "13001" ~ 'Aix-en-Provence', 
     .default = "autres"))
 
-colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="pink2", "Fos-sur-Mer"="deepskyblue", "autres" = "darkgoldenrod1")
+colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="pink", "Fos-sur-Mer"="deepskyblue", "autres" = "darkgoldenrod1")
 
 gg_cmd <- list(
   geom_density(alpha=.5, position="stack", bw = 5, linewidth = 0.2), 

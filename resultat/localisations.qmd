@@ -31,14 +31,11 @@ bd_read("gsurf2emp")
 
 Les onglets permettent de passer des résidents, aux actifs et aux emplois.
 
-La carte peut être basculée et la dimension "*z*" indique comme la couleur le nombre de personnes ou d'emplois par carreau. Des boutons en dessous des cartes permettent de télécharger les données utilisées pour les cartes.
+La carte peut être basculée et la dimension *z* indique comme la couleur le nombre de personnes ou d'emplois par carreau (utilisez {{< kb Shift >>}} ou {{< kb Ctrl >>}} pour basculer). Des boutons en dessous des cartes permettent de télécharger les données utilisées pour les cartes.
 
-:::: {#fig-localisation}
-
+::: {#fig-localisation}
 ::: {.panel-tabset .column-screen}
-
 ## résidents c200 (2017)
-
 
 ```{r}
 c200ze |> 
@@ -180,5 +177,4 @@ download_this(
 :::
 
 Localisation des résidents, des actifs et des emplois
-
-::::
+:::
