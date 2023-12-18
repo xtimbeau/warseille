@@ -36,6 +36,11 @@ h1, h2, h3, h4, h5, h6,
   font-size: 0.8rem !important;
 }
 
+img.quarto-cover-image {
+  margin-top: 96px;
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
+
 .quarto-title-block {
     margin-left: -1px !important;
     padding-left: 12px !important;
