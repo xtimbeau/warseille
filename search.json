@@ -74,9 +74,19 @@
     "href": "accessibilites.html#accessibilité-et-revenu",
     "title": "2  Calcul des distances et accessibilité",
     "section": "2.5 Accessibilité et revenu",
-    "text": "2.5 Accessibilité et revenu\nOn utilise le revenu moyen par unité de consommation au carreau (et donc une donnée de 2017) pour représenter le lien entre niveau de vie et accessibilité.\n Attention, ce niveau de vie est appliqué de façon homogène à tous les habitants du carreau, ce qui conduit à une « moyennisation » de la donnée. On pourra avec Fidéli améliorer ce point et disposer de données plus récentes (2021).\n La répartition des déciles dans les zones sélectionnées est loin d’être homogène. Le graphique figure 2.4 matérialise cette remarque. Par construction, chaque décile de revenu comporte le même nombre d’individus,\n\n\n\n\n\nFigure 2.4: Répartition de la population par décile par zone\n\n\n\n\n\n\n\n\n\n\n données répartition des déciles\n\n\nPour chaque décile de niveau de vie, on représente la distribution des temps d’accès au seuil indiqué.\n\n\n\nFigure 2.5: Accessibilités en fonction du décile de niveau de vie\n\n\n\n10k20k50k100k200k\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n données accessibilité et revenu au carreau",
+    "text": "2.5 Accessibilité et revenu\nOn utilise le revenu moyen par unité de consommation au carreau (et donc une donnée de 2017) pour représenter le lien entre niveau de vie et accessibilité.\n Attention, ce niveau de vie est appliqué de façon homogène à tous les habitants du carreau, ce qui conduit à une « moyennisation » de la donnée. On pourra avec Fidéli améliorer ce point et disposer de données plus récentes (2021).\n La répartition des déciles dans les zones sélectionnées est loin d’être homogène. Le graphique figure 2.4 matérialise cette remarque. Par construction, chaque décile de revenu comporte le même nombre d’individus,\n\n\n\n\n\nFigure 2.4: Répartition de la population par décile par zone\n\n\n\n\n\n\n\n\n\n\n données répartition des déciles\n\n\nPour chaque décile de niveau de vie, on représente la distribution des temps d’accès au seuil indiqué.\n\n\n\nFigure 2.5: Accessibilités en fonction du décile de niveau de vie\n\n\n\n10k20k50k100k200k\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n données accessibilité et revenu au carreau",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Calcul des distances et accessibilité</span>"
+    ]
+  },
+  {
+    "objectID": "next.html",
+    "href": "next.html",
+    "title": "3  Prochaines étapes",
+    "section": "",
+    "text": "Générations des géométries\n Projection des emplois et des actifs MOBPRO selon les fichiers fonciers\n Données de réseaux routiers et GTFS\n Calcul des distances avec les routeurs\n Calcul de l’accessibilité pour 4 modes, cartes\nGénération des flux carreau carreau par MEAPS (et par un modèle gravitaire)\nEstimation d’un modèle MEAPS sur MOPBRO, comparaison avec La Rochelle\nProjection, sur la base de l’EMP 2019, des km par habitant\nEstimation sur la base EMC2 metAM des modèles de projection, comparaison avec EMP 2019\nAutres motifs\n\nEcole/études à partir de MOBSCOL\nCommerces à partir de la densité de commerces (fichiers fonciers) ou de la densité inversée (accessibilité aux personnes)\nAutres motifs en se calant sur la densité de personnes\nles trajets IRIS vers IRIS pourront être pertinents\nL’accès aux informations de localisation de l’EMC2 peut apporter beaucoup\n\nIntégration de la congestion\n\nCouche mapbox trafic usuel\nAutres données de trafic (WAZE, extractions mapbox spécifiques, Google)\nGénérations de flux à partir de MEAPS et dodgr (en particulier pour les scénarios)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Prochaines étapes</span>"
     ]
   }
 ]
