@@ -2,6 +2,7 @@
 source("init.R")
 ```
 
+
 # Calcul des distances et accessibilité
 
 L'accessibilité découle du calcul des distances par mode et des localisations des opportunités (ici les emplois) sur le territoire. Elle mesure le potentiel de mobilité en chaque point, qui ne doit pas être confondu avec la pratique de mobilité qui sera évaluée ensuite.
@@ -35,6 +36,7 @@ Les cartes suivantes présentent l'accessibilité à 50 000 emplois pour 4 modes
 ::: {#fig-access_map}
 ::: {.panel-tabset .column-screen}
 ## voiture
+
 
 ```{r}
 library(colourvalues)
@@ -76,7 +78,9 @@ t_access |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 
+
 ## transit
+
 
 ```{r}
 t_access |> 
@@ -106,7 +110,9 @@ t_access |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 
+
 ## vélo
+
 
 ```{r}
 
@@ -137,7 +143,9 @@ t_access |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 
+
 ## marche à pied
+
 
 ```{r}
 
@@ -167,7 +175,9 @@ t_access |>
               tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
+
 :::
+
 
 ```{r}
 download_this(
@@ -179,6 +189,7 @@ download_this(
   output_name = "temsp_accessibilite_idINS_MetAM"
 )
 ```
+
 
 Cartes d'accessibilité pour différents modes
 :::
@@ -192,6 +203,7 @@ Pour les déplacements à pied ou en vélo, une fonction de coût à la Tobler a
 ## Accessibilité par commune
 
 On reconstruit la relation entre le nombre d'emplois accessibles (axe des *y*) et le temps de déplacement pour chaque mode et pour chaque commune. Cette relation est basée sur une moyenne pondérée par le nombre d'actifs sur chacun des carreaux de l'emploi accessible en un temps donné.
+
 
 ```{r}
 #| label: fig-acces-com
@@ -237,6 +249,7 @@ access_par_com,
 )
 ```
 
+
 Les arrondissements de Marseille (dont le 3ème et le 7ème sont colorés) sont les seuls à disposer d'une accessibilité assez élevée en transit. On constate également la domination de la voiture sur l'ensemble du territoire.
 
 Il est à noter que la restriction aux paires de communes issues de MOBPRO empêche certains territoires de pouvoir accéder à des niveaux d'emplois élevés (comme Fos-sur Mer).
@@ -249,6 +262,7 @@ Les courbes représentent la densité de population en fonction du temps d'acces
 
 ::: {#fig-popaccess}
 ::: panel-tabset
+
 ```{r}
 t_access  <- t_access |> 
   mutate(zone = case_match(
@@ -276,7 +290,9 @@ gg_cmd <- list(
   theme(legend.text = element_text(margin=margin(t=2, unit="pt"))))
 ```
 
+
 ## 10k
+
 
 ```{r}
 
@@ -285,7 +301,9 @@ ggplot(t_access |> filter(mode!="transit"))+
   gg_cmd
 ```
 
+
 ## 20k
+
 
 ```{r}
 
@@ -294,7 +312,9 @@ ggplot(t_access |> filter(mode!="transit"))+
   gg_cmd
 ```
 
+
 ## 50k
+
 
 ```{r}
 
@@ -303,7 +323,9 @@ ggplot(t_access |> filter(mode!="transit"))+
         gg_cmd
 ```
 
+
 ## 100k
+
 
 ```{r}
 
@@ -312,7 +334,9 @@ ggplot(t_access |> filter(mode!="transit"))+
   gg_cmd
 ```
 
+
 ## 200k
+
 
 ```{r}
 
@@ -320,6 +344,7 @@ ggplot(t_access |> filter(mode!="transit"))+
   aes(x=to200k, weight=ind , fill = zone, col= zone, y = after_stat(count))+
   gg_cmd
 ```
+
 :::
 
 Accessibilité et densité de population
@@ -330,6 +355,7 @@ Accessibilité et densité de population
 On utilise le revenu moyen par unité de consommation au carreau (et donc une donnée de 2017) pour représenter le lien entre niveau de vie et accessibilité.
 
 {{< fa exclamation-triangle >}} Attention, ce niveau de vie est appliqué de façon homogène à tous les habitants du carreau, ce qui conduit à une "moyennisation" de la donnée. On pourra avec Fidéli améliorer ce point et disposer de données plus récentes (2021).
+
 
 ```{r}
 library(MetricsWeighted)
@@ -387,7 +413,9 @@ colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="pink2", "Fos-sur-Mer
 
 ```
 
+
 {{< fa exclamation-triangle >}} La répartition des déciles dans les zones sélectionnées est loin d'être homogène. Le graphique @fig-repartition matérialise cette remarque. Par construction, chaque décile de revenu comporte le même nombre d'individus,
+
 
 ```{r}
 #| label: fig-repartition
@@ -416,11 +444,13 @@ download_this(
 )
 ```
 
+
 Pour chaque décile de niveau de vie, on représente la distribution des temps d'accès au seuil indiqué.
 
 ::: {#fig-accessdec}
 ::: panel-tabset
 ## 10k
+
 
 ```{r}
 
@@ -429,7 +459,9 @@ ggplot(d_access) +
   gg_cmd 
 ```
 
+
 ## 20k
+
 
 ```{r}
 
@@ -438,7 +470,9 @@ ggplot(d_access) +
   gg_cmd
 ```
 
+
 ## 50k
+
 
 ```{r}
 
@@ -447,7 +481,9 @@ ggplot(d_access) +
   gg_cmd
 ```
 
+
 ## 100k
+
 
 ```{r}
 
@@ -456,7 +492,9 @@ ggplot(d_access) +
   gg_cmd
 ```
 
+
 ## 200k
+
 
 ```{r}
 
@@ -464,10 +502,12 @@ ggplot(d_access) +
   aes(x = decile, y = to200k, weight= ind,  col = zone) +
   gg_cmd
 ```
+
 :::
 
 Accessibilités en fonction du décile de niveau de vie
 :::
+
 
 ```{r}
 download_this(
@@ -478,3 +518,4 @@ d_access,
   output_name = "access_revenu_metAM"
 )
 ```
+
