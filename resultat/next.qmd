@@ -1,5 +1,15 @@
 # Prochaines étapes
 
+-   {{< fa check >>}} Générations des géométries
+
+-   {{< fa check >>}} Projection des emplois et des actifs MOBPRO selon les fichiers fonciers
+
+-   {{< fa check >>}} Données de réseaux routiers et GTFS
+
+-   {{< fa check >>}} Calcul des distances avec les routeurs
+
+-   {{< fa check >>}} Calcul de l'accessibilité pour 4 modes, cartes
+
 -   Génération des flux carreau carreau par MEAPS (et par un modèle gravitaire)
 
 -   Estimation d'un modèle MEAPS sur MOPBRO, comparaison avec La Rochelle

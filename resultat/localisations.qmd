@@ -8,7 +8,7 @@ La première étape de notre travail est de localiser au carreau 200m (INSPIRE, 
 
 On limite l'analyse à la métropole d'Aix-Marseille-Provence. Cela représente 26 000 carreaux 200m x 200m pour 107 communes/arrondissements. Les opportunités sont les emplois, 95% des emplois occupés par les actifs de la métropole sont retenus (les 95% correspondant aux distances parcourues les plus courtes) de façon à exclure du périmètre les actifs qui travaillent par exemple à Paris ou en Corse.
 
-On a retenu 21 143 carreaux d'opportunité pour un peu moins de 680 000 emplois.
+Nous avons retenu 21 143 carreaux d'opportunité pour un peu moins de 680 000 emplois.
 
 ## Méthodologie
 
@@ -31,7 +31,7 @@ bd_read("gsurf2emp")
 
 Les onglets permettent de passer des résidents, aux actifs et aux emplois.
 
-La carte peut être basculée et la dimension *z* indique comme la couleur le nombre de personnes ou d'emplois par carreau (utilisez {{< kb Shift >>}} ou {{< kb Ctrl >>}} pour basculer). Des boutons en dessous des cartes permettent de télécharger les données utilisées pour les cartes.
+La carte peut être basculée et la dimension *z* indique comme la couleur le nombre de personnes ou d'emplois par carreau (utilisez {{< kbd Option >}} ou {{< kbd Ctrl >}} en cliquant pour basculer). Des boutons en dessous des cartes permettent de télécharger les données utilisées pour les cartes.
 
 ::: {#fig-localisation}
 ::: {.panel-tabset .column-screen}
