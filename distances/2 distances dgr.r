@@ -90,7 +90,7 @@ car_dgr2 |>
   mutate(
     from_cf = from_dens - 1,
     to_cf = to_dens - 1,
-    travel_time_park = travel_time + from_cf + to_cf + 1) |> 
+    travel_time_park = as.integer(travel_time + from_cf + to_cf + .5 - from_cf*to_cf/4)) |> 
   select(-to_cf, -from_cf, -from_dens, -to_dens) |> 
   to_arrow() |> 
   write_dataset(glue("{mdir}/distances/src/car_dgr"), partitioning = "COMMUNE")
