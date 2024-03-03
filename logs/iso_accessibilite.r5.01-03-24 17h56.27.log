@@ -1,0 +1,119 @@
+SUCCESS [2024-03-01 16:56:27] Calcul accessibilite version 2
+SUCCESS [2024-03-01 16:56:27] $type
+SUCCESS [2024-03-01 16:56:27] [1] "r5"
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $path
+SUCCESS [2024-03-01 16:56:27] ~/files/localr5/
+SUCCESS [2024-03-01 16:56:27] FALSE
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $string
+SUCCESS [2024-03-01 16:56:27] r5 routing WALK&TRANSIT sur ~/files/localr5/ a 2024-03-01 16:56:23.325984
+SUCCESS [2024-03-01 16:56:27] FALSE
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $core
+SUCCESS [2024-03-01 16:56:27] [1] "Java-Object{org.ipea.r5r.R5RCore@1649b0e6}"
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $montecarlo
+SUCCESS [2024-03-01 16:56:27] [1] 1
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $time_window
+SUCCESS [2024-03-01 16:56:27] [1] 60
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $departure_datetime
+SUCCESS [2024-03-01 16:56:27] [1] "2023-06-14 08:00:00 UTC"
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $mode
+SUCCESS [2024-03-01 16:56:27] [1] "WALK"    "TRANSIT"
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $percentiles
+SUCCESS [2024-03-01 16:56:27] [1] 0.05
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $max_walk_time
+SUCCESS [2024-03-01 16:56:27] [1] Inf
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $walk_speed
+SUCCESS [2024-03-01 16:56:27] [1] 5
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $bike_speed
+SUCCESS [2024-03-01 16:56:27] [1] 12
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $max_rides
+SUCCESS [2024-03-01 16:56:27] [1] 3
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $max_lts
+SUCCESS [2024-03-01 16:56:27] [1] 2
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $elevation
+SUCCESS [2024-03-01 16:56:27] [1] "NONE"
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $elevation_tif
+SUCCESS [2024-03-01 16:56:27] NULL
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $pkg
+SUCCESS [2024-03-01 16:56:27] [1] "r5r"   "rJava"
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $dfMaxLength
+SUCCESS [2024-03-01 16:56:27] [1] 10
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $extended
+SUCCESS [2024-03-01 16:56:27] [1] TRUE
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $elevation_data
+SUCCESS [2024-03-01 16:56:27] NULL
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $max_rows
+SUCCESS [2024-03-01 16:56:27] [1] 5000
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $n_threads
+SUCCESS [2024-03-01 16:56:27] [1] 16
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $future
+SUCCESS [2024-03-01 16:56:27] [1] TRUE
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $jMem
+SUCCESS [2024-03-01 16:56:27] [1] "12G"
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $r5r_jar
+SUCCESS [2024-03-01 16:56:27] [1] "/usr/local/lib/R/site-library/r5r/jar/r5r_0_6_0.jar"
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $r5_jar
+SUCCESS [2024-03-01 16:56:27] character(0)
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $future_routing
+SUCCESS [2024-03-01 16:56:27] function(routing) {
+SUCCESS [2024-03-01 16:56:27]       rout <- routing
+SUCCESS [2024-03-01 16:56:27]       rout$elevation_data <- NULL
+SUCCESS [2024-03-01 16:56:27]       return(rout)}
+SUCCESS [2024-03-01 16:56:27] <environment: 0x55bee8883778>
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] $core_init
+SUCCESS [2024-03-01 16:56:27] function(routing){
+SUCCESS [2024-03-01 16:56:27]       options(java.parameters = glue::glue('-Xmx{routing$jMem}'))
+SUCCESS [2024-03-01 16:56:27]       rJava::.jinit(silent=TRUE)
+SUCCESS [2024-03-01 16:56:27]       r5r::stop_r5()
+SUCCESS [2024-03-01 16:56:27]       rJava::.jgc(R.gc = TRUE)
+SUCCESS [2024-03-01 16:56:27]       options(r5r.montecarlo_draws = routing$montecarlo)
+SUCCESS [2024-03-01 16:56:27]       core <- r5r::setup_r5(data_path = routing$path, verbose=FALSE,
+SUCCESS [2024-03-01 16:56:27]                             elevation=routing$elevation)
+SUCCESS [2024-03-01 16:56:27]       out <- routing
+SUCCESS [2024-03-01 16:56:27]       out$core <- core
+SUCCESS [2024-03-01 16:56:27]       if(!is.null(routing$elevation_tif))
+SUCCESS [2024-03-01 16:56:27]         out$elevation_data <- terra::rast(str_c(routing$path, "/", routing$elevation_tif))
+SUCCESS [2024-03-01 16:56:27]       return(out)
+SUCCESS [2024-03-01 16:56:27]     }
+SUCCESS [2024-03-01 16:56:27] <environment: 0x55bee8883778>
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] 
+SUCCESS [2024-03-01 16:56:27] tmax:120
+SUCCESS [2024-03-01 16:56:27] pdt:1
+SUCCESS [2024-03-01 16:56:27] chunk:100k
+SUCCESS [2024-03-01 16:56:27] resolution:200
+SUCCESS [2024-03-01 16:56:27] out:200
+SUCCESS [2024-03-01 16:56:27] les variables sont emp_resident
+SUCCESS [2024-03-01 16:56:28] taille:624.2M gr:6.2k res_gr:800
+SUCCESS [2024-03-01 16:56:28] 26k ou, 24.8k quoi
+SUCCESS [2024-03-01 16:56:28] 3337 carreaux, 1 subsampling
+SUCCESS [2024-03-01 16:56:28] future:TRUE, 2 workers
+WARN [1430] [2024-03-01 16:56:38] error r5::travel_time_matrix, matrice vide
+WARN [1430] [2024-03-01 16:56:38] carreau:N2238400E3962400 ou_id:1 ttm_0 vide
+WARN [1430] [2024-03-01 16:56:38] la matrice des distances entre les ancres et les opportunites est vide

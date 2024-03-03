@@ -1,0 +1,162 @@
+SUCCESS [2024-03-01 17:03:19] Calcul accessibilite version 2
+SUCCESS [2024-03-01 17:03:19] $type
+SUCCESS [2024-03-01 17:03:19] [1] "r5"
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $path
+SUCCESS [2024-03-01 17:03:19] ~/files/localr5/
+SUCCESS [2024-03-01 17:03:19] FALSE
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $string
+SUCCESS [2024-03-01 17:03:19] r5 routing WALK&TRANSIT sur ~/files/localr5/ a 2024-03-01 16:52:58.335029
+SUCCESS [2024-03-01 17:03:19] FALSE
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $core
+SUCCESS [2024-03-01 17:03:19] [1] "Java-Object{org.ipea.r5r.R5RCore@4c1909a3}"
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $montecarlo
+SUCCESS [2024-03-01 17:03:19] [1] 5
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $time_window
+SUCCESS [2024-03-01 17:03:19] [1] 1
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $departure_datetime
+SUCCESS [2024-03-01 17:03:19] [1] "2023-06-14 08:00:00 UTC"
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $mode
+SUCCESS [2024-03-01 17:03:19] [1] "WALK"    "TRANSIT"
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $percentiles
+SUCCESS [2024-03-01 17:03:19] [1] 0.5
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $max_walk_time
+SUCCESS [2024-03-01 17:03:19] [1] Inf
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $walk_speed
+SUCCESS [2024-03-01 17:03:19] [1] 5
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $bike_speed
+SUCCESS [2024-03-01 17:03:19] [1] 12
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $max_rides
+SUCCESS [2024-03-01 17:03:19] [1] 3
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $max_lts
+SUCCESS [2024-03-01 17:03:19] [1] 2
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $elevation
+SUCCESS [2024-03-01 17:03:19] [1] "NONE"
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $elevation_tif
+SUCCESS [2024-03-01 17:03:19] NULL
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $pkg
+SUCCESS [2024-03-01 17:03:19] [1] "r5r"   "rJava"
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $dfMaxLength
+SUCCESS [2024-03-01 17:03:19] [1] 10
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $extended
+SUCCESS [2024-03-01 17:03:19] [1] TRUE
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $elevation_data
+SUCCESS [2024-03-01 17:03:19] NULL
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $max_rows
+SUCCESS [2024-03-01 17:03:19] [1] 5000
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $n_threads
+SUCCESS [2024-03-01 17:03:19] [1] 16
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $future
+SUCCESS [2024-03-01 17:03:19] [1] TRUE
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $jMem
+SUCCESS [2024-03-01 17:03:19] [1] "12G"
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $r5r_jar
+SUCCESS [2024-03-01 17:03:19] [1] "/usr/local/lib/R/site-library/r5r/jar/r5r_0_6_0.jar"
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $r5_jar
+SUCCESS [2024-03-01 17:03:19] character(0)
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $future_routing
+SUCCESS [2024-03-01 17:03:19] function(routing) {
+SUCCESS [2024-03-01 17:03:19]       rout <- routing
+SUCCESS [2024-03-01 17:03:19]       rout$elevation_data <- NULL
+SUCCESS [2024-03-01 17:03:19]       return(rout)}
+SUCCESS [2024-03-01 17:03:19] <bytecode: 0x55beebf8d878>
+SUCCESS [2024-03-01 17:03:19] <environment: 0x55beebf469c0>
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] $core_init
+SUCCESS [2024-03-01 17:03:19] function(routing){
+SUCCESS [2024-03-01 17:03:19]       options(java.parameters = glue::glue('-Xmx{routing$jMem}'))
+SUCCESS [2024-03-01 17:03:19]       rJava::.jinit(silent=TRUE)
+SUCCESS [2024-03-01 17:03:19]       r5r::stop_r5()
+SUCCESS [2024-03-01 17:03:19]       rJava::.jgc(R.gc = TRUE)
+SUCCESS [2024-03-01 17:03:19]       options(r5r.montecarlo_draws = routing$montecarlo)
+SUCCESS [2024-03-01 17:03:19]       core <- r5r::setup_r5(data_path = routing$path, verbose=FALSE,
+SUCCESS [2024-03-01 17:03:19]                             elevation=routing$elevation)
+SUCCESS [2024-03-01 17:03:19]       out <- routing
+SUCCESS [2024-03-01 17:03:19]       out$core <- core
+SUCCESS [2024-03-01 17:03:19]       if(!is.null(routing$elevation_tif))
+SUCCESS [2024-03-01 17:03:19]         out$elevation_data <- terra::rast(str_c(routing$path, "/", routing$elevation_tif))
+SUCCESS [2024-03-01 17:03:19]       return(out)
+SUCCESS [2024-03-01 17:03:19]     }
+SUCCESS [2024-03-01 17:03:19] <bytecode: 0x55beebf5dc68>
+SUCCESS [2024-03-01 17:03:19] <environment: 0x55beebf469c0>
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] 
+SUCCESS [2024-03-01 17:03:19] tmax:120
+SUCCESS [2024-03-01 17:03:19] pdt:1
+SUCCESS [2024-03-01 17:03:19] chunk:1M
+SUCCESS [2024-03-01 17:03:19] resolution:200
+SUCCESS [2024-03-01 17:03:19] out:200
+SUCCESS [2024-03-01 17:03:19] les variables sont emp_resident
+SUCCESS [2024-03-01 17:03:20] taille:21.6M gr:22 res_gr:1600
+SUCCESS [2024-03-01 17:03:20] 1k ou, 24.8k quoi
+SUCCESS [2024-03-01 17:03:20] 55 carreaux, 1 subsampling
+SUCCESS [2024-03-01 17:03:20] future:TRUE, 2 workers
+INFO [2027] [2024-03-01 17:04:00] paquet:N2238400E3961600 ppou:24 ttm ok 80912
+INFO [2028] [2024-03-01 17:04:00] paquet:N2244800E3960000 ppou:791 ttm ok 74308
+SUCCESS [2027] [2024-03-01 17:04:00] carreau:N2238400E3961600 1 ancres 132.2k@4.3kp/s demandees, 85.3k@2.7kp/s retenues
+SUCCESS [2028] [2024-03-01 17:04:00] carreau:N2244800E3960000 1 ancres 195.1k@6.3kp/s demandees, 84.1k@2.7kp/s retenues
+SUCCESS [2027] [2024-03-01 17:04:02] carreau:N2238400E3960000 0 ancres 24.8k@18.7kp/s demandees, 1.8k@1.3kp/s retenues
+INFO [2028] [2024-03-01 17:04:05] paquet:N2244800E3942400 ppou:692 ttm ok 5054
+SUCCESS [2028] [2024-03-01 17:04:05] carreau:N2244800E3942400 1 ancres 30.7k@7.1kp/s demandees, 8.2k@1.9kp/s retenues
+INFO [2027] [2024-03-01 17:04:09] paquet:N2240000E3960000 ppou:30 ttm ok 12907
+SUCCESS [2027] [2024-03-01 17:04:09] carreau:N2240000E3960000 1 ancres 61.8k@9.2kp/s demandees, 17.2k@2.6kp/s retenues
+INFO [2028] [2024-03-01 17:04:15] paquet:N2244800E3940800 ppou:740 ttm ok 23116
+SUCCESS [2028] [2024-03-01 17:04:15] carreau:N2244800E3940800 1 ancres 56.1k@5.7kp/s demandees, 27.3k@2.8kp/s retenues
+SUCCESS [2028] [2024-03-01 17:04:16] carreau:N2244800E3953600 0 ancres 24.8k@34.3kp/s demandees, 704@972.4p/s retenues
+INFO [2028] [2024-03-01 17:04:19] paquet:N2244800E3968000 ppou:776 ttm ok 3764
+SUCCESS [2028] [2024-03-01 17:04:19] carreau:N2244800E3968000 1 ancres 31.7k@11.6kp/s demandees, 6.3k@2.3kp/s retenues
+INFO [2028] [2024-03-01 17:04:23] paquet:N2244800E3945600 ppou:779 ttm ok 6854
+SUCCESS [2028] [2024-03-01 17:04:23] carreau:N2244800E3945600 1 ancres 32.5k@7.5kp/s demandees, 11k@2.5kp/s retenues
+INFO [2028] [2024-03-01 17:05:06] paquet:N2246400E3945600 ppou:937 ttm ok 121344
+SUCCESS [2028] [2024-03-01 17:05:06] carreau:N2246400E3945600 1 ancres 233.9k@5.5kp/s demandees, 129.2k@3kp/s retenues
+INFO [2027] [2024-03-01 17:05:35] paquet:N2240000E3961600 ppou:143 ttm ok 253872
+SUCCESS [2027] [2024-03-01 17:05:35] carreau:N2240000E3961600 1 ancres 444.6k@5.2kp/s demandees, 260.9k@3kp/s retenues
+INFO [2028] [2024-03-01 17:05:39] paquet:N2246400E3947200 ppou:941 ttm ok 91691
+SUCCESS [2028] [2024-03-01 17:05:39] carreau:N2246400E3947200 1 ancres 158.2k@4.8kp/s demandees, 98.6k@3kp/s retenues
+INFO [2028] [2024-03-01 17:05:48] paquet:N2246400E3948800 ppou:879 ttm ok 19348
+SUCCESS [2028] [2024-03-01 17:05:48] carreau:N2246400E3948800 1 ancres 48.5k@5.4kp/s demandees, 25.5k@2.8kp/s retenues
+INFO [2028] [2024-03-01 17:06:18] paquet:N2246400E3956800 ppou:822 ttm ok 79130
+SUCCESS [2028] [2024-03-01 17:06:18] carreau:N2246400E3956800 1 ancres 147.2k@5kp/s demandees, 88.2k@3kp/s retenues
+INFO [2027] [2024-03-01 17:06:19] paquet:N2240000E3963200 ppou:126 ttm ok 124635
+SUCCESS [2027] [2024-03-01 17:06:19] carreau:N2240000E3963200 1 ancres 205.5k@4.7kp/s demandees, 131.8k@3kp/s retenues
+INFO [2027] [2024-03-01 17:06:34] paquet:N2240000E3968000 ppou:95 ttm ok 36507
+SUCCESS [2027] [2024-03-01 17:06:34] carreau:N2240000E3968000 1 ancres 89.1k@6.1kp/s demandees, 42.3k@2.9kp/s retenues
+INFO [2027] [2024-03-01 17:07:00] paquet:N2240000E3966400 ppou:77 ttm ok 71379
+SUCCESS [2027] [2024-03-01 17:07:00] carreau:N2240000E3966400 1 ancres 148.8k@5.7kp/s demandees, 77.5k@3kp/s retenues
+INFO [2027] [2024-03-01 17:07:10] paquet:N2240000E3964800 ppou:129 ttm ok 19722
+SUCCESS [2027] [2024-03-01 17:07:10] carreau:N2240000E3964800 1 ancres 46.7k@4.8kp/s demandees, 27.4k@2.8kp/s retenues
+INFO [2028] [2024-03-01 17:07:19] paquet:N2246400E3958400 ppou:830 ttm ok 173026
+SUCCESS [2028] [2024-03-01 17:07:19] carreau:N2246400E3958400 1 ancres 293.7k@4.8kp/s demandees, 183.3k@3kp/s retenues
+INFO [2028] [2024-03-01 17:07:30] paquet:N2246400E3960000 ppou:812 ttm ok 21896
+SUCCESS [2028] [2024-03-01 17:07:30] carreau:N2246400E3960000 1 ancres 62.4k@6.1kp/s demandees, 29.6k@2.9kp/s retenues
+INFO [2028] [2024-03-01 17:07:32] paquet:N2246400E3968000 ppou:815 ttm ok 2242
+SUCCESS [2028] [2024-03-01 17:07:32] carreau:N2246400E3968000 1 ancres 28.1k@14.3kp/s demandees, 4.1k@2.1kp/s retenues
+INFO [2028] [2024-03-01 17:07:36] paquet:N2246400E3940800 ppou:848 ttm ok 4538
+SUCCESS [2028] [2024-03-01 17:07:36] carreau:N2246400E3940800 1 ancres 29.8k@7.5kp/s demandees, 9.8k@2.5kp/s retenues
+INFO [2028] [2024-03-01 17:08:19] paquet:N2246400E3942400 ppou:850 ttm ok 123284
+SUCCESS [2028] [2024-03-01 17:08:19] carreau:N2246400E3942400 1 ancres 182k@4.2kp/s demandees, 129.8k@3kp/s retenues

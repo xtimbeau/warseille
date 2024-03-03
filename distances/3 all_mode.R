@@ -13,6 +13,7 @@ library(data.table, quietly = TRUE, warn.conflicts = FALSE)
 library(conflicted, quietly = TRUE, warn.conflicts = FALSE)
 library(arrow, quietly = TRUE, warn.conflicts = FALSE)
 library(tictoc, quietly = TRUE, warn.conflicts = FALSE)
+library(furrr)
 tic()
 conflicted::conflict_prefer("filter", "dplyr", quiet=TRUE)
 conflicted::conflict_prefer("select", "dplyr", quiet=TRUE)
@@ -40,9 +41,10 @@ cli::cli_alert_info("lecture de {.path {idINS_emp_file}}")
 
 communes <- com2021epci |> pull(INSEE_COM)
 
-dir.create('/space_mounts/data/marseille/distances/src/distances_dataset_v3')
-
-distances <- walk(communes, \(commune) {
+unlink(dist_dts)
+dir.create(dist_dts)
+plan("multisession", workers = 4)
+distances <- future_walk(communes, \(commune) {
   data <- map_dfr(modes, \(mode) {
      arrow::open_dataset("/space_mounts/data/marseille/distances/src/{mode}" |> glue()) |>
                 select(fromId, toId, travel_time, COMMUNE, DCLT, distance) |>
@@ -53,7 +55,7 @@ distances <- walk(communes, \(commune) {
                 mutate(COMMUNE = as.character(COMMUNE), mode = mode)
     } )
   transit <- arrow::open_dataset("/space_mounts/data/marseille/distances/src/transit5" |> glue()) |>
-    select(fromidINS, toidINS, travel_time, COMMUNE, DCLT, access_time) |>
+    select(fromidINS, toidINS, travel_time, COMMUNE, DCLT, access_time, n_rides) |>
     # rename(travel_time = travel_time_transit) |>
     # filter(distance <= 25000 ) |>
     filter(as.character(COMMUNE)==commune) |>
@@ -108,18 +110,13 @@ distances <- walk(communes, \(commune) {
   #             o_travel_time_walk,
   #             o_travel_time_transit)]
   # 
-  dir.create('/space_mounts/data/marseille/distances/src/distances_dataset_v3/{commune}' |> glue())
-  
-  write_parquet(data, '/space_mounts/data/marseille/distances/src/distances_dataset_v3/{commune}/distance_{commune}.parquet' |> glue())
-
-  fname <- '/space_mounts/data/marseille/distances/src/distances_dataset_v3/{commune}/distance_{commune}.parquet' |> glue()
+  dir.create(str_c(dist_dts, "/", commune))
+  fname <- str_c(dist_dts, "/", commune, "/allmode.parquet")
+  write_parquet(data, fname)
 
   return(fname)
   
-  })
-
-
-
+  }, .progress = TRUE)
 
 rm(list=ls())
 gc(reset=TRUE)

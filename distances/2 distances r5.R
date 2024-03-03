@@ -15,7 +15,7 @@ progressr::handlers("cli")
 
 conflict_prefer_all( "dplyr", quiet=TRUE)
 conflict_prefer('wday', 'lubridate', quiet=TRUE)
-
+arrow::set_cpu_count(16)
 ## globals --------------------
 load("baselayer.rda")
 
@@ -88,11 +88,19 @@ iso_transit_dt <- iso_accessibilite(quoi = destinations,
 transit <- ttm_idINS(iso_transit_dt) |> 
   left_join(idINSes |> select(fromidINS = idINS, COMMUNE = com), by = "fromidINS") |> 
   left_join(idINSes |> select(toidINS = idINS, DCLT = com), by = "toidINS") |> 
-  select(fromidINS, toidINS, travel_time, access_time, egress_time, COMMUNE, DCLT)
-arrow::write_dataset(
-  transit, 
-  partitioning = "COMMUNE",
-  path="{mdir}/distances/src/transit" |> glue())
+  select(fromidINS, toidINS, travel_time, access_time, egress_time, n_rides, COMMUNE, DCLT)
+rm(iso_transit_dt)
+gc()
+unlink("{mdir}/distances/src/transit" |> glue(), recursive=TRUE, force=TRUE)
+dir.create("{mdir}/distances/src/transit" |> glue())
+coms <- unique(transit$COMMUNE)
+walk(coms, ~{
+  data <- transit |> filter(COMMUNE==.x)
+  dir.create("{mdir}/distances/src/transit/{.x}" |> glue())
+  arrow::write_parquet(
+    data, 
+    "{mdir}/distances/src/transit/{.x}/transit.parquet" |> glue())
+}, .progress=TRUE)
 
 ## transit 95 --------------
 future::plan("multisession", workers=2L)
@@ -119,8 +127,16 @@ iso_transit_dt <- iso_accessibilite(quoi = destinations,
 transit <- ttm_idINS(iso_transit_dt) |> 
   left_join(idINSes |> select(fromidINS = idINS, COMMUNE = com), by = "fromidINS") |> 
   left_join(idINSes |> select(toidINS = idINS, DCLT = com), by = "toidINS") |> 
-  select(fromidINS, toidINS, travel_time, access_time, egress_time, COMMUNE, DCLT)
-arrow::write_dataset(
-  transit, 
-  partitioning = "COMMUNE",
-  path="{mdir}/distances/src/transit5" |> glue())
+  select(fromidINS, toidINS, travel_time, access_time, egress_time, n_rides, COMMUNE, DCLT)
+rm(iso_transit_dt)
+gc()
+unlink("{mdir}/distances/src/transit5" |> glue(), recursive=TRUE, force=TRUE)
+dir.create("{mdir}/distances/src/transit5" |> glue())
+coms <- unique(transit$COMMUNE)
+walk(coms, ~{
+  data <- transit |> filter(COMMUNE==.x)
+  dir.create("{mdir}/distances/src/transit5/{.x}" |> glue())
+  arrow::write_parquet(
+    data, 
+    "{mdir}/distances/src/transit5/{.x}/transit.parquet" |> glue())
+}, .progress=TRUE)

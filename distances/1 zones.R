@@ -122,6 +122,7 @@ dir_dist <- "{mdir}/distances" |> glue()
 idINS_file <- "{mdir}/idINS.parquet" |> glue()
 # idINS_scol_file <- "{repository_distances_scol}/idINS.parquet" |> glue()
 distances_file <- "{dir_dist}/distances.parquet" |> glue()
+dist_dts <- "{dir_dist}/src/distances_dataset" |> glue()
 proproba_file <- "{dir_dist}/proba_pro.parquet" |> glue()
 nonproproba_file <- "{dir_dist}/proba_nonpro.parquet"
 kmpro_file <- "{dir_dist}/km_pro.parquet"
@@ -200,6 +201,7 @@ save(list = unique(
     "deploc_file",
     "dir_dist",
     "distances_file",
+    "dist_dts",
     "distances_scol_file",
     "elevation",
     "emp_pred_file",
