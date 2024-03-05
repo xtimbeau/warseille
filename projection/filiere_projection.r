@@ -69,7 +69,7 @@ voiture <- iris4mod |>
   drop_na()
   
 donnees_categoriques <- remplir_categories(type_menage, voiture) |> drop_na()
-donnees_simples <- iris4mod |> select(idINS, DENSITECOM_RES, revuce)
+donnees_simples <- iris4mod |> select(idINS, IRIS, DENSITECOM_RES, revuce)
 
 donnees <- left_join(donnees_categoriques, donnees_simples, by = "idINS") |> 
   mutate(fromidINS = factor(idINS),
@@ -83,40 +83,73 @@ donnees <- left_join(donnees_categoriques, donnees_simples, by = "idINS") |>
 setkey(donnees, "fromidINS")
 
 # Procédure iris par iris
-les_morceaux <- iris4mod$com |> unique()
+les_morceaux <- iris4mod$IRIS |> unique()
 
 # on retire les "85"
 # les_iris <- discard(les_iris, \(x) str_detect(x, "^85"))
 
-dist_set_file <- "/space_mounts/data/marseille/distances/src/distances_dataset_v3"
-les_distances <- open_dataset(dist_set_file)
-
 flux_mobpro <- mobpro[, .(NB = sum(NB_in)), by = c("COMMUNE", "DCLT")][NB>0,]
 
-# les_distances <- read_parquet(distances_file,
-#                               col_select = c(id, distance_car, travel_time_car, travel_time_bike, 
-#                                              travel_time_walk, travel_time_transit, time2stop))
+id2iris <- c200ze |> 
+  st_drop_geometry() |> 
+  select(idINS, IRIS)
+
+# distances <- open_dataset(dist_dts) |> 
+#   filter(COMMUNE=="13001" | COMMUNE =="13211" | COMMUNE == "13005") |> 
+#   select(fromidINS, toidINS, travel_time, distance, mode) |> 
+#   collect()
+# 
+# distances[, mode := fcase(
+#   mode == "walk_tblr", "walk",
+#   mode == "bike_tblr", "bike",
+#   mode == "transit", "transit",
+#   mode == "car_dgr", "car"
+# ) |> factor()]
+# 
+# distances[, distance := distance / 1000] # passage en Km
+# 
+# distances <- distances[sample(163100027, size=5000)]
+# 
+# dist_car <- distances[mode=="car", .(fromidINS, toidINS, distance)]
+# tt_temp <- dcast(distances, fromidINS + toidINS ~ mode, value.var = "travel_time")
+# tt_temp[, euc := r3035::idINS2dist(tt_temp$fromidINS, tt_temp$toidINS)/1000]
+# 
+# distances <- merge(tt_temp, dist_car, by = c("fromidINS", "toidINS"), all.x = TRUE)
+# rm(dist_car, tt_temp)
+# 
+# coef_distance <- lm(distance - .1 ~ -1 + euc, data = distances)$coefficient 
+# coef_walk <- lm(walk ~ -1 + euc, data = distances)$coefficient 
+# coef_bike <- lm(bike ~ -1 + euc, data = distances)$coefficient
+# coef_transit <- lm(transit ~ -1 + euc, data = distances)$coefficient
+# coef_car <- lm(car ~ -1 + euc, data = distances)$coefficient
+# 
+# rm(distances)
+
+coef_distance <- 1.473 
+coef_walk <- 17.55
+coef_bike <- 5.721
+coef_transit <- 3.672
+coef_car <- 1.334
 
 # Création des dossiers
-dir <-"/space_mounts/data/marseille"
-unlink("{dir}/delta" |> glue(), recursive = TRUE)
-dir.create("{dir}/delta" |> glue())
-walk(les_morceaux, \(x) dir.create("{dir}/delta/COMMUNE={x}" |> glue()))
+dir_mar <- "/space_mounts/data/marseille"
+
+unlink("{dir_mar}/delta_iris" |> glue(), recursive = TRUE)
+dir.create("{dir_mar}/delta_iris" |> glue())
+walk(les_morceaux, \(x) dir.create("{dir_mar}/delta_iris/{x}" |> glue()))
 
 already_done <- map_lgl(les_morceaux, \(x) {
-  z <- list.files("{dir}/delta/COMMUNE={x}" |> glue())
+  z <- list.files("{dir_mar}/delta_iris/{x}" |> glue())
   return(length(z) >= 1)
 })
 
-plan("multisession", workers = 4L)
-options(future.globals.maxSize=3*1024^3)
+#plan("multisession", workers = 2L)
+#options(future.globals.maxSize=3*1024^3)
 
-un_iris = "13023"
-
-future_walk(les_morceaux[!already_done], \(un_iris) {
+walk(les_morceaux[!already_done], \(un_iris) {
+  library(SparseM)
   library(mpcmp)
   library(quantreg)
-  dir <-"/space_mounts/data/marseille"
   
   # les_identifiants <- open_dataset(idINS_emp_file) |> 
   #   filter(fromIris == un_iris, emp == TRUE) |> 
@@ -129,35 +162,37 @@ future_walk(les_morceaux[!already_done], \(un_iris) {
   # distances <- inner_join(les_identifiants, les_distances, by = "id") |> 
   #   setDT()
   # 
+  la_commune <- str_sub(un_iris, 1,5)
   
-  distances <- les_distances |> 
-    filter(COMMUNE==un_iris) |> 
-    semi_join(flux_mobpro, by = c("COMMUNE", "DCLT")) |> 
-    select(fromidINS, toidINS, travel_time, distance, mode, access_time) |> 
+  distances <- open_dataset(dist_dts) |> 
+    filter(COMMUNE==la_commune) |> 
+    select(fromidINS, toidINS, travel_time, distance, mode, access_time, n_rides, COMMUNE, DCLT) |> 
     collect() |> 
+    semi_join(flux_mobpro, by = c("COMMUNE", "DCLT")) |> 
+    select(-COMMUNE, -DCLT) |> 
+    left_join(id2iris, by = c("toidINS" = "idINS")) |> 
+    filter(IRIS == un_iris) |> 
     setDT()
   
-  # PATCH time2stop NA
+  if (nrow(distances) == 0) return(NULL)
   
-  z = dcast(distances[mode=="transit"|mode=="walk_tblr"], fromidINS + toidINS ~ mode, value.var = c("travel_time", "access_time"))
-  z = drop_na(z, access_time_transit)
-  z[access_time_transit == 0]
+  les_stations <- distances[mode=="transit", .(fromidINS, access_time, n_rides)]
+  les_stations[, dist_tc_proche := fifelse(access_time <= 12 & n_rides > 0, TRUE, FALSE, na = FALSE)]
+  les_stations <- les_stations[, .(dist_tc_proche = any(dist_tc_proche)), by = .(fromidINS)]
   
-  the_time2stops <- distances[mode=="transit", .(fromidINS, toidINS, travel_time, distance, access_time)]
-  the_time2stops <- the_time2stops[, .(time2stop = min(access_time, na.rm = TRUE)), by = .(fromidINS)]
-  
-  distances <- distances[the_time2stops, on = "fromidINS"]
+  distances <- distances[les_stations, on = "fromidINS"]
   
   distances[, `:=`(fromidINS = factor(fromidINS),
                    toidINS = factor(toidINS),
                    access_time = NULL,
+                   n_rides = NULL,
                    mode = fcase(
                      mode == "walk_tblr", "walk",
                      mode == "bike_tblr", "bike",
                      mode == "transit", "transit",
-                     mode == "car_dgr2", "car"
+                     mode == "car_dgr", "car"
                    ) |> factor(),
-                   dist_tc_proche = (time2stop <= 12))]
+                   dist_tc_proche = replace_na(dist_tc_proche, FALSE))]
   
   # setnames(distances, 
   #          c("distance_car", "travel_time_car", "travel_time_walk", "travel_time_bike", "travel_time_transit"),
@@ -165,23 +200,24 @@ future_walk(les_morceaux[!already_done], \(un_iris) {
   
   distances[, distance := distance / 1000] # passage en Km
   
-  dist_temp <- distances[mode=="car", .(fromidINS, toidINS, distance, dist_tc_proche)]
-  tt_temp <- dcast(distances, fromidINS + toidINS ~ mode, value.var = "travel_time")
+  dist_car <- distances[mode=="car", .(fromidINS, toidINS, distance)]
+  tt_temp <- dcast(distances, fromidINS + toidINS + dist_tc_proche ~ mode, value.var = "travel_time")
   tt_temp[, euc := r3035::idINS2dist(tt_temp$fromidINS, tt_temp$toidINS)/1000]
   
-  distances <- merge(tt_temp, dist_temp, by = c("fromidINS", "toidINS"), all.x = TRUE)
-  
-  coef_distance <- lm(distance - .1 ~ -1 + euc, data = distances)$coefficient 
-  coef_walk <- lm(walk ~ -1 + euc, data = distances)$coefficient 
-  coef_bike <- lm(bike ~ -1 + euc, data = distances)$coefficient
-  coef_transit <- lm(transit ~ -1 + euc, data = distances)$coefficient
-  coef_car <- lm(car ~ -1 + euc, data = distances)$coefficient
+  distances <- merge(tt_temp, dist_car, by = c("fromidINS", "toidINS"), all.x = TRUE)
+  rm(dist_car, tt_temp)
   
   distances[, ':='(distance = fifelse(is.na(distance), .1 + coef_distance * euc, distance),
                    tt_walk = fifelse(is.na(walk), round(coef_walk * euc), walk),
                    tt_bike = fifelse(is.na(bike), round(coef_bike * euc), bike),
                    tt_transit = fifelse(is.na(transit), round(coef_transit * euc), transit),
                    tt_car = fifelse(is.na(car), round(coef_car * euc), car))]
+  
+  # distances |> slice_sample(n=1000) |> ggplot(aes(x=distance)) +
+  #   geom_point(aes(y = tt_walk), col = "blue") +
+  #   geom_point(aes(y = tt_bike), col = "yellow") +
+  #   geom_point(aes(y = tt_transit), col = "green") +
+  #   geom_point(aes(y = tt_car), col = "red")
   
   distances[, ':='(bike = NULL, walk = NULL, transit = NULL, car = NULL)]
   
@@ -287,11 +323,11 @@ future_walk(les_morceaux[!already_done], \(un_iris) {
   
   dist <- rbindlist(dist, use.names = TRUE)
   
-  write_parquet(dist, "{dir}/delta/CODE_IRIS={un_iris}/part-0.parquet" |> glue())
+  write_parquet(dist, "/space_mounts/data/marseille/delta_iris/{un_iris}/part-0.parquet" |> glue())
   rm(dist)
 }, .progress=TRUE)
 
-cli::cli_alert_info("le dataset {dir}/delta a été écrit")
+cli::cli_alert_info("le dataset {dir_mar}/delta a été écrit")
 
 
 
