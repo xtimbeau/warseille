@@ -10,20 +10,20 @@ library(data.table)
 library(r3035)
 library(qs)
 conflict_prefer_all("dplyr", quiet=TRUE)
+source("secrets/azure.R")
 
 bl <- load("baselayer.rda")
 
 c200 <- qread(c200_file) # version 2017
 
-mobpro95 <- qs::qread(mobpro_file) |> 
-  filter(mobpro95)
+mobpro95 <- qs::qread(mobpro_file)
 
-communes <- unique(mobpro95$COMMUNE)
-dclts <- unique(mobpro95$DCLT)
-union_com <- unique(c(dclts, communes))
+communes <- mobpro95 |> filter(mobpro95) |>  distinct(COMMUNE) |> pull()
+dclts <- mobpro95 |> filter(mobpro95) |> distinct(DCLT) |> pull()
+ttes_com <- unique(c(dclts, communes))
 
 iris <- qread(iris_file) |> 
-  filter(DEPCOM %in% union_com) |> 
+  filter(DEPCOM %in% ttes_com) |> 
   mutate(id = 1:n())
 
 com_ze <- iris |> 
@@ -69,8 +69,11 @@ flat_irises <- purrr::list_c(irises)
 #   pull(INSEE_COM)
 
 act_mobpro <- qs::qread(mobpro_file) |> 
+  filter(COMMUNE %in% communes) |> 
   group_by(COMMUNE) |> 
-  summarize(act_mobpro.tot = sum(NB))
+  mutate(mobpro95 = replace_na(mobpro95, FALSE)) |> 
+  summarize(act_mobpro.tot = sum(NB),
+            fuite_mobpro.tot = sum(NB)-sum(NB[mobpro95==TRUE], na.rm=TRUE))
 
 c200i <- c200 |> 
   semi_join(com_ze, by=c("com22"="idcom")) |> 
@@ -79,9 +82,10 @@ c200i <- c200 |>
   left_join(act_mobpro, by = c("com22"= "COMMUNE")) |> 
   group_by(com22) |> 
   mutate(
-    act_mobpro = ind / sum(ind, na.rm=TRUE) * act_mobpro.tot) |> 
+    act_mobpro = ind / sum(ind, na.rm=TRUE) * act_mobpro.tot,
+    fuite_mobpro = ind / sum(ind, na.rm=TRUE) * fuite_mobpro.tot) |> 
   ungroup() |> 
-  select(-act_mobpro.tot, -CODE_IRIS)
+  select(-c(act_mobpro.tot, fuite_mobpro.tot), -CODE_IRIS)
 
 c200e <- empze |>
   transmute(
@@ -89,8 +93,7 @@ c200e <- empze |>
     dep=iris$DEP[flat_irises],
     com=iris$DEPCOM[flat_irises], # on prend les iris pour être cohérent, un carreau peut être sur plusieurs communes
     IRIS = iris$CODE_IRIS[flat_irises],
-    emp, emp_resident
-  ) 
+    emp, emp_resident) 
 
 c200ze <- full_join(c200i |> st_drop_geometry(), c200e |> st_drop_geometry() |> select(idINS, emp, emp_resident, IRIS, com, dep),
                     by = "idINS", suffix = c("",".e")) |> 
@@ -126,7 +129,5 @@ popact <- readxl::read_xlsx(
 
 c200ze <- c200ze |> 
   left_join(popact, by=c("com"="com21"))
-
 qs::qsave(c200ze, file=c200ze_file)
-source("secrets/azure.R")
 bd_write(c200ze)

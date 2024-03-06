@@ -138,6 +138,9 @@ dir.create(repository_notc)
 localr5 <- str_c(localdata, "/r5_base")
 localr5car <- str_c(localdata, "/r5car")
 
+time_matrix <- "{dir_dist}/time_matrix.qs" |> glue()
+rank_matrix <- "{dir_dist}/rank_matrix.qs" |> glue()
+
 # résultats intermédiaires
 mobpro_file <- "{mdir}/mobpro.qs" |> glue()
 empetact <- "{mdir}/empetact.qs" |> glue()
@@ -237,6 +240,7 @@ save(list = unique(
     "q_men_file",
     "r5files_rep",
     "r5_output",
+    "rank_matrix",
     "repository_distances",
     "repository_distances_scol",
     "repository_distances_emploi",
@@ -245,14 +249,15 @@ save(list = unique(
     "scripts",
     "seuil_distance_proba",
     "seuil_temps_car",
-    "tcm_ind_kish_file",
-    "tcm_men_file",
-    "temp_dir",
     "scot1.n",
     "scot2.n",
     "scot3.n",
     "scot4.n",
     "scot5.n",
     "scot_tot.n",
+    "tcm_ind_kish_file",
+    "tcm_men_file",
+    "temp_dir",
+    "time_matrix",
     "ville")),
   file = "baselayer.rda")

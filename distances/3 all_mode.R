@@ -27,7 +27,7 @@ arrow::set_cpu_count(8)
 cli::cli_alert_info("lecture de baselayer dans {.path {getwd()}}")
 load("baselayer.rda")
 
-modes <- set_names(c("walk_tblr", 'bike_tblr', 'car_dgr2'))
+modes <- set_names(c("walk_tblr", 'bike_tblr', 'car_dgr'))
 
 cli::cli_alert_info("lecture de {.path {idINS_emp_file}}")
 

@@ -33,9 +33,9 @@ DCLTs <- mobpro |> distinct(DCLT) |> pull()
 
 idINSes <- qs::qread(c200ze_file) |> 
   st_drop_geometry() |> 
-  select(com=com22, idINS, scot, emp_resident, ind) |> 
+  select(com=com22, idINS, scot, emp_resident, ind, act_mobpro) |> 
   mutate(from = scot & (ind>0) & com%in%COMMUNEs,
-         to = emp_resident>0 & com %in%DCLTs) |> 
+         to = emp_resident>0 & com%in%DCLTs) |> 
   filter(from | to)
 
 origines <- idINSes |> 
