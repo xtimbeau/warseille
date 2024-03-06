@@ -33,7 +33,7 @@ tos <- c200ze |> filter(emp_resident>0) |> pull(idINS)
 if(!file.exists(time_dts)) {
   unlink(time_dts, force=TRUE, recursive = TRUE)
   dir.create(time_dts)
-  plan("multisession", workers= 8)
+  plan("multisession", workers= 4)
   future_walk(com_geo21_scot, ~{
     gc()
     dfn <- str_c(dist_dts, "/", .x, "/allmode.parquet")
@@ -51,15 +51,17 @@ if(!file.exists(time_dts)) {
     tcom <- bind_rows(
       tcom, 
       ttos |> anti_join(tcom, by=c("fromidINS", "toidINS"))) |> 
-      arrange(COMMUNE, fromidINS, toidINS) 
-    # |> 
-    #   mutate(euc = r3035::idINS2dist(fromidINS, toidINS))
-    # 
-    # tcom.mean <- mean(tcom |> select(euc, t) |> filter(!is.na(t), t>0) |> mutate( v = euc / t) |> pull(v), na.rm=TRUE)
-    # 
-    # tcom <- tcom |> 
-    #   mutate(t = if_else(is.na(t), euc/tcom.mean, t))
-    # 
+      arrange(COMMUNE, fromidINS, toidINS) |>
+      mutate(euc = r3035::idINS2dist(fromidINS, toidINS)/1000)
+
+    tcom.mean <- mean(tcom |> select(euc, t) |> filter(!is.na(t), t>0) |> mutate( v = euc / t) |> pull(v), na.rm=TRUE)
+
+    tcom <- tcom |>
+      mutate(
+        euc = euc/tcom.mean,
+        t = if_else(is.na(t)&euc<90, euc, t)) |> 
+      select(-euc)
+    
     tdir <- str_c(time_dts, "/", .x)
     rfn <- str_c(tdir, "/tt.parquet")
     dir.create(tdir)

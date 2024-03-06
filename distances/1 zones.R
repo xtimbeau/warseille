@@ -140,7 +140,7 @@ localr5car <- str_c(localdata, "/r5car")
 
 time_matrix <- "{dir_dist}/time_matrix.qs" |> glue()
 rank_matrix <- "{dir_dist}/rank_matrix.qs" |> glue()
-
+delta_dts <- "{mdir}/delta_iris" |> glue()
 # résultats intermédiaires
 mobpro_file <- "{mdir}/mobpro.qs" |> glue()
 empetact <- "{mdir}/empetact.qs" |> glue()
@@ -200,6 +200,7 @@ save(list = unique(
     "communes_ref_file",
     "communes_mb99_file",
     "decor_carte_file",
+    "delta_dts",
     "densitescommunes",
     "deploc_file",
     "dir_dist",
