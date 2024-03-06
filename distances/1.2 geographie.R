@@ -242,7 +242,8 @@ mblr3 <- mapboxapi::get_static_tiles(
   location = st_union(com2021epci) |> st_buffer(-1000) |> st_transform(4326),
   zoom=10, 
   style_id = "ckjka0noe1eg819qrhuu1vigs", 
-  username="xtimbeau") 
+  username="xtimbeau",
+  access_token = Sys.getenv("mapbox_token")) 
 mblr3clair <- 255 - (255-mblr3)*0.75
 # mblr3 <-(st_as_stars(mblr3)[,,,1:3])|> st_transform(3035) |> st_rgb()
 mblr3 <- st_as_stars(mblr3)[,,,1:3]
