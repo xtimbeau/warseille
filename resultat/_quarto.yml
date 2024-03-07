@@ -13,7 +13,6 @@ book:
   author:
     - name: Xavier Timbeau
     - name: Maxime Parodi
-    - name: Scotia Hille
   navbar: false
   page-navigation: true
   back-to-top-navigation: true
@@ -31,8 +30,8 @@ book:
     - localisations.qmd
     - accessibilites.qmd
     - trajets.qmd
-    - next.qmd
     - commerces.qmd
+    - next.qmd
     
 execute: 
   freeze: false

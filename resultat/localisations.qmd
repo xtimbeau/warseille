@@ -1,3 +1,10 @@
+---
+  author:
+    - name: Xavier Timbeau
+    - name: Maxime Parodi
+    - name: Jeanne Devineau
+---
+
 ```{r init, include=FALSE}
 source("init.R")
 ```

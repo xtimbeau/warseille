@@ -1,3 +1,11 @@
+---
+  author:
+    - name: Xavier Timbeau
+    - name: Maxime Parodi
+    - name: Jeanne Devineau
+---
+
+
 ```{r init, include=FALSE}
 source("init.R")
 ```
@@ -53,11 +61,11 @@ t_access |>
   filter(mode == "car_dgr") |> 
   left_join(communes |>
               st_drop_geometry() |>
-              select(com22=INSEE_COM, NOM, POPULATION), by="com22") |> 
+              select(com=INSEE_COM, NOM, POPULATION), by="com") |> 
   transmute(
     act_mobpro=act_mobpro/4,
     tooltip=glue::glue(
-    "{NOM} {com22}<br>
+    "{NOM} {com}<br>
      {ind} ind dans le carreau<br>
      {POPULATION} dans la commune<br>
      accès à 20k: {round(to20k)} min<br>
@@ -83,11 +91,11 @@ t_access |>
   filter(mode == "transit5") |> 
   left_join(communes |>
               st_drop_geometry() |>
-              select(com22=INSEE_COM, NOM, POPULATION)) |> 
+              select(com=INSEE_COM, NOM, POPULATION)) |> 
   transmute(
     act_mobpro=act_mobpro/4,
     tooltip=glue::glue(
-    "{NOM} {com22}<br>
+    "{NOM} {com}<br>
      {ind} ind dans le carreau<br>
      {POPULATION} dans la commune<br>
      accès à 20k: {round(to20k)} min<br>
@@ -114,11 +122,11 @@ t_access |>
   filter(mode == "bike_tblr") |> 
   left_join(communes |>
               st_drop_geometry() |>
-              select(com22=INSEE_COM, NOM, POPULATION)) |> 
+              select(com=INSEE_COM, NOM, POPULATION)) |> 
   transmute(
     act_mobpro=act_mobpro/4, 
     tooltip=glue::glue(
-    "{NOM} {com22}<br>
+    "{NOM} {com}<br>
      {ind} ind dans le carreau<br>
      {POPULATION} dans la commune<br>
      accès à 20k: {round(to20k)} min<br>
@@ -145,11 +153,11 @@ t_access |>
   filter(mode == "walk_tblr") |> 
   left_join(communes |>
               st_drop_geometry() |>
-              select(com22=INSEE_COM, NOM, POPULATION)) |> 
+              select(com=INSEE_COM, NOM, POPULATION)) |> 
   transmute(
     act_mobpro=act_mobpro/4, 
     tooltip=glue::glue(
-    "{NOM} {com22}<br>
+    "{NOM} {com}<br>
      {ind} ind dans le carreau<br>
      {POPULATION} dans la commune<br>
      accès à 20k: {round(to20k)} min<br>
@@ -207,7 +215,7 @@ colors <- c("Marseille 3e" = "chartreuse",
 ggplot(
   access_par_com |> 
     filter(mode %in% c("car_dgr", "transit5", "bike_tblr", "walk_tblr"))) +
-  geom_line(aes(x=temps, y=emp, group=com22), col="gray80", linewidth=0.2) +
+  geom_line(aes(x=temps, y=emp, group=com), col="gray80", linewidth=0.2) +
   geom_line(data = ~filter(.x, !str_detect(label, "^n")),
             aes(x=temps, y=emp, color=label)) +
   scale_color_manual(values = colors)+
@@ -252,7 +260,7 @@ Les courbes représentent la densité de population en fonction du temps d'acces
 ```{r}
 t_access  <- t_access |> 
   mutate(zone = case_match(
-    com22,
+    com,
     str_c(13201:13216) ~ "Marseille",
     "13039"  ~ 'Fos-sur-Mer',
     "13001" ~ 'Aix-en-Provence', 
@@ -350,7 +358,7 @@ d_access <- t_access |>
     by = "idINS200") |> 
   filter(mode %in% c("bike_tblr", "car_dgr", "transit5", "walk_tblr")) |> 
   mutate(
-    zone = case_match(com22,
+    zone = case_match(com,
                       str_c(13201:13216) ~ "Marseille",
                       "13039"  ~ 'Fos-sur-Mer',
                       "13001" ~ 'Aix-en-Provence', 
@@ -359,7 +367,7 @@ d_access <- t_access |>
 deciles <- c200ze |> 
   st_drop_geometry() |> 
   mutate(
-    zone = case_match(com22,
+    zone = case_match(com,
                       str_c(13201:13216) ~ "Marseille",
                       "13039"  ~ 'Fos-sur-Mer',
                       "13001" ~ 'Aix-en-Provence', 
@@ -396,7 +404,7 @@ colors <- c("Marseille" = "chartreuse2", "Aix-en-Provence"="pink2", "Fos-sur-Mer
 ggplot(deciles)+
   geom_bar(aes(x=decile, fill=zone, weight = ind), 
            col="white", width = 0.5)+
-  scale_y_continuous(labels = ofce::f2si2, name="population")+
+  scale_y_continuous(labels = scales::number_format(scale = 1/1000, suffix  = "k"), name="population")+
   scale_fill_manual(name=NULL, values = colors)+
   theme_ofce()+
   xlab(NULL)+
