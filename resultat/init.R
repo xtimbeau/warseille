@@ -6,6 +6,7 @@ library(mapdeck)
 library(ofce)
 library(downloadthis)
 library(gt)
+library(tmap)
 
 opts_chunk$set(
   echo = FALSE,

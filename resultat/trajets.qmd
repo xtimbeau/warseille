@@ -1,3 +1,10 @@
+---
+  author:
+    - name: Xavier Timbeau
+    - name: Maxime Parodi
+---
+
+
 ```{r init, include=FALSE}
 source("init.R")
 ```
@@ -14,7 +21,7 @@ La **première étape** consiste à prendre en compte la géographie du territoi
 
 La **seconde étape** consiste à utiliser MEAPS [@meaps2023] pour générer les flux d'un carreau à l'autre. MEAPS permet de reproduire avec un faible nombre de paramètres [@meaps2024a] les données intercommunales issues de la mobilité professionnelle quotidienne (MOBPRO) et de respecter les équilibres d'ensemble (un emploi reçoit un actif, chaque actif a un emploi). Du fait de ces propriétés, il est possible d'utiliser MEAPS pour intrapoler à une échelle géographique fine (celle de la première étape) les flux.
 
-La **troisième étape** associe aux flux les fréquences, la complexité des boucle et le mode de transport. Cette analyse est également conduite au niveau fin du carreau 200m, pour différentes catégories de ménage. Les catégories de ménages sont identifiées soit à l'IRIS soit à la commune et sont intrapolées à partir des données carroyées de l'INSEE (pour l'année 2019) [@meaps2024b]. En multipliant les flux, les fréquences, les complexités de boucles, les modes, les distances entre le domicile et le travail on obtient alors un estimateur des kilomètres parcourus. On passe ensuite du nombre de kilomètres au CO~2~ par l'application d'un coefficient uniforme[^trajets-1].
+La **troisième étape** associe aux flux les fréquences, la complexité des boucle et le mode de transport. Cette analyse est également conduite au niveau fin du carreau 200m, pour différentes catégories de ménage. Les catégories de ménages sont identifiées soit à l'IRIS soit à la commune et sont intrapolées à partir des données carroyées de l'INSEE (pour l'année 2019) [@meaps2024b]. En multipliant les flux, les fréquences, les complexités de boucles, les modes, les distances entre le domicile et le travail on obtient alors un estimateur des kilomètres parcourus. On passe ensuite du nombre de kilomètres au CO~2~ par l'application d'un coefficient uniforme[^trajets-1] indiquant le contenu en CO~2~ d'un kilomètre en moyenne pour une voiture aux kilomètres parcourus en voiture.
 
 [^trajets-1]: Le SDES a publié récemment une version enrichie de l'EMP 2019 en intégrant des coefficients d'émission de CO~2~ pour les véhicules possédés par les ménages. Jusqu'à maintenant cette information était déclarative et très approximative. Cette information est plus riche et sera prochainement intégrée, si possible.
 
@@ -25,3 +32,8 @@ A ce stade, les modèles estimés le sont sur les données de l'Enquête Mobilit
 ```{r}
 
 ```
+
+## Références bibliographiques  {.unnumbered}
+
+::: {#refs}
+:::
