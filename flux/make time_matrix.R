@@ -68,8 +68,7 @@ if(!file.exists(time_dts)) {
     
   }, .progress=TRUE)
   
-  time <- open_dataset(time_dts) |> 
-    collect()
+  time <- arrow::open_dataset(time_dts) 
   
   arrow::write_parquet(time, "{dir_dist}/time.parquet" |> glue())
 }
@@ -96,4 +95,3 @@ tr <- matrixStats::rowRanks(tt, ties.method = "random")
 
 qs::qsave(tt, time_matrix)
 qs::qsave(tr, rank_matrix)
-
