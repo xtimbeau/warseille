@@ -46,6 +46,7 @@ densite <- readxl::read_xlsx(densites_communes, skip = 4)
 iris4mod <- iris4mod |> 
   st_drop_geometry() |> 
   mutate(codgeo = str_sub(IRIS,1,5)) |> 
+  mutate(codgeo = ifelse(str_detect(codgeo, "^132"), "13055", codgeo)) |> 
   left_join(densite |> select(codgeo, densite=gridens), by="codgeo") |> 
   mutate(DENSITECOM_RES = case_when(
     densite == 1 ~ "Dense",

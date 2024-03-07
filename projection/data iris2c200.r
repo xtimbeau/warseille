@@ -134,4 +134,4 @@ tmap_mode("view")
 tm_shape(iris4mod )+tm_fill(col="voiture")
 
 tm_shape(iris4mod |> mutate(i2 = ti2/ind_iris))+tm_fill(col="i2")
-tm_shape(iris4mod)+tm_fill(col="revuce")
+tm_shape(iris4mod)+tm_fill(col="com22")
