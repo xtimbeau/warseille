@@ -4537,3 +4537,9 @@ INFO [1302] [2024-03-07 14:59:06] paquet:N2292000E3930000 ppou:21736 ttm ok 1577
 SUCCESS [1302] [2024-03-07 14:59:06] carreau:N2292000E3930000 1 ancres 55.5k@2.8kp/s demandees, 26.6k@1.3kp/s retenues
 INFO [1306] [2024-03-07 14:59:08] paquet:N2304800E3924000 ppou:25772 ttm ok 29759
 SUCCESS [1306] [2024-03-07 14:59:09] carreau:N2304800E3924000 1 ancres 72.4k@2.4kp/s demandees, 42.9k@1.4kp/s retenues
+INFO [1299] [2024-03-07 14:59:20] paquet:N2248800E3948800 ppou:1232 ttm ok 17416
+SUCCESS [1299] [2024-03-07 14:59:20] carreau:N2248800E3948800 1 ancres 53.2k@2.5kp/s demandees, 27k@1.3kp/s retenues
+INFO [1305] [2024-03-07 14:59:22] paquet:N2257600E3951600 ppou:4658 ttm ok 30667
+SUCCESS [1305] [2024-03-07 14:59:22] carreau:N2257600E3951600 1 ancres 69.8k@2.1kp/s demandees, 43.1k@1.3kp/s retenues
+INFO [1303] [2024-03-07 14:59:27] paquet:N2266000E3928800 ppou:8563 ttm ok 33178
+SUCCESS [1303] [2024-03-07 14:59:27] carreau:N2266000E3928800 1 ancres 68.9k@2.2kp/s demandees, 44.9k@1.4kp/s retenues
