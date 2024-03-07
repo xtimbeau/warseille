@@ -103,7 +103,7 @@ walk(coms, ~{
 }, .progress=TRUE)
 
 ## transit 95 --------------
-future::plan("multisession", workers=8L)
+future::plan("multisession", workers=16L)
 r5_transit5 <- routing_setup_r5(
   path = '~/files/localr5/', 
   date=jour_du_transit,
