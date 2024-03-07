@@ -1,0 +1,23 @@
+```{r init, include=FALSE}
+source("init.R")
+```
+
+# Du potentiel de l'accessibilité aux trajets effectifs
+
+L'indicateur d'accessibilité permet d'évaluer le potentiel. La modélisation des flux et leur calage sur les flux intercommunaux issus de MOBPRO permet de réaliser ce passage. Il est est difficile de dire qu'un indicateur est supérieur systématiquement à l'autre. Les flux sont la bonne source pour imputer les émissions de GES à chaque ménage de chaque carreau. L'accessibilité intéresse l'urbaniste pour évaluer l'attractivité d'un territoire ou participe à expliquer le gradient de prix sur les territoires. A priori, on attend plus de contraste pour l'accessibilité, les comportements ayant tendance à transférer les différences d'accessibilité sur d'autres dimensions. Ainsi, un individu disposant d'une faible accessibilité aura sans doute un emploi proche de chez lui, qu'il ait choisi l'emploi en fonction de l'endroit où il habite ou l'endroit où il habite en fonction de l'emploi qu'il a trouvé. En revanche, le potentiel ne dit rien sur le tri spatial qui est opéré sur le territoire. Tous les ménages ne sont pas uniformément répartis sur le territoire mais sont fortement ségrégés spatialement suivant certaines caractéristiques, en particulier le revenu et le nombre d'enfants.
+
+## Méthode
+
+La méthode employée suit celle développée dans @meaps2024b et mise en oeuvre à la Rochelle [@lempérière2023].
+
+La **première étape** consiste à prendre en compte la géographie du territoire par la localisation au carreau 200m des résidents et des emplois (voir les parties sur [les localisations](localisations.qmd) et [l'accessibilité](accessibilites.qmd)). Ces localisations sont ensuite reliées par les réseaux de transport, pour 4 modes \[marche, vélo, transport en commun, voiture\]. A ce stade la voiture n'intègre pas la congestion, les données proposées par Mapbox le permettraient.
+
+La **seconde étape** consiste à utiliser MEAPS [@meaps2023] pour générer les flux d'un carreau à l'autre. MEAPS permet de reproduire avec un faible nombre de paramètres [@meaps2024a] les données intercommunales issues de la mobilité professionnelle quotidienne (MOBPRO) et de respecter les équilibres d'ensemble (un emploi reçoit un actif, chaque actif a un emploi). Du fait de ces propriétés, il est possible d'utiliser MEAPS pour intrapoler à une échelle géographique fine (celle de la première étape) les flux.
+
+La **troisième étape** associe aux flux les fréquences, la complexité des boucle et le mode de transport. Cette analyse est également conduite au niveau fin du carreau 200m, pour différentes catégories de ménage. Les catégories de ménages sont identifiées soit à l'IRIS soit à la commune et sont intrapolées à partir des données carroyées de l'INSEE (pour l'année 2019) [@meaps2024b]. En multipliant les flux, les fréquences, les complexités de boucles, les modes, les distances entre le domicile et le travail on obtient alors un estimateur des kilomètres parcourus. On passe ensuite du nombre de kilomètres au CO~2~ par l'application d'un coefficient uniforme[^trajets-1].
+
+[^trajets-1]: Le SDES a publié récemment une version enrichie de l'EMP 2019 en intégrant des coefficients d'émission de CO~2~ pour les véhicules possédés par les ménages. Jusqu'à maintenant cette information était déclarative et très approximative. Cette information est plus riche et sera prochainement intégrée, si possible.
+
+A ce stade, les modèles estimés le sont sur les données de l'Enquête Mobilités des Personnes (EMP 2019), hors Ile de France. Dans une prochaine étape, nous utiliserons l'EMC^2^ à titre de comparaison, sous réserve que l'EMC^2^ permettent les mêmes analyses.
+
+## Carte des émissions de CO~2~ pour les mobilités professionnelles

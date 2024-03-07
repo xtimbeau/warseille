@@ -1,0 +1,17 @@
+```{r init, include=FALSE}
+source("init.R")
+```
+
+# Déplacements pour le motif commerce
+
+## proposition de méthode
+
+L'enquête mobilité certifiée CEREMA (EMC^2^) délivre une information de location assez fine. Elle correspond peu ou prou à la définition de l'IRIS [@fig-subemc2]. Cette information permet donc pour d'autres motifs que le motif professionnel
+
+```{r}
+#| label: fig-subemc2
+#| fig-cap: "Subdivisions de l'EMC^2^"
+
+# bd_read("carte_emc2")
+
+```
