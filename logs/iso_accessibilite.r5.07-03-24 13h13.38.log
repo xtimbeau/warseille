@@ -1,0 +1,425 @@
+SUCCESS [2024-03-07 12:13:38] Calcul accessibilite version 2
+SUCCESS [2024-03-07 12:13:38] $type
+SUCCESS [2024-03-07 12:13:38] [1] "r5"
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $path
+SUCCESS [2024-03-07 12:13:38] ~/files/localr5/
+SUCCESS [2024-03-07 12:13:38] FALSE
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $string
+SUCCESS [2024-03-07 12:13:38] r5 routing WALK&TRANSIT sur ~/files/localr5/ a 2024-03-07 12:13:35.589544
+SUCCESS [2024-03-07 12:13:38] FALSE
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $core
+SUCCESS [2024-03-07 12:13:38] [1] "Java-Object{org.ipea.r5r.R5RCore@55b53d44}"
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $montecarlo
+SUCCESS [2024-03-07 12:13:38] [1] 1
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $time_window
+SUCCESS [2024-03-07 12:13:38] [1] 60
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $departure_datetime
+SUCCESS [2024-03-07 12:13:38] [1] "2023-06-14 08:00:00 UTC"
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $mode
+SUCCESS [2024-03-07 12:13:38] [1] "WALK"    "TRANSIT"
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $percentiles
+SUCCESS [2024-03-07 12:13:38] [1] 0.05
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $max_walk_time
+SUCCESS [2024-03-07 12:13:38] [1] Inf
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $walk_speed
+SUCCESS [2024-03-07 12:13:38] [1] 5
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $bike_speed
+SUCCESS [2024-03-07 12:13:38] [1] 12
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $max_rides
+SUCCESS [2024-03-07 12:13:38] [1] 3
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $max_lts
+SUCCESS [2024-03-07 12:13:38] [1] 2
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $elevation
+SUCCESS [2024-03-07 12:13:38] [1] "NONE"
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $elevation_tif
+SUCCESS [2024-03-07 12:13:38] NULL
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $pkg
+SUCCESS [2024-03-07 12:13:38] [1] "r5r"   "rJava"
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $dfMaxLength
+SUCCESS [2024-03-07 12:13:38] [1] 10
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $extended
+SUCCESS [2024-03-07 12:13:38] [1] TRUE
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $elevation_data
+SUCCESS [2024-03-07 12:13:38] NULL
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $max_rows
+SUCCESS [2024-03-07 12:13:38] [1] 5000
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $n_threads
+SUCCESS [2024-03-07 12:13:38] [1] 16
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $future
+SUCCESS [2024-03-07 12:13:38] [1] TRUE
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $jMem
+SUCCESS [2024-03-07 12:13:38] [1] "12G"
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $r5r_jar
+SUCCESS [2024-03-07 12:13:38] [1] "/usr/local/lib/R/site-library/r5r/jar/r5r_0_6_0.jar"
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $r5_jar
+SUCCESS [2024-03-07 12:13:38] character(0)
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $future_routing
+SUCCESS [2024-03-07 12:13:38] function(routing) {
+SUCCESS [2024-03-07 12:13:38]       rout <- routing
+SUCCESS [2024-03-07 12:13:38]       rout$elevation_data <- NULL
+SUCCESS [2024-03-07 12:13:38]       return(rout)}
+SUCCESS [2024-03-07 12:13:38] <bytecode: 0x55a11ee3d1b8>
+SUCCESS [2024-03-07 12:13:38] <environment: 0x55a1275fe928>
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] $core_init
+SUCCESS [2024-03-07 12:13:38] function(routing){
+SUCCESS [2024-03-07 12:13:38]       options(java.parameters = glue::glue('-Xmx{routing$jMem}'))
+SUCCESS [2024-03-07 12:13:38]       rJava::.jinit(silent=TRUE)
+SUCCESS [2024-03-07 12:13:38]       r5r::stop_r5()
+SUCCESS [2024-03-07 12:13:38]       rJava::.jgc(R.gc = TRUE)
+SUCCESS [2024-03-07 12:13:38]       options(r5r.montecarlo_draws = routing$montecarlo)
+SUCCESS [2024-03-07 12:13:38]       core <- r5r::setup_r5(data_path = routing$path, verbose=FALSE,
+SUCCESS [2024-03-07 12:13:38]                             elevation=routing$elevation)
+SUCCESS [2024-03-07 12:13:38]       out <- routing
+SUCCESS [2024-03-07 12:13:38]       out$core <- core
+SUCCESS [2024-03-07 12:13:38]       if(!is.null(routing$elevation_tif))
+SUCCESS [2024-03-07 12:13:38]         out$elevation_data <- terra::rast(str_c(routing$path, "/", routing$elevation_tif))
+SUCCESS [2024-03-07 12:13:38]       return(out)
+SUCCESS [2024-03-07 12:13:38]     }
+SUCCESS [2024-03-07 12:13:38] <bytecode: 0x55a11ee41538>
+SUCCESS [2024-03-07 12:13:38] <environment: 0x55a1275fe928>
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] 
+SUCCESS [2024-03-07 12:13:38] tmax:120
+SUCCESS [2024-03-07 12:13:38] pdt:1
+SUCCESS [2024-03-07 12:13:38] chunk:100k
+SUCCESS [2024-03-07 12:13:38] resolution:200
+SUCCESS [2024-03-07 12:13:38] out:200
+SUCCESS [2024-03-07 12:13:38] les variables sont emp_resident
+SUCCESS [2024-03-07 12:13:39] taille:886.6M gr:8.9k res_gr:400
+SUCCESS [2024-03-07 12:13:39] 26k ou, 34.9k quoi
+SUCCESS [2024-03-07 12:13:39] 9717 carreaux, 3 subsampling
+SUCCESS [2024-03-07 12:13:39] future:TRUE, 8 workers
+SUCCESS [276841] [2024-03-07 12:14:02] carreau:N2238800E3962400 0 ancres 34.9k@18.7kp/s demandees, 1@537.6mp/s retenues
+SUCCESS [276838] [2024-03-07 12:14:11] carreau:N2275600E3968800 0 ancres 34.9k@4.4kp/s demandees, 4.5k@569p/s retenues
+SUCCESS [276843] [2024-03-07 12:14:12] carreau:N2295200E3949600 0 ancres 34.9k@5.8kp/s demandees, 3.1k@518.1p/s retenues
+INFO [276840] [2024-03-07 12:14:14] paquet:N2289200E3909600 ppou:20492 ttm ok 2121
+SUCCESS [276840] [2024-03-07 12:14:14] carreau:N2289200E3909600 1 ancres 39.6k@4kp/s demandees, 7k@719.2p/s retenues
+INFO [276838] [2024-03-07 12:14:16] paquet:N2275600E3971200 ppou:14300 ttm ok 2226
+SUCCESS [276838] [2024-03-07 12:14:16] carreau:N2275600E3971200 1 ancres 37.2k@7.4kp/s demandees, 4.8k@948.5p/s retenues
+SUCCESS [276840] [2024-03-07 12:14:17] carreau:N2289200E3910000 0 ancres 34.9k@14.7kp/s demandees, 2.1k@897.6p/s retenues
+INFO [276841] [2024-03-07 12:14:18] paquet:N2239200E3961600 ppou:7 ttm ok 8926
+SUCCESS [276841] [2024-03-07 12:14:18] carreau:N2239200E3961600 1 ancres 44.8k@2.8kp/s demandees, 14.2k@898.9p/s retenues
+INFO [276843] [2024-03-07 12:14:20] paquet:N2295200E3950400 ppou:23316 ttm ok 3620
+SUCCESS [276843] [2024-03-07 12:14:20] carreau:N2295200E3950400 1 ancres 39.1k@4.8kp/s demandees, 8.5k@1kp/s retenues
+INFO [276838] [2024-03-07 12:14:21] paquet:N2275600E3972000 ppou:14213 ttm ok 1918
+SUCCESS [276838] [2024-03-07 12:14:21] carreau:N2275600E3972000 1 ancres 36.8k@8.9kp/s demandees, 3.9k@954.2p/s retenues
+SUCCESS [276838] [2024-03-07 12:14:23] carreau:N2275600E3972400 0 ancres 34.9k@16.5kp/s demandees, 1.4k@667.3p/s retenues
+INFO [276836] [2024-03-07 12:14:23] paquet:N2282400E3915600 ppou:17435 ttm ok 11770
+SUCCESS [276836] [2024-03-07 12:14:23] carreau:N2282400E3915600 1 ancres 47.1k@2.4kp/s demandees, 18.5k@939.9p/s retenues
+INFO [276839] [2024-03-07 12:14:24] paquet:N2263600E3971200 ppou:7606 ttm ok 15559
+SUCCESS [276839] [2024-03-07 12:14:24] carreau:N2263600E3971200 1 ancres 53.6k@2.3kp/s demandees, 22.3k@969.1p/s retenues
+SUCCESS [276840] [2024-03-07 12:14:25] carreau:N2289200E3911200 0 ancres 34.9k@4.7kp/s demandees, 8.2k@1.1kp/s retenues
+INFO [276837] [2024-03-07 12:14:30] paquet:N2270000E3914400 ppou:11208 ttm ok 21270
+SUCCESS [276837] [2024-03-07 12:14:30] carreau:N2270000E3914400 1 ancres 57.4k@2kp/s demandees, 29.3k@1kp/s retenues
+SUCCESS [276840] [2024-03-07 12:14:31] carreau:N2289200E3919600 0 ancres 34.9k@5.5kp/s demandees, 7.4k@1.2kp/s retenues
+INFO [276841] [2024-03-07 12:14:32] paquet:N2239200E3962000 ppou:10 ttm ok 10180
+SUCCESS [276841] [2024-03-07 12:14:32] carreau:N2239200E3962000 1 ancres 46.4k@3.4kp/s demandees, 16.2k@1.2kp/s retenues
+INFO [276843] [2024-03-07 12:14:34] paquet:N2295200E3951200 ppou:23410 ttm ok 6475
+SUCCESS [276843] [2024-03-07 12:14:34] carreau:N2295200E3951200 1 ancres 42k@3.3kp/s demandees, 14.3k@1.1kp/s retenues
+SUCCESS [276840] [2024-03-07 12:14:38] carreau:N2289200E3923200 0 ancres 34.9k@5.8kp/s demandees, 7.2k@1.2kp/s retenues
+INFO [276836] [2024-03-07 12:14:41] paquet:N2282400E3916000 ppou:17436 ttm ok 14652
+SUCCESS [276836] [2024-03-07 12:14:41] carreau:N2282400E3916000 1 ancres 54.9k@3.2kp/s demandees, 21.8k@1.3kp/s retenues
+INFO [276839] [2024-03-07 12:14:43] paquet:N2263600E3971600 ppou:7520 ttm ok 17092
+SUCCESS [276839] [2024-03-07 12:14:43] carreau:N2263600E3971600 1 ancres 56.5k@3.1kp/s demandees, 24.7k@1.3kp/s retenues
+INFO [276838] [2024-03-07 12:14:43] paquet:N2275600E3928800 ppou:14232 ttm ok 11158
+SUCCESS [276838] [2024-03-07 12:14:43] carreau:N2275600E3928800 1 ancres 47.2k@2.4kp/s demandees, 24k@1.2kp/s retenues
+SUCCESS [276840] [2024-03-07 12:14:46] carreau:N2289200E3924000 0 ancres 34.9k@4.8kp/s demandees, 8.6k@1.2kp/s retenues
+INFO [276841] [2024-03-07 12:14:49] paquet:N2239200E3962400 ppou:4 ttm ok 15704
+SUCCESS [276841] [2024-03-07 12:14:49] carreau:N2239200E3962400 1 ancres 51.3k@3.1kp/s demandees, 21.5k@1.3kp/s retenues
+INFO [276842] [2024-03-07 12:14:50] paquet:N2255600E3948800 ppou:3858 ttm ok 45339
+SUCCESS [276842] [2024-03-07 12:14:50] carreau:N2255600E3948800 1 ancres 81.9k@1.6kp/s demandees, 61.5k@1.2kp/s retenues
+SUCCESS [276840] [2024-03-07 12:14:52] carreau:N2289200E3928800 0 ancres 34.9k@6.1kp/s demandees, 6.9k@1.2kp/s retenues
+INFO [276836] [2024-03-07 12:14:52] paquet:N2282400E3916800 ppou:17439 ttm ok 7106
+SUCCESS [276836] [2024-03-07 12:14:52] carreau:N2282400E3916800 1 ancres 45.1k@4.3kp/s demandees, 12.7k@1.2kp/s retenues
+INFO [276837] [2024-03-07 12:14:53] paquet:N2270000E3914800 ppou:11210 ttm ok 20766
+SUCCESS [276837] [2024-03-07 12:14:53] carreau:N2270000E3914800 1 ancres 56.5k@2.5kp/s demandees, 28.6k@1.2kp/s retenues
+SUCCESS [276838] [2024-03-07 12:14:54] carreau:N2275600E3930000 0 ancres 34.9k@3.6kp/s demandees, 12.4k@1.3kp/s retenues
+INFO [276843] [2024-03-07 12:14:57] paquet:N2295200E3951600 ppou:23412 ttm ok 22102
+SUCCESS [276843] [2024-03-07 12:14:57] carreau:N2295200E3951600 1 ancres 59.5k@2.5kp/s demandees, 30.9k@1.3kp/s retenues
+INFO [276840] [2024-03-07 12:14:57] paquet:N2289200E3932800 ppou:20533 ttm ok 1788
+SUCCESS [276840] [2024-03-07 12:14:57] carreau:N2289200E3932800 1 ancres 37.8k@6.9kp/s demandees, 5k@920.5p/s retenues
+INFO [276839] [2024-03-07 12:14:59] paquet:N2263600E3972000 ppou:7610 ttm ok 12640
+SUCCESS [276839] [2024-03-07 12:14:59] carreau:N2263600E3972000 1 ancres 48.5k@3.1kp/s demandees, 20k@1.3kp/s retenues
+INFO [276841] [2024-03-07 12:15:00] paquet:N2239200E3962800 ppou:6 ttm ok 5757
+SUCCESS [276841] [2024-03-07 12:15:00] carreau:N2239200E3962800 1 ancres 40.7k@4kp/s demandees, 11.9k@1.2kp/s retenues
+SUCCESS [276836] [2024-03-07 12:15:01] carreau:N2282400E3919200 0 ancres 34.9k@4.1kp/s demandees, 9.9k@1.1kp/s retenues
+SUCCESS [276839] [2024-03-07 12:15:03] carreau:N2263600E3916000 0 ancres 34.9k@9.6kp/s demandees, 3.9k@1.1kp/s retenues
+SUCCESS [276836] [2024-03-07 12:15:03] carreau:N2282400E3925600 0 ancres 34.9k@18.6kp/s demandees, 1.1k@586.6p/s retenues
+SUCCESS [276840] [2024-03-07 12:15:05] carreau:N2289200E3940400 0 ancres 34.9k@5kp/s demandees, 8.6k@1.2kp/s retenues
+SUCCESS [276838] [2024-03-07 12:15:06] carreau:N2275600E3933600 0 ancres 34.9k@2.8kp/s demandees, 15k@1.2kp/s retenues
+INFO [276839] [2024-03-07 12:15:12] paquet:N2263600E3916800 ppou:7524 ttm ok 4827
+SUCCESS [276839] [2024-03-07 12:15:12] carreau:N2263600E3916800 1 ancres 40.1k@4.5kp/s demandees, 10.4k@1.2kp/s retenues
+INFO [276837] [2024-03-07 12:15:13] paquet:N2270000E3915200 ppou:11063 ttm ok 13816
+SUCCESS [276840] [2024-03-07 12:15:13] carreau:N2289200E3942000 0 ancres 34.9k@4.7kp/s demandees, 9.5k@1.3kp/s retenues
+SUCCESS [276837] [2024-03-07 12:15:13] carreau:N2270000E3915200 1 ancres 50.8k@2.7kp/s demandees, 22.3k@1.2kp/s retenues
+INFO [276836] [2024-03-07 12:15:13] paquet:N2282400E3927600 ppou:17583 ttm ok 6225
+SUCCESS [276836] [2024-03-07 12:15:13] carreau:N2282400E3927600 1 ancres 44.2k@4.5kp/s demandees, 11.4k@1.2kp/s retenues
+INFO [276841] [2024-03-07 12:15:14] paquet:N2239600E3961600 ppou:15 ttm ok 11629
+SUCCESS [276841] [2024-03-07 12:15:14] carreau:N2239600E3961600 1 ancres 55.4k@3.9kp/s demandees, 18.8k@1.3kp/s retenues
+SUCCESS [276839] [2024-03-07 12:15:18] carreau:N2263600E3917200 0 ancres 34.9k@6.9kp/s demandees, 5.6k@1.1kp/s retenues
+SUCCESS [276838] [2024-03-07 12:15:19] carreau:N2275600E3934400 0 ancres 34.9k@2.9kp/s demandees, 15k@1.2kp/s retenues
+INFO [276843] [2024-03-07 12:15:21] paquet:N2295200E3952000 ppou:23321 ttm ok 22764
+SUCCESS [276843] [2024-03-07 12:15:21] carreau:N2295200E3952000 1 ancres 63.4k@2.7kp/s demandees, 32.8k@1.4kp/s retenues
+INFO [276836] [2024-03-07 12:15:24] paquet:N2282400E3928000 ppou:17586 ttm ok 7693
+SUCCESS [276836] [2024-03-07 12:15:24] carreau:N2282400E3928000 1 ancres 43.8k@4.4kp/s demandees, 12.7k@1.3kp/s retenues
+SUCCESS [276838] [2024-03-07 12:15:26] carreau:N2275600E3940800 0 ancres 34.9k@5.2kp/s demandees, 8.1k@1.2kp/s retenues
+INFO [276839] [2024-03-07 12:15:27] paquet:N2263600E3919200 ppou:7528 ttm ok 4989
+SUCCESS [276839] [2024-03-07 12:15:27] carreau:N2263600E3919200 1 ancres 40.5k@4.3kp/s demandees, 11k@1.2kp/s retenues
+SUCCESS [276839] [2024-03-07 12:15:30] carreau:N2263600E3923600 0 ancres 34.9k@14kp/s demandees, 2.2k@877.7p/s retenues
+INFO [276837] [2024-03-07 12:15:30] paquet:N2270000E3915600 ppou:11065 ttm ok 13445
+SUCCESS [276837] [2024-03-07 12:15:30] carreau:N2270000E3915600 1 ancres 49.8k@2.9kp/s demandees, 21.5k@1.2kp/s retenues
+INFO [276841] [2024-03-07 12:15:31] paquet:N2239600E3962000 ppou:24 ttm ok 15808
+SUCCESS [276841] [2024-03-07 12:15:31] carreau:N2239600E3962000 1 ancres 52.7k@3.3kp/s demandees, 22.1k@1.4kp/s retenues
+INFO [276840] [2024-03-07 12:15:32] paquet:N2289200E3943200 ppou:20546 ttm ok 11038
+SUCCESS [276840] [2024-03-07 12:15:32] carreau:N2289200E3943200 1 ancres 45.9k@2.5kp/s demandees, 22.4k@1.2kp/s retenues
+INFO [276842] [2024-03-07 12:15:34] paquet:N2255600E3949200 ppou:3780 ttm ok 42948
+SUCCESS [276842] [2024-03-07 12:15:34] carreau:N2255600E3949200 1 ancres 82.7k@1.9kp/s demandees, 59.3k@1.4kp/s retenues
+INFO [276843] [2024-03-07 12:15:35] paquet:N2295200E3952400 ppou:23415 ttm ok 7941
+SUCCESS [276843] [2024-03-07 12:15:35] carreau:N2295200E3952400 1 ancres 44.2k@3.2kp/s demandees, 17.8k@1.3kp/s retenues
+SUCCESS [276839] [2024-03-07 12:15:40] carreau:N2263600E3945600 0 ancres 34.9k@3.8kp/s demandees, 11.2k@1.2kp/s retenues
+INFO [276836] [2024-03-07 12:15:40] paquet:N2282400E3928800 ppou:17445 ttm ok 13065
+SUCCESS [276836] [2024-03-07 12:15:40] carreau:N2282400E3928800 1 ancres 59.3k@3.6kp/s demandees, 21.8k@1.3kp/s retenues
+SUCCESS [276840] [2024-03-07 12:15:41] carreau:N2289200E3943600 0 ancres 34.9k@4.1kp/s demandees, 10.1k@1.2kp/s retenues
+SUCCESS [276839] [2024-03-07 12:15:44] carreau:N2263600E3954400 0 ancres 34.9k@9kp/s demandees, 4k@1kp/s retenues
+INFO [276838] [2024-03-07 12:15:48] paquet:N2275600E3947200 ppou:14250 ttm ok 12422
+SUCCESS [276839] [2024-03-07 12:15:48] carreau:N2263600E3954800 0 ancres 34.9k@9.9kp/s demandees, 3.7k@1kp/s retenues
+SUCCESS [276838] [2024-03-07 12:15:48] carreau:N2275600E3947200 1 ancres 49.1k@2.2kp/s demandees, 27k@1.2kp/s retenues
+SUCCESS [276840] [2024-03-07 12:15:48] carreau:N2289200E3944400 0 ancres 34.9k@5.2kp/s demandees, 8.3k@1.2kp/s retenues
+INFO [276841] [2024-03-07 12:15:49] paquet:N2239600E3962400 ppou:26 ttm ok 17211
+SUCCESS [276841] [2024-03-07 12:15:49] carreau:N2239600E3962400 1 ancres 53k@3.1kp/s demandees, 23.6k@1.4kp/s retenues
+INFO [276843] [2024-03-07 12:15:49] paquet:N2295200E3952800 ppou:23323 ttm ok 7509
+SUCCESS [276843] [2024-03-07 12:15:49] carreau:N2295200E3952800 1 ancres 43k@3.2kp/s demandees, 16.3k@1.2kp/s retenues
+INFO [276837] [2024-03-07 12:15:50] paquet:N2270000E3916000 ppou:11214 ttm ok 13124
+SUCCESS [276837] [2024-03-07 12:15:50] carreau:N2270000E3916000 1 ancres 51k@2.7kp/s demandees, 21.7k@1.1kp/s retenues
+SUCCESS [276840] [2024-03-07 12:15:55] carreau:N2289200E3944800 0 ancres 34.9k@5.5kp/s demandees, 6.4k@1kp/s retenues
+INFO [276836] [2024-03-07 12:15:56] paquet:N2282400E3929200 ppou:17591 ttm ok 13189
+SUCCESS [276836] [2024-03-07 12:15:56] carreau:N2282400E3929200 1 ancres 52.5k@3.5kp/s demandees, 19.7k@1.3kp/s retenues
+SUCCESS [276840] [2024-03-07 12:15:59] carreau:N2289200E3947200 0 ancres 34.9k@9.5kp/s demandees, 3.5k@945.7p/s retenues
+INFO [276841] [2024-03-07 12:16:00] paquet:N2239600E3962800 ppou:28 ttm ok 5992
+SUCCESS [276841] [2024-03-07 12:16:00] carreau:N2239600E3962800 1 ancres 41.2k@3.7kp/s demandees, 12.6k@1.1kp/s retenues
+INFO [276839] [2024-03-07 12:16:03] paquet:N2263600E3960000 ppou:7573 ttm ok 8438
+SUCCESS [276839] [2024-03-07 12:16:03] carreau:N2263600E3960000 1 ancres 43.7k@3kp/s demandees, 17.8k@1.2kp/s retenues
+SUCCESS [276841] [2024-03-07 12:16:04] carreau:N2239600E3961200 0 ancres 34.9k@12kp/s demandees, 3.1k@1.1kp/s retenues
+SUCCESS [276840] [2024-03-07 12:16:04] carreau:N2289200E3950800 0 ancres 34.9k@7.2kp/s demandees, 4.7k@965p/s retenues
+INFO [276843] [2024-03-07 12:16:08] paquet:N2295200E3958000 ppou:23419 ttm ok 13953
+SUCCESS [276843] [2024-03-07 12:16:08] carreau:N2295200E3958000 1 ancres 53.3k@3kp/s demandees, 23.6k@1.3kp/s retenues
+INFO [276838] [2024-03-07 12:16:09] paquet:N2275600E3953200 ppou:14270 ttm ok 12378
+SUCCESS [276838] [2024-03-07 12:16:09] carreau:N2275600E3953200 1 ancres 47.5k@2.3kp/s demandees, 25.5k@1.2kp/s retenues
+INFO [276839] [2024-03-07 12:16:10] paquet:N2263600E3966800 ppou:7602 ttm ok 3868
+SUCCESS [276839] [2024-03-07 12:16:10] carreau:N2263600E3966800 1 ancres 39k@5.3kp/s demandees, 8.6k@1.2kp/s retenues
+INFO [276837] [2024-03-07 12:16:11] paquet:N2270000E3917200 ppou:11069 ttm ok 14819
+SUCCESS [276837] [2024-03-07 12:16:11] carreau:N2270000E3917200 1 ancres 55.7k@2.7kp/s demandees, 25.8k@1.2kp/s retenues
+SUCCESS [276840] [2024-03-07 12:16:11] carreau:N2289200E3954800 0 ancres 34.9k@5.2kp/s demandees, 8.6k@1.3kp/s retenues
+INFO [276841] [2024-03-07 12:16:13] paquet:N2240000E3960800 ppou:29 ttm ok 6678
+SUCCESS [276841] [2024-03-07 12:16:13] carreau:N2240000E3960800 1 ancres 47.1k@5.4kp/s demandees, 11.2k@1.3kp/s retenues
+INFO [276836] [2024-03-07 12:16:14] paquet:N2282400E3929600 ppou:17593 ttm ok 17151
+SUCCESS [276836] [2024-03-07 12:16:14] carreau:N2282400E3929600 1 ancres 55.8k@3.1kp/s demandees, 24.7k@1.4kp/s retenues
+SUCCESS [276840] [2024-03-07 12:16:16] carreau:N2289200E3959200 0 ancres 34.9k@8.2kp/s demandees, 4.4k@1kp/s retenues
+INFO [276842] [2024-03-07 12:16:17] paquet:N2255600E3949600 ppou:3782 ttm ok 40817
+SUCCESS [276842] [2024-03-07 12:16:17] carreau:N2255600E3949600 1 ancres 80.8k@1.9kp/s demandees, 56.6k@1.4kp/s retenues
+SUCCESS [276838] [2024-03-07 12:16:19] carreau:N2275600E3953600 0 ancres 34.9k@3.8kp/s demandees, 11.6k@1.2kp/s retenues
+SUCCESS [276840] [2024-03-07 12:16:19] carreau:N2289200E3965200 0 ancres 34.9k@13.7kp/s demandees, 1.9k@760.3p/s retenues
+SUCCESS [276840] [2024-03-07 12:16:23] carreau:N2289200E3966400 0 ancres 34.9k@9.7kp/s demandees, 3.2k@882.9p/s retenues
+INFO [276839] [2024-03-07 12:16:24] paquet:N2264000E3916800 ppou:7611 ttm ok 9926
+SUCCESS [276839] [2024-03-07 12:16:24] carreau:N2264000E3916800 1 ancres 46.5k@3.6kp/s demandees, 16.1k@1.2kp/s retenues
+INFO [276843] [2024-03-07 12:16:25] paquet:N2295200E3958400 ppou:23421 ttm ok 12313
+SUCCESS [276843] [2024-03-07 12:16:25] carreau:N2295200E3958400 1 ancres 48.5k@2.9kp/s demandees, 19.8k@1.2kp/s retenues
+INFO [276841] [2024-03-07 12:16:25] paquet:N2240000E3961200 ppou:45 ttm ok 6258
+SUCCESS [276841] [2024-03-07 12:16:25] carreau:N2240000E3961200 1 ancres 50.4k@4.1kp/s demandees, 14.3k@1.2kp/s retenues
+SUCCESS [276840] [2024-03-07 12:16:26] carreau:N2289600E3909200 0 ancres 34.9k@11.7kp/s demandees, 2.3k@783.9p/s retenues
+INFO [276840] [2024-03-07 12:16:34] paquet:N2289600E3910000 ppou:20650 ttm ok 3510
+SUCCESS [276840] [2024-03-07 12:16:34] carreau:N2289600E3910000 1 ancres 38.4k@5.7kp/s demandees, 7.5k@1.1kp/s retenues
+INFO [276837] [2024-03-07 12:16:34] paquet:N2270000E3918000 ppou:11217 ttm ok 16799
+SUCCESS [276837] [2024-03-07 12:16:34] carreau:N2270000E3918000 1 ancres 52.5k@2.3kp/s demandees, 26.1k@1.2kp/s retenues
+INFO [276843] [2024-03-07 12:16:34] paquet:N2295200E3959200 ppou:23327 ttm ok 4636
+SUCCESS [276843] [2024-03-07 12:16:34] carreau:N2295200E3959200 1 ancres 40.4k@4.4kp/s demandees, 10.8k@1.2kp/s retenues
+INFO [276838] [2024-03-07 12:16:35] paquet:N2275600E3956400 ppou:14280 ttm ok 8928
+SUCCESS [276838] [2024-03-07 12:16:35] carreau:N2275600E3956400 1 ancres 44.1k@2.8kp/s demandees, 18.8k@1.2kp/s retenues
+INFO [276839] [2024-03-07 12:16:38] paquet:N2264000E3917200 ppou:7693 ttm ok 11329
+SUCCESS [276839] [2024-03-07 12:16:38] carreau:N2264000E3917200 1 ancres 47.2k@3.4kp/s demandees, 17.8k@1.3kp/s retenues
+INFO [276841] [2024-03-07 12:16:42] paquet:N2240000E3961600 ppou:46 ttm ok 15221
+SUCCESS [276841] [2024-03-07 12:16:42] carreau:N2240000E3961600 1 ancres 54.5k@3.3kp/s demandees, 22.1k@1.3kp/s retenues
+INFO [276836] [2024-03-07 12:16:43] paquet:N2282400E3931200 ppou:17450 ttm ok 27622
+SUCCESS [276836] [2024-03-07 12:16:43] carreau:N2282400E3931200 1 ancres 66.1k@2.3kp/s demandees, 38.5k@1.4kp/s retenues
+SUCCESS [276838] [2024-03-07 12:16:43] carreau:N2275600E3959600 0 ancres 34.9k@4.5kp/s demandees, 9.8k@1.3kp/s retenues
+INFO [276840] [2024-03-07 12:16:44] paquet:N2289600E3910400 ppou:20571 ttm ok 5737
+SUCCESS [276840] [2024-03-07 12:16:44] carreau:N2289600E3910400 1 ancres 40.6k@4kp/s demandees, 12k@1.2kp/s retenues
+INFO [276843] [2024-03-07 12:16:46] paquet:N2295200E3959600 ppou:23330 ttm ok 9057
+SUCCESS [276843] [2024-03-07 12:16:46] carreau:N2295200E3959600 1 ancres 44.1k@4kp/s demandees, 14.3k@1.3kp/s retenues
+SUCCESS [276838] [2024-03-07 12:16:52] carreau:N2275600E3961200 0 ancres 34.9k@4.2kp/s demandees, 10.5k@1.3kp/s retenues
+INFO [276839] [2024-03-07 12:16:52] paquet:N2264000E3917600 ppou:7615 ttm ok 12030
+SUCCESS [276839] [2024-03-07 12:16:52] carreau:N2264000E3917600 1 ancres 47.6k@3.4kp/s demandees, 18.7k@1.3kp/s retenues
+INFO [276842] [2024-03-07 12:16:57] paquet:N2255600E3950000 ppou:3864 ttm ok 39050
+SUCCESS [276842] [2024-03-07 12:16:57] carreau:N2255600E3950000 1 ancres 77.1k@1.9kp/s demandees, 53.7k@1.3kp/s retenues
+INFO [276843] [2024-03-07 12:16:58] paquet:N2295200E3960000 ppou:23425 ttm ok 7230
+SUCCESS [276843] [2024-03-07 12:16:58] carreau:N2295200E3960000 1 ancres 52.3k@4.2kp/s demandees, 16.4k@1.3kp/s retenues
+INFO [276841] [2024-03-07 12:16:59] paquet:N2240000E3962000 ppou:35 ttm ok 16757
+SUCCESS [276841] [2024-03-07 12:16:59] carreau:N2240000E3962000 1 ancres 53k@3.1kp/s demandees, 23.1k@1.4kp/s retenues
+SUCCESS [276838] [2024-03-07 12:17:00] carreau:N2275600E3963600 0 ancres 34.9k@4.8kp/s demandees, 9.3k@1.3kp/s retenues
+INFO [276837] [2024-03-07 12:17:01] paquet:N2270000E3918400 ppou:11219 ttm ok 25332
+SUCCESS [276837] [2024-03-07 12:17:01] carreau:N2270000E3918400 1 ancres 62.1k@2.4kp/s demandees, 34.9k@1.3kp/s retenues
+INFO [276840] [2024-03-07 12:17:03] paquet:N2289600E3910800 ppou:20653 ttm ok 15993
+SUCCESS [276840] [2024-03-07 12:17:03] carreau:N2289600E3910800 1 ancres 52.9k@2.8kp/s demandees, 25.3k@1.4kp/s retenues
+SUCCESS [276838] [2024-03-07 12:17:04] carreau:N2275600E3969200 0 ancres 34.9k@9.4kp/s demandees, 3.5k@940.1p/s retenues
+INFO [276839] [2024-03-07 12:17:04] paquet:N2264000E3918400 ppou:7697 ttm ok 5615
+SUCCESS [276839] [2024-03-07 12:17:04] carreau:N2264000E3918400 1 ancres 41.7k@3.8kp/s demandees, 12.8k@1.2kp/s retenues
+INFO [276836] [2024-03-07 12:17:04] paquet:N2282400E3931600 ppou:17601 ttm ok 17649
+SUCCESS [276836] [2024-03-07 12:17:04] carreau:N2282400E3931600 1 ancres 53.5k@2.6kp/s demandees, 27.4k@1.3kp/s retenues
+INFO [276843] [2024-03-07 12:17:06] paquet:N2295200E3960400 ppou:23332 ttm ok 3555
+SUCCESS [276843] [2024-03-07 12:17:06] carreau:N2295200E3960400 1 ancres 38.4k@5.2kp/s demandees, 7.8k@1.1kp/s retenues
+SUCCESS [276838] [2024-03-07 12:17:07] carreau:N2275600E3973200 0 ancres 34.9k@13.1kp/s demandees, 2k@738.2p/s retenues
+INFO [276843] [2024-03-07 12:17:11] paquet:N2295200E3961200 ppou:23333 ttm ok 2070
+SUCCESS [276843] [2024-03-07 12:17:11] carreau:N2295200E3961200 1 ancres 37.5k@7.7kp/s demandees, 5.2k@1.1kp/s retenues
+INFO [276838] [2024-03-07 12:17:12] paquet:N2276000E3910400 ppou:14303 ttm ok 2478
+SUCCESS [276838] [2024-03-07 12:17:12] carreau:N2276000E3910400 1 ancres 37.5k@7.5kp/s demandees, 5.2k@1.1kp/s retenues
+SUCCESS [276843] [2024-03-07 12:17:14] carreau:N2295200E3962000 0 ancres 34.9k@17.6kp/s demandees, 1.1k@573.4p/s retenues
+SUCCESS [276843] [2024-03-07 12:17:17] carreau:N2295200E3975600 0 ancres 34.9k@13.1kp/s demandees, 2.4k@920.9p/s retenues
+INFO [276841] [2024-03-07 12:17:18] paquet:N2240000E3962400 ppou:37 ttm ok 17808
+SUCCESS [276841] [2024-03-07 12:17:18] carreau:N2240000E3962400 1 ancres 52.9k@2.9kp/s demandees, 24.1k@1.3kp/s retenues
+INFO [276839] [2024-03-07 12:17:18] paquet:N2264000E3918800 ppou:7698 ttm ok 12066
+SUCCESS [276839] [2024-03-07 12:17:18] carreau:N2264000E3918800 1 ancres 47.2k@3.3kp/s demandees, 18.6k@1.3kp/s retenues
+SUCCESS [276843] [2024-03-07 12:17:24] carreau:N2295200E3926800 0 ancres 34.9k@4.9kp/s demandees, 8.9k@1.3kp/s retenues
+INFO [276836] [2024-03-07 12:17:27] paquet:N2282400E3932000 ppou:17454 ttm ok 18681
+SUCCESS [276836] [2024-03-07 12:17:27] carreau:N2282400E3932000 1 ancres 55.4k@2.4kp/s demandees, 29.4k@1.3kp/s retenues
+INFO [276838] [2024-03-07 12:17:28] paquet:N2276000E3910800 ppou:14305 ttm ok 12670
+SUCCESS [276838] [2024-03-07 12:17:28] carreau:N2276000E3910800 1 ancres 51k@3.3kp/s demandees, 21.1k@1.4kp/s retenues
+INFO [276837] [2024-03-07 12:17:28] paquet:N2270000E3918800 ppou:11074 ttm ok 25590
+SUCCESS [276837] [2024-03-07 12:17:28] carreau:N2270000E3918800 1 ancres 62.7k@2.3kp/s demandees, 35.3k@1.3kp/s retenues
+INFO [276840] [2024-03-07 12:17:30] paquet:N2289600E3911200 ppou:20654 ttm ok 25737
+SUCCESS [276840] [2024-03-07 12:17:30] carreau:N2289600E3911200 1 ancres 61.5k@2.4kp/s demandees, 34.9k@1.3kp/s retenues
+SUCCESS [276843] [2024-03-07 12:17:30] carreau:N2295200E3927600 0 ancres 34.9k@6.8kp/s demandees, 5.6k@1.1kp/s retenues
+INFO [276842] [2024-03-07 12:17:34] paquet:N2255600E3950400 ppou:3786 ttm ok 34576
+SUCCESS [276842] [2024-03-07 12:17:34] carreau:N2255600E3950400 1 ancres 78.4k@2.1kp/s demandees, 49.7k@1.4kp/s retenues
+SUCCESS [276843] [2024-03-07 12:17:35] carreau:N2295200E3929200 0 ancres 34.9k@7.7kp/s demandees, 5.1k@1.1kp/s retenues
+INFO [276839] [2024-03-07 12:17:38] paquet:N2264000E3919200 ppou:7620 ttm ok 19255
+SUCCESS [276839] [2024-03-07 12:17:38] carreau:N2264000E3919200 1 ancres 55.8k@3kp/s demandees, 26.6k@1.4kp/s retenues
+INFO [276841] [2024-03-07 12:17:38] paquet:N2240000E3962800 ppou:53 ttm ok 18919
+SUCCESS [276841] [2024-03-07 12:17:38] carreau:N2240000E3962800 1 ancres 55k@2.8kp/s demandees, 26k@1.3kp/s retenues
+SUCCESS [276843] [2024-03-07 12:17:38] carreau:N2295200E3934400 0 ancres 34.9k@11.8kp/s demandees, 2.6k@883.2p/s retenues
+SUCCESS [276843] [2024-03-07 12:17:42] carreau:N2295200E3941200 0 ancres 34.9k@9.9kp/s demandees, 3.3k@951.7p/s retenues
+INFO [276838] [2024-03-07 12:17:44] paquet:N2276000E3911200 ppou:14306 ttm ok 12069
+SUCCESS [276838] [2024-03-07 12:17:44] carreau:N2276000E3911200 1 ancres 51.3k@3.2kp/s demandees, 20.7k@1.3kp/s retenues
+SUCCESS [276843] [2024-03-07 12:17:48] carreau:N2295200E3953200 0 ancres 34.9k@6.5kp/s demandees, 6.3k@1.2kp/s retenues
+INFO [276840] [2024-03-07 12:17:50] paquet:N2289600E3911600 ppou:20656 ttm ok 16985
+SUCCESS [276840] [2024-03-07 12:17:50] carreau:N2289600E3911600 1 ancres 52.5k@2.7kp/s demandees, 26.1k@1.3kp/s retenues
+INFO [276836] [2024-03-07 12:17:50] paquet:N2282400E3932400 ppou:17456 ttm ok 19019
+SUCCESS [276836] [2024-03-07 12:17:50] carreau:N2282400E3932400 1 ancres 54.4k@2.4kp/s demandees, 29.2k@1.3kp/s retenues
+INFO [276841] [2024-03-07 12:17:50] paquet:N2240000E3963200 ppou:54 ttm ok 6638
+SUCCESS [276841] [2024-03-07 12:17:50] carreau:N2240000E3963200 1 ancres 41.7k@3.5kp/s demandees, 13.8k@1.2kp/s retenues
+SUCCESS [276841] [2024-03-07 12:17:53] carreau:N2240000E3960000 0 ancres 34.9k@16.6kp/s demandees, 1.3k@612.3p/s retenues
+INFO [276837] [2024-03-07 12:17:56] paquet:N2270000E3919200 ppou:11222 ttm ok 27586
+SUCCESS [276837] [2024-03-07 12:17:56] carreau:N2270000E3919200 1 ancres 64.4k@2.3kp/s demandees, 37.9k@1.4kp/s retenues
+SUCCESS [276841] [2024-03-07 12:17:57] carreau:N2240400E3960800 0 ancres 34.9k@10.1kp/s demandees, 4.1k@1.2kp/s retenues
+SUCCESS [276843] [2024-03-07 12:17:57] carreau:N2295200E3957200 0 ancres 34.9k@4.2kp/s demandees, 9.6k@1.1kp/s retenues
+INFO [276839] [2024-03-07 12:17:58] paquet:N2264000E3919600 ppou:7622 ttm ok 19290
+SUCCESS [276839] [2024-03-07 12:17:58] carreau:N2264000E3919600 1 ancres 55.7k@2.8kp/s demandees, 26.6k@1.3kp/s retenues
+SUCCESS [276843] [2024-03-07 12:18:03] carreau:N2295200E3958800 0 ancres 34.9k@6kp/s demandees, 6.5k@1.1kp/s retenues
+SUCCESS [276843] [2024-03-07 12:18:06] carreau:N2295200E3961600 0 ancres 34.9k@14.4kp/s demandees, 1.9k@775.6p/s retenues
+INFO [276842] [2024-03-07 12:18:07] paquet:N2255600E3950800 ppou:3788 ttm ok 32237
+SUCCESS [276842] [2024-03-07 12:18:07] carreau:N2255600E3950800 1 ancres 71.4k@2.2kp/s demandees, 45.1k@1.4kp/s retenues
+SUCCESS [276843] [2024-03-07 12:18:09] carreau:N2295200E3974800 0 ancres 34.9k@12.2kp/s demandees, 2.4k@845.5p/s retenues
+INFO [276838] [2024-03-07 12:18:10] paquet:N2276000E3915600 ppou:14395 ttm ok 24684
+SUCCESS [276838] [2024-03-07 12:18:10] carreau:N2276000E3915600 1 ancres 62.7k@2.5kp/s demandees, 34.3k@1.4kp/s retenues
+INFO [276836] [2024-03-07 12:18:11] paquet:N2282400E3934400 ppou:17609 ttm ok 16212
+SUCCESS [276836] [2024-03-07 12:18:11] carreau:N2282400E3934400 1 ancres 53.9k@2.6kp/s demandees, 26.3k@1.3kp/s retenues
+INFO [276843] [2024-03-07 12:18:12] paquet:N2295600E3913600 ppou:23528 ttm ok 235
+SUCCESS [276843] [2024-03-07 12:18:12] carreau:N2295600E3913600 1 ancres 35.2k@17.6kp/s demandees, 650@326.1p/s retenues
+INFO [276841] [2024-03-07 12:18:14] paquet:N2240400E3961600 ppou:67 ttm ok 16494
+SUCCESS [276841] [2024-03-07 12:18:14] carreau:N2240400E3961600 1 ancres 53.6k@3.1kp/s demandees, 23.1k@1.3kp/s retenues
+INFO [276843] [2024-03-07 12:18:14] paquet:N2295600E3914400 ppou:23530 ttm ok 197
+SUCCESS [276843] [2024-03-07 12:18:14] carreau:N2295600E3914400 1 ancres 35.1k@21kp/s demandees, 367@219.5p/s retenues
+INFO [276839] [2024-03-07 12:18:15] paquet:N2264000E3920000 ppou:7704 ttm ok 12177
+SUCCESS [276839] [2024-03-07 12:18:15] carreau:N2264000E3920000 1 ancres 50.4k@3.2kp/s demandees, 20.4k@1.3kp/s retenues
+SUCCESS [276843] [2024-03-07 12:18:19] carreau:N2295600E3918800 0 ancres 34.9k@8.5kp/s demandees, 4.6k@1.1kp/s retenues
+INFO [276837] [2024-03-07 12:18:20] paquet:N2270000E3919600 ppou:11079 ttm ok 19103
+SUCCESS [276837] [2024-03-07 12:18:20] carreau:N2270000E3919600 1 ancres 55.9k@2.3kp/s demandees, 30.1k@1.3kp/s retenues
+INFO [276836] [2024-03-07 12:18:27] paquet:N2282400E3935600 ppou:17458 ttm ok 8487
+SUCCESS [276836] [2024-03-07 12:18:27] carreau:N2282400E3935600 1 ancres 43.8k@2.8kp/s demandees, 17.9k@1.2kp/s retenues
+INFO [276843] [2024-03-07 12:18:28] paquet:N2295600E3919200 ppou:23532 ttm ok 4810
+SUCCESS [276843] [2024-03-07 12:18:28] carreau:N2295600E3919200 1 ancres 40k@4.5kp/s demandees, 10.4k@1.2kp/s retenues
+INFO [276839] [2024-03-07 12:18:31] paquet:N2264000E3921200 ppou:7708 ttm ok 12376
+SUCCESS [276839] [2024-03-07 12:18:31] carreau:N2264000E3921200 1 ancres 50.3k@3.1kp/s demandees, 20.5k@1.3kp/s retenues
+INFO [276841] [2024-03-07 12:18:32] paquet:N2240400E3962000 ppou:70 ttm ok 17414
+SUCCESS [276841] [2024-03-07 12:18:32] carreau:N2240400E3962000 1 ancres 54.1k@3.1kp/s demandees, 24.2k@1.4kp/s retenues
+INFO [276840] [2024-03-07 12:18:32] paquet:N2289600E3916000 ppou:20576 ttm ok 40357
+SUCCESS [276840] [2024-03-07 12:18:32] carreau:N2289600E3916000 1 ancres 78.1k@1.9kp/s demandees, 55.3k@1.3kp/s retenues
+INFO [276842] [2024-03-07 12:18:32] paquet:N2255600E3951200 ppou:3870 ttm ok 19378
+SUCCESS [276842] [2024-03-07 12:18:32] carreau:N2255600E3951200 1 ancres 59k@2.4kp/s demandees, 32.2k@1.3kp/s retenues
+SUCCESS [276843] [2024-03-07 12:18:33] carreau:N2295600E3919600 0 ancres 34.9k@7.6kp/s demandees, 5k@1.1kp/s retenues
+INFO [276837] [2024-03-07 12:18:38] paquet:N2270000E3920000 ppou:11080 ttm ok 9743
+SUCCESS [276837] [2024-03-07 12:18:38] carreau:N2270000E3920000 1 ancres 45.4k@2.7kp/s demandees, 20.8k@1.2kp/s retenues
+INFO [276838] [2024-03-07 12:18:40] paquet:N2276000E3928800 ppou:14396 ttm ok 30752
+SUCCESS [276838] [2024-03-07 12:18:40] carreau:N2276000E3928800 1 ancres 66.4k@2.2kp/s demandees, 41.8k@1.4kp/s retenues
+INFO [276836] [2024-03-07 12:18:45] paquet:N2282400E3936000 ppou:17461 ttm ok 9699
+SUCCESS [276836] [2024-03-07 12:18:45] carreau:N2282400E3936000 1 ancres 47.6k@2.6kp/s demandees, 22.9k@1.3kp/s retenues
+INFO [276841] [2024-03-07 12:18:50] paquet:N2240400E3962400 ppou:72 ttm ok 17641
+SUCCESS [276841] [2024-03-07 12:18:50] carreau:N2240400E3962400 1 ancres 54.3k@3kp/s demandees, 24.5k@1.3kp/s retenues
+INFO [276843] [2024-03-07 12:18:52] paquet:N2295600E3920400 ppou:23533 ttm ok 14074
+SUCCESS [276843] [2024-03-07 12:18:52] carreau:N2295600E3920400 1 ancres 51.2k@2.9kp/s demandees, 22.9k@1.3kp/s retenues
+INFO [276839] [2024-03-07 12:18:52] paquet:N2264000E3921600 ppou:7625 ttm ok 20060
+SUCCESS [276839] [2024-03-07 12:18:52] carreau:N2264000E3921600 1 ancres 55.5k@2.7kp/s demandees, 27.4k@1.3kp/s retenues
+INFO [276837] [2024-03-07 12:18:53] paquet:N2270000E3930000 ppou:11082 ttm ok 12387
+SUCCESS [276837] [2024-03-07 12:18:53] carreau:N2270000E3930000 1 ancres 48.1k@3.2kp/s demandees, 19.4k@1.3kp/s retenues
+INFO [276842] [2024-03-07 12:19:02] paquet:N2255600E3951600 ppou:3872 ttm ok 28432
+SUCCESS [276842] [2024-03-07 12:19:02] carreau:N2255600E3951600 1 ancres 66.8k@2.3kp/s demandees, 39.7k@1.4kp/s retenues
+INFO [276839] [2024-03-07 12:19:04] paquet:N2264000E3922000 ppou:7628 ttm ok 6900
+SUCCESS [276839] [2024-03-07 12:19:04] carreau:N2264000E3922000 1 ancres 41.8k@3.5kp/s demandees, 14.2k@1.2kp/s retenues
+INFO [276840] [2024-03-07 12:19:04] paquet:N2289600E3916400 ppou:20660 ttm ok 26871
+SUCCESS [276840] [2024-03-07 12:19:04] carreau:N2289600E3916400 1 ancres 63.3k@2kp/s demandees, 41.6k@1.3kp/s retenues
+INFO [276837] [2024-03-07 12:19:09] paquet:N2270000E3930400 ppou:11227 ttm ok 12759
+SUCCESS [276837] [2024-03-07 12:19:10] carreau:N2270000E3930400 1 ancres 48.9k@3.1kp/s demandees, 20.2k@1.3kp/s retenues
+INFO [276841] [2024-03-07 12:19:10] paquet:N2240400E3962800 ppou:63 ttm ok 19090
+SUCCESS [276841] [2024-03-07 12:19:10] carreau:N2240400E3962800 1 ancres 55.6k@2.9kp/s demandees, 26.3k@1.4kp/s retenues
+INFO [276843] [2024-03-07 12:19:11] paquet:N2295600E3920800 ppou:23438 ttm ok 14469
+SUCCESS [276843] [2024-03-07 12:19:11] carreau:N2295600E3920800 1 ancres 55.4k@2.9kp/s demandees, 25.4k@1.3kp/s retenues
+INFO [276836] [2024-03-07 12:19:13] paquet:N2282400E3936800 ppou:17462 ttm ok 23303
+SUCCESS [276836] [2024-03-07 12:19:13] carreau:N2282400E3936800 1 ancres 61.2k@2.2kp/s demandees, 36.9k@1.3kp/s retenues
+INFO [276838] [2024-03-07 12:19:14] paquet:N2276000E3929200 ppou:14312 ttm ok 33910
+SUCCESS [276838] [2024-03-07 12:19:14] carreau:N2276000E3929200 1 ancres 73k@2.2kp/s demandees, 47k@1.4kp/s retenues
+INFO [276839] [2024-03-07 12:19:20] paquet:N2264000E3922400 ppou:7711 ttm ok 12253
+SUCCESS [276839] [2024-03-07 12:19:20] carreau:N2264000E3922400 1 ancres 50.5k@3.2kp/s demandees, 20.5k@1.3kp/s retenues
+INFO [276841] [2024-03-07 12:19:27] paquet:N2240400E3963200 ppou:76 ttm ok 13377
+SUCCESS [276841] [2024-03-07 12:19:28] carreau:N2240400E3963200 1 ancres 49.9k@2.9kp/s demandees, 21.3k@1.2kp/s retenues
+INFO [276843] [2024-03-07 12:19:29] paquet:N2295600E3921200 ppou:23535 ttm ok 7909
+SUCCESS [276843] [2024-03-07 12:19:29] carreau:N2295600E3921200 1 ancres 46.2k@2.7kp/s demandees, 19.9k@1.2kp/s retenues
+INFO [276837] [2024-03-07 12:19:29] paquet:N2270000E3931600 ppou:11084 ttm ok 9481
+SUCCESS [276837] [2024-03-07 12:19:29] carreau:N2270000E3931600 1 ancres 45k@2.4kp/s demandees, 20.3k@1.1kp/s retenues
+INFO [276839] [2024-03-07 12:19:31] paquet:N2264000E3922800 ppou:7631 ttm ok 5402
+SUCCESS [276839] [2024-03-07 12:19:31] carreau:N2264000E3922800 1 ancres 40.5k@4.1kp/s demandees, 11.4k@1.1kp/s retenues
+INFO [276842] [2024-03-07 12:19:31] paquet:N2255600E3952000 ppou:3794 ttm ok 28352
+SUCCESS [276842] [2024-03-07 12:19:31] carreau:N2255600E3952000 1 ancres 64.3k@2.3kp/s demandees, 38.6k@1.4kp/s retenues
+INFO [276839] [2024-03-07 12:19:41] paquet:N2264000E3923200 ppou:7632 ttm ok 5313
+SUCCESS [276839] [2024-03-07 12:19:41] carreau:N2264000E3923200 1 ancres 41k@4.2kp/s demandees, 11.8k@1.2kp/s retenues
+INFO [276841] [2024-03-07 12:19:41] paquet:N2240400E3968000 ppou:78 ttm ok 10589
+SUCCESS [276841] [2024-03-07 12:19:41] carreau:N2240400E3968000 1 ancres 46.2k@3.5kp/s demandees, 16.7k@1.3kp/s retenues
+INFO [276840] [2024-03-07 12:19:45] paquet:N2289600E3916800 ppou:20662 ttm ok 39062
+SUCCESS [276840] [2024-03-07 12:19:45] carreau:N2289600E3916800 1 ancres 79.5k@2kp/s demandees, 54.4k@1.3kp/s retenues
+SUCCESS [276839] [2024-03-07 12:19:46] carreau:N2264000E3923600 0 ancres 34.9k@6.9kp/s demandees, 5.7k@1.1kp/s retenues
+SUCCESS [276841] [2024-03-07 12:19:46] carreau:N2240400E3967600 0 ancres 34.9k@7.3kp/s demandees, 5.1k@1.1kp/s retenues

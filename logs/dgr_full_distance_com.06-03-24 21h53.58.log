@@ -1,0 +1,31 @@
+411 [20:53:58] Calcul accessibilite version 3
+411 [20:53:58]        par commune, mode foot
+411 [20:55:23] Clusterization 95.6M paires initial, 11 clusters
+411 [20:55:23]                712.5M paires en agrégation complète
+411 [20:55:23]                193.1M paires en cluster
+411 [20:55:23]                plus petit cluster 2.5M
+411 [20:55:23]                réduction de temps estimée à 70%
+411 [20:55:53] router /space_mounts/data/marseille//dodgr//foot_tp_deniv.dodgrnet chargé
+411 [20:56:04] cluster 1/11 11.2M paires
+411 [21:02:08]         @30.8kp/s
+411 [21:02:26] cluster 2/11 26M paires
+411 [21:09:58]         @57.6kp/s
+411 [21:10:22] cluster 3/11 27.7M paires
+411 [21:21:04]         @43kp/s
+411 [21:21:30] cluster 4/11 23.7M paires
+411 [21:28:54]         @53.5kp/s
+411 [21:29:22] cluster 5/11 2.5M paires
+411 [21:31:49]         @17kp/s
+411 [21:31:55] cluster 6/11 19.3M paires
+411 [21:38:43]         @47.3kp/s
+411 [21:39:05] cluster 7/11 12.5M paires
+411 [21:45:01]         @35.2kp/s
+411 [21:45:12] cluster 8/11 15.5M paires
+411 [21:52:17]         @36.6kp/s
+411 [21:52:33] cluster 9/11 31M paires
+411 [22:04:20]         @43.9kp/s
+411 [22:04:48] cluster 10/11 20.9M paires
+411 [22:13:25]         @40.5kp/s
+411 [22:13:45] cluster 11/11 2.7M paires
+411 [22:16:51]         @14.6kp/s
+411 [22:16:54] Calcul terminé, dataset /space_mounts/data/marseille//distances/src/walk_tblr écrit - 95.6M en 83 mn soit 19.2k p/s
