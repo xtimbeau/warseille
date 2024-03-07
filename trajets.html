@@ -6,6 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Xavier Timbeau">
+<meta name="author" content="Maxime Parodi">
 
 <title>Métropole d’Aix Marseille Provence - 3&nbsp; Du potentiel de l’accessibilité aux trajets effectifs</title>
 <style>
@@ -24,7 +26,6 @@ ul.task-list li input[type="checkbox"] {
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -63,6 +64,9 @@ div.csl-indent {
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -199,7 +203,7 @@ cookieconsent.run({
   <ul>
   <li><a href="#méthode" id="toc-méthode" class="nav-link active" data-scroll-target="#méthode"><span class="header-section-number">3.1</span> Méthode</a></li>
   <li><a href="#carte-des-émissions-de-co2-pour-les-mobilités-professionnelles" id="toc-carte-des-émissions-de-co2-pour-les-mobilités-professionnelles" class="nav-link" data-scroll-target="#carte-des-émissions-de-co2-pour-les-mobilités-professionnelles"><span class="header-section-number">3.2</span> Carte des émissions de CO<sub>2</sub> pour les mobilités professionnelles</a></li>
-  <li><a href="#références-bibliographiques" id="toc-références-bibliographiques" class="nav-link" data-scroll-target="#références-bibliographiques"><span class="header-section-number">3.3</span> Références bibliographiques</a></li>
+  <li><a href="#références-bibliographiques" id="toc-références-bibliographiques" class="nav-link" data-scroll-target="#références-bibliographiques">Références bibliographiques</a></li>
   </ul>
 </nav>
 </nav>
@@ -219,6 +223,13 @@ cookieconsent.run({
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Auteurs</div>
+    <div class="quarto-title-meta-contents">
+             <p>Xavier Timbeau </p>
+             <p>Maxime Parodi </p>
+          </div>
+  </div>
     
     <div>
     <div class="quarto-title-meta-heading">Date de publication</div>
@@ -244,42 +255,59 @@ cookieconsent.run({
 <p>L’indicateur d’accessibilité permet d’évaluer le potentiel. La modélisation des flux et leur calage sur les flux intercommunaux issus de MOBPRO permet de réaliser ce passage. Il est est difficile de dire qu’un indicateur est supérieur systématiquement à l’autre. Les flux sont la bonne source pour imputer les émissions de GES à chaque ménage de chaque carreau. L’accessibilité intéresse l’urbaniste pour évaluer l’attractivité d’un territoire ou participe à expliquer le gradient de prix sur les territoires. A priori, on attend plus de contraste pour l’accessibilité, les comportements ayant tendance à transférer les différences d’accessibilité sur d’autres dimensions. Ainsi, un individu disposant d’une faible accessibilité aura sans doute un emploi proche de chez lui, qu’il ait choisi l’emploi en fonction de l’endroit où il habite ou l’endroit où il habite en fonction de l’emploi qu’il a trouvé. En revanche, le potentiel ne dit rien sur le tri spatial qui est opéré sur le territoire. Tous les ménages ne sont pas uniformément répartis sur le territoire mais sont fortement ségrégés spatialement suivant certaines caractéristiques, en particulier le revenu et le nombre d’enfants.</p>
 <section id="méthode" class="level2 page-columns page-full" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="méthode"><span class="header-section-number">3.1</span> Méthode</h2>
-<p>La méthode employée suit celle développée dans <span class="citation" data-cites="meaps2024b">Parodi et Timbeau (<a href="trajets.html#ref-meaps2024b" role="doc-biblioref">2024a</a>)</span> et mise en oeuvre à la Rochelle <span class="citation" data-cites="lempérière2023">(<a href="trajets.html#ref-lempérière2023" role="doc-biblioref">Lempérière et al. 2023</a>)</span>.</p>
+<p>La méthode employée suit celle développée dans <span class="citation" data-cites="meaps2024b">Parodi et Timbeau (<a href="trajets.html#ref-meaps2024b" role="doc-biblioref">2024a</a>)</span> et mise en œuvre à la Rochelle <span class="citation" data-cites="lempérière2023">(<a href="trajets.html#ref-lempérière2023" role="doc-biblioref">Lempérière <em>et al.</em>, 2023</a>)</span>.</p>
 <p>La <strong>première étape</strong> consiste à prendre en compte la géographie du territoire par la localisation au carreau 200m des résidents et des emplois (voir les parties sur <a href="./localisations.html">les localisations</a> et <a href="./accessibilites.html">l’accessibilité</a>). Ces localisations sont ensuite reliées par les réseaux de transport, pour 4 modes [marche, vélo, transport en commun, voiture]. A ce stade la voiture n’intègre pas la congestion, les données proposées par Mapbox le permettraient.</p>
-<p>La <strong>seconde étape</strong> consiste à utiliser MEAPS <span class="citation" data-cites="meaps2023">(<a href="trajets.html#ref-meaps2023" role="doc-biblioref">Parodi et Timbeau 2023</a>)</span> pour générer les flux d’un carreau à l’autre. MEAPS permet de reproduire avec un faible nombre de paramètres <span class="citation" data-cites="meaps2024a">(<a href="trajets.html#ref-meaps2024a" role="doc-biblioref">Parodi et Timbeau 2024b</a>)</span> les données intercommunales issues de la mobilité professionnelle quotidienne (MOBPRO) et de respecter les équilibres d’ensemble (un emploi reçoit un actif, chaque actif a un emploi). Du fait de ces propriétés, il est possible d’utiliser MEAPS pour intrapoler à une échelle géographique fine (celle de la première étape) les flux.</p>
-<p>La <strong>troisième étape</strong> associe aux flux les fréquences, la complexité des boucle et le mode de transport. Cette analyse est également conduite au niveau fin du carreau 200m, pour différentes catégories de ménage. Les catégories de ménages sont identifiées soit à l’IRIS soit à la commune et sont intrapolées à partir des données carroyées de l’INSEE (pour l’année 2019) <span class="citation" data-cites="meaps2024b">(<a href="trajets.html#ref-meaps2024b" role="doc-biblioref">Parodi et Timbeau 2024a</a>)</span>. En multipliant les flux, les fréquences, les complexités de boucles, les modes, les distances entre le domicile et le travail on obtient alors un estimateur des kilomètres parcourus. On passe ensuite du nombre de kilomètres au CO<sub>2</sub> par l’application d’un coefficient uniforme<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> indiquant le contenu en CO<sub>2</sub> d’un kilomètre en moyenne pour une voiture aux kilomètres parcourus en voiture.</p>
-<div class="no-row-height column-margin column-container"><p><sup>1</sup>&nbsp;Le SDES a publié récemment une version enrichie de l’EMP 2019 en intégrant des coefficients d’émission de CO<sub>2</sub> pour les véhicules possédés par les ménages. Jusqu’à maintenant cette information était déclarative et très approximative. Cette information est plus riche et sera prochainement intégrée, si possible.</p></div><p>A ce stade, les modèles estimés le sont sur les données de l’Enquête Mobilités des Personnes (EMP 2019), hors Ile de France. Dans une prochaine étape, nous utiliserons l’EMC<sup>2</sup> à titre de comparaison, sous réserve que l’EMC<sup>2</sup> permettent les mêmes analyses.</p>
+<p>La <strong>seconde étape</strong> consiste à utiliser MEAPS <span class="citation" data-cites="meaps2023">(<a href="trajets.html#ref-meaps2023" role="doc-biblioref">Parodi et Timbeau, 2023</a>)</span> pour générer les flux d’un carreau à l’autre. MEAPS permet de reproduire avec un faible nombre de paramètres <span class="citation" data-cites="meaps2024a">(<a href="trajets.html#ref-meaps2024a" role="doc-biblioref">Parodi et Timbeau, 2024b</a>)</span> les données intercommunales issues de la mobilité professionnelle quotidienne (MOBPRO) et de respecter les équilibres d’ensemble (un emploi reçoit un actif, chaque actif a un emploi). Du fait de ces propriétés, il est possible d’utiliser MEAPS pour intrapoler à une échelle géographique fine (celle de la première étape) les flux.</p>
+<p>La <strong>troisième étape</strong> associe aux flux les fréquences, la complexité des boucle et le mode de transport. Cette analyse est également conduite au niveau fin du carreau 200m, pour différentes catégories de ménage. Les catégories de ménages sont identifiées soit à l’IRIS soit à la commune et sont intrapolées à partir des données carroyées de l’INSEE (pour l’année 2019) <span class="citation" data-cites="meaps2024b">(<a href="trajets.html#ref-meaps2024b" role="doc-biblioref">Parodi et Timbeau, 2024a</a>)</span>. En multipliant les flux, les fréquences, les complexités de boucles, les modes, les distances entre le domicile et le travail on obtient alors un estimateur des kilomètres parcourus. On passe ensuite du nombre de kilomètres au CO<sub>2</sub> par l’application d’un cœfficient uniforme<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> indiquant le contenu en CO<sub>2</sub> d’un kilomètre en moyenne pour une voiture aux kilomètres parcourus en voiture.</p>
+<div class="no-row-height column-margin column-container"><p><sup>1</sup>&nbsp;Le SDES a publié récemment une version enrichie de l’EMP 2019 en intégrant des cœfficients d’émission de CO<sub>2</sub> pour les véhicules possédés par les ménages. Jusqu’à maintenant cette information était déclarative et très approximative. Cette information est plus riche et sera prochainement intégrée, si possible.</p></div><p>A ce stade, les modèles estimés le sont sur les données de l’Enquête Mobilités des Personnes (EMP 2019), hors Ile de France. Dans une prochaine étape, nous utiliserons l’EMC<sup>2</sup> à titre de comparaison, sous réserve que l’EMC<sup>2</sup> permettent les mêmes analyses.</p>
 </section>
 <section id="carte-des-émissions-de-co2-pour-les-mobilités-professionnelles" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="carte-des-émissions-de-co2-pour-les-mobilités-professionnelles"><span class="header-section-number">3.2</span> Carte des émissions de CO<sub>2</sub> pour les mobilités professionnelles</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-carteco2" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-carteco2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<strong>Graphique</strong>&nbsp;3.1<strong>.</strong> Carte du CO<sub>2</sub> localisé
+</figcaption>
+<div aria-describedby="fig-carteco2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="trajets_files/figure-html/fig-carteco2-1.png" class="lightbox" data-glightbox="description: .lightbox-desc-1" data-gallery="quarto-lightbox-gallery-1"><img src="trajets_files/figure-html/fig-carteco2-1.png" class="img-fluid figure-img" data-fig-pos="H"></a>
+</div>
+</figure>
+</div>
+</div>
+</div>
 </section>
-<section id="références-bibliographiques" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="références-bibliographiques"><span class="header-section-number">3.3</span> Références bibliographiques</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<section id="références-bibliographiques" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="références-bibliographiques">Références bibliographiques</h2>
+<div id="refs" class="references csl-bib-body" role="list">
 <div id="ref-lempérière2023" class="csl-entry" role="listitem">
-Lempérière, Paul, David Miet, Maxime Parodi, Lucas Pouvreau, Valentin
-Stulhfauth, and Xavier Timbeau. 2023. <span>“SCoT La Rochelle Aunis :
-les émissions moyennes des habitants du territoire pour leurs mobilités
-quotidiennes.”</span> April 11, 2023. <a href="https://publications.vv.energy/la-rochelle-aunis-carbone.html">https://publications.vv.energy/la-rochelle-aunis-carbone.html</a>.
+Lempérière P., Miet D., Parodi M., Pouvreau L., Stulhfauth V., Timbeau
+X. (2023). <span>«&nbsp;<a href="https://publications.vv.energy/la-rochelle-aunis-carbone.html">SCoT
+La Rochelle Aunis : les émissions moyennes des habitants du territoire
+pour leurs mobilités quotidiennes</a>&nbsp;»</span>,.
 </div>
 <div id="ref-meaps2023" class="csl-entry" role="listitem">
-Parodi, Maxime, and Xavier Timbeau. 2023. <span>“MEAPS : Modéliser Les
-Flux de Navetteurs.”</span> <em>Document de Travail de l’OFCE</em>, no.
-11-2023 (May). <a href="https://preview.meaps.fr/theorie.html">https://preview.meaps.fr/theorie.html</a>.
+Parodi M., Timbeau X. (2023). <span>«&nbsp;<a href="https://preview.meaps.fr/theorie.html">MEAPS : modéliser les flux
+de navetteurs</a>&nbsp;»</span>, <em>Document de travail de l’OFCE</em>, n°
+11-2023.
 </div>
 <div id="ref-meaps2024b" class="csl-entry" role="listitem">
-———. 2024a. <span>“La Ville Compacte : Une Solution Aux Émissions de Gaz
-à Effet de Serre.”</span> <em>Document de Travail de l’OFCE</em>, no.
-5-2024 (January). <a href="https://preview.meaps.fr/trajets.html">https://preview.meaps.fr/trajets.html</a>.
+Parodi M., Timbeau X. (2024a). <span>«&nbsp;<a href="https://preview.meaps.fr/trajets.html">La ville compacte : une
+solution aux émissions de gaz à effet de serre</a>&nbsp;»</span>,
+<em>Document de travail de l’OFCE</em>, n° 5-2024.
 </div>
 <div id="ref-meaps2024a" class="csl-entry" role="listitem">
-———. 2024b. <span>“MEAPS&amp;gravitaire : Estimations à La
-Rochelle.”</span> <em>Document de Travail de l’OFCE</em>, no. 4-2024
-(February). <a href="https://preview.meaps.fr/larochelle.html">https://preview.meaps.fr/larochelle.html</a>.
+Parodi M., Timbeau X. (2024b). <span>«&nbsp;<a href="https://preview.meaps.fr/larochelle.html">MEAPS&amp;Gravitaire :
+Estimations à la Rochelle</a>&nbsp;»</span>, <em>Document de travail de
+l’OFCE</em>, n° 4-2024.
 </div>
 </div>
 
 
+<div class="hidden" aria-hidden="true">
+<span class="glightbox-desc lightbox-desc-1"><strong>Graphique</strong>&nbsp;3.1<strong>.</strong> Carte du CO<sub>2</sub> localisé</span>
+</div>
 </section>
 
 
@@ -699,6 +727,31 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>
   </div>
 </footer>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","loop":false,"descPosition":"bottom","openEffect":"zoom","selector":".lightbox"});
+window.onload = () => {
+  lightboxQuarto.on('slide_before_load', (data) => {
+    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+    const href = trigger.getAttribute('href');
+    if (href !== null) {
+      const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+      if (imgEl !== null) {
+        const srcAttr = imgEl.getAttribute("src");
+        if (srcAttr && srcAttr.startsWith("data:")) {
+          slideConfig.href = srcAttr;
+        }
+      }
+    } 
+  });
+
+  lightboxQuarto.on('slide_after_load', (data) => {
+    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+    if (window.Quarto?.typesetMath) {
+      window.Quarto.typesetMath(slideNode);
+    }
+  });
+
+};
+          </script>
 
 
 
