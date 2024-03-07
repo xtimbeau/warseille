@@ -5,6 +5,8 @@ library(showtext)
 library(mapdeck)
 library(ofce)
 library(downloadthis)
+library(gt)
+
 opts_chunk$set(
   echo = FALSE,
   warning = FALSE,

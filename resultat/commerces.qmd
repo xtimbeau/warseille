@@ -4,9 +4,20 @@ source("init.R")
 
 # Déplacements pour le motif commerce
 
-## proposition de méthode
+## Proposition de méthode
 
-L'enquête mobilité certifiée CEREMA (EMC^2^) délivre une information de location assez fine. Elle correspond peu ou prou à la définition de l'IRIS [@fig-subemc2]. Cette information permet donc pour d'autres motifs que le motif professionnel
+L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose sur la disponibilité d'une matrice origine destination très riche, disponible pour chaque année de recensement au niveau intercommunal, décrivant donc les flux de mobilité professionnelle quotidienne usuelle[^commerces-1] pour toute la France. Cette information est également disponible pour les mobilités scolaires. En revanche, pour les autres motifs de déplacement, on ne dispose pas de quelque chose d'équivalent. En particulier, le motif commerce est plus complexe à appréhender parce que les lieux de commerces sont nombreux, bien plus nombreux que les lieux d'étude ou de travail. Or le motif commerce est un élément important des mobilités. Le @tbl-emp donne les valeurs agrégées moyenne pour un adulte en France hors Ile de France. Le motif "courses" représente x% des kilomètres parcourus.
+
+[^commerces-1]: Et donc sans information de fréquence.
+
+```{r}
+#| label: tbl-emp
+#| tab-cap: Enquête mobilité des personnes 2019
+
+bd_read("EMP2019_AA3") 
+```
+
+L'enquête mobilité certifiée CEREMA (EMC^2^) délivre une information de location assez fine. Elle correspond peu ou prou à la définition de l'IRIS [@fig-subemc2]. Cette information permet donc pour d'autres motifs que le motif professionnel de construire une matrice origine destination, c'est-à-dire une information comparable à la donnée du recensement MOPBRO. Il existe cependant une nuance importante, l'EMC^2^ repose sur un échantillon représentatif mais pas exhaustif. Or, pour construire une matrice origine destination détaillée au niveau le plus fin, il faudrait un échantillon bien plus important. En revanche pour des découpages moins fins (14 zones comme dans le découpage D10 AOTU) ou encore des découpages "fonctionnels", reposant sur la caractérisation des zones par la surface de commerce. C'est sur cette base que nous proposons d'ajuster un modèle de trajets effectifs semblable à MEAPS pour les mobilités professionnelles.
 
 ```{r}
 #| label: fig-subemc2
@@ -15,3 +26,7 @@ L'enquête mobilité certifiée CEREMA (EMC^2^) délivre une information de loca
 # bd_read("carte_emc2")
 
 ```
+
+1.  La première étape est d'identifier les opportunités. Une des difficultés est la versalité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. En première approche, nous proposons d’agréger les surfaces commerciales pour chaque carreau en utilisant la pondération des sous-motifs de commerce issus de l'EMC^2^. Il est envisageable de raffiner en déclinant ces pondérations suivant un zonage géographique ou fonctionnel (fonction de la densité par exemple) et donc en produisant des couches agrégées de commerces pour des types de ménages identifiés.
+
+2.  La seconde étape est de générer les flux entre les rési
