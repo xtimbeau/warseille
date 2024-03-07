@@ -27,6 +27,12 @@ L'enquête mobilité certifiée CEREMA (EMC^2^) délivre une information de loca
 
 ```
 
-1.  La première étape est d'identifier les opportunités. Une des difficultés est la versalité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. En première approche, nous proposons d’agréger les surfaces commerciales pour chaque carreau en utilisant la pondération des sous-motifs de commerce issus de l'EMC^2^. Il est envisageable de raffiner en déclinant ces pondérations suivant un zonage géographique ou fonctionnel (fonction de la densité par exemple) et donc en produisant des couches agrégées de commerces pour des types de ménages identifiés.
+1.  La première étape est d'identifier les opportunités. Une des difficultés est la versalité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. En première approche, nous proposons d’agréger les surfaces commerciales pour chaque carreau en utilisant la pondération des sous-motifs de commerce issus de l'EMC^2^ pour constuire une attractivité commerciale moyenne qui tient à la fois compte de la part du sous motif dans le motif "course" et de la fréquence de ce sous motif dans une semaine type. \
+    La source des fichiers fonciers donne une information fine sur les secteurs (code NAF à 5 caractères) dans lequel on peut distinguer un commerce de chaussure d'une pharmacie, une superette d'une grande surface alimentaire. \
+    Le rôle de la surface commerciale dans cette attractivité moyenne est encore à définir. Il est envisageable de raffiner en déclinant ces pondérations suivant un zonage géographique ou fonctionnel (fonction de la densité par exemple) et donc en produisant des couches agrégées de commerces pour des types de ménages identifiés.
 
-2.  La seconde étape est de générer les flux entre les rési
+2.  La seconde étape est de générer les flux entre les résidents et l'attractivité commerciale moyenne localisée construite au 1.
+
+3.  Ce flux peut être ensuite agrégé pour reproduire les matrices origines destinations construite à partir de l'EMC^2^. Ces matrices peuvent être sur une base géographique (D10 AOTU) ou encore fonctionnelle (densité de résidents, catégorie d'individus, densité de commerce par exemple). En paramétrisant MEAPS avec peu de paramètres on peut alors ajuster pour retrouver les flux et utiliser le modèle pour l'intrapolation.
+
+    Un point de vigilance est que les contraintes aux marges (chaque emploi est occupé par un actif et un seul) conduisent à produire des flux proche des données et que dans le cas des commerces on sera dans un problème non contraint. Ceci peut en partie être traité par une matrice origine destination à un niveau géographique peu détaillé.

@@ -21,3 +21,7 @@ La **troisième étape** associe aux flux les fréquences, la complexité des bo
 A ce stade, les modèles estimés le sont sur les données de l'Enquête Mobilités des Personnes (EMP 2019), hors Ile de France. Dans une prochaine étape, nous utiliserons l'EMC^2^ à titre de comparaison, sous réserve que l'EMC^2^ permettent les mêmes analyses.
 
 ## Carte des émissions de CO~2~ pour les mobilités professionnelles
+
+```{r}
+
+```
