@@ -10,11 +10,11 @@
 
 -   {{< fa check >}} Calcul de l'accessibilité pour 4 modes, cartes
 
--   Génération des flux carreau carreau par MEAPS (et par un modèle gravitaire)
+-   {{< fa check >}} Génération des flux carreau carreau par MEAPS (et par un modèle gravitaire)
 
 -   Estimation d'un modèle MEAPS sur MOPBRO, comparaison avec La Rochelle
 
--   Projection, sur la base de l'EMP 2019, des km par habitant
+-   {{< fa check >}} Projection, sur la base de l'EMP 2019, des km par habitant
 
 -   Estimation sur la base EMC^2^ metAM des modèles de projection, comparaison avec EMP 2019
 
