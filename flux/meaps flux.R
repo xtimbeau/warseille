@@ -18,12 +18,9 @@ conflict_prefer("first", "dplyr", quiet=TRUE)
 arrow::set_cpu_count(8)
 
 # ---- Definition des zones ----
-cli::cli_alert_info("lecture de baselayer dans {.path {getwd()}}")
 load("baselayer.rda")
 
-cli::cli_alert_info("trajets")
-data.table::setDTthreads(4)
-arrow::set_cpu_count(4)
+cli::cli_alert_info("Flux")
 
 c200ze <- qs::qread(c200ze_file) |> arrange(com, idINS)
 com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com)
@@ -96,7 +93,6 @@ tibble(to = tos, ej = matrixStats::colSums2(meaps)) |>
   st_as_sf() |> 
   tm_shape() + tm_fill(col="r", style = "cont")
 
-
 dimnames(meaps) <- dimnames(rm)
 meaps.dt <- as.data.table(meaps, keep.rownames = TRUE)
 meaps.dt <- melt(meaps.dt, id.vars="rn")
@@ -104,10 +100,14 @@ setnames(meaps.dt, c("rn","variable","value"), c("fromidINS", "toidINS", "f_ij")
 meaps.dt <- meaps.dt[f_ij>0, ]
 meaps.dt[, fromidINS := factor(fromidINS)]
 
-
 delta <- open_dataset(delta_dts) |> 
   collect() |> 
   setDT()
+
+setkey(meaps.dt, "fromidINS", "toidINS") 
+setkey(delta, "fromidINS", "toidINS") 
+
+meaps.dt <- merge(meaps.dt, delta, by = c("fromidINS", "toidINS"))
 
 de[, km_ij := f_ij * delta]
 de[, `:=`(co2_ij = km_ij * 218/1000000, 

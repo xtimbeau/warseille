@@ -166,11 +166,11 @@ walk(les_morceaux[!already_done], \(un_iris) {
   
   distances <- open_dataset(dist_dts) |> 
     filter(COMMUNE==la_commune) |> 
-    select(fromidINS, toidINS, travel_time, distance, mode, access_time, n_rides, COMMUNE, DCLT) |> 
+    select(fromidINS, toidINS, travel_time, distance, mode, access_time, n_rides) |> 
     collect() |> 
-    semi_join(flux_mobpro, by = c("COMMUNE", "DCLT")) |> 
-    select(-COMMUNE, -DCLT) |> 
-    left_join(id2iris, by = c("toidINS" = "idINS")) |> 
+    # semi_join(flux_mobpro, by = c("COMMUNE", "DCLT")) |> 
+    # select(-COMMUNE, -DCLT) |> 
+    left_join(id2iris, by = c("fromidINS" = "idINS")) |> 
     filter(IRIS == un_iris) |> 
     setDT()
   
