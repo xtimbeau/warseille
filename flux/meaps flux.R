@@ -45,20 +45,21 @@ K <- length(masses_AMP$emplois)
 nb_tirages <- 16
 shufs <- emiette(les_actifs = masses_AMP$actifs, nshuf = 256, seuil = 300)
 modds <- matrix(1L, nrow=N, ncol=K)
-modds[is.na(rm)] <- NA
-modds[rt<10] <- 10
+# modds[is.na(rm)] <- NA
+# modds[rt<10] <- 10
 dimnames(modds) <- dimnames(rm)
 
 tic();meaps <- meaps_multishuf(rkdist = rm, 
-                emplois = masses_AMP$emplois, 
-                actifs = masses_AMP$actifs, 
-                f = masses_AMP$fuites/masses_AMP$actifs, 
-                shuf = shufs, 
-                nthreads = 4, 
-                modds = modds); toc()
-
+                               emplois = masses_AMP$emplois, 
+                               actifs = masses_AMP$actifs, 
+                               f = masses_AMP$fuites/masses_AMP$actifs, 
+                               shuf = shufs, 
+                               nthreads = 4, 
+                               modds = modds); toc()
+qs::qsave(meaps, "{mdir}/tmp/meaps e 16t o1.qs" |> glue())
 # meaps <- qs::qread("{mdir}/tmp/meaps e 16t o1.qs" |> glue())
 
+# check -------------------
 meaps.c <- communaliser(meaps, communes, dclts)
 com_ar <- qs::qread(communes_ar_file)
 library(tmap)

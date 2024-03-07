@@ -216,7 +216,7 @@ c200ze <- bd_read("c200ze")
 t_access <- bd_read("t_access")
 t_access  <- t_access |> 
   mutate(zone = case_match(
-    com22,
+    com,
     str_c(13201:13216) ~ "Marseille",
     "13039"  ~ 'Fos-sur-Mer',
     "13001" ~ 'Aix-en-Provence', 
