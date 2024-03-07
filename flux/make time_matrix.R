@@ -5,7 +5,7 @@ library(rmeaps)
 library(arrow)
 library(r3035)
 library(furrr)
-
+source("secrets/azure.R")
 conflict_prefer("filter", "dplyr", quiet=TRUE)
 conflict_prefer("select", "dplyr", quiet=TRUE)
 conflict_prefer("collect", "dplyr", quiet=TRUE)
@@ -15,12 +15,11 @@ conflict_prefer("first", "dplyr", quiet=TRUE)
 arrow::set_cpu_count(8)
 
 # ---- Definition des zones ----
-cli::cli_alert_info("lecture de baselayer dans {.path {getwd()}}")
 load("baselayer.rda")
 
-cli::cli_alert_info("trajets")
-data.table::setDTthreads(4)
-arrow::set_cpu_count(4)
+cli::cli_alert_info("Time matrix")
+data.table::setDTthreads(8)
+arrow::set_cpu_count(8)
 time_dts <- str_c(dir_dist, "/src/time_dataset")
 
 c200ze <- qs::qread(c200ze_file) |> arrange(com, idINS)
@@ -74,6 +73,7 @@ if(!file.exists(time_dts)) {
   
   arrow::write_parquet(time, "{dir_dist}/time.parquet" |> glue())
 }
+
 time <- arrow::read_parquet("{dir_dist}/time.parquet" |> glue(),
                             col_select = c(COMMUNE, fromidINS, toidINS, t)) |> 
   arrange(COMMUNE, fromidINS, toidINS)
@@ -96,3 +96,4 @@ tr <- matrixStats::rowRanks(tt, ties.method = "random")
 
 qs::qsave(tt, time_matrix)
 qs::qsave(tr, rank_matrix)
+

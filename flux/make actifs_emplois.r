@@ -1,17 +1,8 @@
-library(data.table, quietly = TRUE)
 library(tidyverse, quietly = TRUE, warn.conflicts = FALSE)
-library(stars, quietly = TRUE)
-library(tmap, quietly = TRUE)
 library(glue, quietly = TRUE)
-library(qs, quietly = TRUE)
 library(conflicted, quietly = TRUE)
-library(rmeaps)
-library(arrow)
-library(r3035)
-library(data.table)
-library(duckdb)
-library(furrr)
 source("secrets/azure.R")
+
 conflict_prefer("filter", "dplyr", quiet=TRUE)
 conflict_prefer("select", "dplyr", quiet=TRUE)
 conflict_prefer("collect", "dplyr", quiet=TRUE)
@@ -21,10 +12,9 @@ conflict_prefer("first", "dplyr", quiet=TRUE)
 arrow::set_cpu_count(8)
 
 # ---- Definition des zones ----
-cli::cli_alert_info("lecture de baselayer dans {.path {getwd()}}")
 load("baselayer.rda")
 
-cli::cli_alert_info("trajets")
+cli::cli_alert_info("Masses")
 data.table::setDTthreads(4)
 arrow::set_cpu_count(4)
 
