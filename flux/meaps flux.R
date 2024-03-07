@@ -101,7 +101,7 @@ setnames(meaps.dt, c("rn","variable","value"), c("fromidINS", "toidINS", "f_ij")
 meaps.dt <- meaps.dt[f_ij>0, ]
 meaps.dt[, fromidINS := factor(fromidINS)]
 
-delta <- open_dataset(delta_dts) |> 
+delta <- open_dataset("/space_mounts/data/marseille/delta2") |> 
   collect() |> 
   setDT()
 
@@ -110,15 +110,26 @@ setkey(delta, "fromidINS", "toidINS")
 
 meaps.dt <- merge(meaps.dt, delta, by = c("fromidINS", "toidINS"))
 
-de[, km_ij := f_ij * delta]
-de[, `:=`(co2_ij = km_ij * 218/1000000, 
-          time_ij = fifelse(time==9999, NA_real_, km_ij / (distance_car/1000) * time / 60))]
-de[, meaps := nx]
-de_from <- de[,.(
+meaps.dt[, `:=`(km_car_ij= f_ij * car, km_ij = f_ij * (bike+walk+transit+car))]
+meaps.dt[, co2_ij := km_ij * 218/1000000]
+meaps_from <- meaps.dt[,.(
   km_pa = sum(km_ij, na.rm=TRUE)/sum(f_ij),
-  time_pa = sum(time_ij, na.rm=TRUE)/sum(f_ij),
   co2_pa = sum(co2_ij, na.rm=TRUE)/sum(f_ij),
   f_i = sum(f_ij, na.rm=TRUE)),
-  by = c("mode","fromidINS", "meaps")] 
+  by = "fromidINS"] 
 
-kmco2_delta <- rbind(kmco2_delta, de_from) 
+meaps_from <- meaps_from |> 
+  as_tibble() |> 
+  left_join(c200ze |> select(fromidINS = idINS), by='fromidINS') |> 
+  st_as_sf()
+decor_carte <- bd_read("decor_carte")
+
+ggplot() +
+  decor_carte +
+  geom_sf(
+    data= meaps_from,
+    mapping= aes(fill=km_pa), col=NA) + 
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Spectral",
+    name = "CO2/an/adulte")
