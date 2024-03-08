@@ -30,6 +30,12 @@ A ce stade, les modèles estimés le sont sur les données de l'Enquête Mobilit
 ## Carte des émissions de CO~2~ pour les mobilités professionnelles
 
 ```{r}
+#| label: fig-carteco2
+#| fig-cap: "Carte du CO~2~ localisé"
+
+bd_read("carte_co2") +
+  theme_ofce_void() +
+  labs(caption="*Source* : MOBPRO, MOBPERS, C200, MEAPS.<br>**Attention calcul préliminaire à confirmer.**")
 
 ```
 
