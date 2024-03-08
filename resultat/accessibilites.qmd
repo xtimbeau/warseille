@@ -214,13 +214,13 @@ colors <- c("Marseille 3e" = "chartreuse",
 
 ggplot(
   access_par_com |> 
-    filter(mode %in% c("car_dgr", "transit5", "bike_tblr", "walk_tblr"))) +
+    filter(mode %in% c("car_dgr", "transit", "bike_tblr", "walk_tblr"))) +
   geom_line(aes(x=temps, y=emp, group=com), col="gray80", linewidth=0.2) +
   geom_line(data = ~filter(.x, !str_detect(label, "^n")),
             aes(x=temps, y=emp, color=label)) +
   scale_color_manual(values = colors)+
   scale_x_continuous(breaks  = c(0, 20,40,60,80,100,120), limits = c(0,60))+
-  scale_y_continuous(labels = ofce::f2si2)+
+  scale_y_continuous(labels = scales::number_format(scale= 1/1000, suffix="k"))+
   ofce::theme_ofce(base_size = 8)+
   xlab("temps en minutes") +
   ylab("emploi maximum") +
