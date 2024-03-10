@@ -1,6 +1,7 @@
 library(tidyverse, quietly = TRUE, warn.conflicts = FALSE)
 library(glue, quietly = TRUE)
 library(conflicted, quietly = TRUE)
+library(sf)
 source("secrets/azure.R")
 
 conflict_prefer("filter", "dplyr", quiet=TRUE)
@@ -19,8 +20,8 @@ data.table::setDTthreads(4)
 arrow::set_cpu_count(4)
 
 c200ze <- qs::qread(c200ze_file) |> arrange(com, idINS)
-com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com)
-com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com)
+com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com) |> as.integer()
+com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com) |> as.integer()
 
 # il y a un potentiellement un petit problème
 # normalement, cela devrait être dans c200ze que l'on récupère les indices
