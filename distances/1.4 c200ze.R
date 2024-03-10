@@ -14,7 +14,8 @@ source("secrets/azure.R")
 
 bl <- load("baselayer.rda")
 
-c200 <- qread(c200_file) # version 2017
+c200 <- qread(c200_file) 
+# version 2017
 
 mobpro95 <- qs::qread(mobpro_file)
 
@@ -36,7 +37,7 @@ com_ze <- iris |>
 empze <- qs::qread(emp_pred_file) |> 
   rename(emp = emp_pred,
          emp_resident = emp_pred_scot) |> 
-  mutate(geometry = r3035::idINS2square(idINS)) |> 
+  mutate(geometry = r3035::sidINS2square(idINS)) |> 
   st_as_sf(crs=3035)
 
 irises <- sf::st_intersects(empze, iris) 
@@ -51,22 +52,6 @@ l2 <- st_join(
 
 irises[l_irises>=2] <- l2 |> pull(id)
 flat_irises <- purrr::list_c(irises)
-
-# # coms <- qs::qread(communes_ar_file) |> 
-# #   st_drop_geometry() |> 
-# #   filter(ze)
-# # scot <- coms |> 
-# #   filter(scot) |> 
-# #   pull(INSEE_COM)
-# # pze <- coms |> 
-# #   filter(pze) |> 
-# #   pull(INSEE_COM)
-# # ze <- coms |> 
-# #   filter(ze) |> 
-# #   pull(INSEE_COM)
-# mobpro99 <- coms |> 
-#   filter(mobpro99) |> 
-#   pull(INSEE_COM)
 
 act_mobpro <- qs::qread(mobpro_file) |> 
   filter(COMMUNE %in% communes) |> 
@@ -95,7 +80,8 @@ c200e <- empze |>
     IRIS = iris$CODE_IRIS[flat_irises],
     emp, emp_resident) 
 
-c200ze <- full_join(c200i |> st_drop_geometry(), c200e |> st_drop_geometry() |> select(idINS, emp, emp_resident, IRIS, com, dep),
+c200ze <- full_join(c200i |> st_drop_geometry(), 
+                    c200e |> st_drop_geometry() |> select(idINS, emp, emp_resident, IRIS, com, dep),
                     by = "idINS", suffix = c("",".e")) |> 
   mutate(
     dep = if_else(is.na(dep), dep.e, dep),
@@ -103,7 +89,7 @@ c200ze <- full_join(c200i |> st_drop_geometry(), c200e |> st_drop_geometry() |> 
     IRIS = if_else(is.na(IRIS), IRIS.e, IRIS),
     across(c(emp, emp_resident, ind, men, adultes, ind_18_64, ind_snv, act_mobpro),~replace_na(.x, 0))) |>
   select(-ends_with(".e")) |> 
-  mutate(geometry = r3035::idINS2square(idINS)) |> 
+  mutate(geometry = r3035::sidINS2square(idINS)) |> 
   st_as_sf(crs=3035) 
 
 c200ze <- c200ze |> 
