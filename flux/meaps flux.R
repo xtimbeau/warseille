@@ -7,6 +7,7 @@ library(data.table)
 library(duckdb)
 library(furrr)
 library(tictoc)
+library(sf)
 source("secrets/azure.R")
 
 conflict_prefer("filter", "dplyr", quiet=TRUE)
@@ -23,8 +24,8 @@ load("baselayer.rda")
 cli::cli_alert_info("Flux")
 
 c200ze <- qs::qread(c200ze_file) |> arrange(com, idINS)
-com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com)
-com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com)
+com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com) |> as.integer()
+com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com) |> as.integer()
 
 rm <- qs::qread(rank_matrix)
 rt <- qs::qread(time_matrix)
@@ -42,7 +43,7 @@ DCLTs <- tibble(emplois = masses_AMP$emplois, to = tos, DCLT = dclts)
 
 N <- length(masses_AMP$actifs)
 K <- length(masses_AMP$emplois)
-nb_tirages <- 16
+nb_tirages <- 64
 shufs <- emiette(les_actifs = masses_AMP$actifs, nshuf = 256, seuil = 300)
 modds <- matrix(1L, nrow=N, ncol=K)
 # modds[is.na(rm)] <- NA
@@ -54,10 +55,10 @@ tic();meaps <- meaps_multishuf(rkdist = rm,
                                actifs = masses_AMP$actifs, 
                                f = masses_AMP$fuites/masses_AMP$actifs, 
                                shuf = shufs, 
-                               nthreads = 4, 
+                               nthreads = 2, 
                                modds = modds); toc()
-qs::qsave(meaps, "{mdir}/tmp/meaps e 16t o1.qs" |> glue())
-# meaps <- qs::qread("{mdir}/tmp/meaps e 16t o1.qs" |> glue())
+qs::qsave(meaps, "{mdir}/tmp/meaps e 64t o1.qs" |> glue())
+# meaps <- qs::qread("{mdir}/tmp/meaps e 64t o1.qs" |> glue())
 
 # check -------------------
 meaps.c <- communaliser(meaps, communes, dclts)
@@ -83,12 +84,12 @@ DCLTs |>
   filter(!st_is_empty(geometry)) |> 
   tm_shape() + tm_borders() + tm_fill(col="r")
 
-tibble(from = froms, ai = matrixStats::rowSums2(meaps)) |> 
+tibble(from = as.integer(froms), ai = matrixStats::rowSums2(meaps)) |> 
   left_join(c200ze |> select(from = idINS, act_mobpro)) |>
   mutate(r = ai/act_mobpro) |> 
   st_as_sf() |> 
   tm_shape() + tm_fill(col="r", style = "cont")
-tibble(to = tos, ej = matrixStats::colSums2(meaps)) |> 
+tibble(to = as.integer(tos), ej = matrixStats::colSums2(meaps)) |> 
   left_join(c200ze |> select(to = idINS, emp_resident)) |>
   mutate(r = ej/emp_resident) |> 
   st_as_sf() |> 
@@ -99,7 +100,8 @@ meaps.dt <- as.data.table(meaps, keep.rownames = TRUE)
 meaps.dt <- melt(meaps.dt, id.vars="rn")
 setnames(meaps.dt, c("rn","variable","value"), c("fromidINS", "toidINS", "f_ij"))
 meaps.dt <- meaps.dt[f_ij>0, ]
-meaps.dt[, fromidINS := factor(fromidINS)]
+meaps.dt[, `:=`(fromidINS = as.integer(fromidINS),
+                toidINS = as.integer(toidINS))]
 
 delta <- open_dataset("/space_mounts/data/marseille/delta2") |> 
   collect() |> 
@@ -115,21 +117,27 @@ meaps.dt[, co2_ij := km_ij * 218/1000000]
 meaps_from <- meaps.dt[,.(
   km_pa = sum(km_ij, na.rm=TRUE)/sum(f_ij),
   co2_pa = sum(co2_ij, na.rm=TRUE)/sum(f_ij),
+  co2 = sum(co2_ij, na.rm=TRUE),
   f_i = sum(f_ij, na.rm=TRUE)),
   by = "fromidINS"] 
 
 meaps_from <- meaps_from |> 
   as_tibble() |> 
-  left_join(c200ze |> select(fromidINS = idINS), by='fromidINS') |> 
+  left_join(c200ze |> select(fromidINS = idINS, com), by='fromidINS') |> 
   st_as_sf()
+
+bd_write(meaps_from)
+
 decor_carte <- bd_read("decor_carte")
 
-ggplot() +
+carte_co2 <- ggplot() +
   decor_carte +
   geom_sf(
     data= meaps_from,
-    mapping= aes(fill=km_pa), col=NA) + 
+    mapping= aes(fill=co2_pa), col=NA) + 
   scale_fill_distiller(
     type = "seq",
     palette = "Spectral",
     name = "CO2/an/adulte")
+
+bd_write(carte_co2)
