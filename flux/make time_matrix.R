@@ -23,8 +23,8 @@ arrow::set_cpu_count(8)
 time_dts <- str_c(dir_dist, "/src/time_dataset")
 
 c200ze <- qs::qread(c200ze_file) |> arrange(com, idINS)
-com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com)
-com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com)
+com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com) |> as.integer()
+com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com) |> as.integer()
 
 froms <- c200ze |> filter(scot, ind>0) |> pull(idINS)
 tos <- c200ze |> filter(emp_resident>0) |> pull(idINS)
@@ -32,15 +32,14 @@ tos <- c200ze |> filter(emp_resident>0) |> pull(idINS)
 if(!file.exists(time_dts)) {
   unlink(time_dts, force=TRUE, recursive = TRUE)
   dir.create(time_dts)
-  plan("multisession", workers= 4)
+  plan("multisession", workers= 8)
   future_walk(com_geo21_scot, ~{
     gc()
     dfn <- str_c(dist_dts, "/", .x, "/allmode.parquet")
-    tcom <- arrow::read_parquet(dfn, 
-                                as_data_frame = FALSE) |> 
+    tcom <- arrow::open_dataset(dist_dts) |> 
       to_duckdb() |> 
+      filter(COMMUNE==.x) |> 
       group_by(COMMUNE, fromidINS, toidINS) |>
-      filter(!is.na(travel_time)) |> 
       summarize(t = min(travel_time, na.rm=TRUE), .groups = "drop") |> 
       collect()
     
@@ -51,7 +50,7 @@ if(!file.exists(time_dts)) {
       tcom, 
       ttos |> anti_join(tcom, by=c("fromidINS", "toidINS"))) |> 
       arrange(COMMUNE, fromidINS, toidINS) |>
-      mutate(euc = r3035::idINS2dist(fromidINS, toidINS)/1000)
+      mutate(euc = r3035::sidINS2dist(fromidINS, toidINS)/1000)
 
     tcom.mean <- mean(tcom |> select(euc, t) |> filter(!is.na(t), t>0) |> mutate( v = euc / t) |> pull(v), na.rm=TRUE)
 

@@ -17,7 +17,7 @@ library(sf)
 library(writexl)
 library(dplyr)
 conflict_prefer_all("dplyr", quiet = TRUE)
-
+source("secrets/azure.R")
 bl <- load("baselayer.rda")
 
 # bloque les downloads
@@ -80,7 +80,7 @@ if(!file.exists(c200_file)|download) {
   
   c200 <- c200 |>
     transmute(
-      idINS,
+      idINS = contract_idINS(idINS),
       dep=str_sub(lcog_geo, 1,2),
       com22=iris22$DEPCOM[flat_irises], 
       CODE_IRIS = iris22$CODE_IRIS[flat_irises],
@@ -217,8 +217,8 @@ qs::qsave(communes, communes_ar_file)
 
 iris <- qs::qread(iris_file)
 irises <- st_join(zone_emploi, iris) |> pull(CODE_IRIS)
-c200i <- qs::qread(c200_file) |> 
-  filter(CODE_IRIS%in%irises)
+# c200i <- qs::qread(c200_file) |> 
+#   filter(CODE_IRIS%in%irises)
 
 # # GTFS --------------------
 # if(download) {
@@ -253,7 +253,7 @@ bbx <- st_bbox(com2021epci)
 decor_carte <- list(
   ggspatial::layer_spatial(mblr3clair) ,
   geom_sf(data=com2021epci, col="gray75", fill=NA, alpha=1, size=0.1),
-  geom_sf(data=geoepci, col="gray25", fill=NA, alpha=1, size=0.25),
+  geom_sf(data=geoepci, col="gray50", fill=NA, alpha=1, size=0.1),
   coord_sf(),
   xlab(NULL),ylab(NULL),labs(title=NULL),
   scale_x_continuous(expand=c(0,0)),
@@ -272,6 +272,7 @@ decor_carte <- list(
     legend.title = element_text(size=6, margin=margin(1,1,1,1, "pt")),
     legend.text =  element_text(size=5), legend.justification = c(1,0.9)))
 
+bd_write(decor_carte)
 save(decor_carte, file=decor_carte_file)
 
 # save -------------
