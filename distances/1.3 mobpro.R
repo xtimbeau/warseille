@@ -4,7 +4,7 @@ library(sf)
 library(glue)
 library(stars)
 # remotes::install_github("OFCE/accesstars")
-library(accesstars)
+# library(accesstars)
 library(tidyverse)
 library(conflicted)
 library(nuvolos)
@@ -130,13 +130,13 @@ locaux <- locaux.duck |>
   filter(!is.na(cconac), !is.na(X), !is.na(Y)) |> 
   collect() |> 
   mutate(NAF = str_sub(cconac, 1, 2),
-         idINS = r3035::idINS3035(X,Y)) |> 
+         idINS = r3035::sidINS3035(X,Y)) |> 
   rename(sp = sprincp,
          sh = stoth,
          slocal = slocal) |> 
   mutate(ts = sp)
 
-# RFP 2022
+r303# RFP 2022
 
 rfp <- map_dfr(deps, ~{
   st_read(glue("/dropbox/dv3f/rfp22/rfp_d{.x}.gpkg"), layer="tup")
@@ -153,9 +153,9 @@ pubsuf <-  st_rasterize(rfp_r, template = r200, options = c("MERGE_ALG=ADD")) |>
   mutate(
     tsstar = 200*200*dens,
     group_naf = "OQ",
-    idINS = r3035::idINS3035(x, y)) |> 
+    idINS = r3035::sidINS3035(x, y)) |> 
   select(-x,-y, dens, sprincp, tsstar) |> 
-  mutate(geometry = r3035::idINS2square(idINS)) |> 
+  mutate(geometry = r3035::sidINS2square(idINS)) |> 
   st_as_sf(crs=3035)
 
 # on rajoute les idcom/iris
@@ -205,7 +205,7 @@ rfp_locaux <- rfp |>
   transmute(
     X = st_coordinates(geom)[,1],
     Y = st_coordinates(geom)[,2], 
-    idINS = r3035::idINS3035(X, Y),
+    idINS = r3035::sidINS3035(X, Y),
     cconac = "84xxx", NAF = "84",
     sh=0,
     sprincp,
@@ -260,7 +260,7 @@ surf_by_naf <- locaux |>
 
 # on inclut les individus pour une petite astuce à venir
 
-ind_ze <- c200ze |> 
+ind_ze <- c200ze |>
   st_drop_geometry() |>
   select(idINS, ind, idcom = com22)
 

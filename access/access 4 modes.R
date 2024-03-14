@@ -16,7 +16,6 @@ conflict_prefer_all("dplyr", quiet = TRUE)
 source("secrets/azure.R")
 
 c200ze <- qs::qread(c200ze_file)
-bd_write(c200ze)
 times <- seq(1, 120, 1)
 times <- set_names(times, str_c("t", times))
 seuils <- c(10000, 20000, 50000, 100000, 200000, 300000, 4000000, 500000)
@@ -76,9 +75,10 @@ access <- arrow::open_dataset("/space_mounts/data/marseille/distances/access") |
   to_duckdb()
 
 t_access <- imap(modes, ~{
-  res <- access |> filter(mode== .x) |> select(-mode) |> collect()
-  res <- accessibility::iso2time(dt2r(res), seuils = seuils) 
-  res <- r2dt(res)
+  res <- access |> filter(mode== .x) |> select(-mode) |> collect() |> 
+    rename(idINS = fromidINS)
+  res <- accessibility::iso2time(sdt2r(res), seuils = seuils) 
+  res <- r2sdt(res)
   res[, `:=`(x=NULL, y=NULL, mode=.x)]
   res
 }) |> 
@@ -86,9 +86,9 @@ t_access <- imap(modes, ~{
 
 t_access <- t_access |>
   st_drop_geometry() |> 
-  left_join(c200ze |> select(idINS200=idINS, com, ind), by="idINS200") |> 
+  left_join(c200ze |> select(idINS, com, ind), by="idINS") |> 
   mutate(
-    geometry=idINS2square(idINS200),
+    geometry=sidINS2square(idINS),
     mode_lib = factor(
       mode, 
       c("car_dgr2", "transit5", "transit", 
@@ -101,8 +101,7 @@ bd_write(t_access)
 write_csv(t_access |> st_drop_geometry(), file="output/access.csv")
 qs::qsave(t_access, "output/acces4modes.sqs")
 load(decor_carte_file)
-qs::qsave(decor_carte, "output/decor_carte.sqs")
-bd_write(decor_carte)
+bd_read("decor_carte")
 (access_4modes_walk <- ggplot()+
     decor_carte +
     ofce::theme_ofce_void(axis.text = element_blank()) +

@@ -32,7 +32,7 @@ MOD_choix_modaux_notc <- readRDS("projection/MOD_choix_modaux_notc.rda")
 
 ## Les données sociodemo
 c200ze <- qs::qread(c200ze_file)
-iris4mod <- qs::qread("/space_mounts/data/marseille/iris4mod.qs")
+iris4mod <- qs::qread("/space_mounts/data/marseille/iris4mod.qs") |> filter(ind>0)
 
 # commune <- qs::qread(communes_file) |> 
 #   mutate(across(-geometry, .fns = factor),
@@ -73,7 +73,7 @@ donnees_categoriques <- remplir_categories(type_menage, voiture) |> drop_na()
 donnees_simples <- iris4mod |> select(idINS, IRIS, DENSITECOM_RES, revuce)
 
 donnees <- left_join(donnees_categoriques, donnees_simples, by = "idINS") |> 
-  mutate(fromidINS = factor(idINS),
+  mutate(fromidINS = idINS,
          voiture = as.logical(voiture)) |> 
   select(-idINS) |> 
   group_by(fromidINS) |> 
@@ -144,10 +144,10 @@ already_done <- map_lgl(les_morceaux, \(x) {
   return(length(z) >= 1)
 })
 
-#plan("multisession", workers = 2L)
+plan("multisession", workers = 2L)
 #options(future.globals.maxSize=3*1024^3)
 
-walk(les_morceaux[!already_done], \(un_iris) {
+future_walk(les_morceaux[!already_done], \(un_iris) {
   library(SparseM)
   library(mpcmp)
   library(quantreg)
@@ -163,9 +163,10 @@ walk(les_morceaux[!already_done], \(un_iris) {
   # distances <- inner_join(les_identifiants, les_distances, by = "id") |> 
   #   setDT()
   # 
-  la_commune <- str_sub(un_iris, 1,5)
+  la_commune <- str_sub(un_iris, 1,5) |> as.integer()
   
   distances <- open_dataset(dist_dts) |> 
+    to_duckdb() |> 
     filter(COMMUNE==la_commune) |> 
     select(fromidINS, toidINS, travel_time, distance, mode, access_time, n_rides) |> 
     collect() |> 
@@ -175,7 +176,10 @@ walk(les_morceaux[!already_done], \(un_iris) {
     filter(IRIS == un_iris) |> 
     setDT()
   
-  if (nrow(distances) == 0) return(NULL)
+  if (nrow(distances) == 0) {
+    cli::cli_alert_warning("Pas de distances iris {un_iris}")
+    return(NULL)
+  }
   
   les_stations <- distances[mode=="transit", .(fromidINS, access_time, n_rides)]
   les_stations[, dist_tc_proche := fifelse(access_time <= 12 & n_rides > 0, TRUE, FALSE, na = FALSE)]
@@ -183,9 +187,7 @@ walk(les_morceaux[!already_done], \(un_iris) {
   
   distances <- distances[les_stations, on = "fromidINS"]
   
-  distances[, `:=`(fromidINS = factor(fromidINS),
-                   toidINS = factor(toidINS),
-                   access_time = NULL,
+  distances[, `:=`(access_time = NULL,
                    n_rides = NULL,
                    mode = fcase(
                      mode == "walk_tblr", "walk",
@@ -203,7 +205,7 @@ walk(les_morceaux[!already_done], \(un_iris) {
   
   dist_car <- distances[mode=="car", .(fromidINS, toidINS, distance)]
   tt_temp <- dcast(distances, fromidINS + toidINS + dist_tc_proche ~ mode, value.var = "travel_time")
-  tt_temp[, euc := r3035::idINS2dist(tt_temp$fromidINS, tt_temp$toidINS)/1000]
+  tt_temp[, euc := r3035::sidINS2dist(tt_temp$fromidINS, tt_temp$toidINS)/1000]
   
   distances <- merge(tt_temp, dist_car, by = c("fromidINS", "toidINS"), all.x = TRUE)
   rm(dist_car, tt_temp)
@@ -232,8 +234,12 @@ walk(les_morceaux[!already_done], \(un_iris) {
   # pour Prob_bcl_simple(k) on prend dist_bcl = 2 * DISTANCE(i,j) 
   # pour (1 - Prob_bcl_simple(k)) on prend dist_bcl =  K(i,j) * DISTANCE(i,j)
   
-  dist = merge(distances, donnees, by = "fromidINS", all.y = FALSE, all.x = FALSE, allow.cartesian = TRUE)
-  
+  dist <- merge(distances, donnees, by = "fromidINS", all.y = FALSE, all.x = FALSE, allow.cartesian = TRUE)
+  # il semblerait qu'il puisse y avoir un pb ici avce parfois 0 lignes
+  if (nrow(dist) == 0) {
+    cli::cli_alert_warning("pas de données pour l'iris {un_iris}")
+    return(NULL)
+  }
   # cli::cli_alert_info("Iris {un_iris} : {nrow(dist)} lignes.")
   # BOUCLE simple 
   prob_simple <- predict(MOD_boucle_simple, newdata = dist, type = "response")
