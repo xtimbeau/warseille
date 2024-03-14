@@ -31,7 +31,7 @@ A ce stade, les modèles estimés le sont sur les données de l'Enquête Mobilit
 
 ```{r}
 #| label: fig-carteco2
-#| fig-cap: "Carte du CO~2~ localisé"
+#| fig-cap: "Carte des émissions de CO~2~ pour les mobilités professionnelles"
 
 bd_read("carte_co2") +
   theme_ofce_void() +
