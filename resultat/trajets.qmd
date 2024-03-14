@@ -29,14 +29,70 @@ A ce stade, les modèles estimés le sont sur les données de l'Enquête Mobilit
 
 ## Carte des émissions de CO~2~ pour les mobilités professionnelles
 
-```{r}
-#| label: fig-carteco2
-#| fig-cap: "Carte des émissions de CO~2~ pour les mobilités professionnelles"
+::::: {#fig-carteco2}
+:::: {.column-screen}
+:::{.panel-tabset}
 
+## Carte interactive
+
+```{r}
+library(colourvalues)
+pal <- grDevices::colorRamp(c("royalblue1","springgreen", "yellow1","orange", "orangered"), bias =1)( (0:4)/4)
+color_txxk <- function(x, min = 1, max = 5, palette = pal) color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
+legend <- color_values(1:5, palette = pal, summary=TRUE, n_summaries=5)
+le <- legend_element(as.integer(legend$summary_values), legend$summary_colours, "fill", "gradient", "tCO2/an") |> 
+  mapdeck_legend()
+communes <- bd_read("communes") |> 
+  st_drop_geometry() |>
+  select(com=INSEE_COM, NOM, POPULATION) 
+bd_read("meaps_from") |> 
+  drop_na(co2_pa) |> 
+  left_join(communes, by="com") |> 
+  transmute(
+    co2_pa=co2_pa,
+    co2,
+    f_i,
+    tooltip=glue::glue(
+    "{NOM} {com}<br>
+     {round(f_i)} actifs dans le carreau<br>
+     {POPULATION} dans la commune<br>
+     CO2 pro par actif: {round(co2_pa,1)} tCO2/an<br>"),
+    cco2 = color_txxk(co2_pa)) |> 
+  st_transform(4326) |> 
+  mapdeck(style = style,
+          height = "50vh",
+          width = "100%") |> 
+  add_polygon(fill_colour = "cco2", 
+              elevation = "co2", 
+              elevation_scale = 3, 
+              legend = le, 
+              tooltip = "tooltip") |> 
+  mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
+```
+
+## Carte statique
+
+```{r}
 bd_read("carte_co2") +
   theme_ofce_void() +
-  labs(caption="*Source* : MOBPRO, MOBPERS, C200, MEAPS.<br>**Attention calcul préliminaire à confirmer.**")
+  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
+  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS.<br>**Attention calcul préliminaire à confirmer.**")
 
+```
+:::
+Emissions de CO~2~ localisées, Aix Marseille Provence Métropole
+::::
+:::::
+
+```{r}
+download_this(
+  bd_read("meaps_from") |> 
+    st_drop_geometry(),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données CO2 au carreau",
+  output_name = "co2_idINS_MetAM"
+)
 ```
 
 ## Références bibliographiques  {.unnumbered}
