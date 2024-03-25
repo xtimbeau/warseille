@@ -20,7 +20,7 @@ load("baselayer.rda")
 cli::cli_alert_info("Time matrix")
 data.table::setDTthreads(8)
 arrow::set_cpu_count(8)
-time_dts <- str_c(dir_dist, "/src/time_dataset")
+time_dts <- "/tmp/time_dataset"
 
 c200ze <- qs::qread(c200ze_file) |> arrange(com, idINS)
 com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com) |> as.integer()
@@ -32,63 +32,38 @@ tos <- c200ze |> filter(emp_resident>0) |> pull(idINS)
 if(!file.exists(time_dts)) {
   unlink(time_dts, force=TRUE, recursive = TRUE)
   dir.create(time_dts)
-  plan("multisession", workers= 8)
-  future_walk(com_geo21_scot, ~{
-    gc()
-    dfn <- str_c(dist_dts, "/", .x, "/allmode.parquet")
+  plan("multisession", workers = 8)
+  future_walk(com_geo21_scot, \(.c) {
+    dir.create(str_c(time_dts, "/", .c))
     tcom <- arrow::open_dataset(dist_dts) |> 
       to_duckdb() |> 
-      filter(COMMUNE==.x) |> 
+      filter(COMMUNE==.c) |> 
       group_by(COMMUNE, fromidINS, toidINS) |>
       summarize(t = min(travel_time, na.rm=TRUE), .groups = "drop") |> 
-      collect()
-    
-    ttos <- expand_grid(fromidINS = unique(tcom$fromidINS), toidINS = tos) |> 
-      mutate(COMMUNE = .x, mode = NA)
-    
-    tcom <- bind_rows(
-      tcom, 
-      ttos |> anti_join(tcom, by=c("fromidINS", "toidINS"))) |> 
-      arrange(COMMUNE, fromidINS, toidINS) |>
-      mutate(euc = r3035::sidINS2dist(fromidINS, toidINS)/1000)
-
-    tcom.mean <- mean(tcom |> select(euc, t) |> filter(!is.na(t), t>0) |> mutate( v = euc / t) |> pull(v), na.rm=TRUE)
-
-    tcom <- tcom |>
-      mutate(
-        euc = euc/tcom.mean,
-        t = if_else(is.na(t)&euc<90, euc, t)) |> 
-      select(-euc)
-    
-    tdir <- str_c(time_dts, "/", .x)
-    rfn <- str_c(tdir, "/tt.parquet")
-    dir.create(tdir)
-    arrow::write_parquet(tcom, rfn)
-    
+      compute() |> 
+      to_arrow() |> 
+      arrow::write_parquet(str_c(time_dts, "/", .c, "/time.parquet"))
   }, .progress=TRUE)
-  
-  time <- arrow::open_dataset(time_dts) 
-  
-  arrow::write_parquet(time, "{dir_dist}/time.parquet" |> glue())
 }
 
-time <- arrow::read_parquet("{dir_dist}/time.parquet" |> glue(),
-                            col_select = c(COMMUNE, fromidINS, toidINS, t)) |> 
-  arrange(COMMUNE, fromidINS, toidINS)
-
-t.vec <- time |> 
-  pull(t) 
-froms <- time |> distinct(fromidINS, COMMUNE) |> pull(fromidINS)
-tos <- time |> distinct(toidINS) |> pull(toidINS)
-
-rm(time)
-gc()
-
-tt <- matrix(t.vec, nrow = length(froms), 
-             ncol = length(tos),
-             byrow = TRUE) 
-
-dimnames(tt) <- list(froms, tos)
+time <- arrow::open_dataset("/tmp/time_dataset")
+sfroms <- split(froms, floor((1:length(froms)-1)/1000))
+plan("multisession", workers = 4)
+lm <- future_map(sfroms, ~{
+  tot <- expand_grid(fromidINS = .x, toidINS = tos) |> 
+    left_join(c200ze |> st_drop_geometry() |> select(fromidINS=idINS, COMMUNE=com), by="fromidINS") |> 
+    arrange(COMMUNE, fromidINS, toidINS)
+  r <- arrow::open_dataset("/tmp/time_dataset") |> 
+    to_duckdb() |>
+    filter(fromidINS %in% .x) |> 
+    select(fromidINS, toidINS, t) |> 
+    collect()
+  r <- tot |> left_join(r, by=c("fromidINS", "toidINS"))
+  if(nrow(r)!=length(.x)*length(tos))
+    cli::cli_alert_info("désalignement des données")
+  matrix(r$t, nrow = length(.x), ncol = length(tos), dimnames = list(.x, tos))
+}, .progress=TRUE)
+tt <- do.call(rbind, lm)
 
 tr <- matrixStats::rowRanks(tt, ties.method = "random")
 

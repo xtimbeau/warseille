@@ -250,6 +250,16 @@ mblr3 <- st_as_stars(mblr3)[,,,1:3]
 mblr3clair <- st_as_stars(mblr3clair)[,,,1:3]
 bbx <- st_bbox(com2021epci)
 
+mblr3_large <- mapboxapi::get_static_tiles(
+  location = st_union(communes |> filter(ze)) |> st_buffer(-1000) |> st_transform(4326),
+  zoom=10, 
+  style_id = "ckjka0noe1eg819qrhuu1vigs", 
+  username="xtimbeau",
+  access_token = Sys.getenv("mapbox_token")) 
+mblr3clair_large <- 255 - (255-mblr3_large)*0.75
+mblr3_large <- st_as_stars(mblr3_large)[,,,1:3]
+mblr3clair_large <- st_as_stars(mblr3clair_large)[,,,1:3]
+
 decor_carte <- list(
   ggspatial::layer_spatial(mblr3clair) ,
   geom_sf(data=com2021epci, col="gray75", fill=NA, alpha=1, size=0.1),
@@ -274,6 +284,30 @@ decor_carte <- list(
 
 bd_write(decor_carte)
 save(decor_carte, file=decor_carte_file)
+
+decor_carte_large <- list(
+  ggspatial::layer_spatial(mblr3clair_large) ,
+  geom_sf(data=communes |> filter(ze), col="gray75", fill=NA, alpha=1, size=0.1),
+  geom_sf(data=geoepci, col="gray50", fill=NA, alpha=1, size=0.1),
+  coord_sf(),
+  xlab(NULL),ylab(NULL),labs(title=NULL),
+  scale_x_continuous(expand=c(0,0)),
+  scale_y_continuous(expand=c(0,0)),
+  annotate(
+    "label", x=Inf, y=-Inf, label = "\U00A9 Mapbox, \U00A9 OpenStreetMap",
+    hjust=1, vjust=0, size=2, label.padding = unit(4, "pt"),
+    label.size = 0, fill="gray98", alpha=0.5),
+  theme_void(),
+  ggspatial::annotation_scale(
+    line_width = 0.2, height = unit(0.1, "cm"), 
+    text_cex = 0.4, pad_y = unit(0.1, "cm")),
+  theme(
+    text = element_text(family = "Roboto"),
+    legend.key.size = unit(0.5, "cm"),
+    legend.title = element_text(size=6, margin=margin(1,1,1,1, "pt")),
+    legend.text =  element_text(size=5), legend.justification = c(1,0.9)))
+
+bd_write(decor_carte_large)
 
 # save -------------
 save(list = c(bl, "geoepci", "com2021epci",

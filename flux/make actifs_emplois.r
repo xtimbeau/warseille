@@ -40,3 +40,4 @@ emplois <- emplois[tos]
 
 AMP_masses <- list(actifs = actifs, fuites = fuites, emplois = emplois)
 bd_write(AMP_masses)
+
