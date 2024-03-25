@@ -144,7 +144,7 @@ already_done <- map_lgl(les_morceaux, \(x) {
   return(length(z) >= 1)
 })
 
-plan("multisession", workers = 2L)
+plan("multisession", workers = 8L)
 #options(future.globals.maxSize=3*1024^3)
 
 future_walk(les_morceaux[!already_done], \(un_iris) {
@@ -235,7 +235,7 @@ future_walk(les_morceaux[!already_done], \(un_iris) {
   # pour (1 - Prob_bcl_simple(k)) on prend dist_bcl =  K(i,j) * DISTANCE(i,j)
   
   dist <- merge(distances, donnees, by = "fromidINS", all.y = FALSE, all.x = FALSE, allow.cartesian = TRUE)
-  # il semblerait qu'il puisse y avoir un pb ici avce parfois 0 lignes
+  # il semblerait qu'il puisse y avoir un pb ici avec parfois 0 lignes
   if (nrow(dist) == 0) {
     cli::cli_alert_warning("pas de données pour l'iris {un_iris}")
     return(NULL)
@@ -332,6 +332,7 @@ future_walk(les_morceaux[!already_done], \(un_iris) {
   
   write_parquet(dist, "/space_mounts/data/marseille/delta_iris/{un_iris}/part-0.parquet" |> glue())
   rm(dist)
+  gc()
 }, .progress=TRUE)
 
 cli::cli_alert_info("le dataset {dir_mar}/delta a été écrit")

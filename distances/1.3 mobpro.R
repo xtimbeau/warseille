@@ -136,7 +136,7 @@ locaux <- locaux.duck |>
          slocal = slocal) |> 
   mutate(ts = sp)
 
-r303# RFP 2022
+# RFP 2022
 
 rfp <- map_dfr(deps, ~{
   st_read(glue("/dropbox/dv3f/rfp22/rfp_d{.x}.gpkg"), layer="tup")
