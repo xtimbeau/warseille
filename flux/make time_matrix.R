@@ -38,22 +38,23 @@ if(!file.exists(time_dts)) {
     tcom <- arrow::open_dataset(dist_dts) |> 
       to_duckdb() |> 
       filter(COMMUNE==.c) |> 
-      group_by(COMMUNE, fromidINS, toidINS) |>
+      group_by(fromidINS, toidINS) |>
       summarize(t = min(travel_time, na.rm=TRUE), .groups = "drop") |> 
+      mutate(COMMUNE=.c) |> 
       compute() |> 
       to_arrow() |> 
       arrow::write_parquet(str_c(time_dts, "/", .c, "/time.parquet"))
   }, .progress=TRUE)
 }
-
-time <- arrow::open_dataset("/tmp/time_dataset")
+sc200 <- c200ze |> 
+  st_drop_geometry() |> 
+  select(fromidINS=idINS, COMMUNE=com)
 sfroms <- split(froms, floor((1:length(froms)-1)/1000))
 plan("multisession", workers = 4)
 lm <- future_map(sfroms, ~{
   tot <- expand_grid(fromidINS = .x, toidINS = tos) |> 
-    left_join(c200ze |> st_drop_geometry() |> select(fromidINS=idINS, COMMUNE=com), by="fromidINS") |> 
-    arrange(COMMUNE, fromidINS, toidINS)
-  r <- arrow::open_dataset("/tmp/time_dataset") |> 
+    left_join(sc200, by="fromidINS") 
+  r <- arrow::open_dataset(time_dts) |> 
     to_duckdb() |>
     filter(fromidINS %in% .x) |> 
     select(fromidINS, toidINS, t) |> 
@@ -61,7 +62,9 @@ lm <- future_map(sfroms, ~{
   r <- tot |> left_join(r, by=c("fromidINS", "toidINS"))
   if(nrow(r)!=length(.x)*length(tos))
     cli::cli_alert_info("désalignement des données")
-  matrix(r$t, nrow = length(.x), ncol = length(tos), dimnames = list(.x, tos))
+  matrix(r$t, nrow = length(.x), ncol = length(tos),
+          byrow=TRUE,
+         dimnames = list(.x, tos))
 }, .progress=TRUE)
 tt <- do.call(rbind, lm)
 

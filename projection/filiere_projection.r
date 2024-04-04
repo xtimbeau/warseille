@@ -144,10 +144,10 @@ already_done <- map_lgl(les_morceaux, \(x) {
   return(length(z) >= 1)
 })
 
-plan("multisession", workers = 8L)
+plan("multisession", workers = 1L)
 #options(future.globals.maxSize=3*1024^3)
 
-future_walk(les_morceaux[!already_done], \(un_iris) {
+walk(les_morceaux[!already_done], \(un_iris) {
   library(SparseM)
   library(mpcmp)
   library(quantreg)

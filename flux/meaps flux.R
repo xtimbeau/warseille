@@ -8,6 +8,7 @@ library(duckdb)
 library(furrr)
 library(tictoc)
 library(sf)
+library(tidyverse)
 source("secrets/azure.R")
 calc <- FALSE
 check <- FALSE
@@ -29,97 +30,71 @@ com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com) |> as.int
 com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com) |> as.integer()
 
 rm <- qs::qread(rank_matrix)
-rt <- qs::qread(time_matrix)
 froms <- rownames(rm)
 tos <- colnames(rm)
+rt <- qs::qread(time_matrix)
+
 communes <- c200ze |> filter(scot) |> pull(com, name = idINS) 
 communes <- as.integer(communes[froms])
 dclts <- c200ze |> filter(emp_resident>0) |> pull(com, name = idINS) 
 dclts <- as.integer(dclts[tos])
 
 masses_AMP <- bd_read("AMP_masses")
+actifs <- masses_AMP$actifs[froms]
+emplois <- masses_AMP$emplois[tos]
+fuite <- masses_AMP$fuites[froms]/actifs
 
-COMs <- tibble(actifs = masses_AMP$actifs, fuites = masses_AMP$fuites, from = froms, COMMUNE = communes )
-DCLTs <- tibble(emplois = masses_AMP$emplois, to = tos, DCLT = dclts)
+COMs <- tibble(actifs = actifs, 
+               fuite = fuite,
+               from = froms,
+               COMMUNE = communes )
+DCLTs <- tibble(emplois = emplois, 
+                to = tos, DCLT = dclts)
 
-N <- length(masses_AMP$actifs)
-K <- length(masses_AMP$emplois)
-nb_tirages <- 64
-shufs <- emiette(les_actifs = masses_AMP$actifs, nshuf = 256, seuil = 300)
+N <- length(actifs)
+K <- length(emplois)
+nshuf <- 64
+shufs <- emiette(les_actifs = actifs, nshuf = nshuf, seuil = 500)
 modds <- matrix(1L, nrow=N, ncol=K)
 # modds[is.na(rm)] <- NA
 # modds[rt<10] <- 10
-dimnames(modds) <- dimnames(rm)
+dimnames(modds) <- dimnames(rt)
 
 if(calc) {
   tic()
   meaps <- meaps_multishuf(rkdist = rm, 
-                           emplois = masses_AMP$emplois, 
-                           actifs = masses_AMP$actifs, 
-                           f = masses_AMP$fuites/masses_AMP$actifs, 
+                           emplois = emplois, 
+                           actifs = actifs, 
+                           f = fuite, 
                            shuf = shufs, 
-                           nthreads = 4, 
+                           nthreads = 1, 
                            modds = modds)
   toc()
-  
+  # meaps <- qs::qread("{mdir}/meaps/meaps_64t_ofd2.qs" |> glue())
   dir.create("{mdir}/meaps" |> glue())
-  qs::qsave(meaps, "{mdir}/meaps/meaps e 64t o1.qs" |> glue())
-} else {
-  meaps <- qs::qread("{mdir}/meaps/meaps e 64t o1.qs" |> glue())
-}
+  rm(rm, rt, modds)
+  meaps.dt <- as.data.table(meaps)
+  names(meaps.dt) <- tos
+  meaps.dt[, rn := froms]
+  meaps.dt <- melt(meaps.dt, id.vars="rn")
+  setnames(meaps.dt, c("rn","variable","value"), c("fromidINS", "toidINS", "f_ij"))
+  meaps.dt <- meaps.dt[f_ij>0, ]
+  meaps.dt[, `:=`(fromidINS = as.integer(as.character(fromidINS)),
+                  toidINS = as.integer(as.character(toidINS)))]
+  rm(meaps)
+  arrow::write_parquet(meaps.dt, "{mdir}/meaps/meaps_unif_euc.parquet" |> glue())
+  rm(meaps.dt)
+  gc()
+} 
 
-meaps.c <- communaliser(meaps, communes, dclts)
 rm(rt, rm, modds)
+gc() 
 
-dimnames(meaps) <- list(froms, tos)
-meaps.dt <- as.data.table(meaps, keep.rownames = TRUE)
-meaps.dt <- melt(meaps.dt, id.vars="rn")
-setnames(meaps.dt, c("rn","variable","value"), c("fromidINS", "toidINS", "f_ij"))
-meaps.dt <- meaps.dt[f_ij>0, ]
-meaps.dt[, `:=`(fromidINS = as.integer(fromidINS),
-                toidINS = as.integer(as.character(toidINS)))]
-arrow::write_parquet(meaps.dt, "/tmp/meaps.parquet")
-meaps <- arrow::open_dataset("/tmp/meaps.parquet") |> 
+meaps <- arrow::open_dataset("{mdir}/meaps/meaps_unif_euc.parquet" |> glue()) |> 
   to_duckdb()
-rm(meaps.dt)
-gc()
-# check -------------------
-if(check) {
-  com_ar <- qs::qread(communes_ar_file)
-  library(tmap)
-  COMs |> 
-    group_by(COMMUNE) |> 
-    summarize(actifs = sum(actifs), fuites = sum(fuites)) |>
-    left_join(tibble(flux  = rowSums(meaps.c), 
-                     COMMUNE = as.integer(names(rowSums(meaps.c)))), by = "COMMUNE") |> 
-    mutate(r = flux/actifs, COMMUNE = as.character(COMMUNE)) |> 
-    left_join(com_ar |> select(INSEE_COM), by = c('COMMUNE' = 'INSEE_COM')) |> 
-    st_as_sf() |> 
-    tm_shape() + tm_borders() + tm_fill(col="r")
-  
-  DCLTs |> 
-    mutate(DCLT = as.character(DCLT)) |> 
-    group_by(DCLT) |> 
-    summarize(emplois = sum(emplois)) |>
-    left_join(tibble(flux  = colSums(meaps.c),
-                     DCLT = names(colSums(meaps.c))), by = "DCLT") |> 
-    mutate(r = flux/emplois) |> 
-    left_join(com_ar |> select(INSEE_COM), by = c('DCLT' = 'INSEE_COM')) |> 
-    st_as_sf() |> 
-    filter(!st_is_empty(geometry)) |> 
-    tm_shape() + tm_borders() + tm_fill(col="r")
-  
-  tibble(from = as.integer(froms), ai = matrixStats::rowSums2(meaps)) |> 
-    left_join(c200ze |> select(from = idINS, act_mobpro)) |>
-    mutate(r = ai/act_mobpro) |> 
-    st_as_sf() |> 
-    tm_shape() + tm_fill(col="r", style = "cont")
-  tibble(to = as.integer(tos), ej = matrixStats::colSums2(meaps)) |> 
-    left_join(c200ze |> select(to = idINS, emp_resident)) |>
-    mutate(r = ej/emp_resident) |> 
-    st_as_sf() |> 
-    tm_shape() + tm_fill(col="r", style = "cont")
-}
+
+# meaps.c <- communaliser(meaps, communes, dclts)
+
 # joining ----
 
 delta <- open_dataset("/space_mounts/data/marseille/delta_iris") |> 
@@ -127,15 +102,27 @@ delta <- open_dataset("/space_mounts/data/marseille/delta_iris") |>
   mutate(all = bike+walk+transit+car) |> 
   select(fromidINS, toidINS, car, all)
 
-meaps <- left_join(meaps, delta, by = c("fromidINS", "toidINS"))
+distances.car <- open_dataset(dist_dts) |> 
+  to_duckdb() |> 
+  filter(mode %in% c("car_dgr")) |>
+  select(fromidINS, toidINS, travel_time, distance)
 
-meaps <- meaps |> 
+distances.transit <- open_dataset(dist_dts) |> 
+  to_duckdb() |> 
+  filter(mode %in% c("transit")) |>
+  anti_join(distances.car, by=c("fromidINS", "toidINS")) |> 
+  select(fromidINS, toidINS, travel_time, distance)
+
+meaps.joined <- meaps |> 
+  left_join(delta, by = c("fromidINS", "toidINS"))
+
+meaps.joined <- meaps.joined |> 
   filter(car>0, all>0) |> 
   mutate(km_car_ij= f_ij * car, 
          km_ij = f_ij * all) |> 
   mutate(co2_ij = km_car_ij * 218/1000000)
 
-meaps_from <- meaps |> 
+meaps_from <- meaps.joined |> 
   group_by(fromidINS) |> 
   summarize(
     km_i = sum(km_ij, na.rm=TRUE),
@@ -151,7 +138,7 @@ meaps_from <- meaps_from |>
   st_as_sf()
 bd_write(meaps_from)
 
-meaps_to <- meaps |> 
+meaps_to <- meaps.joined |> 
   group_by(toidINS) |> 
   summarize(
     km_j = sum(km_ij, na.rm=TRUE),
