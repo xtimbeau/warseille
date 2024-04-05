@@ -5,7 +5,6 @@
     - name: Jeanne Devineau
 ---
 
-
 ```{r init, include=FALSE}
 source("init.R")
 ```
