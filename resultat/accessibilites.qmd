@@ -39,14 +39,10 @@ L'accessibilité consiste à mesurer pour chaque lieu de résidence le temps d'a
 
 Les cartes suivantes présentent l'accessibilité à 50 000 emplois pour 4 modes de transport. La dimension *z* (ou la hauteur des colonnes) représente le nombre d'actifs (au sens de MOBPRO, pour l'année 2020) du carreau.
 
-::: {#fig-access_map}
-::: {.panel-tabset .column-screen}
-## voiture
-
-```{r}
+```{r init_access}
 library(colourvalues)
-pal <- grDevices::colorRamp(c("darkgreen","green", "yellow", "orangered3"), bias =1)( (0:60)/60)
-color_txxk <- function(x, min = 0, max = 60, palette = pal) color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
+pal <- grDevices::colorRamp(c("deepskyblue1", "blueviolet"), bias =1)( (0:20)/20)
+color_txxk <- function(x, min = 10, max = 60, palette = pal) color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
 legend <- color_values(0:60, palette = pal, summary=TRUE, n_summaries=4)
 le <- legend_element(as.integer(legend$summary_values), legend$summary_colours, "fill", "gradient", "minutes") |> 
   mapdeck_legend()
@@ -54,8 +50,16 @@ communes <- bd_read("communes")
 c200zea <- bd_read("c200ze") |> 
   st_drop_geometry() |> 
   select(idINS, act_mobpro)
+elev_scale <- 5
+```
+
+::: {#fig-access_map}
+::: {.panel-tabset .column-screen}
+## voiture
+
+```{r}
 t_access <- bd_read("t_access") |> 
-  left_join(c200zea, by = c("idINS200"="idINS"))
+  left_join(c200zea, by = c("idINS"))
 t_access |> 
   filter(mode == "car_dgr") |> 
   left_join(communes |>
@@ -77,7 +81,7 @@ t_access |>
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "act_mobpro", 
-              elevation_scale = 3, 
+              elevation_scale = elev_scale, 
               legend = le, 
               tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -107,7 +111,7 @@ t_access |>
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "act_mobpro", 
-              elevation_scale = 3, 
+              elevation_scale = elev_scale, 
               legend = le, 
               tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -138,7 +142,7 @@ t_access |>
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "act_mobpro", 
-              elevation_scale = 3,
+              elevation_scale = elev_scale,
               legend = le, 
               tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -169,7 +173,7 @@ t_access |>
           width = "100%") |> 
   add_polygon(fill_colour = "to50k", 
               elevation = "act_mobpro", 
-              elevation_scale = 3, 
+              elevation_scale = elev_scale, 
               legend = le, 
               tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -353,8 +357,8 @@ c200ze <- c200ze |>
 d_access <- t_access |>
   st_drop_geometry() |>
   left_join(
-    c200ze |> st_drop_geometry() |> select(idINS200 = idINS, ndv, decile),
-    by = "idINS200") |> 
+    c200ze |> st_drop_geometry() |> select(idINS, ndv, decile),
+    by = "idINS") |> 
   filter(mode %in% c("bike_tblr", "car_dgr", "transit5", "walk_tblr")) |> 
   mutate(
     zone = case_match(com,

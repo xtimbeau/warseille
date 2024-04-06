@@ -9,7 +9,7 @@ book:
   google-analytics: G-0S02BWQ0DX
   title: "Métropole d'Aix Marseille Provence"
   subtitle: "Premiers résultats"
-  cover-image: images/Marseille_-_vieille_carte.jpg
+  cover-image: images/Marseille_vieille_carte.jpg
   author:
     - name: Xavier Timbeau
     - name: Maxime Parodi
@@ -34,7 +34,7 @@ book:
     - next.qmd
     
 execute: 
-  freeze: false
+  freeze: auto
   echo: false
   warning: false
   
