@@ -1,12 +1,9 @@
 /*-- scss:defaults --*/
 // fonts
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
 // Fonts (CSS rules)
-//$font-family-sans-serif: 'Nunito Sans', sans-serif;
-//$font-family-monospace: 'Roboto Mono', monospace;
-//$font-family-serif: 'Merriweather', serif;
-//$font-family-sans-serif: 'Open Sans', sans-serif;
-//$font-family-monospace: 'Fira Code', monospace;
+$font-family-sans-serif: 'Open Sans', sans-serif;
+$font-family-monospace: 'Firacode', monospace;
 
 // couleurs
 $scpored: #e6142d;
@@ -14,11 +11,12 @@ $scpodarkred: #770C19;
 $ofcered: #a22a2e;
 $darkgrey: #777;
 $lightgrey: #EEE;
+$lightergrey: #f8f8f8;
 $green: #079D10;
 $blue: #000080;
 $navbar-hl: #e6142d;
 $sidebar-hl: #e6142d;
-$aligment: justify;
+$aligment: left;
 $navbar-bg: $lightgrey;
 
 $callout-color-tip: #DDD;
@@ -48,12 +46,22 @@ h1, h2, h3, h4, h5, h6,
   padding-top: 32px !important;
 }
 
+.sidebar-item-container {
+  font-size: 0.8rem !important;
+  line-height: 1.1rem !important;
+}
+
+.dropdown-item, .dropdown-menu {
+  font-size: 0.8rem !important;
+  background-color: $navbar-bg !important;
+}
+
 .nav-page-text {
   font-size: 0.8rem !important;
 }
 
 .page-columns.page-full,
-.content {
+.content, .body {
   text-align: $aligment !important;
 }
 
@@ -164,17 +172,17 @@ div.callout-tip {
   font-size: .8rem;
   border-radius: 0;
   background-clip: content-box;
-  background-color: $lightgrey !important;
-  border-left-color:$lightgrey !important;
+  background-color: $lightergrey !important;
+  border-left-color:$lightergrey !important;
 }
 
 div.callout-tip div.callout-header {
-  background-color: $lightgrey !important;
+  background-color: $lightergrey !important;
 }
 
 .dbtn {
   font-size: .8rem;
-  background-color: #FFF;
+  background-color: $lightergrey;
   border-color: $link-color;
   border-width: 1px;
   border-radius: 12px;
