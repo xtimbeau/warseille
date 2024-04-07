@@ -262,8 +262,8 @@ mblr3clair_large <- st_as_stars(mblr3clair_large)[,,,1:3]
 
 decor_carte <- list(
   ggspatial::layer_spatial(mblr3clair) ,
-  geom_sf(data=com2021epci, col="gray75", fill=NA, alpha=1, size=0.1),
-  geom_sf(data=geoepci, col="gray50", fill=NA, alpha=1, size=0.1),
+  geom_sf(data=com2021epci, col="gray50", fill=NA, alpha=1, linewidth=0.1),
+  geom_sf(data=geoepci, col="gray25", fill=NA, alpha=1, linetype = "dotted", linewidth=0.25),
   coord_sf(),
   xlab(NULL),ylab(NULL),labs(title=NULL),
   scale_x_continuous(expand=c(0,0)),
@@ -287,8 +287,8 @@ save(decor_carte, file=decor_carte_file)
 
 decor_carte_large <- list(
   ggspatial::layer_spatial(mblr3clair_large) ,
-  geom_sf(data=communes |> filter(ze), col="gray75", fill=NA, alpha=1, size=0.1),
-  geom_sf(data=geoepci, col="gray50", fill=NA, alpha=1, size=0.1),
+  geom_sf(data=communes |> filter(ze), col="gray75", fill=NA, alpha=1, linewidth=0.1),
+  geom_sf(data=geoepci, col="gray25", fill=NA, alpha=1, linetype = "dotted", linewidth=0.25),
   coord_sf(),
   xlab(NULL),ylab(NULL),labs(title=NULL),
   scale_x_continuous(expand=c(0,0)),

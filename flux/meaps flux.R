@@ -102,16 +102,16 @@ delta <- open_dataset("/space_mounts/data/marseille/delta_iris") |>
   mutate(all = bike+walk+transit+car) |> 
   select(fromidINS, toidINS, car, all)
 
-distances.car <- open_dataset(dist_dts) |> 
-  to_duckdb() |> 
-  filter(mode %in% c("car_dgr")) |>
-  select(fromidINS, toidINS, travel_time, distance)
-
-distances.transit <- open_dataset(dist_dts) |> 
-  to_duckdb() |> 
-  filter(mode %in% c("transit")) |>
-  anti_join(distances.car, by=c("fromidINS", "toidINS")) |> 
-  select(fromidINS, toidINS, travel_time, distance)
+# distances.car <- open_dataset(dist_dts) |> 
+#   to_duckdb() |> 
+#   filter(mode %in% c("car_dgr")) |>
+#   select(fromidINS, toidINS, travel_time, distance)
+# 
+# distances.transit <- open_dataset(dist_dts) |> 
+#   to_duckdb() |> 
+#   filter(mode %in% c("transit")) |>
+#   anti_join(distances.car, by=c("fromidINS", "toidINS")) |> 
+#   select(fromidINS, toidINS, travel_time, distance)
 
 meaps.joined <- meaps |> 
   left_join(delta, by = c("fromidINS", "toidINS"))
@@ -151,7 +151,7 @@ meaps_to <- meaps.joined |>
 
 meaps_to <- meaps_to |> 
   as_tibble() |> 
-  left_join(c200ze |> select(toidINS = idINS, com), by='toidINS') |> 
+  left_join(c200ze |> select(toidINS = idINS, com, scot), by='toidINS') |> 
   st_as_sf()
 bd_write(meaps_to)
 
@@ -159,13 +159,13 @@ decor_carte <- bd_read("decor_carte")
 decor_carte_large <- bd_read("decor_carte_large")
 
 carte_co2_to <- ggplot() +
-  decor_carte_large +
+  decor_carte +
   geom_sf(
-    data= meaps_to,
+    data= meaps_to |> filter(scot),
     mapping= aes(fill=co2_pe), col=NA) + 
   scale_fill_distiller(
     type = "seq",
-    palette = "Spectral",
+    palette = "RdBu",
     name = "CO2/an/emploi")
 
 carte_co2_from <- ggplot() +
