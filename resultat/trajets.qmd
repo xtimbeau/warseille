@@ -50,7 +50,7 @@ bd_read("meaps_from") |>
   left_join(communes, by="com") |> 
   transmute(
     co2_pa=co2_pa,
-    co2,
+    co2_i,
     f_i,
     tooltip=glue::glue(
     "{NOM} {com}<br>
@@ -63,7 +63,7 @@ bd_read("meaps_from") |>
           height = "50vh",
           width = "100%") |> 
   add_polygon(fill_colour = "cco2", 
-              elevation = "co2", 
+              elevation = "co2_i", 
               elevation_scale = 3, 
               legend = le, 
               tooltip = "tooltip") |> 
@@ -76,7 +76,7 @@ bd_read("meaps_from") |>
 bd_read("carte_co2") +
   theme_ofce_void() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS.<br>**Attention calcul préliminaire à confirmer.**")
+  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS.<br>**v2**")
 
 ```
 :::
