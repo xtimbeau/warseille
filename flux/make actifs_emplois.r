@@ -29,7 +29,7 @@ com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com) |> as.inte
 # du coup on prend ce qu'on a sur les distance
 tt <- qs::qread(time_matrix)
 froms <- rownames(tt)
-tos <- colnames(tt)
+tos <- colnames(tt) 
 
 actifs <- c200ze |> filter(scot) |> pull(act_mobpro, name = idINS) 
 actifs <- actifs[froms]
@@ -40,3 +40,4 @@ emplois <- emplois[tos]
 
 AMP_masses <- list(actifs = actifs, fuites = fuites, emplois = emplois)
 bd_write(AMP_masses)
+

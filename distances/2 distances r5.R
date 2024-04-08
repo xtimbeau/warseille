@@ -66,7 +66,7 @@ message(
 
 # ---- CALCUL DE L'ACCESSIBILITE ----
 ## transit --------------
-future::plan("multisession", workers=16L)
+future::plan("multisession", workers=4)
 
 r5_transit <- routing_setup_r5(
   path = '~/files/localr5/', 
@@ -85,7 +85,9 @@ iso_transit_dt <- iso_accessibilite(quoi = destinations,
                                     ttm_out = TRUE,
                                     future=TRUE)
 
-transit <- ttm_idINS(iso_transit_dt) |> 
+transit <- ttm_idINS(iso_transit_dt) |>
+  mutate(fromidINS = r3035::contract_idINS(fromidINS), 
+         toidINS = r3035::contract_idINS(toidINS)) |> 
   left_join(idINSes |> select(fromidINS = idINS, COMMUNE = com), by = "fromidINS") |> 
   left_join(idINSes |> select(toidINS = idINS, DCLT = com), by = "toidINS") |> 
   select(fromidINS, toidINS, travel_time, access_time, egress_time, n_rides, COMMUNE, DCLT)
