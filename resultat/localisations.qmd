@@ -141,7 +141,7 @@ download_this(
 
 ```{r}
 c200ze |> 
-  filter(emp > 0) |> 
+  filter(round(emp) > 0) |> 
   left_join(communes |>
               st_drop_geometry() |>
               select(com22=INSEE_COM, NOM, POPULATION)) |> 

@@ -13,8 +13,10 @@ book:
   author:
     - name: Xavier Timbeau
     - name: Maxime Parodi
-  navbar: false
+  reader-mode: true
+  search: true
   page-navigation: true
+  bread-crumbs: false
   back-to-top-navigation: true
   tools:
     - icon: github
@@ -25,6 +27,9 @@ book:
   page-footer:
     left: "*Premiers résultats, ne pas diffuser*"
     right: "**CC BY 4.0**"
+  sidebar:
+    docked: true
+    pinned: false
   chapters:
     - index.qmd
     - localisations.qmd
