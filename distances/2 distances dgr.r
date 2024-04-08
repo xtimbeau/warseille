@@ -95,13 +95,16 @@ car_dgr2 |>
   to_arrow() |> 
   write_dataset(glue("{mdir}/distances/src/car_dgr"), partitioning = "COMMUNE")
 
+unlink(glue("{mdir}/distances/src/car_dgr2"), recursive = TRUE)
+
 # marche à pied--------------
-car_distance <- arrow::open_dataset(glue::glue("{mdir}/distances/src/car_dgr2"))
+car_distance <- arrow::open_dataset(glue::glue("{mdir}/distances/src/car_dgr"))
 pairs <- car_distance |>
+  to_duckdb() |> 
   filter(distance <= 10000 ) |>
   distinct(COMMUNE, DCLT) |> 
-  collect() |> 
-  mutate(COMMUNE = as.character(COMMUNE))
+  mutate(COMMUNE = as.character(COMMUNE)) |> 
+  collect()
 
 walk_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"), 
                                    osm = osm_file,
@@ -120,7 +123,7 @@ dgr_distances_by_com(idINSes,
                      clusterize = TRUE)  
 
 # vélo --------------
-car_distance <- arrow::open_dataset(glue::glue("{mdir}/distances/src/car_dgr2"))
+car_distance <- arrow::open_dataset(glue::glue("{mdir}/distances/src/car_dgr"))
 pairs <- car_distance |>
   filter(distance <= 25000 ) |>
   distinct(COMMUNE, DCLT) |> 

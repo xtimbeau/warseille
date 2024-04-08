@@ -105,7 +105,7 @@ iris4mod.1 <- s_quartiles |>
 c200ze <- qs::qread(c200ze_file)
 
 iris4mod <- c200ze |> 
-  filter(scot) |> 
+  filter(scot, ind>0) |> 
   mutate(commune = str_sub(IRIS, 1, 5),
          dep = str_sub(IRIS, 1, 2),
          revuce = ind_snv/ind,

@@ -4,7 +4,6 @@
     - name: Maxime Parodi
 ---
 
-
 ```{r init, include=FALSE}
 source("init.R")
 ```
@@ -21,30 +20,35 @@ La **première étape** consiste à prendre en compte la géographie du territoi
 
 La **seconde étape** consiste à utiliser MEAPS [@meaps2023] pour générer les flux d'un carreau à l'autre. MEAPS permet de reproduire avec un faible nombre de paramètres [@meaps2024a] les données intercommunales issues de la mobilité professionnelle quotidienne (MOBPRO) et de respecter les équilibres d'ensemble (un emploi reçoit un actif, chaque actif a un emploi). Du fait de ces propriétés, il est possible d'utiliser MEAPS pour intrapoler à une échelle géographique fine (celle de la première étape) les flux.
 
-La **troisième étape** associe aux flux les fréquences, la complexité des boucle et le mode de transport. Cette analyse est également conduite au niveau fin du carreau 200m, pour différentes catégories de ménage. Les catégories de ménages sont identifiées soit à l'IRIS soit à la commune et sont intrapolées à partir des données carroyées de l'INSEE (pour l'année 2019) [@meaps2024b]. En multipliant les flux, les fréquences, les complexités de boucles, les modes, les distances entre le domicile et le travail on obtient alors un estimateur des kilomètres parcourus. On passe ensuite du nombre de kilomètres au CO~2~ par l'application d'un coefficient uniforme[^trajets-1] indiquant le contenu en CO~2~ d'un kilomètre en moyenne pour une voiture aux kilomètres parcourus en voiture.
+La **troisième étape** associe aux flux les fréquences, la complexité des boucle et le mode de transport. Cette analyse est également conduite au niveau fin du carreau 200m, pour différentes catégories de ménage. Les catégories de ménages sont identifiées soit à l'IRIS soit à la commune et sont intrapolées à partir des données carroyées de l'INSEE (pour l'année 2019) [@meaps2024b]. En multipliant les flux, les fréquences, les complexités de boucles, les modes, les distances entre le domicile et le travail on obtient alors un estimateur des kilomètres parcourus. On passe ensuite du nombre de kilomètres au CO~2~ par l'application d'un coefficient uniforme[^1] indiquant le contenu en CO~2~ d'un kilomètre en moyenne pour une voiture aux kilomètres parcourus en voiture.
 
-[^trajets-1]: Le SDES a publié récemment une version enrichie de l'EMP 2019 en intégrant des coefficients d'émission de CO~2~ pour les véhicules possédés par les ménages. Jusqu'à maintenant cette information était déclarative et très approximative. Cette information est plus riche et sera prochainement intégrée, si possible.
+[^1]: Le SDES a publié récemment une version enrichie de l'EMP 2019 en intégrant des coefficients d'émission de CO~2~ pour les véhicules possédés par les ménages. Jusqu'à maintenant cette information était déclarative et très approximative. Cette information est plus riche et sera prochainement intégrée, si possible.
 
 A ce stade, les modèles estimés le sont sur les données de l'Enquête Mobilités des Personnes (EMP 2019), hors Ile de France. Dans une prochaine étape, nous utiliserons l'EMC^2^ à titre de comparaison, sous réserve que l'EMC^2^ permettent les mêmes analyses.
 
-## Carte des émissions de CO~2~ pour les mobilités professionnelles
+## CO~2~ pour les mobilités professionnelles, point de vue "résident"
 
-::::: {#fig-carteco2}
-:::: {.column-screen}
-:::{.panel-tabset}
-
-## Carte interactive
-
-```{r}
+```{r init_co2}
 library(colourvalues)
-pal <- grDevices::colorRamp(c("royalblue1","springgreen", "yellow1","orange", "orangered"), bias =1)( (0:4)/4)
-color_txxk <- function(x, min = 1, max = 5, palette = pal) color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
-legend <- color_values(1:5, palette = pal, summary=TRUE, n_summaries=5)
+pal <- grDevices::colorRamp(c("#66C6FF",  "#99FF33", "#FFFF99","#FFFF00", "#FF9F00", "#FF3300"), bias =1)( (0:20)/20)
+color_txxk <- function(x, min = 0, max = 4, palette = pal) color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
+legend <- color_values(0:4, palette = pal, summary=TRUE, n_summaries=5)
 le <- legend_element(as.integer(legend$summary_values), legend$summary_colours, "fill", "gradient", "tCO2/an") |> 
   mapdeck_legend()
 communes <- bd_read("communes") |> 
   st_drop_geometry() |>
   select(com=INSEE_COM, NOM, POPULATION) 
+```
+
+A partir de la génération des flux (étapes 1 et 2) et la prise en compte de la répartition spatiale des individus et des carcatéristiques des ménages (enfants, voiture, niveau de vie), on peut estimer les émissions de CO~2~ associées au motif professionnel déplacement domicile travail du point de vue des résidents. Ainsi pour chaque carreau 200m, en moyenne pour les différents type de ménages qui s'y trouve, on calcule les kilomètres qu sont parcourus ainsi que les émissions de CO~2~.
+
+Par construction, cette évaluation est telle qu'une fois agrégée au niveau des communes ou des arrondissements on retrouve (avec une petite marge d'erreur) les données de MOBPRO.
+
+:::: {#fig-carteco2r}
+::: {.panel-tabset .column-screen}
+## Carte interactive
+
+```{r}
 bd_read("meaps_from") |> 
   drop_na(co2_pa) |> 
   left_join(communes, by="com") |> 
@@ -64,7 +68,7 @@ bd_read("meaps_from") |>
           width = "100%") |> 
   add_polygon(fill_colour = "cco2", 
               elevation = "co2_i", 
-              elevation_scale = 3, 
+              elevation_scale = 2, 
               legend = le, 
               tooltip = "tooltip") |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -73,16 +77,15 @@ bd_read("meaps_from") |>
 ## Carte statique
 
 ```{r}
-bd_read("carte_co2") +
+bd_read("carte_co2_from") +
   theme_ofce_void() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS.<br>**v2**")
+  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS.<br>*version 2 (4/24)*")
 
 ```
 :::
 Emissions de CO~2~ localisées, Aix Marseille Provence Métropole
 ::::
-:::::
 
 ```{r}
 download_this(
@@ -90,12 +93,123 @@ download_this(
     st_drop_geometry(),
   icon = "fa fa-download",
   class = "dbtn",
-  button_label = "données CO2 au carreau",
-  output_name = "co2_idINS_MetAM"
+  button_label = "données CO2 au carreau, résidents",
+  output_name = "co2_idINS_pdvR_MetAM"
 )
 ```
 
-## Références bibliographiques  {.unnumbered}
+On peut traduire ces éléments par quelques statistiques sur les émissions par tête.
+
+```{r}
+#| label: tbl-co2pa
+#| tbl-cap: Emissions de CO2 par actif
+
+library(MetricsWeighted)
+data <- bd_read("meaps_from") |> 
+  st_drop_geometry() |> 
+  drop_na(co2_pa) 
+
+deciles <- data |> arrange(co2_pa) |> 
+  reframe(q = c(1:10/10), co2_pa = weighted_quantile(co2_pa, w = f_i, probs = q) )
+deciles_m <- data |> filter(str_starts(com, "132")) |> arrange(co2_pa) |> 
+  reframe(q = c(1:10/10), co2_pa_m = weighted_quantile(co2_pa, w = f_i, probs = q) )
+deciles_a <- data |> filter(str_starts(com, "13001")) |> arrange(co2_pa) |> 
+  reframe(q = c(1:10/10), co2_pa_a = weighted_quantile(co2_pa, w = f_i, probs = q) )
+
+deciles <- deciles |> 
+  left_join(deciles_m, by="q") |> 
+  left_join(deciles_a, by="q")
+
+tots <- data |> 
+  summarize(
+    co2 = sum(co2_i),
+    f = sum(f_i),
+    co2_pa = co2/f)
+
+deciles |> gt() |> 
+  cols_label(q = "Décile", co2_pa = "Métropole", co2_pa_m = "Marseille", co2_pa_a = "Aix-en-Provence") |>
+  tab_spanner(label = "Emissions de CO2 par actif", columns = c(co2_pa, co2_pa_m, co2_pa_a)) |>
+  fmt_number(columns = c(co2_pa, co2_pa_m, co2_pa_a), decimals = 2) |> 
+  fmt_percent(columns = q, decimals = 0) 
+
+```
+
+Dans le @tbl-co2pa, on peut voir quels sont les émissions par décile de population, pour l'ensemble de la Métropole ainsi que pour deux communes (Marseille et Aix-en-Provence). Cela indique comment les `r signif(tots$co2/1000000,2)` millions de tonnes de CO~2~ liées au motif déplacement quotidien professionnel sont réparties sur la population active.
+
+## CO~2~ pour les mobilités professionnelles, point de vue "emploi"
+
+De la même façon que l'on construit la moyenne par carreau des émissions de CO~2~ des résidents, on peut inverser le point de vue et calculer les émissions impliquées, en moyenne, pour atteindre un emploi localisé dans un carreau 200m. Cette information complète la précédente, mais son interprétation est plus délicate. En effet, les emplois peuvent être occupés par des individus hors de la zone d'analyse et donc les émissions liées à ces individus ne sont pas prises en compte. Pour ce faire, il faudrait en effet étudier une zone bien plus large, composée des résidents de la métropole mais aussi de toutes les communes où résident des ménages dont au moins un membre travaille dans la métropole. Or ce n'est pas la métide employée, principalement pour des raisons de parcimonie et pour garder le calcul dans des bornes raisonnables.
+
+Une conséquence de cette approche est que, suivant la localisation de l'emploi, le biais de la zone d'étude joue de façon très différente. A la périphérie de la métropole (par exemple à Sainte Maxime), la probabilité pour que les employés viennent hors de la métropôle est plus forte que pour les arrondissements du centre de Marseille. De ce fait, les émissions associées ne sont pas comparables, et ont de bonnes chances d'apparaître, à tort, plus élevées pour les emplois à la périphérie que dans le centre. *Cela rend cette information difficile à utiliser directement, si nécessaire, on pourra étendre le périmètre d'analyse pour la rendre pertinente*.
+
+:::: {#fig-carteco2e}
+::: {.panel-tabset .column-screen}
+## Carte interactive
+
+```{r}
+bd_read("meaps_to") |> 
+  drop_na(co2_pe) |> 
+  left_join(communes, by="com") |> 
+  transmute(
+    co2_pa=co2_pe,
+    co2_j,
+    f_j,
+    tooltip=glue::glue(
+    "{NOM} {com}<br>
+     {round(f_j)} emplois (occupés par les résidents d'AMP)<br>
+     CO2 pro par emploi: {round(co2_pe,1)} tCO2/an<br>"),
+    cco2 = color_txxk(co2_pe)) |> 
+  st_transform(4326) |> 
+  mapdeck(style = style,
+          height = "50vh",
+          width = "100%") |> 
+  add_polygon(fill_colour = "cco2", 
+              elevation = "co2_j", 
+              elevation_scale = 2, 
+              legend = le, 
+              tooltip = "tooltip") |> 
+  mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
+```
+
+## Carte statique
+
+```{r}
+bd_read("carte_co2_to") +
+  theme_ofce_void() +
+  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
+  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS.<br>*version 2 (4/24)*")
+
+```
+:::
+Emissions de CO~2~ localisées, Aix Marseille Provence Métropole
+::::
+
+```{r}
+download_this(
+  bd_read("meaps_to") |> 
+    st_drop_geometry(),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données CO2 au carreau, emploi",
+  output_name = "co2_idINS_pdvE_MetAM"
+)
+```
+
+## Lien entre revenu et CO~2~
+
+Contrairement à la Rochelle -- ce qui se trouve être très intéressant -- on aboutit à une relation croissante entre émissions et revenu. On notera également le lien avec les prix de l'immobilier, fort levier de ségregation spatiale.
+
+```{r}
+#| label: fig-co2rev
+#| fig-cap: Km pro versus revenu versus densité versus prix immobilier
+
+bd_read("lrdistrev") +
+  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS.<br>*version 2 (4/24)*")
+
+```
+
+
+## Références bibliographiques {.unnumbered}
 
 ::: {#refs}
 :::
