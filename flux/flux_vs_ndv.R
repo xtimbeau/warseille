@@ -54,11 +54,11 @@ cols <- c("idnatmut", "datemut", "anneemut",  "moismut", "l_codinsee",
 COLS <- toupper(cols)
 
 dv3f <- db |> dplyr::select(all_of(COLS)) |> rename_with(tolower)
-coms_AMP <- scot_tot.epci
+coms_AMP <- com2021epci |> pull(INSEE_COM)
 dv3f <- dv3f |>
   mutate(com = str_remove_all(l_codinsee, "\\{|\\}")) |> 
-  mutate(com = ifelse(str_detect(com, "^132"), "13055", com)) |> 
-  filter(com %in% scot_tot.epci, filtre=="0") |> 
+  # mutate(com = ifelse(str_detect(com, "^132"), "13055", com)) |> 
+  filter(com %in% coms_AMP, filtre=="0") |> 
   collect() |> 
   mutate(
     typebien = case_when(
@@ -87,7 +87,10 @@ prix <- dv3f.c200 |>
   filter(anneemut%in%c(2022, 2021, 2011)) |> 
   pivot_wider(names_from = anneemut, values_from = c(n,prix)) |> 
   mutate(tx = (prix_2022/prix_2011)^(1/12)-1) |> 
-  ungroup()
+  ungroup() |> 
+  mutate(
+    prix = ifelse(is.na(prix_2022), prix_2021, prix_2022)
+  )
 
 km_iris <- km_iris |> left_join(prix, by=c("IRIS"))  
 
@@ -98,7 +101,7 @@ km_iris <- bd_read("km_iris") |>
     str_detect(IRIS, "^13001") ~ "Aix-en-Provence",
     TRUE ~ "autre"))
 (base <- ggplot(km_iris) +
-    aes(x=ind_snv, y=km_pa, fill = prix_2022, weights=f_i) +
+    aes(x=ind_snv, y=km_pa, fill = prix, weights=f_i) +
     scale_fill_distiller(palette="Spectral", 
                          trans="log", direction = -1,
                          aesthetics = c( "fill"),
