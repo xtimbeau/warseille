@@ -96,7 +96,7 @@ ggplot() +
     name = "CO2/an/adulte") +
   theme_ofce_void() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS.<br>*version 2 (4/24)*")
+  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version 2 (4/24)*")
 
 ```
 :::
@@ -205,7 +205,7 @@ ggplot() +
     name = "CO2/an/emploi") +
   theme_ofce_void() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS.<br>*version 2 (4/24)*")
+  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version 2 (4/24)*")
 
 ```
 :::

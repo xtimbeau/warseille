@@ -188,8 +188,10 @@ div.callout-tip div.callout-header {
   border-radius: 12px;
   color: $link-color;
   text-align: center;
-  margin-top: 6px;
+  margin-top: -12px;
   margin-bottom: 12px;
+  z-index: 10; 
+  position: relative; 
 }
 
 .control-label {
