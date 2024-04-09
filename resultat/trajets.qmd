@@ -234,7 +234,7 @@ download_this(
 #| fig-asp: 0.8
 
 gg <- bd_read("distrev") 
-gg[[3]] <- gg[[3]] + labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS.<br>*version 2 (4/24)*<br>Chacun des points représente un IRIS. Les IRIS carrés sont à Marseille, les losanges à Aix-en-Provence,<br>les ronds partout ailleurs.")
+gg[[3]] <- gg[[3]] + labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version 2 (4/24)*<br>Chacun des points représente un IRIS. Les IRIS carrés sont à Marseille, les losanges à Aix-en-Provence,<br>les ronds partout ailleurs.")
 gg
 ```
 
@@ -247,6 +247,19 @@ download_this(
   button_label = "données CO2 versus niveau de vie à l'IRIS",
   output_name = "co2_IRIS_ndv_MetAM"
 )
+```
+
+## Lien entre pollution subie et CO~2~ émis
+
+De la même façon que pour le revenu, on peut analyser la relation apparente entre pollution subie, dans chaque IRIS, et la pollution émise, au titre des déplacements professionnels, sous la forme de CO~2~. Le @fig-polkm illustre cette relation en utilisant les données pour l'indicateur [ICAIR365](https://www.atmosud.org/article/icair-lindice-cumule-de-lair), qui cumule l'effet de 4 polluants (NO~2~, O~3~, PM2.5, PM10) sur une année (ici l'année 2022), construit par [AtmoSud](https://www.atmosud.org/). Le graphique reprend les autres éléments du @fig-co2rev, à savoir la taille des formes fonction de la densité d'actifs, la couleur fonction des prix au m² en 2022, la forme pour différencier Marseille d'Aix et du reste du territoire, et les densités marginales d'actifs suivant les deux dimensions ICAIR365 et kilomètres parcourus.
+
+```{r}
+#| label: fig-polkm
+#| fig-cap: Km pro versus pollution
+#| fig-asp: 0.8
+
+bd_read("poldist")
+
 ```
 
 ## Références bibliographiques {.unnumbered}

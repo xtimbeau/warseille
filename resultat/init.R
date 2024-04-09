@@ -18,7 +18,7 @@ opts_chunk$set(
   fig.showtext=TRUE,
   cache=FALSE)
 source("../secrets/azure.R")
-showtext_opts(dpi=200)
+showtext_opts(dpi=120)
 showtext_auto()
 trim <- function(x, xm, xp) ifelse( x<= xm, xm, ifelse(x>= xp, xp, x))
 
