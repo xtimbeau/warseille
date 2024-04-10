@@ -53,6 +53,34 @@ Par construction, cette évaluation est telle qu'une fois agrégée au niveau de
 
 ::: {#fig-carteco2r}
 ::: panel-tabset
+## Carte statique
+
+```{r}
+#| fig-asp: 1
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= bd_read("meaps_from"),
+    mapping= aes(fill=co2_pa), col=NA) + 
+  scale_fill_viridis_c(
+    option="plasma",
+    direction=-1,
+    name = "Emissions de CO2\ntCO2/an/adulte") +
+  theme_ofce_void() +
+  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
+  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version 2 (4/24)*")
+
+download_this(
+  bd_read("meaps_from") |> 
+    st_drop_geometry(),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données CO2 au carreau, résidents", 
+  output_name = "co2_idINS_pdvR_MetAMP"
+)
+```
+
 ## Carte interactive
 
 ::: column-screen
@@ -80,40 +108,11 @@ bd_read("meaps_from") |>
 ```
 :::
 
-## Carte statique
-
-```{r}
-#| fig-asp: 1
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf(
-    data= bd_read("meaps_from"),
-    mapping= aes(fill=co2_pa), col=NA) + 
-  scale_fill_viridis_c(
-    option="plasma",
-    direction=-1,
-    name = "Emissions de CO2\ntCO2/an/adulte") +
-  theme_ofce_void() +
-  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version 2 (4/24)*")
-
-```
 :::
 
 Emissions de CO~2~ localisées, Aix Marseille Provence Métropole
 :::
 
-```{r}
-download_this(
-  bd_read("meaps_from") |> 
-    st_drop_geometry(),
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données CO2 au carreau, résidents",
-  output_name = "co2_idINS_pdvR_MetAMP"
-)
-```
 
 On peut traduire ces éléments par quelques statistiques sur les émissions par tête.
 
