@@ -56,7 +56,7 @@ c200zea <- bd_read("c200ze") |>
   st_drop_geometry() |> 
   select(idINS, act_mobpro)
 t_access <- bd_read("t_access") |> 
-  left_join(c200zea, by = c("idINS200"="idINS"))
+  left_join(c200zea, by = c("idINS"="idINS"))
 t_access |> 
   filter(mode == "car_dgr") |> 
   left_join(communes |>
@@ -354,8 +354,8 @@ c200ze <- c200ze |>
 d_access <- t_access |>
   st_drop_geometry() |>
   left_join(
-    c200ze |> st_drop_geometry() |> select(idINS200 = idINS, ndv, decile),
-    by = "idINS200") |> 
+    c200ze |> st_drop_geometry() |> select(idINS = idINS, ndv, decile),
+    by = "idINS") |> 
   filter(mode %in% c("bike_tblr", "car_dgr", "transit5", "walk_tblr")) |> 
   mutate(
     zone = case_match(com,
