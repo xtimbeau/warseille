@@ -47,7 +47,7 @@ communes <- bd_read("communes") |>
 
 ```
 
-A partir de la génération des flux (étapes 1 et 2) et la prise en compte de la répartition spatiale des individus et des carcatéristiques des ménages (enfants, voiture, niveau de vie), on peut estimer les émissions de CO~2~ associées au motif professionnel déplacement domicile travail du point de vue des résidents. Ainsi pour chaque carreau 200m, en moyenne pour les différents type de ménages qui s'y trouve, on calcule les kilomètres qu sont parcourus ainsi que les émissions de CO~2~.
+A partir de la génération des flux (étapes 1 et 2) et la prise en compte de la répartition spatiale des individus et des caractéristiques des ménages (enfants, voiture, niveau de vie), on peut estimer les émissions de CO~2~ associées au motif professionnel déplacement domicile travail du point de vue des résidents. Ainsi pour chaque carreau 200m, en moyenne pour les différents type de ménages qui s'y trouve, on calcule les kilomètres parcourus ainsi que les émissions de CO~2~.
 
 Par construction, cette évaluation est telle qu'une fois agrégée au niveau des communes ou des arrondissements on retrouve (avec une petite marge d'erreur) les données de MOBPRO.
 
@@ -70,17 +70,18 @@ ggplot() +
   theme_ofce_void() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version 2 (4/24)*")
-
+```
+:::: {.column-margin}
+```{r}
 download_this(
   bd_read("meaps_from") |> 
     st_drop_geometry(),
   icon = "fa fa-download",
   class = "dbtn",
   button_label = "données CO2 au carreau, résidents", 
-  output_name = "co2_idINS_pdvR_MetAMP"
-)
+  output_name = "co2_idINS_pdvR_MetAMP")
 ```
-
+::::
 ## Carte interactive
 
 ::: column-screen
@@ -107,12 +108,10 @@ bd_read("meaps_from") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 :::
-
 :::
 
 Emissions de CO~2~ localisées, Aix Marseille Provence Métropole
 :::
-
 
 On peut traduire ces éléments par quelques statistiques sur les émissions par tête.
 
@@ -160,6 +159,36 @@ Une conséquence de cette approche est que, suivant la localisation de l'emploi,
 
 ::: {#fig-carteco2e}
 ::: panel-tabset
+## Carte statique
+
+```{r}
+#| fig-asp: 1
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= bd_read("meaps_to") |> filter(scot),
+    mapping= aes(fill=co2_pe), col=NA) + 
+  scale_fill_viridis_c(
+    option="plasma",
+    direction=-1,
+    name = "Emissions de CO2\ntCO2/an/emploi") +
+  theme_ofce_void() +
+  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
+  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version 2 (4/24)*")
+```
+:::: {.column-margin}
+
+```{r}
+download_this(
+  bd_read("meaps_to") |> 
+    st_drop_geometry(),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données CO2 au carreau, emploi",
+  output_name = "co2_idINS_pdvE_MetAMP"
+)
+```
+::::
 ## Carte interactive
 
 ::: column-screen
@@ -189,39 +218,10 @@ bd_read("meaps_to") |>
 ```
 :::
 
-## Carte statique
-
-```{r}
-#| fig-asp: 1
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf(
-    data= bd_read("meaps_to") |> filter(scot),
-    mapping= aes(fill=co2_pe), col=NA) + 
-  scale_fill_viridis_c(
-    option="plasma",
-    direction=-1,
-    name = "Emissions de CO2\ntCO2/an/emploi") +
-  theme_ofce_void() +
-  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version 2 (4/24)*")
-
-```
 :::
 
 Emissions de CO~2~ localisées, Aix Marseille Provence Métropole
 :::
-
-```{r}
-download_this(
-  bd_read("meaps_to") |> 
-    st_drop_geometry(),
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données CO2 au carreau, emploi",
-  output_name = "co2_idINS_pdvE_MetAMP"
-)
-```
 
 ## Lien entre revenu et CO~2~
 
@@ -236,17 +236,18 @@ gg <- bd_read("distrev")
 gg[[3]] <- gg[[3]] + labs(caption="*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version 2 (4/24)*<br>Chacun des points représente un IRIS. Les IRIS carrés sont à Marseille, les losanges à Aix-en-Provence,<br>les ronds partout ailleurs.<br>")
 gg
 ```
-
-```{r}
+:::: {.column-margin}
+```{r} 
 download_this(
   bd_read("km_iris") |> 
     st_drop_geometry(),
   icon = "fa fa-download",
   class = "dbtn",
-  button_label = "données CO2 versus niveau de vie à l'IRIS",
+  button_label = "données CO2-niveau de vie à l'IRIS",
   output_name = "co2_IRIS_ndv_MetAMP"
 )
 ```
+::::
 
 ## Lien entre pollution subie et CO~2~ émis
 
@@ -254,27 +255,22 @@ De la même façon que pour le revenu, on peut analyser la relation apparente en
 
 On notera la corrélation négative, au moins pour les localisations les plus distantes, entre les prix de l'immobilier en 2022 et l'indice ICAIR365[^2].
 
-[^2]: Compte tenu de ces derniers éléments, la structure des prix de l'immobilier issue de DV3F apparaît complexe. L'accessibilité est sans doute un critère mais loin d'être le le seul. Il serait intéressant de développer une analyse avancée des prix en utilisant un modèle riche (par exemple à partir de \`xgboost\`).
+[^2]: Compte tenu de ces derniers éléments, la structure des prix de l'immobilier issue de DV3F apparaît complexe. L'accessibilité est sans doute un critère mais loin d'être le le seul. Il serait intéressant de développer une analyse avancée des prix en utilisant un modèle riche (par exemple à partir de `xgboost`).
 
 ```{r}
 #| label: fig-polkm
 #| fig-cap: Km pro versus pollution
 #| fig-asp: 0.8
-
 bd_read("poldist")
-
 ```
-
+:::: {.column-margin}
 ```{r}
-download_this(
-  bd_read("km_iris_pol") |> 
-    st_drop_geometry(),
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données CO2 versus pollution à l'IRIS",
-  output_name = "co2_IRIS_pol_MetAMP"
-)
+download_this(bd_read("km_iris_pol") |> st_drop_geometry(),
+  icon = "fa fa-download", class = "dbtn",
+  button_label = "données CO2-pollution à l'IRIS",
+  output_name = "co2_IRIS_pol_MetAMP")
 ```
+::::
 
 ## Références bibliographiques {.unnumbered}
 
