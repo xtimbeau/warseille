@@ -177,6 +177,7 @@ t_access |>
 ```
 :::
 
+:::: {.column-margin}
 ```{r}
 download_this(
   t_access |> 
@@ -187,6 +188,7 @@ download_this(
   output_name = "temps_accessibilite_idINS_MetAM"
 )
 ```
+::::
 
 Cartes d'accessibilité pour différents modes
 :::
@@ -234,7 +236,7 @@ ggplot(
   facet_wrap(vars(mode))
 
 ```
-
+:::: {.column-margin}
 ```{r}
 download_this(
 access_par_com,
@@ -244,6 +246,7 @@ access_par_com,
   output_name = "access_commune_metAM"
 )
 ```
+::::
 
 Les arrondissements de Marseille (dont le 3ème et le 7ème sont colorés) sont les seuls à disposer d'une accessibilité assez élevée en transit. On constate également la domination de la voiture sur l'ensemble du territoire.
 
@@ -413,7 +416,7 @@ ggplot(deciles)+
         legend.key.size = unit(8, "pt")) 
 
 ```
-
+:::: {.column-margin}
 ```{r}
 download_this(
   deciles,
@@ -423,6 +426,7 @@ download_this(
   output_name = "deciles_metAM"
 )
 ```
+::::
 
 Pour chaque décile de niveau de vie, on représente la distribution des temps d'accès au seuil indiqué.
 
@@ -476,7 +480,7 @@ ggplot(d_access) +
 
 Accessibilités en fonction du décile de niveau de vie
 :::
-
+:::: {.column-margin}
 ```{r}
 download_this(
 d_access,
@@ -486,3 +490,4 @@ d_access,
   output_name = "access_revenu_metAM"
 )
 ```
+::::

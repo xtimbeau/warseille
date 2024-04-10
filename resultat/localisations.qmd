@@ -76,7 +76,6 @@ c200ze |>
 
 
 ```
-
 ```{r}
 download_this(
   c200ze |> 
@@ -121,7 +120,6 @@ c200ze |>
               legend_format = list(fill_colour = as.integer)) |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
-
 ```{r}
 download_this(
   c200ze |> 
@@ -136,7 +134,6 @@ download_this(
   output_name = "ind_act_idINS_MetAM"
 )
 ```
-
 ## emploi MOBPRO (2020)
 
 ```{r}
@@ -166,7 +163,6 @@ c200ze |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 
 ```
-
 ```{r}
 download_this(
   c200ze |> 
