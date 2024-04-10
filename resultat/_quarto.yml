@@ -10,6 +10,7 @@ book:
   title: "Métropole d'Aix Marseille Provence"
   subtitle: "Premiers résultats"
   cover-image: images/Marseille_vieille_carte.jpg
+  favicon: images/meaps-favicon.png
   author:
     - name: Xavier Timbeau
     - name: Maxime Parodi
