@@ -38,6 +38,9 @@ fuites <- fuites[froms]
 emplois <- c200ze |> pull(emp_resident, name = idINS) 
 emplois <- emplois[tos]
 
-AMP_masses <- list(actifs = actifs, fuites = fuites, emplois = emplois)
+AMP_masses <- list(actifs = actifs,
+                   fuites = fuites * (sum(actifs) - sum(emplois))/sum(fuites),
+                   emplois = emplois)
+
 bd_write(AMP_masses)
 

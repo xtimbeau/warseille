@@ -1,4 +1,3 @@
-setwd("~/marseille")
 library(qs, quietly = TRUE)
 library(conflicted, quietly = TRUE)
 library(rmeaps)
@@ -12,7 +11,7 @@ library(sf)
 library(tidyverse)
 library(Matrix)
 source("secrets/azure.R")
-calc <- TRUE
+calc <- FALSE
 check <- FALSE
 conflict_prefer("filter", "dplyr", quiet=TRUE)
 conflict_prefer("select", "dplyr", quiet=TRUE)
@@ -25,27 +24,27 @@ arrow::set_cpu_count(8)
 # ---- Definition des zones ----
 load("baselayer.rda")
 
-cli::cli_alert_info("Flux")
-
 c200ze <- qs::qread(c200ze_file) |> arrange(com, idINS)
 com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com) |> as.integer()
 com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com) |> as.integer()
 
-time <- open_dataset(time_dts) |> to_duckdb() |> select(fromidINS, toidINS, t) |> collect()
-froms <- distinct(time, fromidINS) |> pull() |> as.character()
-tos <- distinct(time, toidINS) |> pull() |> as.character()
+# rt <- qs::qread(time_matrix)
+# rm <- qs::qread(rank_matrix)
 
-communes <- c200ze |> filter(scot) |> mutate(com = as.integer(com)) |> pull(com, name = idINS) 
-communes <- communes[froms]
-dclts <- c200ze |> filter(emp_resident>0) |> mutate(com = as.integer(com)) |> pull(com, name = idINS) 
-dclts <- dclts[tos]
+time_d <- open_dataset(time_dts) |> to_duckdb() |> select(fromidINS, toidINS, t) |> collect()
+froms <- distinct(time_d, fromidINS) |> pull() |> as.character()
+tos <- distinct(time_d, toidINS) |> pull() |> as.character()
 
-mobpro <- qs::qread(mobpro_file) |> filter(mobpro95) |> group_by(COMMUNE, DCLT) |> summarize(mobpro = sum(NB))
+communes <- c200ze |> filter(scot) |> pull(com, name = idINS) 
+communes <- as.integer(communes[froms])
+dclts <- c200ze |> filter(emp_resident>0) |> pull(com, name = idINS) 
+dclts <- as.integer(dclts[tos])
+
 masses_AMP <- bd_read("AMP_masses")
 actifs <- masses_AMP$actifs[froms]
 emplois <- masses_AMP$emplois[tos]
 fuite <- masses_AMP$fuites[froms]/actifs
-
+check <- (sum(actifs*(1-fuite))-sum(emplois))/sum(actifs)
 COMs <- tibble(actifs = actifs, 
                fuite = fuite,
                from = froms,
@@ -55,28 +54,32 @@ DCLTs <- tibble(emplois = emplois,
 
 N <- length(actifs)
 K <- length(emplois)
-
 nshuf <- 64
-
 shufs <- emiette(les_actifs = actifs, nshuf = nshuf, seuil = 500)
 
-if(calc) {
-  estimation <- bd_read("estimation")
-  
-  meaps <- meaps_continu(dist = time, 
-                         emplois = emplois, 
-                         actifs = actifs, 
-                         f = fuite, 
-                         shuf = shufs,
-                         attraction = estimation |> slice(2) |> pull(method),
-                         param = estimation |> slice(2) |> pull(param) |> pluck(1),
-                         nthreads = 4L)
-  
-  arrow::write_parquet(meaps, "{mdir}/meaps/meaps.parquet" |> glue())
-} 
+# modds <- tibble(fromidINS = time_d$fromidINS, toidINS = time_d$toidINS, odds = 1)
+# modds[is.na(rm)] <- NA
+# modds[rt<10] <- 10
 
-meaps <- arrow::open_dataset("{mdir}/meaps/meaps_odds_d.parquet" |> glue()) |> 
-  to_duckdb()
+if(test) {
+  rm(meaps)
+  gc()
+  tic()
+  meaps <- meaps_continu(dist = time_d, 
+                       emplois = emplois, 
+                       actifs = actifs, 
+                       f = fuite, 
+                       shuf = shufs, 
+                       attraction = "constant",
+                       nthreads = 4)
+  toc()
+  arrow::write_parquet(meaps, "{mdir}/meaps/meaps_test.parquet" |> glue())
+  gc()
+}
+
+meaps <- arrow::open_dataset("{mdir}/meaps/meaps_test.parquet" |> glue()) |> 
+  to_duckdb() |> 
+  rename(f_ij = flux)
 
 # meaps.c <- communaliser(meaps, communes, dclts)
 
@@ -137,10 +140,10 @@ meaps_to <- meaps_to |>
   as_tibble() |> 
   left_join(c200ze |> select(toidINS = idINS, com, scot), by='toidINS') |> 
   st_as_sf()
+bd_write(meaps_to)
 
 decor_carte <- bd_read("decor_carte")
 decor_carte_large <- bd_read("decor_carte_large")
-version <- "3.424"
 
 carte_co2_to <- ggplot() +
   decor_carte +
@@ -150,42 +153,19 @@ carte_co2_to <- ggplot() +
   scale_fill_distiller(
     type = "seq",
     palette = "RdBu",
-    name = "CO2/an/emploi") +
-  theme_ofce_void()
-
-tension <- arrow::read_parquet("{mdir}/meaps/tension_odds_d.parquet" |> glue()) |>
-  mutate(toidINS = as.integer(toidINS),
-         tension = (max(rang)-rang)/(max(rang)-min(rang))) |> 
-  left_join(c200ze |> select(toidINS = idINS, com, scot), by='toidINS') |> 
-  st_as_sf() |> 
-  mutate(tens = santoku::chop_deciles(tension))
-
-carte_tension <- ggplot() +
-  decor_carte +
-  geom_sf(
-    data= tension |> filter(scot),
-    mapping= aes(fill=tens), col=NA) + 
-  scale_fill_brewer(
-    type = "seq",
-    palette = "Blues",
-    name = "Tension sur l'emploi") +
-  theme_ofce_void()
+    name = "CO2/an/emploi")
 
 carte_co2_from <- ggplot() +
   decor_carte +
   geom_sf(
     data= meaps_from,
     mapping= aes(fill=co2_pa), col=NA) + 
-  scale_fill_viridis_c(
-    option="plasma",
-    direction=-1,
-    name = "Emissions de CO2\ntCO2/an/emploi") +
-  theme_ofce_void()
+  scale_fill_distiller(
+    type = "seq",
+    palette = "Spectral",
+    name = "CO2/an/adulte")
 
-
-bd_write(meaps_from)
-bd_write(meaps_to)
 bd_write(carte_co2_from)
 bd_write(carte_co2_to)
-bd_write(carte_tension)
-bd_write(version)
+bd_write(meaps_from)
+bd_write(meaps_to)
