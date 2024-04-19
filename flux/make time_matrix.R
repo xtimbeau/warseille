@@ -20,7 +20,6 @@ load("baselayer.rda")
 cli::cli_alert_info("Time matrix")
 data.table::setDTthreads(8)
 arrow::set_cpu_count(8)
-time_dts <- "/tmp/time_dataset"
 
 c200ze <- qs::qread(c200ze_file) |> arrange(com, idINS)
 com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com) |> as.integer()

@@ -77,9 +77,6 @@ scot_tot.n <- c("Allauch",	"Carry-le-Rouet","Cassis", "Ceyreste",
                 ,"Cornillon-Confoux","Fos-sur-Mer","Grans","Istres","Martigues","Miramas"
                 ,"Port-de-Bouc","Port-Saint-Louis-du-Rhône","Saint-Mitre-les-Remparts")
 
-marseille_board <- pins::board_azure(
-  AzureStor::storage_container(Sys.getenv("azure_url"), sas = Sys.getenv("azure_sas")))
-
 #à faire juste une fois
 # marseille_board %>% pin_upload("Mobilités des Personnes 2019")
 # marseille_board %>% pin_upload("emp33km.qs")
@@ -138,6 +135,7 @@ dir.create(repository_notc)
 localr5 <- str_c(localdata, "/r5_base")
 localr5car <- str_c(localdata, "/r5car")
 
+time_dts <- "{dir_dist}/time_dataset" |> glue()
 time_matrix <- "{dir_dist}/time_matrix.qs" |> glue()
 rank_matrix <- "{dir_dist}/rank_matrix.qs" |> glue()
 delta_dts <- "{mdir}/delta_iris" |> glue()
@@ -259,6 +257,7 @@ save(list = unique(
     "tcm_ind_kish_file",
     "tcm_men_file",
     "temp_dir",
+    "time_dts",
     "time_matrix",
     "ville")),
   file = "baselayer.rda")
