@@ -300,7 +300,7 @@ bd_read("co2dens") +
     caption=glue::glue(
       "*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version {version}*
        <br>*Note* : Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille,
-      <br> les losanges pour la commune d'Aix-en-Provence,
+       <br> les losanges pour la commune d'Aix-en-Provence,
        <br>les ronds pour les autres communes.<br>"),
     theme = theme_ofce()) 
 ```
@@ -317,7 +317,7 @@ gg +
     caption=glue::glue(
       "*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version {version}*
        <br>*Note* : Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille,
-      <br> les losanges pour la commune d'Aix-en-Provence,
+       <br> les losanges pour la commune d'Aix-en-Provence,
        <br>les ronds pour les autres communes.<br>"),
     theme = theme_ofce()) 
 ```
