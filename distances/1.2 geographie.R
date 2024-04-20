@@ -7,7 +7,6 @@ library(mapboxapi)
 library(stars)
 library(glue)
 library(conflicted)
-library(ofce)
 library(fs)
 library(readxl)
 library(rlang)
@@ -27,15 +26,15 @@ download <- FALSE
 
 if(download|!file.exists(iris_file)) {
   curl::curl_download(
-    "https://wxs.ign.fr/1yhlj2ehpqf3q6dt6a2y7b64/telechargement/inspire/CONTOURS-IRIS-PACK_2022-01$CONTOURS-IRIS_2-1__SHP__FRA_2022-01-01/file/CONTOURS-IRIS_2-1__SHP__FRA_2022-01-01.7z",
+    "https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_2-1__SHP__FRA_2022-01-01/CONTOURS-IRIS_2-1__SHP__FRA_2022-01-01.7z",
     destfile = "/tmp/iris2022.7z" |> glue())
   zz <- archive_extract("/tmp/iris2022.7z", dir = "/tmp" |> glue())
   shp <- zz |> keep(~str_detect(.x, "LAMB93")) |> keep(~str_detect(.x, ".shp"))
   iris22sf <- st_read(str_c("/tmp/",shp))
   curl::curl_download(
-    url = "https://www.insee.fr/fr/statistiques/fichier/2017499/reference_IRIS_geo2022.zip",
+    url = "https://www.insee.fr/fr/statistiques/fichier/7708995/reference_IRIS_geo2022.zip",
     destfile = "/tmp/tableiris2022.zip" |> glue())
-  unzip("/tmp/tableiris2022.zip", exdir = "/tmp" |> glue())
+  zz <- archive_extract("https://www.insee.fr/fr/statistiques/fichier/7708995/reference_IRIS_geo2022.zip", dir = "/tmp")
   refiris22 <- readxl::read_xlsx("/tmp/reference_IRIS_geo2022.xlsx", skip=5)
   
   iris22 <- left_join(
@@ -44,6 +43,11 @@ if(download|!file.exists(iris_file)) {
   
   qs::qsave(iris22, iris_file)
 }
+
+# zz <- archive_extract("https://www.insee.fr/fr/statistiques/fichier/7233950/BASE_TD_FILO_DISP_IRIS_2020_CSV.zip", dir ="/tmp")
+# revIRIS <- vroom::vroom(str_c("/tmp/", zz[1]))
+# 
+# iris22 <- iris22 |> left_join(revIRIS |> select(CODE_IRIS = IRIS, DISP_MED20), by = "CODE_IRIS")
 
 # carroyage c200 --------------------
 if(!file.exists(c200_file)|download) {
@@ -272,7 +276,7 @@ decor_carte <- list(
     "label", x=Inf, y=-Inf, label = "\U00A9 Mapbox, \U00A9 OpenStreetMap",
     hjust=1, vjust=0, size=2, label.padding = unit(4, "pt"),
     label.size = 0, fill="gray98", alpha=0.5),
-  theme_void(),
+  theme_ofce_void(),
   ggspatial::annotation_scale(
     line_width = 0.2, height = unit(0.1, "cm"), 
     text_cex = 0.4, pad_y = unit(0.1, "cm")),
@@ -297,7 +301,7 @@ decor_carte_large <- list(
     "label", x=Inf, y=-Inf, label = "\U00A9 Mapbox, \U00A9 OpenStreetMap",
     hjust=1, vjust=0, size=2, label.padding = unit(4, "pt"),
     label.size = 0, fill="gray98", alpha=0.5),
-  theme_void(),
+  theme_ofce_void(),
   ggspatial::annotation_scale(
     line_width = 0.2, height = unit(0.1, "cm"), 
     text_cex = 0.4, pad_y = unit(0.1, "cm")),

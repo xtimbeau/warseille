@@ -18,13 +18,7 @@ km <- bd_read("meaps_from") |>
   left_join(c200ze, by="fromidINS") |> 
   mutate(ndv  = ind_snv/ind)
 
-km_iris <- km |>
-  group_by(IRIS) |> 
-  summarize(km_pa = sum(km_i)/sum(f_i),
-            f_i = sum(f_i),
-            n = n(),
-            ind_snv = sum(ind_snv)/sum(ind),
-            ind = sum(ind))
+
 
 ggplot(km) +
   aes(x=ind_snv/ind, y=km_pa, color = com) +
@@ -92,22 +86,33 @@ prix <- dv3f.c200 |>
     prix = ifelse(is.na(prix_2022), prix_2021, prix_2022)
   )
 
-km_iris <- km_iris |> left_join(prix, by=c("IRIS"))  
-
-bd_write(km_iris)
-km_iris <- bd_read("km_iris") |> 
+km_iris <- km |>
+  group_by(IRIS) |> 
+  summarize(km_pa = sum(km_i)/sum(f_i),
+            f_i = sum(f_i),
+            co2_i = sum(co2_i),
+            n = n(),
+            snv = sum(ind_snv)/sum(ind),
+            ind = sum(ind)) |>
+  left_join(prix, by=c("IRIS")) |> 
+  select(IRIS, km_pa, f_i, co2_i, n, snv, ind, tx, prix) |> 
   mutate(shape = case_when(
     str_detect(IRIS, "^132") ~ "Marseille",
     str_detect(IRIS, "^13001") ~ "Aix-en-Provence",
-    TRUE ~ "autre"))
+    TRUE ~ "autre"),
+    dens = 1/4/n*f_i)
+
+bd_write(km_iris)
+km_iris <- bd_read("km_iris")
+ 
 (base <- ggplot(km_iris) +
-    aes(x=ind_snv, y=km_pa, fill = prix, weights=f_i) +
+    aes(x=snv, y=km_pa, fill = prix, weights=f_i) +
     scale_fill_distiller(palette="Spectral", 
                          trans="log", direction = -1,
                          aesthetics = c( "fill"),
                          breaks = c(1000, 3000, 8000),
                          name="prix immobilier (IRIS)\n€/m² 2022")+
-    geom_point(aes(size = 1/4/n*f_i, shape = shape), 
+    geom_point(aes(size = dens, shape = shape), 
                alpha=0.95, stroke=.1, color = "transparent") +
     scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
     guides(size=guide_legend(title = "Actifs/ha", override.aes = list(color="grey25")),
@@ -119,7 +124,7 @@ km_iris <- bd_read("km_iris") |>
   theme(plot.margin = margin())
 
 top_dens <- ggplot(km_iris)+
-  geom_density(aes(x=ind_snv, y=after_stat(density), weight=f_i), 
+  geom_density(aes(x=snv, y=after_stat(density), weight=f_i), 
                color = "black", fill="pink", alpha=0.25, linewidth=0.2)+
   theme_void()+
   theme(plot.margin = margin())

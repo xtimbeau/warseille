@@ -56,7 +56,7 @@ mobpro[, filter_live := COMMUNE %in% scot]
 
 mobilites <- mobpro[, .(NB = sum(IPONDI), 
                         NB_in = sum(filter_live*IPONDI),
-                        fl = all(filter_live)), 
+                        fl = any(filter_live)), 
                     by = c("COMMUNE", "DCLT", "NA5", "TRANS")]
 
 mobilites[, TRANS := factor(TRANS) |> 
@@ -73,7 +73,6 @@ coms <- communes |>
   as_tibble()
 
 mobpro99 <- mobilites |> 
-  st_drop_geometry() |> 
   group_by(DCLT) |> 
   mutate(emp.tot = sum(NB)) |> 
   group_by(COMMUNE, DCLT) |> 
@@ -81,10 +80,10 @@ mobpro99 <- mobilites |>
             emp = sum(NB),
             emp.tot = first(emp.tot),
             .groups = "drop") |> 
+  filter(fl) |> 
   left_join(coms , by = c("COMMUNE"="insee"), suffix = c("", ".o")) |> 
   left_join(coms, by = c("DCLT"="insee"), suffix = c("", ".d") ) |> 
   mutate(d = st_distance(geometry, geometry.d, by_element = TRUE)) |> 
-  filter(fl) |> 
   arrange(d) |> 
   mutate(cemp = cumsum(emp)/sum(emp),
          mobpro99 = cemp <= .99,
@@ -92,21 +91,18 @@ mobpro99 <- mobilites |>
   transmute(COMMUNE, DCLT, fl, mobpro99, mobpro95, d, cemp, emp, emp.tot)
 
 dclt95 <- mobpro99 |> filter(mobpro95) |> distinct(DCLT) |> pull()
-com95 <- mobpro99 |> distinct(COMMUNE) |> pull()
 communes <- communes |>
-  filter(INSEE_COM %in% com95 | INSEE_COM %in% dclt95)
+  filter(INSEE_COM %in% scot | INSEE_COM %in% dclt95)
 
 mobilites95 <- mobilites |>
   filter(DCLT %in% dclt95 | COMMUNE %in% scot) |> 
-  left_join(mobpro99 |> select(COMMUNE, DCLT, mobpro95, mobpro99), by=c("COMMUNE", "DCLT")) |> 
-  mutate(mobpro99 = replace_na(mobpro99, FALSE),
-         mobpro95 = replace_na(mobpro95, FALSE))
+  mutate(mobpro95 = (COMMUNE %in% scot) & (DCLT %in% dclt95))
 
 qs::qsave(mobilites95, mobpro_file)
 qs::qsave(communes, communes_mb99_file)  
 
 emplois_by_DCLT <- mobilites95[DCLT %in% dclt95,
-                               .(emp = sum(NB), emp_scot = sum(NB_in)),
+                               .(emp = sum(NB), emp_scot = sum(NB[COMMUNE%chin%scot])),
                                by = c("DCLT", "NA5")]
 
 
