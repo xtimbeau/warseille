@@ -114,7 +114,7 @@
     "href": "trajets.html#co2-pour-les-mobilités-professionnelles-point-de-vue-résident",
     "title": "3  Du potentiel de l’accessibilité aux trajets effectifs",
     "section": "3.2 CO2 pour les mobilités professionnelles, point de vue « résident »",
-    "text": "3.2 CO2 pour les mobilités professionnelles, point de vue « résident »\nA partir de la génération des flux (étapes 1 et 2) et la prise en compte de la répartition spatiale des individus et des caractéristiques des ménages (enfants, voiture, niveau de vie), on peut estimer les émissions de CO2 associées au motif professionnel déplacement domicile travail du point de vue des résidents. Ainsi pour chaque carreau 200m, en moyenne pour les différents type de ménages qui s’y trouve, on calcule les kilomètres parcourus ainsi que les émissions de CO2.\nPar construction, cette évaluation est telle qu’une fois agrégée au niveau des communes ou des arrondissements on retrouve (avec une petite marge d’erreur) les données de MOBPRO.\n\n\n\nGraphique 3.1. Emissions de CO2 localisées, Aix Marseille Provence Métropole\n\n\n\n\n\n données CO2 au carreau, résidents\n\n\n\nCarte statiqueCarte interactive\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nOn peut traduire ces éléments par quelques statistiques sur les émissions par tête.\n\n\n\n\nTableau 3.1. Emissions de CO2 par actif\n\n\n\n\n\n\n\n\n\n\nDécile\nEmissions de CO2 par actif\n\n\nMétropole\nMarseille\nAix-en-Provence\n\n\n\n\n10%\n0.26\n0.20\n0.57\n\n\n20%\n0.40\n0.24\n0.69\n\n\n30%\n0.56\n0.30\n0.84\n\n\n40%\n0.74\n0.36\n0.91\n\n\n50%\n1.00\n0.43\n0.99\n\n\n60%\n1.23\n0.50\n1.07\n\n\n70%\n1.41\n0.57\n1.18\n\n\n80%\n1.58\n0.65\n1.39\n\n\n90%\n1.81\n0.77\n1.64\n\n\n100%\n3.93\n2.64\n2.88\n\n\n\nSource : MOBPRO, EMP 2019, C200, OSM, GTFS, MEAPS, version 3.424\n\n\n\n\n\n\n\n\n\n\n\n\nDans le tableau 3.1, on peut voir quels sont les émissions par décile de population, pour l’ensemble de la Métropole ainsi que pour deux communes (Marseille et Aix-en-Provence). Cela indique comment les 0.71 millions de tonnes de CO2 liées au motif déplacement quotidien professionnel sont réparties sur la population active.",
+    "text": "3.2 CO2 pour les mobilités professionnelles, point de vue « résident »\nA partir de la génération des flux (étapes 1 et 2) et la prise en compte de la répartition spatiale des individus et des caractéristiques des ménages (enfants, voiture, niveau de vie), on peut estimer les émissions de CO2 associées au motif professionnel déplacement domicile travail du point de vue des résidents. Ainsi pour chaque carreau 200m, en moyenne pour les différents type de ménages qui s’y trouve, on calcule les kilomètres parcourus ainsi que les émissions de CO2.\nPar construction, cette évaluation est telle qu’une fois agrégée au niveau des communes ou des arrondissements on retrouve (avec une petite marge d’erreur) les données de MOBPRO.\n\n\n\nGraphique 3.1. Emissions de CO2 localisées, Aix Marseille Provence Métropole\n\n\n\n\n\n données CO2 au carreau, résidents\n\n\n\nCarte statiqueCarte interactive\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nOn peut traduire ces éléments par quelques statistiques sur les émissions par tête.\n\n\n\n\nTableau 3.1. Emissions de CO2 par actif\n\n\n\n\n\n\n\n\n\n\nDécile\nEmissions de CO2 par actif\n\n\nMétropole\nMarseille\nAix-en-Provence\n\n\n\n\n10%\n0.18\n0.14\n0.39\n\n\n20%\n0.31\n0.17\n0.49\n\n\n30%\n0.46\n0.21\n0.59\n\n\n40%\n0.62\n0.27\n0.65\n\n\n50%\n0.84\n0.34\n0.74\n\n\n60%\n1.06\n0.41\n0.87\n\n\n70%\n1.26\n0.48\n1.00\n\n\n80%\n1.45\n0.57\n1.18\n\n\n90%\n1.68\n0.69\n1.49\n\n\n100%\n3.91\n1.90\n3.55\n\n\n\nSource : MOBPRO, EMP 2019, C200, OSM, GTFS, MEAPS, version 4.424\n\n\n\n\n\n\n\n\n\n\n\n\nDans le tableau 3.1, on peut voir quels sont les émissions par décile de population, pour l’ensemble de la Métropole ainsi que pour deux communes (Marseille et Aix-en-Provence). Cela indique comment les 0.62 millions de tonnes de CO2 liées au motif déplacement quotidien professionnel sont réparties sur la population active.",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Du potentiel de l'accessibilité aux trajets effectifs</span>"
     ]
@@ -150,11 +150,31 @@
     ]
   },
   {
+    "objectID": "trajets.html#densité-et-émissions-de-co2",
+    "href": "trajets.html#densité-et-émissions-de-co2",
+    "title": "3  Du potentiel de l’accessibilité aux trajets effectifs",
+    "section": "3.6 Densité et émissions de CO2",
+    "text": "3.6 Densité et émissions de CO2\n\n\n\n\n\nGraphique 3.5. Emissions de CO2 déplacements professionnels versus densité",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Du potentiel de l'accessibilité aux trajets effectifs</span>"
+    ]
+  },
+  {
+    "objectID": "trajets.html#evolution-de-la-population-et-émissions",
+    "href": "trajets.html#evolution-de-la-population-et-émissions",
+    "title": "3  Du potentiel de l’accessibilité aux trajets effectifs",
+    "section": "3.7 Evolution de la population et émissions",
+    "text": "3.7 Evolution de la population et émissions\n\n\n\n\n\nGraphique 3.6. Emissions de CO2 déplacements professionnels versus densité",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Du potentiel de l'accessibilité aux trajets effectifs</span>"
+    ]
+  },
+  {
     "objectID": "trajets.html#références-bibliographiques",
     "href": "trajets.html#références-bibliographiques",
     "title": "3  Du potentiel de l’accessibilité aux trajets effectifs",
     "section": "Références bibliographiques",
-    "text": "Références bibliographiques\n\n\nLempérière P., Miet D., Parodi M., Pouvreau L., Stulhfauth V., Timbeau\nX. (2023). « SCoT\nLa Rochelle Aunis : les émissions moyennes des habitants du territoire\npour leurs mobilités quotidiennes »,.\n\n\nParodi M., Timbeau X. (2023). « MEAPS : modéliser les flux\nde navetteurs », Document de travail de l’OFCE, n°\n11-2023.\n\n\nParodi M., Timbeau X. (2024a). « La ville compacte : une\nsolution aux émissions de gaz à effet de serre »,\nDocument de travail de l’OFCE, n° 5-2024.\n\n\nParodi M., Timbeau X. (2024b). « MEAPS&Gravitaire :\nEstimations à la Rochelle », Document de travail de\nl’OFCE, n° 4-2024.\n\n\n\n\n\nGraphique 3.1. Emissions de CO2 localisées, Aix Marseille Provence Métropole\nGraphique 3.2. Emissions de CO2 localisées, Aix Marseille Provence Métropole\nGraphique 3.3. Km pro versus revenu versus densité versus prix immobilier\nGraphique 3.4. Km pro versus pollution",
+    "text": "Références bibliographiques\n\n\nLempérière P., Miet D., Parodi M., Pouvreau L., Stulhfauth V., Timbeau\nX. (2023). « SCoT\nLa Rochelle Aunis : les émissions moyennes des habitants du territoire\npour leurs mobilités quotidiennes »,.\n\n\nParodi M., Timbeau X. (2023). « MEAPS : modéliser les flux\nde navetteurs », Document de travail de l’OFCE, n°\n11-2023.\n\n\nParodi M., Timbeau X. (2024a). « La ville compacte : une\nsolution aux émissions de gaz à effet de serre »,\nDocument de travail de l’OFCE, n° 5-2024.\n\n\nParodi M., Timbeau X. (2024b). « MEAPS&Gravitaire :\nEstimations à la Rochelle », Document de travail de\nl’OFCE, n° 4-2024.\n\n\n\n\n\nGraphique 3.1. Emissions de CO2 localisées, Aix Marseille Provence Métropole\nGraphique 3.2. Emissions de CO2 localisées, Aix Marseille Provence Métropole\nGraphique 3.3. Km pro versus revenu versus densité versus prix immobilier\nGraphique 3.4. Km pro versus pollution\nGraphique 3.5. Emissions de CO2 déplacements professionnels versus densité\nGraphique 3.6. Emissions de CO2 déplacements professionnels versus densité",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Du potentiel de l'accessibilité aux trajets effectifs</span>"
     ]
