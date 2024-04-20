@@ -72,7 +72,8 @@ ggplot() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption=glue("*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version {version}*"))
 ```
-:::: {.column-margin}
+
+::: column-margin
 ```{r}
 download_this(
   bd_read("meaps_from") |> 
@@ -82,7 +83,8 @@ download_this(
   button_label = "données CO2 au carreau, résidents", 
   output_name = glue("co2_idINS_pdvR_MetAMP.{version}"))
 ```
-::::
+:::
+
 ## Carte interactive
 
 ::: column-screen
@@ -178,8 +180,8 @@ ggplot() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption=glue("*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS,  MEAPS. *version {version}*"))
 ```
-:::: {.column-margin}
 
+::: column-margin
 ```{r}
 download_this(
   bd_read("meaps_to") |> 
@@ -189,7 +191,8 @@ download_this(
   button_label = "données CO2 au carreau, emploi",
   output_name = glue("co2_idINS_pdvE_MetAMP.{version}"))
 ```
-::::
+:::
+
 ## Carte interactive
 
 ::: column-screen
@@ -218,7 +221,6 @@ bd_read("meaps_to") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 :::
-
 :::
 
 Emissions de CO~2~ localisées, Aix Marseille Provence Métropole
@@ -240,8 +242,9 @@ gg[[3]] <- gg[[3]] +
                     <br>les ronds partout ailleurs.<br>"))
 gg
 ```
-:::: {.column-margin}
-```{r} 
+
+::: column-margin
+```{r}
 download_this(
   bd_read("km_iris") |> 
     st_drop_geometry(),
@@ -251,7 +254,7 @@ download_this(
   output_name = glue("co2_IRIS_ndv_MetAMP.{version}")
 )
 ```
-::::
+:::
 
 ## Lien entre pollution subie et CO~2~ émis
 
@@ -267,14 +270,15 @@ On notera la corrélation négative, au moins pour les localisations les plus di
 #| fig-asp: 0.8
 bd_read("poldist")
 ```
-:::: {.column-margin}
+
+::: column-margin
 ```{r}
 download_this(bd_read("km_iris_pol") |> sf::st_drop_geometry(),
   icon = "fa fa-download", class = "dbtn",
   button_label = "données CO2-pollution à l'IRIS",
   output_name = glue("co2_IRIS_pol_MetAMP.{version}"))
 ```
-::::
+:::
 
 ## Références bibliographiques {.unnumbered}
 

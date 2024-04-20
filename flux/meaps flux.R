@@ -20,8 +20,6 @@ conflict_prefer("collect", "dplyr", quiet=TRUE)
 conflict_prefer("between", "dplyr", quiet=TRUE)
 conflict_prefer("first", "dplyr", quiet=TRUE)
 
-arrow::set_cpu_count(8)
-
 # ---- Definition des zones ----
 load("baselayer.rda")
 
@@ -70,13 +68,14 @@ if(calc) {
                          shuf = shufs,
                          attraction = estimation |> slice(2) |> pull(method),
                          param = estimation |> slice(2) |> pull(param) |> pluck(1),
-                         nthreads = 4L)
+                         nthreads = 3L)
   
   arrow::write_parquet(meaps, "{mdir}/meaps/meaps.parquet" |> glue())
 } 
 
-meaps <- arrow::open_dataset("{mdir}/meaps/meaps_odds_d.parquet" |> glue()) |> 
-  to_duckdb()
+meaps <- arrow::open_dataset("{mdir}/meaps/meaps.parquet" |> glue()) |> 
+  to_duckdb() |> 
+  rename(f_ij = flux)
 
 # meaps.c <- communaliser(meaps, communes, dclts)
 
@@ -140,7 +139,7 @@ meaps_to <- meaps_to |>
 
 decor_carte <- bd_read("decor_carte")
 decor_carte_large <- bd_read("decor_carte_large")
-version <- "3.424"
+version <- "4.424"
 
 carte_co2_to <- ggplot() +
   decor_carte +
