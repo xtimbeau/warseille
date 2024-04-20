@@ -7,6 +7,7 @@ library(ofce)
 library(downloadthis)
 library(gt)
 library(tmap)
+library(glue)
 
 opts_chunk$set(
   echo = FALSE,
