@@ -18,9 +18,12 @@ opts_chunk$set(
   dev="ragg_png",
   fig.showtext=TRUE,
   cache=FALSE)
+
 source("../secrets/azure.R")
+
 showtext_opts(dpi=120)
 showtext_auto()
+
 trim <- function(x, xm, xp) ifelse( x<= xm, xm, ifelse(x>= xp, xp, x))
 
 communes <- bd_read("communes")
