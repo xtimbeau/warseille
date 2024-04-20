@@ -18,8 +18,6 @@ km <- bd_read("meaps_from") |>
   left_join(c200ze, by="fromidINS") |> 
   mutate(ndv  = ind_snv/ind)
 
-
-
 ggplot(km) +
   aes(x=ind_snv/ind, y=km_pa, color = com) +
   geom_point(alpha=0.1, shape = 19) +
@@ -104,11 +102,13 @@ km_iris <- km |>
 
 bd_write(km_iris)
 km_iris <- bd_read("km_iris")
- 
+
 (base <- ggplot(km_iris) +
     aes(x=snv, y=km_pa, fill = prix, weights=f_i) +
     scale_fill_distiller(palette="Spectral", 
                          trans="log", direction = -1,
+                         oob = scales::squish,
+                         limits = c(1000, 8000),
                          aesthetics = c( "fill"),
                          breaks = c(1000, 3000, 8000),
                          name="prix immobilier (IRIS)\n€/m² 2022")+
@@ -126,13 +126,13 @@ km_iris <- bd_read("km_iris")
 top_dens <- ggplot(km_iris)+
   geom_density(aes(x=snv, y=after_stat(density), weight=f_i), 
                color = "black", fill="pink", alpha=0.25, linewidth=0.2)+
-  theme_void()+
+  theme_ofce_void()+
   theme(plot.margin = margin())
 right_dens <- ggplot(km_iris)+
   geom_density(aes(x=km_pa, y=after_stat(density), weight=f_i), 
                color = "black", fill="pink", alpha=0.25, linewidth=0.2)+
   coord_flip()+
-  theme_void()+
+  theme_ofce_void()+
   theme(plot.margin = margin())
 
 distrev <- patchwork::wrap_plots(
@@ -151,6 +151,8 @@ km <- km |> left_join(prix, by=c("IRIS"))
     aes(x=ind_snv/ind, y=km_pa, fill = prix_2022, weights=f_i) +
     scale_fill_distiller(palette="Spectral", 
                          trans="log", direction = -1,
+                         oob = scales::squish,
+                         limits = c(1000, 8000),
                          aesthetics = c( "fill"),
                          breaks = c(1000, 3000, 8000),
                          name="prix immobilier (IRIS)\n€/m² 2022")+
@@ -166,13 +168,13 @@ km <- km |> left_join(prix, by=c("IRIS"))
 top_dens <- ggplot(km)+
   geom_density(aes(x=ind_snv, y=after_stat(density), weight=f_i), 
                color = "black", fill="pink", alpha=0.25, linewidth=0.2)+
-  theme_void()+
+  theme_ofce_void()+
   theme(plot.margin = margin())
 right_dens <- ggplot(km)+
   geom_density(aes(x=km_pa, y=after_stat(density), weight=f_i), 
                color = "black", fill="pink", alpha=0.25, linewidth=0.2)+
   coord_flip()+
-  theme_void()+
+  theme_ofce_void()+
   theme(plot.margin = margin())
 
 distrev_c200 <- patchwork::wrap_plots(
@@ -182,3 +184,105 @@ distrev_c200 <- patchwork::wrap_plots(
         legend.key.height = unit(6, "pt"))
 
 bd_write(distrev_c200)
+
+# graphiques alternatifs -----------------
+
+## alt1 : co2 versus densité ------------
+
+(base <- ggplot(km_iris |> st_drop_geometry()) +
+   aes(x=dens, y=co2_i/f_i, fill = prix, weights=f_i) +
+   scale_fill_distiller(palette="Spectral", 
+                        trans="log", direction = -1,
+                        oob = scales::squish,
+                        limits = c(1000, 8000),
+                        aesthetics = c( "fill"),
+                        breaks = c(1000, 3000, 8000),
+                        name="prix immobilier (IRIS)\n€/m² 2022")+
+   geom_point(aes(size = dens), 
+              alpha=0.95, shape = 21, color="transparent", stroke=0.1) +
+   guides(size=guide_legend(title = "Actifs/ha", override.aes = list(color="grey25"))) + 
+   scale_x_continuous("Densité (actifs/ha)", labels = scales::label_number(big.mark = " ")) + 
+   scale_y_continuous("tonnes de CO~2~ par an par actif motif professionnel", labels = scales::label_number(big.mark = " ")) +
+   geom_smooth(col="gold3", fill = "gold", aes(weight = f_i), alpha=0.1) +
+   theme_ofce(base_size = 10, legend.position = "bottom" )+
+   theme(plot.margin = margin(),
+         axis.title.y = ggtext::element_markdown()))
+
+top_dens <- ggplot(km_iris)+
+  geom_density(aes(x=dens, y=after_stat(density), weight=f_i), 
+               color = "black", fill="gold", alpha=0.25, linewidth=0.2)+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+right_dens <- ggplot(km_iris)+
+  geom_density(aes(x=co2_i/f_i, y=after_stat(density), weight=f_i), 
+               color = "black", fill="gold", alpha=0.25, linewidth=0.2)+
+  coord_flip()+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+
+co2dens <- patchwork::wrap_plots(
+  top_dens, patchwork::plot_spacer(), base,  right_dens,
+  ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
+  theme(panel.spacing = unit(0, "pt"), 
+        legend.key.height = unit(6, "pt"))
+
+bd_write(co2dens)
+
+## dynamique de construction ou de densité ----
+
+aa <- archive_extract("https://www.insee.fr/fr/statistiques/fichier/7704076/base-ic-evol-struct-pop-2020_csv.zip",
+                      dir = "/tmp/")
+iris20 <- vroom::vroom(str_c("/tmp/", aa[[1]])) |> 
+  select(pop20 = P20_POP, IRIS)
+
+aa <- archive_extract("https://www.insee.fr/fr/statistiques/fichier/2386737/base-ic-evol-struct-pop-2013.zip",
+                      dir = "/tmp/")
+iris13 <- readxl::read_xls(str_c("/tmp/", aa[[1]]), skip = 5) |> 
+  select(pop13 = P13_POP, IRIS)
+
+km_iris_dpop <- km_iris |> 
+  left_join(iris20, by="IRIS") |> 
+  left_join(iris13, by="IRIS") |> 
+  mutate(dpop = (pop20/pop13)^(1/(20-13))-1)
+
+(base <- ggplot(km_iris_dpop |> filter(pop20>1000)) +
+    aes(x=dpop, y=co2_i/f_i, fill = prix, weights=f_i) +
+    scale_fill_distiller(palette="Spectral", 
+                         trans="log", direction = -1,
+                         aesthetics = c( "fill"),
+                         oob = scales::squish,
+                         limits = c(1000, 8000),
+                         breaks = c(1000, 3000, 8000),
+                         name="prix immobilier (IRIS)\n€/m² 2022")+
+    geom_smooth(col="gold", fill = "gold", aes(weight = f_i), alpha=0.1) +
+    geom_point(aes(size = dens, shape = shape), 
+               alpha=0.95, stroke=.1, color = "transparent") +
+    geom_vline(xintercept = 0, linetype="dotted", color = "grey") +
+    scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
+    guides(size=guide_legend(title = "Actifs/ha", override.aes = list(color="grey25")),
+           shape = "none") + 
+    scale_x_continuous("Evolution annuelle 2013-2020 de la population",
+                       labels = scales::label_percent(.1), limits = c(-0.05, 0.05)) + 
+    scale_y_continuous("km parcourus pour le motif professionel (moyenne de l'IRIS)", labels = scales::label_number(big.mark = " ")) +
+    theme_ofce(base_size = 10, legend.position = "bottom") )+
+  theme(plot.margin = margin())
+
+top_dens <- ggplot(km_iris)+
+  geom_density(aes(x=snv, y=after_stat(density), weight=f_i), 
+               color = "black", fill="pink", alpha=0.25, linewidth=0.2)+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+right_dens <- ggplot(km_iris)+
+  geom_density(aes(x=km_pa, y=after_stat(density), weight=f_i), 
+               color = "black", fill="pink", alpha=0.25, linewidth=0.2)+
+  coord_flip()+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+
+dpopco2 <- patchwork::wrap_plots(
+  top_dens, patchwork::plot_spacer(), base,  right_dens,
+  ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
+  theme(panel.spacing = unit(0, "pt"), 
+        legend.key.height = unit(6, "pt"))
+
+bd_write(dpopco2)

@@ -73,13 +73,13 @@ bd_write(km_iris, name = "km_iris_pol")
 top_dens <- ggplot(km_iris)+
   geom_density(aes(x=sudair, y=after_stat(density), weight=co2_i), 
                color = "black", fill="palegreen", alpha=0.25, linewidth=0.2)+
-  theme_void()+
+  theme_ofce_void()+
   theme(plot.margin = margin())
 right_dens <- ggplot(km_iris)+
   geom_density(aes(x=km_pa, y=after_stat(density), weight=co2_i), 
                color = "black", fill="palegreen", alpha=0.25, linewidth=0.2)+
   coord_flip()+
-  theme_void()+
+  theme_ofce_void()+
   theme(plot.margin = margin())
 
 poldist <- patchwork::wrap_plots(
