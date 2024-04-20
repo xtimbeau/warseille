@@ -187,7 +187,7 @@ bd_write(distrev_c200)
 
 # graphiques alternatifs -----------------
 
-## alt1 : co2 versus densité
+## alt1 : co2 versus densité ------------
 
 (base <- ggplot(km_iris |> st_drop_geometry()) +
    aes(x=dens, y=co2_i/f_i, fill = prix, weights=f_i) +
@@ -228,7 +228,7 @@ co2dens <- patchwork::wrap_plots(
 
 bd_write(co2dens)
 
-## dynamique de construction ou de densité
+## dynamique de construction ou de densité ----
 
 aa <- archive_extract("https://www.insee.fr/fr/statistiques/fichier/7704076/base-ic-evol-struct-pop-2020_csv.zip",
                       dir = "/tmp/")
