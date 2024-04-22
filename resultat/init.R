@@ -8,6 +8,7 @@ library(downloadthis)
 library(gt)
 library(tmap)
 library(glue)
+library(ggspatial)
 
 opts_chunk$set(
   echo = FALSE,
