@@ -1,3 +1,4 @@
+setwd("~/marseille")
 library(qs, quietly = TRUE)
 library(conflicted, quietly = TRUE)
 library(rmeaps)
@@ -54,7 +55,7 @@ DCLTs <- tibble(emplois = emplois,
 
 N <- length(actifs)
 K <- length(emplois)
-nshuf <- 64
+nshuf <- 16
 shufs <- emiette(les_actifs = actifs, nshuf = nshuf, seuil = 500)
 
 # modds <- tibble(fromidINS = time_d$fromidINS, toidINS = time_d$toidINS, odds = 1)
@@ -73,7 +74,22 @@ if(test) {
                        attraction = "constant",
                        nthreads = 4)
   toc()
-  arrow::write_parquet(meaps, "{mdir}/meaps/meaps_test.parquet" |> glue())
+  arrow::write_parquet(meaps, "{mdir}/meaps/meaps_256s.parquet" |> glue())
+  gc()
+}
+
+if(test) {
+  rm(meaps)
+  gc()
+  tic()
+  ameaps <- another_meaps(dist = time_d, 
+                         emplois = emplois, 
+                         actifs = actifs, 
+                         f = fuite, 
+                         attraction = "marche_liss",
+                         param=c(8,15), nthreads = 8L)
+  toc()
+  arrow::write_parquet(ameaps, "{mdir}/meaps/meaps_test.parquet" |> glue())
   gc()
 }
 
@@ -140,7 +156,6 @@ meaps_to <- meaps_to |>
   as_tibble() |> 
   left_join(c200ze |> select(toidINS = idINS, com, scot), by='toidINS') |> 
   st_as_sf()
-bd_write(meaps_to)
 
 decor_carte <- bd_read("decor_carte")
 decor_carte_large <- bd_read("decor_carte_large")
@@ -160,10 +175,11 @@ carte_co2_from <- ggplot() +
   geom_sf(
     data= meaps_from,
     mapping= aes(fill=co2_pa), col=NA) + 
-  scale_fill_distiller(
-    type = "seq",
-    palette = "Spectral",
-    name = "CO2/an/adulte")
+  scale_fill_viridis_c(
+    limits = c(0,3.5),
+    option="plasma",
+    direction=-1,
+    name = "Emissions de CO2\ntCO2/an/emploi")
 
 bd_write(carte_co2_from)
 bd_write(carte_co2_to)

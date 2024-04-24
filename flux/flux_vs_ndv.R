@@ -111,7 +111,7 @@ km_iris <- bd_read("km_iris")
                          limits = c(1000, 8000),
                          aesthetics = c( "fill"),
                          breaks = c(1000, 3000, 8000),
-                         name="prix immobilier (IRIS)\n€/m² 2022")+
+                         name="prix immobilier\n€/m² 2022")+
     geom_point(aes(size = dens, shape = shape), 
                alpha=0.95, stroke=.1, color = "transparent") +
     scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
@@ -139,7 +139,9 @@ distrev <- patchwork::wrap_plots(
   top_dens, patchwork::plot_spacer(), base,  right_dens,
   ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
   theme(panel.spacing = unit(0, "pt"), 
-        legend.key.height = unit(6, "pt"))
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
 
 bd_write(distrev)
 
@@ -155,7 +157,7 @@ km <- km |> left_join(prix, by=c("IRIS"))
                          limits = c(1000, 8000),
                          aesthetics = c( "fill"),
                          breaks = c(1000, 3000, 8000),
-                         name="prix immobilier (IRIS)\n€/m² 2022")+
+                         name="prix immobilier\n€/m² 2022")+
     geom_point(aes(size = 1/4*f_i), 
                alpha=0.95, shape = 21, color="transparent", stroke=0.1) +
     guides(size=guide_legend(title = "Actifs/ha", override.aes = list(color="grey25"))) + 
@@ -181,7 +183,9 @@ distrev_c200 <- patchwork::wrap_plots(
   top_dens, patchwork::plot_spacer(), base,  right_dens,
   ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
   theme(panel.spacing = unit(0, "pt"), 
-        legend.key.height = unit(6, "pt"))
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
 
 bd_write(distrev_c200)
 
@@ -224,7 +228,9 @@ co2dens <- patchwork::wrap_plots(
   top_dens, patchwork::plot_spacer(), base,  right_dens,
   ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
   theme(panel.spacing = unit(0, "pt"), 
-        legend.key.height = unit(6, "pt"))
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
 
 bd_write(co2dens)
 
@@ -253,7 +259,7 @@ km_iris_dpop <- km_iris |>
                          oob = scales::squish,
                          limits = c(1000, 8000),
                          breaks = c(1000, 3000, 8000),
-                         name="prix immobilier (IRIS)\n€/m² 2022")+
+                         name="prix immobilier\n€/m² 2022")+
     geom_smooth(col="gold", fill = "gold", aes(weight = f_i), alpha=0.1) +
     geom_point(aes(size = dens, shape = shape), 
                alpha=0.95, stroke=.1, color = "transparent") +
@@ -283,6 +289,8 @@ dpopco2 <- patchwork::wrap_plots(
   top_dens, patchwork::plot_spacer(), base,  right_dens,
   ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
   theme(panel.spacing = unit(0, "pt"), 
-        legend.key.height = unit(6, "pt"))
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
 
 bd_write(dpopco2)
