@@ -4,6 +4,7 @@ library(tmap)
 library(ofce)
 library(sf)
 library(here)
+library(archive)
 source(here("secrets/azure.R"))
 
 conflict_prefer_all("dplyr", quiet=TRUE)
@@ -50,7 +51,7 @@ coms_AMP <- com2021epci |> pull(INSEE_COM)
 dv3f <- dv3f |>
   mutate(com = str_remove_all(l_codinsee, "\\{|\\}")) |> 
   # mutate(com = ifelse(str_detect(com, "^132"), "13055", com)) |> 
-  filter(com %in% coms_AMP, filtre=="0") |> 
+  filter(com %in% coms_AMP, filtre%in%c("0", "L")) |> 
   collect() |> 
   mutate(
     typebien = case_when(
@@ -70,18 +71,19 @@ dv3f <- dv3f |>
 dv3f.c200 <- dv3f |> 
   group_by(idINS, anneemut) |> 
   filter(typebien %in% c("maison", "appartement")) |> 
+  filter(!is.na(valeurfonc), !is.na(surface)) |> 
   summarize(vf = sum(valeurfonc), surf = sum(surface), n = n(), prix = vf/surf)
 
 prix <- dv3f.c200 |>
-  left_join(c200ze |> st_drop_geometry() |> select(idINS=fromidINS, IRIS)) |> 
+  left_join(c200ze |> st_drop_geometry() |> select(idINS=fromidINS, IRIS), by = "idINS") |> 
   group_by(IRIS, anneemut) |> 
   summarize(prix = sum(vf)/sum(surf), n = sum(n)) |> 
-  filter(anneemut%in%c(2022, 2021, 2011)) |> 
+  filter(anneemut%in%c(2022, 2021, 2020, 2019, 2011)) |> 
   pivot_wider(names_from = anneemut, values_from = c(n,prix)) |> 
   mutate(tx = (prix_2022/prix_2011)^(1/12)-1) |> 
   ungroup() |> 
   mutate(
-    prix = ifelse(is.na(prix_2022), prix_2021, prix_2022)
+    prix = ifelse(is.na(prix_2022), ifelse(is.na(prix_2021), ifelse(is.na(prix_2020), prix_2019, prix_2020), prix_2021), prix_2022)
   )
 
 km_iris <- km |>
