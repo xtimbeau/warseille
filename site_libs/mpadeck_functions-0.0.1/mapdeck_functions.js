@@ -156,19 +156,25 @@ function md_findObjectElementByKey(array, key, value ) {
     return -1;
 }
 
-function md_layer_clear( map_id, map_type, layer_id, layer, update_view ) {
+
+function md_layer_clear( map_id, map_type, layer_id, layer, update_view, clear_legend ) {
 
   if( map_type == "mapdeck" ) {
-		md_clear_layer( map_id, layer+'-'+layer_id );
+    md_clear_layer( map_id, layer+'-'+layer_id );
   } else if ( map_type == "google_map" ) {
-  	md_clear_overlay( map_id, layer+'-'+layer_id );
+    md_clear_overlay( map_id, layer+'-'+layer_id );
   }
 
   md_remove_from_bounds( map_id, layer_id );
+
   if( update_view ) {
 	  md_update_location( map_id, map_type );
   }
-	md_clear_legend( map_id, map_type, layer_id );
+
+  if( clear_legend ) {
+    md_clear_legend( map_id, map_type, layer_id );
+  }
+
 }
 
 
