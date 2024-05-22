@@ -33,7 +33,7 @@ bench::mark(flux2 <- all_in_grouped(time_ranked_group, attraction = "marche_liss
 
 est <- meaps_optim(time_ranked_group,
                    meaps_fun = "multishuf", attraction = "marche_liss",
-                   parametres = c(10, 10))
+                   parametres = c(10, 10), hessian = bd_read("Hessienne"))
 
 est_ai <- meaps_optim(time_ranked_group,
                    meaps_fun = "all_in", attraction = "marche_liss",
@@ -51,10 +51,11 @@ meaps <- arrow::open_dataset("/space_mounts/data/marseille/meaps/meaps2.parquet"
 
 p0 <- c(9, 27)
 hessienne <- function(p0, d = c(1, 1)) {
-  d2x <- map_dbl(c(-1, 0, 1), ~multishuf_oc_grouped(time_ranked_group, attraction = "marche_liss", parametres = p0 + d*c(.x, 0))$kl)
-  d2y <- map_dbl(c(-1, 0, 1), ~multishuf_oc_grouped(time_ranked_group, attraction = "marche_liss", parametres = p0 + d*c(0, .x))$kl)
-  dxy <- map_dbl(c(-1, 0, 1), ~multishuf_oc_grouped(time_ranked_group, attraction = "marche_liss", parametres = p0 + d*c(.x, .x))$kl)
-  matrix(map_dbl(list(d2x=d2x, d2y=d2y, dxy=dxy), ~diff(diff(.x)))
+  fn <- function(p) multishuf_oc_grouped(time_ranked_group, attraction = "marche_liss", verbose = FALSE, parametres = p)$kl
+  d2x <- map_dbl(c(-1, 0, 1), ~fn(p0 + d*c(.x,  0 )))
+  d2y <- map_dbl(c(-1, 0, 1), ~fn(p0 + d*c( 0, .x )))
+  dxy <- map_dbl(c(-1, 0, 1), ~fn(p0 + d*c(.x, .x )))
+  matrix(map_dbl(list(d2x=d2x, dxy=dxy, dxy=dxy, d2y=d2y), ~diff(diff(.x))), ncol = 2)
 }
 
 # joining ----
