@@ -141,7 +141,7 @@ meaps_to <- meaps_to |>
 
 decor_carte <- bd_read("decor_carte")
 decor_carte_large <- bd_read("decor_carte_large")
-version <- "4.424"
+version <- "5.524"
 
 carte_co2_to <- ggplot() +
   decor_carte +
