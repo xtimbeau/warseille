@@ -59,13 +59,14 @@ car_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                   n_threads = 16L,
                                   overwrite = TRUE,
                                   nofuture = TRUE)
-
+qs::qsave(car_router, "/space_mounts/data/marseille/distances/car_router.qs")
+car_router <- qs::qread("/space_mounts/data/marseille/distances/car_router.qs")
 dgr_distances_by_com(idINSes, mobpro,
                      car_router, 
                      path=glue("{mdir}/distances/src/car_dgr2"),
                      clusterize = TRUE)  
 
-# on patche les distances en voiture afin d'introduire un coût fixe de démarrage et 
+ # on patche les distances en voiture afin d'introduire un coût fixe de démarrage et 
 # d'arrivée
 
 # on ajoute 1 min au départ et à l'arrivée pour la densite la plus faible
@@ -83,6 +84,8 @@ qs::qread(c200ze_file) |>
   write_dataset("/tmp/c200ze") 
 c200ze <- open_dataset("/tmp/c200ze") |> 
   to_duckdb() 
+
+unlink(glue("{mdir}/distances/src/car_dgr"), recursive = TRUE)
 
 car_dgr2 |> 
   left_join(c200ze |> select(fromId = idINS, from_dens = dens), by="fromId") |> 

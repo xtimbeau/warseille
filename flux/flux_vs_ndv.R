@@ -1,3 +1,4 @@
+setwd("~/marseille")
 library(tidyverse)
 library(conflicted)
 library(tmap)
@@ -5,7 +6,7 @@ library(ofce)
 library(sf)
 library(here)
 library(archive)
-source(here("secrets/azure.R"))
+source("secrets/azure.R")
 
 conflict_prefer_all("dplyr", quiet=TRUE)
 load("baselayer.rda")
@@ -32,21 +33,21 @@ ggplot(km) +
 
 # Les prix !
 
-pak::pak('nuvolos-cloud/r-nuvolos-tools')
 library(tidyverse)
 library(r3035)
 library(sf)
-library(nuvolos)
+library(arrow)
+dropbox <- "/dropbox/dv3f/dv3fv232"
 
-con <- get_connection()
-db <- tbl(con, "DV3FV231_MUTATION") 
+db <- open_dataset(glue("{dropbox}/mutation")) |> 
+  to_duckdb()
 
 cols <- c("idnatmut", "datemut", "anneemut",  "moismut", "l_codinsee",   
           "coddep", "libnatmut", "vefa", "valeurfonc", "sterr", "sbati", "codtypbien", "libtypbien", "filtre",
           "devenir", "lon", "lat")
 COLS <- toupper(cols)
 
-dv3f <- db |> dplyr::select(all_of(COLS)) |> rename_with(tolower)
+dv3f <- db |> dplyr::select(all_of(cols)) 
 coms_AMP <- com2021epci |> pull(INSEE_COM)
 dv3f <- dv3f |>
   mutate(com = str_remove_all(l_codinsee, "\\{|\\}")) |> 
@@ -78,13 +79,17 @@ prix <- dv3f.c200 |>
   left_join(c200ze |> st_drop_geometry() |> select(idINS=fromidINS, IRIS), by = "idINS") |> 
   group_by(IRIS, anneemut) |> 
   summarize(prix = sum(vf)/sum(surf), n = sum(n)) |> 
-  filter(anneemut%in%c(2022, 2021, 2020, 2019, 2011)) |> 
+  filter(anneemut%in%c(2023, 2022, 2021, 2020, 2019, 2011)) |> 
   pivot_wider(names_from = anneemut, values_from = c(n,prix)) |> 
   mutate(tx = (prix_2022/prix_2011)^(1/12)-1) |> 
   ungroup() |> 
   mutate(
-    prix = ifelse(is.na(prix_2022), ifelse(is.na(prix_2021), ifelse(is.na(prix_2020), prix_2019, prix_2020), prix_2021), prix_2022)
-  )
+    prix = ifelse(is.na(prix_2023),
+      ifelse(is.na(prix_2022),
+                  ifelse(is.na(prix_2021),
+                         ifelse(is.na(prix_2020),
+                                prix_2019, prix_2020), prix_2021),
+                  prix_2022), prix_2023))
 
 km_iris <- km |>
   group_by(IRIS) |> 
