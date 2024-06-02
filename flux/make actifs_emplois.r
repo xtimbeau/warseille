@@ -1,3 +1,4 @@
+setwd("~/marseille")
 library(tidyverse, quietly = TRUE, warn.conflicts = FALSE)
 library(glue, quietly = TRUE)
 library(conflicted, quietly = TRUE)
@@ -27,16 +28,14 @@ com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com) |> as.inte
 # normalement, cela devrait être dans c200ze que l'on récupère les indices
 # mais les distances en comprennent moins
 # du coup on prend ce qu'on a sur les distance
-tt <- qs::qread(time_matrix)
-froms <- rownames(tt)
-tos <- colnames(tt) 
+# tt <- qs::qread(time_matrix)
+# froms <- rownames(tt)
+# tos <- colnames(tt) 
 
 actifs <- c200ze |> filter(scot) |> pull(act_mobpro, name = idINS) 
-actifs <- actifs[froms]
 fuites <- c200ze |> filter(scot) |> pull(fuite_mobpro, name = idINS)
-fuites <- fuites[froms]
+fuites[is.na(fuites)] <- 0
 emplois <- c200ze |> pull(emp_resident, name = idINS) 
-emplois <- emplois[tos]
 
 AMP_masses <- list(actifs = actifs,
                    fuites = fuites * (sum(actifs) - sum(emplois))/sum(fuites),

@@ -20,17 +20,21 @@ conflict_prefer("first", "dplyr", quiet=TRUE)
 # ---- Definition des zones ----
 load("baselayer.rda")
 
-time_ranked_group <- qs::qread("/space_mounts/data/marseille/meaps/trg.qs")
+trg <- qs::qread("/space_mounts/data/marseille/meaps/trg.qs")
 
-msoc64 <- meaps_optim(time_ranked_group, attraction = "marche_liss",
+msoc642 <- meaps_optim(trg, attraction = "marche",
+                      meaps_fun = "multishuf",
+                      parametres = c(10, 10), lower=c(5,0), upper= c(20, 100))
+
+msoc64 <- meaps_optim(trg, attraction = "marche_liss",
                    meaps_fun = "multishuf",
                    parametres = c(10, 10), upper= c(20, 100))
 qs::qsave(msoc64, "/space_mounts/data/marseille/meaps/est_msoc64.qs")
 gc()
 
-ai <- meaps_optim(time_ranked_group, attraction = "marche_liss",
+ai <- meaps_optim(trg, attraction = "marche",
                       meaps_fun = "all_in",
-                      parametres = c(10, 20), upper= c(20, 100))
+                      parametres = c(10, 20), lower = c(5, 0), upper= c(12, 100))
 qs::qsave(ai, "/space_mounts/data/marseille/meaps/est_ai.qs")
 gc()
 

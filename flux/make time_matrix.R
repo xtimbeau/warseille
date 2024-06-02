@@ -39,31 +39,29 @@ mobpro <- qs::qread(mobpro_file) |>
 # on fait ici le triplet de temps
 # c'est ici qu'on pourrait introduire un coût généralisé
 # éventuellement spécifique à chaque k-individu
-if(!file.exists(time_dts)) {
-  unlink(time_dts, force=TRUE, recursive = TRUE)
-  dir.create(time_dts)
-  plan("multisession", workers = 8)
-  future_walk(com_geo21_scot, \(.c) {
-    dir.create(str_c(time_dts, "/", .c))
-    gc()
-    tcom <- arrow::open_dataset(dist_dts) |> 
-      to_duckdb() |> 
-      filter(COMMUNE==.c) |> 
-      group_by(fromidINS, toidINS) |>
-      summarize(t = min(travel_time, na.rm=TRUE), .groups = "drop") |> 
-      mutate(
-        fromidINS = as.character(fromidINS),
-        toidINS = as.character(toidINS)) |> 
-      collect()
-    tcom <- tcom |> 
-      mutate(
-        DCLT = as.character(com_geo21_ze[toidINS]), 
-        COMMUNE = as.character(.c)) |> 
-      arrange(fromidINS, t, toidINS) |> 
-      left_join(mobpro, by=c("COMMUNE", "DCLT"))
-      arrow::write_parquet(tcom, str_c(time_dts, "/", .c, "/time.parquet"))
-  }, .progress=TRUE)
-}
+unlink(time_dts, force=TRUE, recursive = TRUE)
+dir.create(time_dts)
+plan("multisession", workers = 8)
+future_walk(com_geo21_scot, \(.c) {
+  dir.create(str_c(time_dts, "/", .c))
+  gc()
+  tcom <- arrow::open_dataset(dist_dts) |> 
+    to_duckdb() |> 
+    filter(COMMUNE==.c) |> 
+    group_by(fromidINS, toidINS) |>
+    summarize(t = min(travel_time, na.rm=TRUE), .groups = "drop") |> 
+    mutate(
+      fromidINS = as.character(fromidINS),
+      toidINS = as.character(toidINS)) |> 
+    collect()
+  tcom <- tcom |> 
+    mutate(
+      DCLT = as.character(com_geo21_ze[toidINS]), 
+      COMMUNE = as.character(.c)) |> 
+    arrange(fromidINS, t, toidINS) |> 
+    left_join(mobpro, by=c("COMMUNE", "DCLT"))
+  arrow::write_parquet(tcom, str_c(time_dts, "/", .c, "/time.parquet"))
+}, .progress=TRUE)
 
 # n'est plus utile
 # sc200 <- c200ze |> 
