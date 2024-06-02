@@ -33,7 +33,7 @@ bench::mark(flux2 <- all_in_grouped(time_ranked_group, attraction = "marche_liss
 
 est <- meaps_optim(time_ranked_group,
                    meaps_fun = "multishuf", attraction = "marche_liss",
-                   parametres = c(10, 10), hessian = bd_read("Hessienne"))
+                   parametres = c(10, 10))
 
 est_ai <- meaps_optim(time_ranked_group,
                    meaps_fun = "all_in", attraction = "marche_liss",
