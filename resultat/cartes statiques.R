@@ -57,7 +57,7 @@ res <- ggplot() +
     breaks = c(1, 10, 100), 
     limits = c(1,200),
     oob = scales::squish) +
-  theme_ofce_void() +
+  theme_ofce_void(base_size = 7) +
   coord_sf(xlim=xlim, ylim=ylim, crs=4326) + 
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption=glue("*Source* : MOBPRO, C200"))
@@ -76,7 +76,7 @@ emp <- ggplot() +
     limits = c(1, 200),
     oob = scales::squish) +
   coord_sf(xlim=xlim, ylim=ylim, crs=4326) + 
-  theme_ofce_void() +
+  theme_ofce_void(base_size = 7) +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption=glue("*Source* : MOBPRO, C200"))
 

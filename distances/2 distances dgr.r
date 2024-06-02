@@ -66,7 +66,7 @@ dgr_distances_by_com(idINSes, mobpro,
                      path=glue("{mdir}/distances/src/car_dgr2"),
                      clusterize = TRUE)  
 
- # on patche les distances en voiture afin d'introduire un coût fixe de démarrage et 
+# on patche les distances en voiture afin d'introduire un coût fixe de démarrage et 
 # d'arrivée
 
 # on ajoute 1 min au départ et à l'arrivée pour la densite la plus faible

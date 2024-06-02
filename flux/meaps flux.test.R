@@ -28,8 +28,9 @@ bench::mark(flux0 <- multishuf_oc(time_ranked_group))
 bench::mark(flux1 <- multishuf_oc_grouped(time_ranked_group, attraction = "marche_liss",
                                           parametres = c(9, 27)))
 bench::mark(flux <- all_in(time_ranked_group))
-bench::mark(flux2 <- all_in_grouped(time_ranked_group, attraction = "marche_liss",
-                                    parametres = c(10, 10)))
+bench::mark(flux2 <- all_in_grouped(time_ranked_group))
+            # , attraction = "marche_liss"
+                                    # parametres = c(10, 10)))
 
 est <- meaps_optim(time_ranked_group,
                    meaps_fun = "multishuf", attraction = "marche_liss",
@@ -47,7 +48,7 @@ meaps <- arrow::open_dataset("/space_mounts/data/marseille/meaps/meaps2.parquet"
   mutate(fromidINS = as.integer(fromidINS),
          toidINS = as.integer(toidINS))
 
-# matrice hessienne
+# matrice hessienne (mais sert à rien)
 
 p0 <- c(9, 27)
 hessienne <- function(p0, d = c(1, 1)) {
