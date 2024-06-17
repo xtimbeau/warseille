@@ -20,7 +20,7 @@ source("secrets/azure.R")
 bl <- load("baselayer.rda")
 
 # bloque les downloads
-download <- FALSE
+download <- TRUE
 
 # IRIS ------------------
 
@@ -142,7 +142,7 @@ scot_tot.epci <- epcis |>
 if(!file.exists(communes_ar_file)|download) {
   dir.create("/tmp/communes")
   curl::curl_download(
-    "https://wxs.ign.fr/x02uy2aiwjo9bm8ce5plwqmr/telechargement/prepackage/ADMINEXPRESS_SHP_TERRITOIRES_PACK_2023-07-04$ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-07-04/file/ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-07-04.7z",
+    "https://data.geopf.fr/telechargement/download/ADMIN-EXPRESS/ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-09-21/ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-09-21.7z",
     destfile = "/tmp/communes/adx.7z")
   
   commune <- archive_extract("/tmp/communes/adx.7z", 

@@ -61,7 +61,7 @@ bd_write(km_iris, name = "km_iris_pol")
          shape = "none") + 
   scale_x_continuous("Indice Cumulé de pollution de l'AIR annuel",
                      labels = scales::label_number(big.mark = " ")) + 
-  scale_y_continuous("km parcourus pour le motif professionel (moyenne de l'IRIS)", 
+  scale_y_continuous("CO2 émis pour le motif professionel (moyenne par an de l'IRIS)", 
                      labels = scales::label_number(big.mark = " ")) +
   # geom_smooth(col="lightblue", fill = "lightblue1", aes(weight = f_i)) +
   theme_ofce(base_size = 10, legend.position = "bottom")+ 
