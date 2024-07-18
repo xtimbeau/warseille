@@ -1,7 +1,5 @@
 # init ---------------
 setwd("~/marseille")
-rm(list=ls(all.names = TRUE))
-gc(reset=TRUE)
 library(tidyverse, quietly = TRUE, warn.conflicts = FALSE)
 library(accessibility, quietly = TRUE, warn.conflicts = FALSE)
 library(r3035, quietly = TRUE, warn.conflicts = FALSE)
@@ -35,12 +33,13 @@ distances <- future_walk(communes, \(commune) {
   # car
   arrow::open_dataset(str_c(dir_dist, "/src/car_dgr")) |>
     to_duckdb() |> 
-    filter(COMMUNE == as.integer(commune)) |> 
+    mutate(COMMUNE = as.character(COMMUNE)) |> 
+    filter(COMMUNE == commune) |> 
     select(fromId, toId, travel_time=travel_time_park, COMMUNE, DCLT, distance) |>
     rename(fromidINS=fromId, toidINS=toId) |>
-    mutate(DCLT = as.integer(DCLT), 
+    mutate(DCLT = as.character(DCLT), 
            mode = "car_dgr",
-           access_time = NA_integer_,
+           access_time = NA_real_,
            n_rides = NA_integer_) |> 
     filter(!is.na(travel_time)) |> 
     to_arrow() |> 
@@ -49,12 +48,13 @@ distances <- future_walk(communes, \(commune) {
   walk(setdiff(modes, "car_dgr"), \(mode) {
     arrow::open_dataset(str_c(dir_dist, "/src/", mode)) |>
       to_duckdb() |> 
-      filter(COMMUNE == as.integer(commune)) |> 
+      mutate(COMMUNE = as.character(COMMUNE)) |> 
+      filter(COMMUNE == commune) |> 
       select(fromId, toId, travel_time, COMMUNE, DCLT, distance) |>
       rename(fromidINS=fromId, toidINS=toId) |>
-      mutate(DCLT = as.integer(DCLT),
+      mutate(DCLT = as.character(DCLT),
              mode = !!mode, 
-             access_time = NA_integer_,
+             access_time = NA_real_,
              n_rides = NA_integer_) |> 
       filter(!is.na(travel_time)) |> 
       to_arrow() |> 
@@ -63,10 +63,11 @@ distances <- future_walk(communes, \(commune) {
   # transit
   arrow::open_dataset(str_c(dir_dist, "/src/transit")) |>
     to_duckdb() |> 
-    filter(COMMUNE == as.integer(commune)) |> 
+    mutate(COMMUNE = as.character(COMMUNE)) |> 
+    filter(COMMUNE == commune) |> 
     select(fromidINS, toidINS, travel_time, COMMUNE, DCLT, access_time, n_rides) |>
-    mutate(DCLT = as.integer(DCLT),
-           access_time = as.integer(access_time),
+    mutate(DCLT = as.character(DCLT),
+           access_time = access_time,
            n_rides = as.integer(n_rides),
            mode='transit') |> 
     filter(!is.na(travel_time)) |> 
@@ -75,5 +76,4 @@ distances <- future_walk(communes, \(commune) {
   
 }, .progress = TRUE)
 
-rm(list=ls())
 gc(reset=TRUE)

@@ -1,10 +1,12 @@
+setwd("~/marseille")
 library(tidyverse)
 library(conflicted)
 library(tmap)
 library(ofce)
 library(sf)
 library(here)
-source(here("secrets/azure.R"))
+library(archive)
+source("secrets/azure.R")
 
 conflict_prefer_all("dplyr", quiet=TRUE)
 load("baselayer.rda")
@@ -31,26 +33,26 @@ ggplot(km) +
 
 # Les prix !
 
-pak::pak('nuvolos-cloud/r-nuvolos-tools')
 library(tidyverse)
 library(r3035)
 library(sf)
-library(nuvolos)
+library(arrow)
+dropbox <- "/dropbox/dv3f/dv3fv232"
 
-con <- get_connection()
-db <- tbl(con, "DV3FV231_MUTATION") 
+db <- open_dataset(glue("{dropbox}/mutation")) |> 
+  to_duckdb()
 
 cols <- c("idnatmut", "datemut", "anneemut",  "moismut", "l_codinsee",   
           "coddep", "libnatmut", "vefa", "valeurfonc", "sterr", "sbati", "codtypbien", "libtypbien", "filtre",
           "devenir", "lon", "lat")
 COLS <- toupper(cols)
 
-dv3f <- db |> dplyr::select(all_of(COLS)) |> rename_with(tolower)
+dv3f <- db |> dplyr::select(all_of(cols)) 
 coms_AMP <- com2021epci |> pull(INSEE_COM)
 dv3f <- dv3f |>
   mutate(com = str_remove_all(l_codinsee, "\\{|\\}")) |> 
   # mutate(com = ifelse(str_detect(com, "^132"), "13055", com)) |> 
-  filter(com %in% coms_AMP, filtre=="0") |> 
+  filter(com %in% coms_AMP, filtre%in%c("0", "L")) |> 
   collect() |> 
   mutate(
     typebien = case_when(
@@ -70,19 +72,24 @@ dv3f <- dv3f |>
 dv3f.c200 <- dv3f |> 
   group_by(idINS, anneemut) |> 
   filter(typebien %in% c("maison", "appartement")) |> 
+  filter(!is.na(valeurfonc), !is.na(surface)) |> 
   summarize(vf = sum(valeurfonc), surf = sum(surface), n = n(), prix = vf/surf)
 
 prix <- dv3f.c200 |>
-  left_join(c200ze |> st_drop_geometry() |> select(idINS=fromidINS, IRIS)) |> 
+  left_join(c200ze |> st_drop_geometry() |> select(idINS=fromidINS, IRIS), by = "idINS") |> 
   group_by(IRIS, anneemut) |> 
   summarize(prix = sum(vf)/sum(surf), n = sum(n)) |> 
-  filter(anneemut%in%c(2022, 2021, 2011)) |> 
+  filter(anneemut%in%c(2023, 2022, 2021, 2020, 2019, 2011)) |> 
   pivot_wider(names_from = anneemut, values_from = c(n,prix)) |> 
   mutate(tx = (prix_2022/prix_2011)^(1/12)-1) |> 
   ungroup() |> 
   mutate(
-    prix = ifelse(is.na(prix_2022), prix_2021, prix_2022)
-  )
+    prix = ifelse(is.na(prix_2023),
+      ifelse(is.na(prix_2022),
+                  ifelse(is.na(prix_2021),
+                         ifelse(is.na(prix_2020),
+                                prix_2019, prix_2020), prix_2021),
+                  prix_2022), prix_2023))
 
 km_iris <- km |>
   group_by(IRIS) |> 
@@ -111,7 +118,7 @@ km_iris <- bd_read("km_iris")
                          limits = c(1000, 8000),
                          aesthetics = c( "fill"),
                          breaks = c(1000, 3000, 8000),
-                         name="prix immobilier (IRIS)\n€/m² 2022")+
+                         name="prix immobilier\n€/m² 2022")+
     geom_point(aes(size = dens, shape = shape), 
                alpha=0.95, stroke=.1, color = "transparent") +
     scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
@@ -139,7 +146,9 @@ distrev <- patchwork::wrap_plots(
   top_dens, patchwork::plot_spacer(), base,  right_dens,
   ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
   theme(panel.spacing = unit(0, "pt"), 
-        legend.key.height = unit(6, "pt"))
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
 
 bd_write(distrev)
 
@@ -155,7 +164,7 @@ km <- km |> left_join(prix, by=c("IRIS"))
                          limits = c(1000, 8000),
                          aesthetics = c( "fill"),
                          breaks = c(1000, 3000, 8000),
-                         name="prix immobilier (IRIS)\n€/m² 2022")+
+                         name="prix immobilier\n€/m² 2022")+
     geom_point(aes(size = 1/4*f_i), 
                alpha=0.95, shape = 21, color="transparent", stroke=0.1) +
     guides(size=guide_legend(title = "Actifs/ha", override.aes = list(color="grey25"))) + 
@@ -181,7 +190,9 @@ distrev_c200 <- patchwork::wrap_plots(
   top_dens, patchwork::plot_spacer(), base,  right_dens,
   ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
   theme(panel.spacing = unit(0, "pt"), 
-        legend.key.height = unit(6, "pt"))
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
 
 bd_write(distrev_c200)
 
@@ -224,7 +235,9 @@ co2dens <- patchwork::wrap_plots(
   top_dens, patchwork::plot_spacer(), base,  right_dens,
   ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
   theme(panel.spacing = unit(0, "pt"), 
-        legend.key.height = unit(6, "pt"))
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
 
 bd_write(co2dens)
 
@@ -253,7 +266,7 @@ km_iris_dpop <- km_iris |>
                          oob = scales::squish,
                          limits = c(1000, 8000),
                          breaks = c(1000, 3000, 8000),
-                         name="prix immobilier (IRIS)\n€/m² 2022")+
+                         name="prix immobilier\n€/m² 2022")+
     geom_smooth(col="gold", fill = "gold", aes(weight = f_i), alpha=0.1) +
     geom_point(aes(size = dens, shape = shape), 
                alpha=0.95, stroke=.1, color = "transparent") +
@@ -283,6 +296,8 @@ dpopco2 <- patchwork::wrap_plots(
   top_dens, patchwork::plot_spacer(), base,  right_dens,
   ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
   theme(panel.spacing = unit(0, "pt"), 
-        legend.key.height = unit(6, "pt"))
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
 
 bd_write(dpopco2)
