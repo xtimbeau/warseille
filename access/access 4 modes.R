@@ -21,7 +21,7 @@ times <- set_names(times, str_c("t", times))
 seuils <- c(10000, 20000, 50000, 100000, 200000, 300000, 4000000, 500000)
 
 modes <- set_names(c("walk_tblr", "bike_tblr",
-                     'transit', 'transit5',"car_dgr"))
+                     'transit',"car_dgr"))
 emploi <- c200ze |> 
   st_drop_geometry() |> 
   filter(emp>0) |>
@@ -42,23 +42,11 @@ close(ff)
 
 access <- map_dfr(
   modes, ~{
-    dd <- arrow::open_dataset("/space_mounts/data/marseille/distances/src/{.x}" |> glue()) |>
-      to_duckdb()
+    dd <- arrow::open_dataset(dist_dts) |>
+      to_duckdb() |> 
+      filter(mode == .x)
     
-    if(str_detect(.x, "transit") )
-      dd <- dd |>
-        select(fromidINS, toidINS, travel_time, COMMUNE, DCLT)
-    else {
-      if(str_detect(.x, "car") )
-        dd <- dd |>
-          select(fromidINS=fromId, toidINS=toId, travel_time=travel_time_park, COMMUNE, DCLT)
-      else 
-        dd <- dd |>
-          select(fromidINS=fromId, toidINS=toId, travel_time, COMMUNE, DCLT)
-      
-    } 
     dd <- dd |> 
-      mutate(COMMUNE = as.character(COMMUNE)) |> 
       left_join(emploi, by="toidINS") |>
       filter(!is.na(fromidINS) ) |> 
       filter(!is.na(travel_time)) |> 
@@ -66,12 +54,12 @@ access <- map_dfr(
     source("/tmp/access.r", local = TRUE)
     dd |> 
       collect() |> 
-      mutate(mode = .x)
+      mutate(mode = .x) |> 
+      relocate(fromidINS, mode)
   }, .progress=TRUE)
 
-unlink("space_mounts/data/marseille/distances/access", recursive =TRUE)
-arrow::write_dataset(access, "/space_mounts/data/marseille/distances/access")
-access <- arrow::open_dataset("/space_mounts/data/marseille/distances/access") |> 
+arrow::write_dataset(access, "/tmp/access")
+access <- arrow::open_dataset("/tmp/access") |> 
   to_duckdb()
 
 t_access <- imap(modes, ~{
@@ -81,7 +69,7 @@ t_access <- imap(modes, ~{
   res <- r2sdt(res)
   res[, `:=`(x=NULL, y=NULL, mode=.x)]
   res
-}) |> 
+}, .progress=TRUE) |> 
   bind_rows() 
 
 t_access <- t_access |>
@@ -98,10 +86,7 @@ t_access <- t_access |>
   st_as_sf(crs=3035)
 
 bd_write(t_access)
-write_csv(t_access |> st_drop_geometry(), file="output/access.csv")
-qs::qsave(t_access, "output/acces4modes.sqs")
-load(decor_carte_file)
-bd_read("decor_carte")
+decor_carte <- bd_read("decor_carte")
 (access_4modes_walk <- ggplot()+
     decor_carte +
     ofce::theme_ofce_void(axis.text = element_blank()) +
@@ -109,7 +94,7 @@ bd_read("decor_carte")
     scico::scale_fill_scico(palette="hawaii", na.value=NA, direction=-1, name = "mn")+
     annotation_scale(line_width = 0.2, height = unit(0.1, "cm"), 
                      text_cex = 0.4, pad_y = unit(0.1, "cm"))+
-    facet_wrap(vars(mode)))
+    facet_wrap(vars(mode_lib)))
 
 # accessibilité par communes
 
