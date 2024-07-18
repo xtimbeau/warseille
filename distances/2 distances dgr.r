@@ -59,7 +59,8 @@ car_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                   n_threads = 16L,
                                   overwrite = TRUE,
                                   nofuture = TRUE)
-
+qs::qsave(car_router, "/space_mounts/data/marseille/distances/car_router.qs")
+car_router <- qs::qread("/space_mounts/data/marseille/distances/car_router.qs")
 dgr_distances_by_com(idINSes, mobpro,
                      car_router, 
                      path=glue("{mdir}/distances/src/car_dgr2"),
@@ -84,13 +85,15 @@ qs::qread(c200ze_file) |>
 c200ze <- open_dataset("/tmp/c200ze") |> 
   to_duckdb() 
 
+unlink(glue("{mdir}/distances/src/car_dgr"), recursive = TRUE)
+
 car_dgr2 |> 
   left_join(c200ze |> select(fromId = idINS, from_dens = dens), by="fromId") |> 
   left_join(c200ze |> select(toId = idINS, to_dens = dens), by="toId") |> 
   mutate(
     from_cf = from_dens - 1,
     to_cf = to_dens - 1,
-    travel_time_park = as.integer(travel_time + from_cf + to_cf + .5 - from_cf*to_cf/4)) |> 
+    travel_time_park = travel_time + from_cf + to_cf + .5 - from_cf*to_cf/4) |> 
   select(-to_cf, -from_cf, -from_dens, -to_dens) |> 
   to_arrow() |> 
   write_dataset(glue("{mdir}/distances/src/car_dgr"), partitioning = "COMMUNE")

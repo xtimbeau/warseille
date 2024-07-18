@@ -11,6 +11,7 @@ library(tictoc)
 library(sf)
 library(tidyverse)
 library(Matrix)
+library(ofce)
 source("secrets/azure.R")
 calc <- TRUE
 check <- FALSE
@@ -54,13 +55,13 @@ DCLTs <- tibble(emplois = emplois,
 N <- length(actifs)
 K <- length(emplois)
 
-nshuf <- 64
+nshuf <- 256
 
 shufs <- emiette(les_actifs = actifs, nshuf = nshuf, seuil = 500)
 
 if(calc) {
   estimation <- bd_read("estimation")
-  
+  tic()
   meaps <- meaps_continu(dist = time, 
                          emplois = emplois, 
                          actifs = actifs, 
@@ -68,8 +69,8 @@ if(calc) {
                          shuf = shufs,
                          attraction = estimation |> slice(2) |> pull(method),
                          param = estimation |> slice(2) |> pull(param) |> pluck(1),
-                         nthreads = 3L)
-  
+                         nthreads = 16L)
+  toc()
   arrow::write_parquet(meaps, "{mdir}/meaps/meaps.parquet" |> glue())
 } 
 
@@ -116,6 +117,7 @@ meaps_from <- meaps.joined |>
     km_pa = km_i/f_i,
     co2_pa = co2_i/f_i) |> 
   collect()
+
 meaps_from <- meaps_from |> 
   as_tibble() |> 
   left_join(c200ze |> select(fromidINS = idINS, com), by='fromidINS') |> 
@@ -139,7 +141,7 @@ meaps_to <- meaps_to |>
 
 decor_carte <- bd_read("decor_carte")
 decor_carte_large <- bd_read("decor_carte_large")
-version <- "4.424"
+version <- "5.524"
 
 carte_co2_to <- ggplot() +
   decor_carte +
