@@ -56,7 +56,7 @@ Par construction, cette évaluation est telle qu'une fois agrégée au niveau de
 ::: panel-tabset
 ## Carte statique
 
-```{r}
+```{r carteco2statique}
 #| fig-asp: 1
 
 ggplot() +
@@ -74,10 +74,11 @@ ggplot() +
 ```
 
 ::: column-margin
-```{r}
+```{r dnwstat}
 download_this(
   bd_read("meaps_from") |> 
-    st_drop_geometry(),
+    st_drop_geometry() |> 
+    mutate(fromidINS = r3035::expand_idINS(fromidINS)),
   icon = "fa fa-download",
   class = "dbtn",
   button_label = "données CO2 au carreau, résidents", 
@@ -88,7 +89,7 @@ download_this(
 ## Carte interactive
 
 ::: column-screen
-```{r}
+```{r carteco2dyn}
 bd_read("meaps_from") |> 
   drop_na(co2_pa) |> 
   left_join(communes, by="com") |> 
@@ -185,7 +186,8 @@ ggplot() +
 ```{r}
 download_this(
   bd_read("meaps_to") |> 
-    st_drop_geometry(),
+    st_drop_geometry() |> 
+    mutate(toidINS = r3035::expand_idINS(toidINS)),
   icon = "fa fa-download",
   class = "dbtn",
   button_label = "données CO2 au carreau, emploi",
@@ -271,6 +273,31 @@ On notera la corrélation négative, au moins pour les localisations les plus di
 #| fig-cap: Km pro versus pollution
 #| fig-asp: 0.8
 bd_read("poldist")+ 
+  patchwork::plot_annotation(
+    caption=glue::glue(
+      "*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS, DV3F CEREMA, MEAPS. *version {version}*
+       <br>*Note* : Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille,
+      <br> les losanges pour la commune d'Aix-en-Provence,
+       <br>les ronds pour les autres communes.<br>"),
+    theme = theme_ofce()) 
+```
+
+::: column-margin
+```{r}
+download_this(bd_read("km_iris_pol") |> sf::st_drop_geometry(),
+  icon = "fa fa-download", class = "dbtn",
+  button_label = "données CO2-pollution à l'IRIS",
+  output_name = glue("co2_IRIS_pol_MetAMP.{version}"))
+```
+:::
+
+## Pollution subie et densité
+
+```{r}
+#| label: fig-poldens
+#| fig-cap: Densité de population versus pollution
+#| fig-asp: 0.8
+bd_read("poldens")+ 
   patchwork::plot_annotation(
     caption=glue::glue(
       "*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS, DV3F CEREMA, MEAPS. *version {version}*
