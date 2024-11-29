@@ -13,9 +13,11 @@ source("init.R")
 
 ## Proposition de méthode
 
-L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose sur la disponibilité d'une matrice origine destination très riche, disponible pour chaque année de recensement au niveau intercommunal, décrivant donc les flux de mobilité professionnelle quotidienne usuelle[^1] pour toute la France. Cette information est également disponible pour les mobilités scolaires. En revanche, pour les autres motifs de déplacement, on ne dispose pas de quelque chose d'équivalent. En particulier, le motif commerce est plus complexe à appréhender parce que les lieux de commerces sont nombreux, bien plus nombreux que les lieux d'étude ou de travail. Or le motif commerce est un élément important des mobilités. Le @tbl-emp donne les valeurs agrégées moyenne pour un adulte en France hors Ile de France. Le motif "courses" représente 15% des kilomètres parcourus.
+L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose sur la disponibilité d'une matrice origine destination très riche, disponible pour chaque année de recensement au niveau intercommunal, décrivant donc les flux de mobilité professionnelle quotidienne usuelle[^1] pour toute la France. Cette information est également disponible pour les mobilités scolaires. En revanche, pour les autres motifs de déplacement, on ne dispose pas d'un équivalent.
 
 [^1]: Et donc sans information de fréquence.
+
+En particulier, le motif commerce est plus complexe à appréhender parce que les lieux de commerces sont nombreux, bien plus nombreux que les lieux d'étude ou de travail. Or le motif commerce est un élément important des mobilités. Le @tbl-emp donne les valeurs agrégées moyenne pour un adulte en France hors Ile de France. Le motif "courses" représente 15% des kilomètres parcourus.
 
 ```{r}
 #| label: tbl-emp
@@ -25,7 +27,7 @@ bd_read("EMP2019_AA3") |> pluck(1)
 
 ```
 
-L'enquête EMC^2^ donne une information construite sur le même schéma d'enquête. On peut dnc la comparer avec l'enquête nationale. Le @tbl-emc2 est construit comme pour l'EMP. Ce tableau est encore en construction, et nous devons affiner l'utilisation des pondérations. D'autre part, il ne concerne que les jours de semaine, nous n'avons pas intégrer la base pour les week-ends. D'autres vérifications sont nécessaires. A ce stade, notre exploitation de l'EMC^2^ montre moins de kilomètres parcourus dans la métropole d'Aix Marseille Provence.
+L'enquête EMC^2^ donne une information construite sur le même schéma d'enquête que l'enquête mobilité nationale. On peut donc la comparer avec l'enquête nationale. Le @tbl-emc2 est construit comme pour l'EMP. Ce tableau est encore en construction, et nous devons affiner l'utilisation des pondérations. D'autre part, il ne concerne que les jours de semaine, nous n'avons pas intégré la base pour les week-ends. D'autres vérifications sont nécessaires. A ce stade, notre exploitation de l'EMC^2^ montre moins de kilomètres parcourus dans la métropole d'Aix Marseille Provence.
 
 ```{r}
 #| label: tbl-emc2
@@ -46,50 +48,131 @@ bd_read("Tmap zone de l'enquete")
 
 ```
 
-## 3 étapes
+## Construction d'un indicateur de commerce
 
-1.  La première étape est d'identifier les opportunités. Une des difficultés est la versalité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. En première approche, nous proposons d’agréger les surfaces commerciales pour chaque carreau en utilisant la pondération des sous-motifs de commerce issus de l'EMC^2^ pour constuire une attractivité commerciale moyenne qui tient à la fois compte de la part du sous motif dans le motif "course" et de la fréquence de ce sous motif dans une semaine type.\
-    La source des fichiers fonciers donne une information fine sur les secteurs (code NAF à 5 caractères) dans lequel on peut distinguer un commerce de chaussure d'une pharmacie, une superette d'une grande surface alimentaire.\
-    Le rôle de la surface commerciale dans cette attractivité moyenne est encore à définir. Il est envisageable de raffiner en déclinant ces pondérations suivant un zonage géographique ou fonctionnel (fonction de la densité par exemple) et donc en produisant des couches agrégées de commerces pour des types de ménages identifiés.
+### sources de données
+
+La première étape est d'identifier les opportunités. Une des difficultés est la versalité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. Nous proposons ici d’agréger les surfaces commerciales pour chaque carreau en distinguant 4 grandes catégories de commerce. Ces catégories reprennent, avec réinterprétation, le travail réalisé par l'AUPA[^2].\
+Notre source principale est celle des fichiers fonciers. Elle donne une information fine sur les secteurs utilisateur du local (code NAF à 5 caractères pour l'entreprise utilisatrice) dans lequel on peut distinguer un commerce de chaussure d'une pharmacie, une supérette d'une grande surface alimentaire.nt des couches agrégées de commerces pour des types de ménages identifiés. Elle permet d'associer au commerce une surface (variable `sprincp` des fichiers fonciers).
+
+[^2]: Merci à Théo Shayer, Ludovic Verre et Luc Garnier pour nous avoir partagé leur méthodologie.
+
+Nous classons les commerces en 4 catégories : alimentaire, commerces (non alimentaires), sorties, santé humaine.
+
+La classificaiton est indiquée dans le @tbl-classification. Par rapport aux choix de l'AUPA, nous avons considéré que les pharmacies étaient des commerces "ordinaires" et limité la notion de santé humaine aux cabinets médicaux (généralistes, spécialistes ou dentistes) en excluant les hôpitaux. Comme nous tenons compte de la surface, les hôpîtaux auraient dominé cette catégorie sans que cela ait vraiment du sens. Le but recherché est de quantifier l'usage habituel de la santé et donc la proximité de services de santé.
 
 ```{r}
-#| label: tbl-commerces
-#| tbl-cap: "Fréquence des sous motifs de commerce, EMC^2^"
+#| label: tbl-classification
+#| tbl-cap: Classification des commerces en catégories fonctionnelles
 
-bd_read("commerce_dominant") |> 
-  pivot_longer(cols=everything()) |> 
-  gt() |> 
-  fmt_number(columns = value, decimals = 1) |> 
-  cols_label(value = "fréquence", name = "sous-motif") |> 
-  tab_source_note(md("*Source* : EMC^2^"))
+library(gt)
+library(tidyverse)
+readxl::read_xlsx("commerces/classification.xlsx") |> 
+  mutate(`Catégorie` = toupper(`Catégorie`)) |> 
+  group_by(Classification) |> 
+  gt() |>  
+  gt::sub_missing() |> 
+  cols_label(`Catégorie` = "")
 ```
 
-2.  La seconde étape est de générer les flux entre les résidents et l'attractivité commerciale moyenne localisée construite au 1.
+Les fichiers fonciers, bien que construit pour la perception d'une taxe comportent parfois des informations curieuses, pouvant laisser croire à un bruit. Par exemple, certaines surfaces commerciales sont très importantes (il existe des supérettes de plus de 100 000 m²) ou la notion de surface principale est parfois ambigue (comme le montre celle qui est retenue pour les campings). Nous utilisons donc avec prudence cette donnée en la limitant suivant certaines catégories. Ainsi, le @tbl-cap donne les intervalles dans lesquels sont contraintes les surfaces principales.
 
-3.  Ce flux peut être ensuite agrégé pour reproduire les matrices origines destinations construite à partir de l'EMC^2^. Ces matrices peuvent être sur une base géographique (D10 AOTU) ou encore fonctionnelle (densité de résidents, catégorie d'individus, densité de commerce par exemple). En paramétrisant MEAPS avec peu de paramètres on peut alors ajuster pour retrouver les flux et utiliser le modèle pour l'intrapolation.
+```{r}
+#| label: tbl-cap
+#| tbl-cap: Limites de surface
+
+bd_read("les_surfaces") |> 
+  gt() |> 
+  cols_label(NAF_TXT = "", cconac = "Code NAF", smin = "Minimum (m²)", smax = "Maximum (m²)") |> 
+  cols_hide(surf) 
+
+```
+
+Les sources alternatives aux fichiers fonciers sont
+
+1.  la base des équipements. A notre connaissance, depuis le changement de nomenclature dans la base des fichiers fonciers de 2018, les fichiers fonciers excluent les entités juridiques qui n'ont pas d'activité et cette modification rapproche la source équipement de la source fichiers fonciers.
+2.  Des enquêtes sur les commerces, comme l'enquête BD COM 2020 à Paris, présentée par l'[APUR](https://www.apur.org/dataviz/commerces-paris/). Ce type d'enquête est assez robuste car il repose sur des observations directes des surfaces commerciales ouvertes au public. En revanche, le champ géographique est habituellement trop limité (ici uniquement la commune de Paris). Nous n'avons pas connaissance d'une enquête comparable pour l’agglomération AMP.
+3.  La base de données OpenStreetMap, en accès libre. Réalisée à partir d'une information participative, elle constitue une alternative simple à mobiliser[^3]. Dans nos analyses préliminaires, elle recoupe assez bien les fichiers fonciers tout en illustrant certains problèmes d'identification (par exemple, des établissements considérés comme "supermarchés" dans les fichiers fonciers sont répertoriés comme épicerie dans OSM et les implémentations (taille du pâté de maisons) donnent plutôt raison à OSM. C'est pour limiter cet effet que nous avons cappé les surfaces.
+
+[^3]: Elle contient des informations également sur les trafics illégaux (stupéfiants), ce qui peut être intéressant à exploiter.
+
+Nous tenons compte enfin de la diversité des commerces à partir de l'information des fichiers fonciers. Par exemple, pour la catégorie fonctionnelle commerce nous agrégeons les surfaces commerciales, en les multipliant par un indice de diversité qui est minimum lorsqu'une seule espèce de commerce est présente et maximal lorsque toutes les espèces sont représentées. Ce type d'indicateur est souvent utilisé en écologie. Il permet donc de donner plus de poids à un bouquet diversifié de commerce totalisant 1 000 m² plutôt qu'à un unique commerce (un garage disons) de 1 000 m².
+
+### Indicateur
+
+:::::: {#fig-surfeq_map }
+::::: panel-tabset
+## Carte statique
+
+```{r}
+#| fig-asp: 1
+library(sf)
+data <- bd_read("acc_pour_resident") |> 
+  filter(!is.na(fromidINS)) |> 
+  r3035::sidINS2sf(idINS = "fromidINS") |> 
+  pivot_longer(starts_with("surf"), names_to = "type", values_to = "surf") |> 
+  mutate(type = type |> str_remove("surf_eq_") |> str_remove("_log"),
+         type = factor(type, c("alim", "comm", "sortie", "sante"),
+                       c("Alimentaire", "Autres commerces", "Sortie&loisirs", "Santé humaine"))) |> 
+  filter(surf!=1) |> 
+  group_by(type) |> 
+  mutate(surf_q = santoku::chop_quantiles(log(surf), probs = 0:10/10, left=TRUE, close_end=TRUE)) |> 
+  ungroup()  
+
+
+gg <- ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= data |> filter(type=="Alimentaire"),
+    mapping= aes(fill = surf_q), col=NA) + 
+  cols4all::scale_fill_discrete_c4a_seq(palette = "brewer.yl_gn_bu", name = "Surface équivalente") +
+  theme_ofce_void() +
+  facet_wrap(vars(type)) +
+  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
+  labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers"))
+```
 
 ::: column-margin
-![](images/clipboard-3393277419.png){width="341"}
+```{r dnwstat}
+download_this(
+  bd_read("meaps_from") |> 
+    st_drop_geometry() |> 
+    mutate(fromidINS = r3035::expand_idINS(fromidINS)),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données CO2 au carreau, résidents", 
+  output_name = glue("co2_idINS_pdvR_MetAMP.{version}"))
+```
 :::
 
-Un point de vigilance est que les contraintes aux marges (chaque emploi est occupé par un actif et un seul) conduisent à produire des flux proche des données et que dans le cas des commerces on sera dans un problème non contraint. Ceci peut en partie être traité par une matrice origine destination à un niveau géographique peu détaillé.
+## Carte interactive
 
-Les deux cartes suivantes illustrent l'information que l'on peut tirer de l'EMC^2^. Possiblement, nous pourrons estimer un modèle économétrique intérmédiaire permettant de générer les flux partant d'une zone ou arrivant dans une zone.
-
-```{r}
-#| label: fig-tocommerce
-#| fig-cap: "Provenance des visiteurs des commerces de Cabries Plan de Campagne"
-
-bd_read("tmap_clients_Cabries")
-
+::: column-screen
+```{r carteco2dyn}
+bd_read("meaps_from") |> 
+  drop_na(co2_pa) |> 
+  left_join(communes, by="com") |> 
+  transmute(
+    co2_pa=co2_pa, co2_i, f_i,
+    tooltip=glue::glue(
+    "{NOM} {com}<br>
+     {round(f_i)} actifs dans le carreau<br>
+     {POPULATION} dans la commune<br>
+     CO2 pro par actif: {round(co2_pa,1)} tCO2/an<br>"),
+    cco2 = color_txxk(co2_pa)) |> 
+  st_transform(4326) |> 
+  mapdeck(style = style,
+          height = "60vh",
+          width = "100%") |> 
+  add_polygon(fill_colour = "cco2", 
+              elevation_scale = 2, 
+              legend = le, 
+              tooltip = "tooltip") |> 
+  mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
-
-```{r}
-#| label: fig-fromres
-#| fig-cap: "Destinations commerciales des résidents de la Torse"
-
-bd_read("carte_tmap_torse")
-```
+:::
+:::::
+::::::
 
 ## Références bibliographiques {.unnumbered}
 

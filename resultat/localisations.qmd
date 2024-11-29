@@ -82,7 +82,7 @@ download_this(
     st_drop_geometry() |> 
   filter(ind > 0, scot) |> 
   transmute(
-    idINS, ind, dep, idcom=com22, IRIS,
+    idINS = r3035::expand_idINS(idINS), ind, dep, idcom=com22, IRIS,
     act_mobpro),
   icon = "fa fa-download",
   class = "dbtn",
@@ -126,7 +126,7 @@ download_this(
     st_drop_geometry() |> 
   filter(act_mobpro > 0, scot) |> 
   transmute(
-    idINS, ind, dep, idcom=com22, IRIS,
+    idINS = r3035::expand_idINS(idINS), ind, dep, idcom=com22, IRIS,
     act_mobpro),
   icon = "fa fa-download",
   class = "dbtn",
@@ -169,7 +169,7 @@ download_this(
     st_drop_geometry() |> 
   filter(emp > 0) |> 
   transmute(
-    idINS, emp, emp_resident, idcom=com22, IRIS,
+    idINS = r3035::expand_idINS(idINS), emp, emp_resident, idcom=com22, IRIS,
     act = tactocc1564 * ind_18_64),
   icon = "fa fa-download",
   class = "dbtn",
