@@ -343,7 +343,7 @@ gsurf2emp <- ggplot(emplois_by_DCLT_c)+
   ofce::theme_ofce()
 source("secrets/azure.R")
 bd_write(gsurf2emp)
-
+bd_write(emplois_by_DCLT_c)
 # emplois_by_DCLT_c |> 
 #   mutate(se = emp/ts) |> 
 #   group_by(NA5) |> 

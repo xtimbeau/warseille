@@ -59,7 +59,7 @@ bd_write(km_iris, name = "km_iris_pol")
   guides(size=guide_legend(title = "Actifs/ha", 
                            override.aes = list(color="grey25")),
          shape = "none") + 
-  scale_x_continuous("Indice Cumulé de pollution de l'AIR annuel",
+  scale_x_continuous("Indice Cumulé de pollution de l'AIR (ICAIR) annuel",
                      labels = scales::label_number(big.mark = " ")) + 
   scale_y_continuous("CO2 émis pour le motif professionel (moyenne par an de l'IRIS)", 
                      labels = scales::label_number(big.mark = " ")) +
@@ -89,3 +89,50 @@ poldist <- patchwork::wrap_plots(
         legend.key.spacing = unit(2, 'pt'))
 
 bd_write(poldist)  
+
+# graphique densité pollution (??)
+
+(base <- ggplot(km_iris)+
+    aes(y=dens, x=sudair, size=dens, fill = prix, shape = shape)+
+    scale_fill_distiller(palette="Spectral", 
+                         trans="log", direction = -1,
+                         oob = scales::squish,
+                         limits = c(1000, 8000),
+                         aesthetics = c( "fill"),
+                         breaks = c(1000, 3000, 8000),
+                         name="prix immobilier\n€/m² 2022")+
+    geom_point(alpha=0.95, stroke=.1, color = "transparent") + 
+    scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
+    guides(size=guide_legend(title = "Actifs/ha", 
+                             override.aes = list(color="grey25")),
+           shape = "none") + 
+    scale_x_continuous("Indice Cumulé de pollution de l'AIR (ICAIR) annuel",
+                       labels = scales::label_number(big.mark = " ")) + 
+    scale_y_continuous("Densité de l'IRIS", 
+                       labels = scales::label_number(big.mark = " ")) +
+    # geom_smooth(col="lightblue", fill = "lightblue1", aes(weight = f_i)) +
+    theme_ofce(base_size = 10, legend.position = "bottom")+ 
+    patchwork::inset_element(inset_map, left=0.7, bottom=0.63, right=1, top=1) + 
+    theme(plot.margin = margin()))
+
+top_dens <- ggplot(km_iris)+
+  geom_density(aes(x=sudair, y=after_stat(density), weight=co2_i), 
+               color = "black", fill="palegreen", alpha=0.25, linewidth=0.2)+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+right_dens <- ggplot(km_iris)+
+  geom_density(aes(x=dens, y=after_stat(density), weight=co2_i), 
+               color = "black", fill="palegreen", alpha=0.25, linewidth=0.2)+
+  coord_flip()+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+
+poldens <- patchwork::wrap_plots(
+  top_dens, patchwork::plot_spacer(), base,  right_dens,
+  ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
+  theme(panel.spacing = unit(0, "pt"), 
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
+
+bd_write(poldens)
