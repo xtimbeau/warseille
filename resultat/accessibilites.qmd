@@ -39,7 +39,7 @@ L'accessibilité consiste à mesurer pour chaque lieu de résidence le temps d'a
 
 Les cartes suivantes présentent l'accessibilité à 50 000 emplois pour 4 modes de transport. La dimension *z* (ou la hauteur des colonnes) représente le nombre d'actifs (au sens de MOBPRO, pour l'année 2020) du carreau.
 
-::: {#fig-access_map}
+::::: {#fig-access_map}
 ::: {.panel-tabset .column-screen}
 ## voiture
 
@@ -87,7 +87,7 @@ t_access |>
 
 ```{r}
 t_access |> 
-  filter(mode == "transit5") |> 
+  filter(mode == "transit") |> 
   left_join(communes |>
               st_drop_geometry() |>
               select(com=INSEE_COM, NOM, POPULATION)) |> 
@@ -180,7 +180,8 @@ t_access |>
 ```{r}
 download_this(
   t_access |> 
-    st_drop_geometry(),
+    st_drop_geometry() |> 
+    mutate(idINS = r3035::expand_idINS(idINS)),
   icon = "fa fa-download",
   class = "dbtn",
   button_label = "données temps d'accessibilité au carreau",
@@ -190,7 +191,7 @@ download_this(
 :::
 
 Cartes d'accessibilité pour différents modes
-:::
+:::::
 
 L'accessibilité permet également de comparer l'efficacité relative des modes de transports et illustre la domination de la voiture sur la plupart des lieux du territoire. La voiture joue un rôle d'égalisateur. Pour l'accès à 50k emplois, on peut constater une grande homogénéité du territoire. Quelque soit l'endroit où on habite ou presque, on dispose d'un potentiel élevé. Les transports en commun sont au contraire l'apanage des habitants de Marseille ou d'Aix-en-Provence, plus particulièrement de leurs centre-ville.
 
@@ -261,7 +262,7 @@ On regarde ici le nombre d'individus selon leur temps d'accès à différents se
 
 Les courbes représentent la densité de population en fonction du temps d'accessibilité. Les colorations identifient certains territoires suivant la même règle que pour le graphique d'accessibilité par commune. L'échelle des y est limitée à 1500 pour la lisibilité. L'aire des courbes est proportionnelle à la population (moins les individus dont les temps d'accès sont supérieurs à 120 minutes).
 
-::: {#fig-popaccess}
+:::: {#fig-popaccess}
 ::: panel-tabset
 ```{r}
 t_access  <- t_access |> 
@@ -339,7 +340,7 @@ ggplot(t_access)+
 :::
 
 Accessibilité et densité de population
-:::
+::::
 
 ## Accessibilité et revenu
 
@@ -436,7 +437,7 @@ download_this(
 
 Pour chaque décile de niveau de vie, on représente la distribution des temps d'accès au seuil indiqué.
 
-::: {#fig-accessdec}
+:::: {#fig-accessdec}
 ::: panel-tabset
 ## 10k
 
@@ -485,12 +486,13 @@ ggplot(d_access) +
 :::
 
 Accessibilités en fonction du décile de niveau de vie
-:::
+::::
 
 ::: column-margin
 ```{r}
 download_this(
-d_access,
+d_access |> 
+  mutate(idINS = r3035::expand_idINS(idINS)),
   class  = "dbtn",
   icon = "fa fa-download",
   button_label  = "données accessibilité et revenu au carreau",
