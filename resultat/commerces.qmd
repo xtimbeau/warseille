@@ -98,7 +98,20 @@ Les sources alternatives aux fichiers fonciers sont
 
 Nous tenons compte enfin de la diversité des commerces à partir de l'information des fichiers fonciers. Par exemple, pour la catégorie fonctionnelle commerce nous agrégeons les surfaces commerciales, en les multipliant par un indice de diversité qui est minimum lorsqu'une seule espèce de commerce est présente et maximal lorsque toutes les espèces sont représentées. Ce type d'indicateur est souvent utilisé en écologie. Il permet donc de donner plus de poids à un bouquet diversifié de commerce totalisant 1 000 m² plutôt qu'à un unique commerce (un garage disons) de 1 000 m².
 
+Formellement, l'indicateur est construit comme :
+$$
+\mathcal{A}_c  = \sum_{j \in V_{15 \space min}(i)} {s_j^\alpha} \times  \left( \sum_{j \in V_{15 \space min}(i), j \in J} {\frac {1}{w_J \times p_J^2}} \right)^\beta
+$$
+
+La première partie est la somme des surfaces dans le vosinage de tout résident à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie permet de prendre en compte la diversité dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifiques). Le paramètre $w_J$ accorde aux catégories un poids en diversité, permettant de compter les grandes surfaces alimentaires comme contribuant plus à la disversité qu'une surface commerciale spécialisée.
+
+Le rôle des paramètres $\alpha$ et $\beta$ modulent l'expression. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont camptabilisés, indepandement de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet mulitplicatif de la diversité, en écrasant les écarts de diversité. 
+
+A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers paramètres ($w_i$, $\alpha$, $\beta$). Nous avon sfixé des valeurs a priori, afin de pouvoir étudier des variantes et évaluer la différence d'analyse produite. Nous verrons que l'indicateur est utilisé non pas en tant que tel, mais principalement par quantile, ce qui le rend insensible à des transformtations monotones. 
+
 ### Indicateur
+
+Nous calculons l'indicateur pour 4 super catgéories de commerces ou services (alimentaires, autres commerces, sorties, santé humaine) subdivisées en, respectivement, 12, 37, 5 et 44 sous catégories de commerces (selon la NAF) sur lesquelles est basée la construction de la partie "diversité" de l'indicateur. Il est ensuite représenté sur une carte, avec un écart assez important (de 1 à 1000) entre les situations extrêmes. Notons que dans l'indicateur les deux composantes sont assez corrélées entre elles. Leur multiplication amplifie les écarts, mais puisque le raisonnement consiste ensuite à utiliser les quantiles, l'effet de l'amplification est assez limité.
 
 :::::: {#fig-surfeq_map }
 ::::: panel-tabset
