@@ -1,12 +1,13 @@
 ---
   author:
-    - name: Xavier Timbeau
     - name: Maxime Parodi
+    - name: Xavier Timbeau 
     - name: Scotia Hille
 ---
 
 ```{r init, include=FALSE}
 source("init.R")
+version <- "1.1"
 ```
 
 # Déplacements pour le motif commerce
@@ -100,79 +101,213 @@ Nous tenons compte enfin de la diversité des commerces à partir de l'informati
 
 ### Indicateur
 
-:::::: {#fig-surfeq_map }
-::::: panel-tabset
+::::: {#fig-surfeq_map }
+:::: panel-tabset
 ## Carte statique
 
 ```{r}
-#| fig-asp: 1
+#| fig-asp: 1.6
 library(sf)
-data <- bd_read("acc_pour_resident") |> 
-  filter(!is.na(fromidINS)) |> 
-  r3035::sidINS2sf(idINS = "fromidINS") |> 
-  pivot_longer(starts_with("surf"), names_to = "type", values_to = "surf") |> 
-  mutate(type = type |> str_remove("surf_eq_") |> str_remove("_log"),
-         type = factor(type, c("alim", "comm", "sortie", "sante"),
-                       c("Alimentaire", "Autres commerces", "Sortie&loisirs", "Santé humaine"))) |> 
-  filter(surf!=1) |> 
+
+data <- bd_read("vqh_alim") |>
+  mutate(type = "Alimentation") |> 
+  bind_rows(bd_read("vqh_comm") |> mutate(type = "Autres commerces")) |> 
+  filter(!is.na(fromidINS), se > 0) |> 
+  mutate(lse = log(se)) |> 
+  r3035::sidINS2sf(idINS = "fromidINS") |>
   group_by(type) |> 
-  mutate(surf_q = santoku::chop_quantiles(log(surf), probs = 0:10/10, left=TRUE, close_end=TRUE)) |> 
+  mutate(lse_q = santoku::chop_quantiles(lse, probs = 0:10/10)) |> 
   ungroup()  
 
 
-gg <- ggplot() +
+ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data |> filter(type=="Alimentaire"),
-    mapping= aes(fill = surf_q), col=NA) + 
-  cols4all::scale_fill_discrete_c4a_seq(palette = "brewer.yl_gn_bu", name = "Surface équivalente") +
+    data= data,
+    mapping= aes(fill = lse), col=NA) + 
+  paletteer::scale_fill_paletteer_c("grDevices::Heat", direction = -1)+
   theme_ofce_void() +
-  facet_wrap(vars(type)) +
+  facet_wrap(vars(type), nrow = 2) +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers"))
+  labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
 ```
 
 ::: column-margin
 ```{r dnwstat}
 download_this(
-  bd_read("meaps_from") |> 
+  data |> 
     st_drop_geometry() |> 
     mutate(fromidINS = r3035::expand_idINS(fromidINS)),
   icon = "fa fa-download",
   class = "dbtn",
-  button_label = "données CO2 au carreau, résidents", 
-  output_name = glue("co2_idINS_pdvR_MetAMP.{version}"))
+  button_label = "données Commerces au carreau, résidents", 
+  output_name = glue("commerces_idINS_pdvR_MetAMP.{version}"))
 ```
 :::
 
-## Carte interactive
+## Alimentation (interactif)
 
 ::: column-screen
-```{r carteco2dyn}
-bd_read("meaps_from") |> 
-  drop_na(co2_pa) |> 
-  left_join(communes, by="com") |> 
+```{r }
+
+library(colourvalues)
+pal <- "plasma"
+color_txxk <- function(x, min = 0, max = 11, palette = pal, rev=FALSE) {
+  if(rev) {
+    color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
+  } else {
+  color_values(c(min, max, trim(max - x + min, min, max)), palette=palette) |> tail(-2)  
+  }
+}
+legend <- color_values(0:11, palette = pal, summary=TRUE, n_summaries=5)
+le <- legend_element(as.integer(legend$summary_values), rev(legend$summary_colours), "fill", "gradient", "se") |> 
+  mapdeck_legend()
+
+data |>
+  filter(type == "Alimentation") |> 
   transmute(
-    co2_pa=co2_pa, co2_i, f_i,
+    ind, div, s, se, lse,
+    lidINS= r3035::expand_idINS(fromidINS),
     tooltip=glue::glue(
-    "{NOM} {com}<br>
-     {round(f_i)} actifs dans le carreau<br>
-     {POPULATION} dans la commune<br>
-     CO2 pro par actif: {round(co2_pa,1)} tCO2/an<br>"),
-    cco2 = color_txxk(co2_pa)) |> 
-  st_transform(4326) |> 
+    "<b>{type}</b><br>
+    idINS:{lidINS} {ind} individus<br>
+     s: {round(s)}<br>
+     div: {round(s,2)}<br>
+     se: {round(se, 2)}"),
+    cse = color_txxk(lse)) |>
+  st_transform(4326) |>
   mapdeck(style = style,
           height = "60vh",
-          width = "100%") |> 
-  add_polygon(fill_colour = "cco2", 
-              elevation_scale = 2, 
-              legend = le, 
-              tooltip = "tooltip") |> 
+          width = "100%") |>
+  add_polygon(fill_colour = "cse",
+              elevation_scale = 2,
+              legend = le,
+              tooltip = "tooltip") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 :::
+## Aurtes commerces (interactif)
+
+::: column-screen
+```{r }
+
+data |>
+  filter(type == "Autres commerces") |> 
+  transmute(
+    ind, div, s, se, lse,
+    lidINS= r3035::expand_idINS(fromidINS),
+    tooltip=glue::glue(
+    "<b>{type}</b><br>
+    idINS:{lidINS} {ind} individus<br>
+     s: {round(s)}<br>
+     div: {round(s,2)}<br>
+     se: {round(se, 2)}"),
+    cse = color_txxk(lse)) |>
+  st_transform(4326) |>
+  mapdeck(style = style,
+          height = "60vh",
+          width = "100%") |>
+  add_polygon(fill_colour = "cse",
+              elevation_scale = 2,
+              legend = le,
+              tooltip = "tooltip") |>
+  mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
+```
+:::
+::::
 :::::
-::::::
+
+```{r}
+#| label: fig-corrcomm
+#| fig-cap: "Corrélation entre Alimentation et autres commerces"
+#| fig-asp: 1
+
+data |> 
+  st_drop_geometry() |> 
+  select(ind, se, type, fromidINS) |> 
+  mutate(type = factor(type, label=c("alim", "comm"))) |> 
+  pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
+  ggplot() +
+  geom_hex(aes(x = alim, y=comm, weight = ind)) +
+  coord_equal() +
+  scale_x_log10(name = "surface équivalente des commerces alimentaires") +
+  scale_y_log10(name = "surface équivalente des autres commerces") +
+  scale_fill_gradient(low = "white", high = "steelblue4", name = "individus")+
+  theme_ofce(legend.position = c(0.05, 0.95),
+             legend.justification = c(0,1),
+             legend.key.width = unit(36, "pt"))
+```
+:::: {#fig-denscom}
+:::: {.panel-tabset}
+
+## Alimentation
+
+```{r}
+#| fig-asp: 1
+
+data |> 
+  st_drop_geometry() |> 
+  select(ind, se, type, fromidINS) |> 
+  mutate(type = factor(type, label=c("alim", "comm"))) |> 
+  pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
+  ggplot() +
+  geom_hex(aes(x = ind, y=alim, weight = ind)) +
+  scale_x_log10(name = "densité")+
+  scale_y_log10(name = "surface équivalente, alimentation", limits = c(1, 1e+6))+
+  scale_fill_gradient(low = "white", high = "purple4")+
+  theme_ofce(legend.position = c(0.05, 0.95),
+             legend.justification = c(0,1),
+             legend.key.width = unit(24, "pt"))
+```
+## Autres commerces
+
+```{r}
+#| fig-asp: 1
+
+data |> 
+  st_drop_geometry() |> 
+  select(ind, se, type, fromidINS) |> 
+  mutate(type = factor(type, label=c("alim", "comm"))) |> 
+  pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
+  ggplot() +
+  geom_hex(aes(x = ind, y=comm, weight = ind)) +
+  scale_x_log10(name = "densité")+
+  scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 1e+6))+
+  scale_fill_gradient(low = "white", high = "yellow4")+
+  theme_ofce(legend.position = c(0.05, 0.95),
+             legend.justification = c(0,1),
+             legend.key.width = unit(24, "pt"))
+```
+::::
+Lien densité accessibilité aux commerces
+
+::::
+### Indicateur et EMC^2^
+
+On injecte l'indicateur de commerce alimentaire calculé dans les zones de résidence de l'EMC^2 AMP. On peut alors confronter les distances parcourues en voiture à la valeur moyenne de l'indicateur sur la zone. Le graphique indique une nette corrélation négative.
+
+```{r}
+#| label: fig-emc2alim
+#| fig-cap: Distance parcourue par décile d'accessibilité aux commerces alimentaires
+ind_emc2 <- bd_read("ind_emc2")
+
+ind_emc2 <- ind_emc2 |> 
+  mutate(lse_q = santoku::chop_deciles(log(se))) 
+
+ggplot(ind_emc2 |> filter(!is.na(lse_q), n>10))+
+  aes(x = lse_q, y = d_car) +
+  geom_boxplot(outliers = FALSE) + 
+  theme_ofce()
+
+```
+
+La régression suivante confirme ce résultat :
+
+```{r}
+lm( log(d_car) ~ log(se), data = ind_emc2 |> filter(!is.na(lse_q), n>10, d_car >0)) |> summary()
+```
+
+
 
 ## Références bibliographiques {.unnumbered}
 
