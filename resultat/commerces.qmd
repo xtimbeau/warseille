@@ -116,29 +116,23 @@ Nous calculons l'indicateur pour 4 super catgéories de commerces ou services (a
 
 :::::: {#fig-surfeq_map }
 ::::: panel-tabset
-## Carte statique
+## Alimentaire
 
 ```{r}
-#| fig-asp: 1.6
+#| fig-asp: 1
 library(sf)
 
 data <- bd_read("vqh_alim") |>
   mutate(type = "Alimentation") |> 
-  bind_rows(bd_read("vqh_comm") |> mutate(type = "Autres commerces")) |> 
-  filter(!is.na(fromidINS), se > 0) |> 
-  mutate(lse = log(se)) |> 
-  r3035::sidINS2sf(idINS = "fromidINS") |>
-  group_by(type) |> 
-  mutate(lse_q = santoku::chop_quantiles(lse, probs = 0:10/10)) |> 
-  ungroup()  
-
+  r3035::sidINS2sf(idINS = "fromidINS") |> 
+  mutate(wqse = factor(wqse))
 
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
     data= data,
-    mapping= aes(fill = lse), col=NA) + 
-  paletteer::scale_fill_paletteer_c("grDevices::Heat", direction = -1)+
+    mapping= aes(fill = wqse), col=NA) + 
+  paletteer::scale_fill_paletteer_d("beyonce::X41", direction = -1)+
   theme_ofce_void() +
   facet_wrap(vars(type), nrow = 2) +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
@@ -297,7 +291,7 @@ Lien densité accessibilité aux commerces
 ::::
 ### Indicateur et EMC^2^
 
-On injecte l'indicateur de commerce alimentaire calculé dans les zones de résidence de l'EMC^2 AMP. On peut alors confronter les distances parcourues en voiture à la valeur moyenne de l'indicateur sur la zone. Le graphique indique une nette corrélation négative.
+On injecte l'indicateur de commerce alimentaire calculé dans les zones de résidence de l'EMC^2^ AMP. On peut alors confronter les distances parcourues en voiture à la valeur moyenne de l'indicateur sur la zone. Le graphique indique une nette corrélation négative.
 
 ```{r}
 #| label: fig-emc2alim
