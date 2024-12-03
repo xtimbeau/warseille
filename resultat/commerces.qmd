@@ -7,7 +7,7 @@
 
 ```{r init, include=FALSE}
 source("init.R")
-version <- "1.1"
+version <- "1.1 \u03B1:0,5 ; \u03B2: 0,5"
 ```
 
 # Déplacements pour le motif commerce
@@ -113,74 +113,110 @@ A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers param
 ### Indicateur
 
 ::::: {#fig-surfeq_map }
-:::: panel-tabset
-## Alimentation (statique)
+:::: {.details name = "cac" open}
+::: panel-tabset
+## Alimentation
 
 ```{r}
 #| fig-asp: 1
 library(sf)
-
-data <- bd_read("vqh_alim") |>
-  mutate(type = "Alimentation") |> 
+library(paletteer)
+data <- bind_rows(
+  bd_read("vqh_alim") |> mutate(type = "alim"),
+  bd_read("vqh_comm") |> mutate(type = "commerces"),
+  bd_read("vqh_loisir") |> mutate(type = "sortie"),
+  bd_read("vqh_sante") |> mutate(type = "santé")) |>
   r3035::sidINS2sf(idINS = "fromidINS") |> 
   mutate(wqse = factor(wqse))
 
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data,
+    data= data |> filter(type == "alim"),
     mapping= aes(fill = wqse), col=NA) + 
-  paletteer::scale_fill_paletteer_d("beyonce::X41", direction = -1)+
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1)+
   theme_ofce_void() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
 ```
 
-## Autres commerces (statique)
+## Autres commerces
 ```{r}
 #| fig-asp: 1
 
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-  data= data |> filter(type == "Autres commerces"),
-    mapping= aes(fill = lse), col=NA) + 
-  paletteer::scale_fill_paletteer_c("grDevices::Heat", direction = -1)+
+    data= data |> filter(type == "commerces"),
+    mapping= aes(fill = wqse), col=NA) + 
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1)+
   theme_ofce_void() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
 ```
 
-## Alimentation (interactif)
+## Sorties
+```{r}
+#| fig-asp: 1
 
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= data |> filter(type == "sortie"),
+    mapping= aes(fill = wqse), col=NA) + 
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1)+
+  theme_ofce_void() +
+  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
+  labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
+```
+
+## Santé humaine
+```{r}
+#| fig-asp: 1
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= data |> filter(type == "sante"),
+    mapping= aes(fill = wqse), col=NA) + 
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1)+
+  theme_ofce_void() +
+  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
+  labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
+```
+:::
+::::
+
+:::: {.details name = "cac"}
+::: {.panel-tabset}
+## Alimentation
 ::: column-screen
 ```{r }
 
 library(colourvalues)
-pal <- "terrain_hcl"
-color_txxk <- function(x, min = 0, max = 11, palette = pal, rev=FALSE) {
+pal <- paletteer_d("PNWColors::Sunset2", 5, direction=1) |> col2rgb() |> t()
+color_txxk <- function(x, min = 1, max = 5, palette = pal, rev=FALSE) {
   if(rev) {
     color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
   } else {
   color_values(c(min, max, trim(max - x + min, min, max)), palette=palette) |> tail(-2)  
   }
 }
-legend <- color_values(0:11, palette = pal, summary=TRUE, n_summaries=5)
+legend <- color_values(1:5, palette = pal, summary=TRUE, n_summaries=5)
 le <- legend_element(as.integer(legend$summary_values), rev(legend$summary_colours), "fill", "gradient", "se") |> 
   mapdeck_legend()
 
 data |>
-  filter(type == "Alimentation") |> 
+  filter(type == "alim") |> 
   transmute(
-    ind, div, s, se, lse,
     lidINS= r3035::expand_idINS(fromidINS),
     tooltip=glue::glue(
     "<b>{type}</b><br>
     idINS:{lidINS} {ind} individus<br>
      s: {round(s)}<br>
-     div: {round(s,2)}<br>
+     div: {round(div,2)}<br>
      se: {round(se, 2)}"),
-    cse = color_txxk(lse)) |>
+    cse = color_txxk(as.numeric(wqse))) |>
   st_transform(4326) |>
   mapdeck(style = style,
           height = "60vh",
@@ -193,7 +229,7 @@ data |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 :::
-## Aurtes commerces (interactif)
+## Aurtes commerces
 
 ::: column-screen
 ```{r }
@@ -201,15 +237,14 @@ data |>
 data |>
   filter(type == "Autres commerces") |> 
   transmute(
-    ind, div, s, se, lse,
     lidINS= r3035::expand_idINS(fromidINS),
     tooltip=glue::glue(
     "<b>{type}</b><br>
     idINS:{lidINS} {ind} individus<br>
      s: {round(s)}<br>
-     div: {round(s,2)}<br>
+     div: {round(div,2)}<br>
      se: {round(se, 2)}"),
-    cse = color_txxk(lse)) |>
+    cse = color_txxk(as.numeric(wqse))) |>
   st_transform(4326) |>
   mapdeck(style = style,
           height = "60vh",
@@ -227,16 +262,18 @@ data |>
 
 ::: column-margin
 ```{r dnwstat}
+
 download_this(
   data |> 
     st_drop_geometry() |> 
     mutate(fromidINS = r3035::expand_idINS(fromidINS)),
   icon = "fa fa-download",
   class = "dbtn",
-  button_label = "données Commerces au carreau, résidents", 
-  output_name = glue("commerces_idINS_pdvR_MetAMP.{version}"))
+  button_label = "données accessibilité aux aménités au carreau, résidents", 
+  output_name = glue("amenites_idINS_pdvR_MetAMP.{version}"))
 ```
 :::
+
 
 ```{r}
 #| label: fig-corrcomm
@@ -246,10 +283,10 @@ download_this(
 data |> 
   st_drop_geometry() |> 
   select(ind, se, type, fromidINS) |> 
-  mutate(type = factor(type, label=c("alim", "comm"))) |> 
+  mutate(type = factor(type)) |> 
   pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
   ggplot() +
-  geom_hex(aes(x = alim, y=comm, weight = ind)) +
+  geom_hex(aes(x = alim, y=commerces, weight = ind)) +
   coord_equal() +
   scale_x_log10(name = "surface équivalente des commerces alimentaires") +
   scale_y_log10(name = "surface équivalente des autres commerces") +
