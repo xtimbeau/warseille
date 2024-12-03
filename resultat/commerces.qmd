@@ -157,7 +157,7 @@ ggplot() +
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
   ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici commerces alimentaires)."))
+  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).")
 ```
 
 ## Autres commerces
@@ -169,7 +169,7 @@ ggplot() +
   geom_sf(
     data= data |> filter(type == "commerces"),
     mapping= aes(fill = wqse), col=NA) + 
-  scale_fill_paletteer_c("PNWColors::Sunset2", direction=-1)+
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1)+
   theme_ofce_void() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
@@ -212,7 +212,8 @@ ggplot() +
 
 :::: {.panel-tabset}
 ## Alimentation
-::: column-screen
+::::: column-page-inset-right
+
 ```{r }
 
 library(colourvalues)
@@ -251,14 +252,15 @@ data |>
               tooltip = "tooltip") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
-:::
+:::::
 ## Autres commerces
 
-::: column-screen
+::::: column-page-inset-right
+
 ```{r }
 
 data |>
-  filter(type == "Autres commerces") |> 
+  filter(type == "commerces") |> 
   transmute(
     ind,
     lidINS= r3035::expand_idINS(fromidINS),
@@ -280,13 +282,12 @@ data |>
               tooltip = "tooltip") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
-:::
+
+:::::
 ::::
 </details>
 
 Cartes de l'accessibilité aux aménités
-
-:::::
 
 
 ```{r}
