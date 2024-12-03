@@ -93,7 +93,7 @@ Les sources alternatives aux fichiers fonciers sont
 
 1.  la base des équipements. A notre connaissance, depuis le changement de nomenclature dans la base des fichiers fonciers de 2018, les fichiers fonciers excluent les entités juridiques qui n'ont pas d'activité et cette modification rapproche la source équipement de la source fichiers fonciers.
 2.  Des enquêtes sur les commerces, comme l'enquête BD COM 2020 à Paris, présentée par l'[APUR](https://www.apur.org/dataviz/commerces-paris/). Ce type d'enquête est assez robuste car il repose sur des observations directes des surfaces commerciales ouvertes au public. En revanche, le champ géographique est habituellement trop limité (ici uniquement la commune de Paris). Nous n'avons pas connaissance d'une enquête comparable pour l’agglomération AMP.
-3.  La base de données OpenStreetMap, en accès libre. Réalisée à partir d'une information participative, elle constitue une alternative simple à mobiliser[^3]. Dans nos analyses préliminaires, elle recoupe assez bien les fichiers fonciers tout en illustrant certains problèmes d'identification (par exemple, des établissements considérés comme "supermarchés" dans les fichiers fonciers sont répertoriés comme épicerie dans OSM et les implémentations (taille du pâté de maisons) donnent plutôt raison à OSM. C'est pour limiter cet effet que nous avons cappé les surfaces.
+3.  La base de données OpenStreetMap, en accès libre. Réalisée à partir d'une information participative, elle constitue une alternative simple à mobiliser[^3]. Dans nos analyses préliminaires, elle recoupe assez bien les fichiers fonciers tout en illustrant certains problèmes d'identification (par exemple, des établissements considérés comme "supermarchés" dans les fichiers fonciers sont répertoriés comme épicerie dans OSM et les implémentations (taille du pâté de maison) donnent plutôt raison à OSM. C'est pour limiter cet effet que nous avons cappé les surfaces.
 
 [^3]: Elle contient des informations également sur les trafics illégaux (stupéfiants), ce qui peut être intéressant à exploiter.
 
@@ -103,10 +103,10 @@ Nous tenons compte enfin de la diversité des commerces à partir de l'informati
 
 ::::: {#fig-surfeq_map }
 :::: panel-tabset
-## Carte statique
+## Alimentation (statique)
 
 ```{r}
-#| fig-asp: 1.6
+#| fig-asp: 1
 library(sf)
 
 data <- bd_read("vqh_alim") |>
@@ -123,27 +123,28 @@ data <- bd_read("vqh_alim") |>
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data,
+  data= data |> filter(type == "Alimentation"),
     mapping= aes(fill = lse), col=NA) + 
   paletteer::scale_fill_paletteer_c("grDevices::Heat", direction = -1)+
   theme_ofce_void() +
-  facet_wrap(vars(type), nrow = 2) +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
 ```
 
-::: column-margin
-```{r dnwstat}
-download_this(
-  data |> 
-    st_drop_geometry() |> 
-    mutate(fromidINS = r3035::expand_idINS(fromidINS)),
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données Commerces au carreau, résidents", 
-  output_name = glue("commerces_idINS_pdvR_MetAMP.{version}"))
+## Autres commerces (statique)
+```{r}
+#| fig-asp: 1
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+  data= data |> filter(type == "Autres commerces"),
+    mapping= aes(fill = lse), col=NA) + 
+  paletteer::scale_fill_paletteer_c("grDevices::Heat", direction = -1)+
+  theme_ofce_void() +
+  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
+  labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
 ```
-:::
 
 ## Alimentation (interactif)
 
@@ -151,7 +152,7 @@ download_this(
 ```{r }
 
 library(colourvalues)
-pal <- "plasma"
+pal <- "terrain_hcl"
 color_txxk <- function(x, min = 0, max = 11, palette = pal, rev=FALSE) {
   if(rev) {
     color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
@@ -180,7 +181,8 @@ data |>
           height = "60vh",
           width = "100%") |>
   add_polygon(fill_colour = "cse",
-              elevation_scale = 2,
+              elevation_scale = .5,
+              elevation = "ind",
               legend = le,
               tooltip = "tooltip") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -208,7 +210,8 @@ data |>
           height = "60vh",
           width = "100%") |>
   add_polygon(fill_colour = "cse",
-              elevation_scale = 2,
+              elevation_scale = .5,
+              elevation = "ind",
               legend = le,
               tooltip = "tooltip") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
@@ -216,6 +219,19 @@ data |>
 :::
 ::::
 :::::
+
+::: column-margin
+```{r dnwstat}
+download_this(
+  data |> 
+    st_drop_geometry() |> 
+    mutate(fromidINS = r3035::expand_idINS(fromidINS)),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données Commerces au carreau, résidents", 
+  output_name = glue("commerces_idINS_pdvR_MetAMP.{version}"))
+```
+:::
 
 ```{r}
 #| label: fig-corrcomm
