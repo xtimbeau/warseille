@@ -99,23 +99,42 @@ Les sources alternatives aux fichiers fonciers sont
 
 Nous tenons compte enfin de la diversité des commerces à partir de l'information des fichiers fonciers. Par exemple, pour la catégorie fonctionnelle commerce nous agrégeons les surfaces commerciales, en les multipliant par un indice de diversité qui est minimum lorsqu'une seule espèce de commerce est présente et maximal lorsque toutes les espèces sont représentées. Ce type d'indicateur est souvent utilisé en écologie. Il permet donc de donner plus de poids à un bouquet diversifié de commerce totalisant 1 000 m² plutôt qu'à un unique commerce (un garage disons) de 1 000 m².
 
-Formellement, l'indicateur est construit comme :
+Formellement, l'indicateur de proxiumité des aménités $\mathcal{A}$ est construit comme :
 $$
 \mathcal{A}_c  = \sum_{j \in V_{15 \space min}(i)} {s_j^\alpha} \times  \left( \sum_{j \in V_{15 \space min}(i), j \in J} {\frac {1}{w_J \times p_J^2}} \right)^\beta
 $$
 
-La première partie est la somme des surfaces dans le vosinage de tout résident à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie permet de prendre en compte la diversité dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifiques). Le paramètre $w_J$ accorde aux catégories un poids en diversité, permettant de compter les grandes surfaces alimentaires comme contribuant plus à la disversité qu'une surface commerciale spécialisée.
+La première partie de l'indicateur $\mathcal{A}$ est la somme des surfaces dans le vosinage de chaque carreau de résidents à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie de l'indicateur permet de prendre en compte la diversité des commerces accessibles dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (par exemple, parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifiques). Le paramètre $w_J$ accorde aux catégories un poids en diversité, permettant de compter les grandes surfaces alimentaires comme contribuant plus à la disversité qu'une surface commerciale spécialisée.
 
-Le rôle des paramètres $\alpha$ et $\beta$ modulent l'expression. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont camptabilisés, indepandement de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet mulitplicatif de la diversité, en écrasant les écarts de diversité. 
+Le rôle des paramètres $\alpha$ et $\beta$ est de moduler l'expression $\mathcal{A}_c$. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont camptabilisés, indepandement de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet mulitplicatif de la diversité, en écrasant les écarts de diversité. 
 
 A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers paramètres ($w_i$, $\alpha$, $\beta$). Nous avon sfixé des valeurs a priori, afin de pouvoir étudier des variantes et évaluer la différence d'analyse produite. Nous verrons que l'indicateur est utilisé non pas en tant que tel, mais principalement par quantile, ce qui le rend insensible à des transformtations monotones. 
 
-### Indicateur
+### Indicateur de proximité des aménités pour AMP
 
-:::: {#fig-surfeq_map }
+::::: {#fig-surfeq_map }
+
+::: column-margin
+```{r dnwstat}
+data <- bind_rows(
+  bd_read("vqh_alim") |> mutate(type = "alim"),
+  bd_read("vqh_comm") |> mutate(type = "commerces"),
+  bd_read("vqh_loisir") |> mutate(type = "sortie"),
+  bd_read("vqh_sante") |> mutate(type = "sante")) |>
+  r3035::sidINS2sf(idINS = "fromidINS") |> 
+  mutate(wqse = factor(wqse))
+download_this(
+  data |> 
+    st_drop_geometry() |> 
+    mutate(fromidINS = r3035::expand_idINS(fromidINS)),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données accessibilité aux aménités au carreau, résidents", 
+  output_name = glue("amenites_idINS_pdvR_MetAMP.{version}"))
+```
+:::
 
 <details name = "cac" open>
-
 <summary> Cartes statiques </summary>
 
 :::: panel-tabset
@@ -125,23 +144,20 @@ A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers param
 #| fig-asp: 1
 library(sf)
 library(paletteer)
-data <- bind_rows(
-  bd_read("vqh_alim") |> mutate(type = "alim"),
-  bd_read("vqh_comm") |> mutate(type = "commerces"),
-  bd_read("vqh_loisir") |> mutate(type = "sortie"),
-  bd_read("vqh_sante") |> mutate(type = "sante")) |>
-  r3035::sidINS2sf(idINS = "fromidINS") |> 
-  mutate(wqse = factor(wqse))
-
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data |> filter(type == "alim"),
+    data= data |> filter(type == "alim") |> drop_na(),
     mapping= aes(fill = wqse), col=NA) + 
-  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1)+
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
+                         name = "Accessibilité Alimentaire : ", label = c("très faible", "", "", "", "très élevé"))+
   theme_ofce_void() +
-  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) +
+  ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
+  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici commerces alimentaires)."))
 ```
 
 ## Autres commerces
@@ -153,7 +169,7 @@ ggplot() +
   geom_sf(
     data= data |> filter(type == "commerces"),
     mapping= aes(fill = wqse), col=NA) + 
-  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1)+
+  scale_fill_paletteer_c("PNWColors::Sunset2", direction=-1)+
   theme_ofce_void() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
@@ -193,6 +209,7 @@ ggplot() +
 
 <details name = "cac">
 <summary> Cartes interactives </summary>
+
 :::: {.panel-tabset}
 ## Alimentation
 ::: column-screen
@@ -266,21 +283,10 @@ data |>
 :::
 ::::
 </details>
-::::
 
-::: column-margin
-```{r dnwstat}
+Cartes de l'accessibilité aux aménités
 
-download_this(
-  data |> 
-    st_drop_geometry() |> 
-    mutate(fromidINS = r3035::expand_idINS(fromidINS)),
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données accessibilité aux aménités au carreau, résidents", 
-  output_name = glue("amenites_idINS_pdvR_MetAMP.{version}"))
-```
-:::
+:::::
 
 
 ```{r}
