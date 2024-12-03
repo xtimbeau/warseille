@@ -7,7 +7,7 @@
 
 ```{r init, include=FALSE}
 source("init.R")
-version <- "1.1 \u03B1:0,5 ; \u03B2: 0,5"
+version <- "1.2 \u03B1:0,5 ; \u03B2: 0,5"
 ```
 
 # Déplacements pour le motif commerce
@@ -128,7 +128,7 @@ download_this(
     st_drop_geometry() |> 
     mutate(fromidINS = r3035::expand_idINS(fromidINS)),
   icon = "fa fa-download",
-  class = "dbtn",
+  class = "dbtn", 
   button_label = "données accessibilité aux aménités au carreau, résidents", 
   output_name = glue("amenites_idINS_pdvR_MetAMP.{version}"))
 ```
@@ -147,17 +147,17 @@ library(paletteer)
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data |> filter(type == "alim") |> drop_na(),
+    data = data |> filter(type == "alim") |> drop_na(wqse),
     mapping= aes(fill = wqse), col=NA) + 
   scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
-                         name = "Accessibilité Alimentaire : ", label = c("très faible", "", "", "", "très élevé"))+
+                         name = "Accessibilité alimentaire : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
   theme(legend.position = "bottom", 
         legend.title = element_text(size = rel(.7)),
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
   ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici commerces alimentaires)."))
+  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).", ofce=FALSE, wrap = 80)
 ```
 
 ## Autres commerces
@@ -167,12 +167,18 @@ ggplot() +
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data |> filter(type == "commerces"),
+    data= data |> filter(type == "commerces") |> drop_na(wqse),
     mapping= aes(fill = wqse), col=NA) + 
-  scale_fill_paletteer_c("PNWColors::Sunset2", direction=-1)+
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
+                         name = "Accessibilité autres commerces : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
-  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) +
+  guides(fill = guide_legend(nrow=1))+
+  ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
+  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici commerces autres qu'alimentaires).", ofce=FALSE, wrap = 80)
 ```
 
 ## Sorties
@@ -182,12 +188,17 @@ ggplot() +
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data |> filter(type == "sortie"),
+    data= data |> filter(type == "sortie") |> drop_na(wqse),
     mapping= aes(fill = wqse), col=NA) + 
-  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1)+
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
+                         name = "Accessibilité sorties : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
-  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) +
+  ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
+  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici restaurants, bars et cinéma).", ofce=FALSE, wrap = 80)
 ```
 
 ## Santé humaine
@@ -197,18 +208,24 @@ ggplot() +
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data |> filter(type == "sante"),
+    data= data |> filter(type == "sante") |> drop_na(wqse),
     mapping= aes(fill = wqse), col=NA) + 
-  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1)+
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
+                         name = "Accessibilité santé humaine : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
-  theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
-  labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) +
+  ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
+  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).", ofce=FALSE, wrap = 80)
 ```
 ::::
 </details>
 
+::::: {.column-body}
 <details name = "cac">
-<summary> Cartes interactives </summary>
+<summary>Cartes interactives</summary>
 
 :::: {.panel-tabset}
 ## Alimentation
@@ -283,6 +300,7 @@ data |>
 :::
 ::::
 </details>
+:::::
 
 Cartes de l'accessibilité aux aménités
 
@@ -364,10 +382,10 @@ On injecte l'indicateur de commerce alimentaire calculé dans les zones de rési
 ind_emc2 <- bd_read("ind_emc2")
 
 ind_emc2 <- ind_emc2 |> 
-  mutate(lse_q = santoku::chop_deciles(log(se))) 
+  mutate(se_q = santoku::chop_deciles(se)) 
 
-ggplot(ind_emc2 |> filter(!is.na(lse_q), n>10))+
-  aes(x = lse_q, y = d_car) +
+ggplot(ind_emc2 |> filter(!is.na(se_q), n>10))+
+  aes(x = se_q, y = d_car) +
   geom_boxplot(outliers = FALSE) + 
   theme_ofce()
 
@@ -376,7 +394,7 @@ ggplot(ind_emc2 |> filter(!is.na(lse_q), n>10))+
 La régression suivante confirme ce résultat :
 
 ```{r}
-lm( log(d_car) ~ log(se), data = ind_emc2 |> filter(!is.na(lse_q), n>10, d_car >0)) |> summary()
+lm( log(d_car) ~ log(se), data = ind_emc2 |> filter(!is.na(se_q), n>10, d_car >0)) |> summary()
 ```
 
 
