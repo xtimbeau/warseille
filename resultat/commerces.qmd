@@ -112,9 +112,13 @@ A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers param
 
 ### Indicateur
 
-::::: {#fig-surfeq_map }
-:::: {.details name = "cac" open}
-::: panel-tabset
+:::: {#fig-surfeq_map }
+
+<details name = "cac" open>
+
+<summary> Cartes statiques </summary>
+
+:::: panel-tabset
 ## Alimentation
 
 ```{r}
@@ -125,7 +129,7 @@ data <- bind_rows(
   bd_read("vqh_alim") |> mutate(type = "alim"),
   bd_read("vqh_comm") |> mutate(type = "commerces"),
   bd_read("vqh_loisir") |> mutate(type = "sortie"),
-  bd_read("vqh_sante") |> mutate(type = "santé")) |>
+  bd_read("vqh_sante") |> mutate(type = "sante")) |>
   r3035::sidINS2sf(idINS = "fromidINS") |> 
   mutate(wqse = factor(wqse))
 
@@ -184,11 +188,12 @@ ggplot() +
   theme(legend.position = "bottom", legend.key.height = unit(6, "pt")) +
   labs(caption=glue("*Source* : C200, OSM, Fichiers fonciers, version {version}"))
 ```
-:::
 ::::
+</details>
 
-:::: {.details name = "cac"}
-::: {.panel-tabset}
+<details name = "cac">
+<summary> Cartes interactives </summary>
+:::: {.panel-tabset}
 ## Alimentation
 ::: column-screen
 ```{r }
@@ -209,6 +214,7 @@ le <- legend_element(as.integer(legend$summary_values), rev(legend$summary_colou
 data |>
   filter(type == "alim") |> 
   transmute(
+    ind,
     lidINS= r3035::expand_idINS(fromidINS),
     tooltip=glue::glue(
     "<b>{type}</b><br>
@@ -229,7 +235,7 @@ data |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 :::
-## Aurtes commerces
+## Autres commerces
 
 ::: column-screen
 ```{r }
@@ -237,6 +243,7 @@ data |>
 data |>
   filter(type == "Autres commerces") |> 
   transmute(
+    ind,
     lidINS= r3035::expand_idINS(fromidINS),
     tooltip=glue::glue(
     "<b>{type}</b><br>
@@ -258,7 +265,8 @@ data |>
 ```
 :::
 ::::
-:::::
+</details>
+::::
 
 ::: column-margin
 ```{r dnwstat}
@@ -306,7 +314,7 @@ data |>
 data |> 
   st_drop_geometry() |> 
   select(ind, se, type, fromidINS) |> 
-  mutate(type = factor(type, label=c("alim", "comm"))) |> 
+  mutate(type = factor(type)) |> 
   pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
   ggplot() +
   geom_hex(aes(x = ind, y=alim, weight = ind)) +
@@ -325,10 +333,10 @@ data |>
 data |> 
   st_drop_geometry() |> 
   select(ind, se, type, fromidINS) |> 
-  mutate(type = factor(type, label=c("alim", "comm"))) |> 
+  mutate(type = factor(type)) |> 
   pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
   ggplot() +
-  geom_hex(aes(x = ind, y=comm, weight = ind)) +
+  geom_hex(aes(x = ind, y=commerces, weight = ind)) +
   scale_x_log10(name = "densité")+
   scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 1e+6))+
   scale_fill_gradient(low = "white", high = "yellow4")+
