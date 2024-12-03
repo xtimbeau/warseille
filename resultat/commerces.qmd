@@ -157,7 +157,7 @@ ggplot() +
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
   ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).", ofce=FALSE, wrap = 80)
+  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).", ofce=FALSE, wrap = 80)
 ```
 
 ## Autres commerces
@@ -178,7 +178,7 @@ ggplot() +
         legend.margin = margin(b=6)) +
   guides(fill = guide_legend(nrow=1))+
   ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici commerces autres qu'alimentaires).", ofce=FALSE, wrap = 80)
+  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces autres qu'alimentaires).", ofce=FALSE, wrap = 80)
 ```
 
 ## Sorties
@@ -198,7 +198,7 @@ ggplot() +
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
   ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici restaurants, bars et cinéma).", ofce=FALSE, wrap = 80)
+  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici restaurants, bars et cinéma).", ofce=FALSE, wrap = 80)
 ```
 
 ## Santé humaine
@@ -218,18 +218,17 @@ ggplot() +
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
   ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessible. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).", ofce=FALSE, wrap = 80)
+  note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).", ofce=FALSE, wrap = 80)
 ```
 ::::
+
 </details>
 
-::::: {.column-body}
 <details name = "cac">
 <summary>Cartes interactives</summary>
 
 :::: {.panel-tabset}
 ## Alimentation
-::::: column-page-inset-right
 
 ```{r }
 
@@ -269,10 +268,9 @@ data |>
               tooltip = "tooltip") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
-:::::
+
 ## Autres commerces
 
-::::: column-page-inset-right
 
 ```{r }
 
@@ -299,13 +297,14 @@ data |>
               tooltip = "tooltip") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
-
-:::::
 ::::
+
 </details>
-:::::
 
 Cartes de l'accessibilité aux aménités
+
+:::::
+
 
 
 ```{r}
@@ -328,9 +327,9 @@ data |>
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
 :::: {#fig-denscom}
 :::: {.panel-tabset}
-
 ## Alimentation
 
 ```{r}
@@ -348,7 +347,7 @@ data |>
   scale_fill_gradient(low = "white", high = "purple4")+
   theme_ofce(legend.position = c(0.05, 0.95),
              legend.justification = c(0,1),
-             legend.key.width = unit(24, "pt"))
+             legend.key.width = unit(36, "pt"))
 ```
 ## Autres commerces
 
@@ -364,15 +363,72 @@ data |>
   geom_hex(aes(x = ind, y=commerces, weight = ind)) +
   scale_x_log10(name = "densité")+
   scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 1e+6))+
-  scale_fill_gradient(low = "white", high = "yellow4")+
+  scale_fill_gradient(low = "white", high = "yellow3")+
   theme_ofce(legend.position = c(0.05, 0.95),
              legend.justification = c(0,1),
-             legend.key.width = unit(24, "pt"))
+             legend.key.width = unit(36, "pt"))
+```
+## Sorties
+
+```{r}
+#| fig-asp: 1
+
+data |> 
+  st_drop_geometry() |> 
+  select(ind, se, type, fromidINS) |> 
+  mutate(type = factor(type)) |> 
+  pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
+  ggplot() +
+  geom_hex(aes(x = ind, y=sortie, weight = ind)) +
+  scale_x_log10(name = "densité")+
+  scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 1e+6))+
+  scale_fill_gradient(low = "white", high = "orange3")+
+  theme_ofce(legend.position = c(0.05, 0.95),
+             legend.justification = c(0,1),
+             legend.key.width = unit(36, "pt"))
+```
+## Santé humaine
+
+```{r}
+#| fig-asp: 1
+
+data |> 
+  st_drop_geometry() |> 
+  select(ind, se, type, fromidINS) |> 
+  mutate(type = factor(type)) |> 
+  pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
+  ggplot() +
+  geom_hex(aes(x = ind, y=sante, weight = ind)) +
+  scale_x_log10(name = "densité")+
+  scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 1e+6))+
+  scale_fill_gradient(low = "white", high = "seagreen4")+
+  theme_ofce(legend.position = c(0.05, 0.95),
+             legend.justification = c(0,1),
+             legend.key.width = unit(36, "pt"))
 ```
 ::::
 Lien densité accessibilité aux commerces
-
 ::::
+
+### Courbes de Lorenz
+
+```{r}
+lorenz <- data |> 
+  st_drop_geometry() |> 
+  group_by(type) |> 
+  arrange(se) |> 
+  mutate(cumind = cumsum(ind)/sum(ind))
+
+ggplot(lorenz) + 
+  aes(x=cumind, y = se, color = type) +
+  geom_step()+
+  theme_ofce() + 
+  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", commerces = "yellow3")) +
+  scale_y_log10()
+
+```
+
+
 ### Indicateur et EMC^2^
 
 On injecte l'indicateur de commerce alimentaire calculé dans les zones de résidence de l'EMC^2^ AMP. On peut alors confronter les distances parcourues en voiture à la valeur moyenne de l'indicateur sur la zone. Le graphique indique une nette corrélation négative.
@@ -397,6 +453,8 @@ La régression suivante confirme ce résultat :
 ```{r}
 lm( log(d_car) ~ log(se), data = ind_emc2 |> filter(!is.na(se_q), n>10, d_car >0)) |> summary()
 ```
+
+### Densité inversée
 
 
 
