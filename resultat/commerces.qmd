@@ -6,8 +6,8 @@
 ---
 
 ```{r init, include=FALSE}
-source("init.R")
-version <- "1.2 \u03B1:0,5 ; \u03B2: 0,5"
+ofce::init_qmd()
+version <- bd_read("version_aa")
 ```
 
 # Déplacements pour le motif commerce
@@ -49,9 +49,9 @@ bd_read("Tmap zone de l'enquete")
 
 ```
 
-## Construction d'un indicateur de commerce
+## Construction d'un indicateur de proximité des aménités
 
-### sources de données
+### Sources de données
 
 La première étape est d'identifier les opportunités. Une des difficultés est la versalité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. Nous proposons ici d’agréger les surfaces commerciales pour chaque carreau en distinguant 4 grandes catégories de commerce. Ces catégories reprennent, avec réinterprétation, le travail réalisé par l'AUPA[^2].\
 Notre source principale est celle des fichiers fonciers. Elle donne une information fine sur les secteurs utilisateur du local (code NAF à 5 caractères pour l'entreprise utilisatrice) dans lequel on peut distinguer un commerce de chaussure d'une pharmacie, une supérette d'une grande surface alimentaire.nt des couches agrégées de commerces pour des types de ménages identifiés. Elle permet d'associer au commerce une surface (variable `sprincp` des fichiers fonciers).
@@ -60,7 +60,7 @@ Notre source principale est celle des fichiers fonciers. Elle donne une informat
 
 Nous classons les commerces en 4 catégories : alimentaire, commerces (non alimentaires), sorties, santé humaine.
 
-La classificaiton est indiquée dans le @tbl-classification. Par rapport aux choix de l'AUPA, nous avons considéré que les pharmacies étaient des commerces "ordinaires" et limité la notion de santé humaine aux cabinets médicaux (généralistes, spécialistes ou dentistes) en excluant les hôpitaux. Comme nous tenons compte de la surface, les hôpîtaux auraient dominé cette catégorie sans que cela ait vraiment du sens. Le but recherché est de quantifier l'usage habituel de la santé et donc la proximité de services de santé.
+La classification est indiquée dans le @tbl-classification. Par rapport aux choix de l'AUPA, nous avons considéré que les pharmacies étaient des commerces "ordinaires" et limité la notion de santé humaine aux cabinets médicaux (généralistes, spécialistes ou dentistes) en excluant les hôpitaux. Comme nous tenons compte de la surface, les hôpîtaux auraient dominé cette catégorie sans que cela ait vraiment du sens. Le but recherché est de quantifier l'usage habituel de la santé et donc la proximité de services de santé.
 
 ```{r}
 #| label: tbl-classification
@@ -89,7 +89,7 @@ bd_read("les_surfaces") |>
 
 ```
 
-Les sources alternatives aux fichiers fonciers sont
+Les sources alternatives aux fichiers fonciers sont :
 
 1.  la base des équipements. A notre connaissance, depuis le changement de nomenclature dans la base des fichiers fonciers de 2018, les fichiers fonciers excluent les entités juridiques qui n'ont pas d'activité et cette modification rapproche la source équipement de la source fichiers fonciers.
 2.  Des enquêtes sur les commerces, comme l'enquête BD COM 2020 à Paris, présentée par l'[APUR](https://www.apur.org/dataviz/commerces-paris/). Ce type d'enquête est assez robuste car il repose sur des observations directes des surfaces commerciales ouvertes au public. En revanche, le champ géographique est habituellement trop limité (ici uniquement la commune de Paris). Nous n'avons pas connaissance d'une enquête comparable pour l’agglomération AMP.
@@ -99,7 +99,7 @@ Les sources alternatives aux fichiers fonciers sont
 
 Nous tenons compte enfin de la diversité des commerces à partir de l'information des fichiers fonciers. Par exemple, pour la catégorie fonctionnelle commerce nous agrégeons les surfaces commerciales, en les multipliant par un indice de diversité qui est minimum lorsqu'une seule espèce de commerce est présente et maximal lorsque toutes les espèces sont représentées. Ce type d'indicateur est souvent utilisé en écologie. Il permet donc de donner plus de poids à un bouquet diversifié de commerce totalisant 1 000 m² plutôt qu'à un unique commerce (un garage disons) de 1 000 m².
 
-Formellement, l'indicateur de proxiumité des aménités $\mathcal{A}$ est construit comme :
+Formellement, l'indicateur de proximité des aménités $\mathcal{A}$ est construit comme :
 $$
 \mathcal{A}_c  = \sum_{j \in V_{15 \space min}(i)} {s_j^\alpha} \times  \left( \sum_{j \in V_{15 \space min}(i), j \in J} {\frac {1}{w_J \times p_J^2}} \right)^\beta
 $$
@@ -108,7 +108,7 @@ La première partie de l'indicateur $\mathcal{A}$ est la somme des surfaces dans
 
 Le rôle des paramètres $\alpha$ et $\beta$ est de moduler l'expression $\mathcal{A}_c$. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont camptabilisés, indepandement de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet mulitplicatif de la diversité, en écrasant les écarts de diversité. 
 
-A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers paramètres ($w_i$, $\alpha$, $\beta$). Nous avon sfixé des valeurs a priori, afin de pouvoir étudier des variantes et évaluer la différence d'analyse produite. Nous verrons que l'indicateur est utilisé non pas en tant que tel, mais principalement par quantile, ce qui le rend insensible à des transformtations monotones. 
+A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers paramètres ($w_i$, $\alpha$, $\beta$). Nous avons fixé des valeurs a priori, afin de pouvoir étudier des variantes et évaluer la différence d'analyse produite. Nous verrons que l'indicateur est utilisé non pas en tant que tel, mais principalement par quantile, ce qui le rend insensible à des transformtations monotones. 
 
 ### Indicateur de proximité des aménités pour AMP
 
@@ -147,8 +147,8 @@ library(paletteer)
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data = data |> filter(type == "alim") |> drop_na(wqse),
-    mapping= aes(fill = wqse), col=NA) + 
+    data = data |> filter(type == "alim") ,
+    mapping= aes(fill = factor(wqse)), col=NA) + 
   scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
                          name = "Accessibilité alimentaire : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
@@ -167,8 +167,8 @@ ggplot() +
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data |> filter(type == "commerces") |> drop_na(wqse),
-    mapping= aes(fill = wqse), col=NA) + 
+    data= data |> filter(type == "commerces"),
+    mapping= aes(fill = factor(wqse)), col=NA) + 
   scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
                          name = "Accessibilité autres commerces : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
@@ -188,8 +188,8 @@ ggplot() +
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data |> filter(type == "sortie") |> drop_na(wqse),
-    mapping= aes(fill = wqse), col=NA) + 
+    data= data |> filter(type == "sortie"),
+    mapping= aes(fill = factor(wqse)), col=NA) + 
   scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
                          name = "Accessibilité sorties : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
@@ -208,8 +208,8 @@ ggplot() +
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= data |> filter(type == "sante") |> drop_na(wqse),
-    mapping= aes(fill = wqse), col=NA) + 
+    data= data |> filter(type == "sante"),
+    mapping= aes(fill = factor(wqse)), col=NA) + 
   scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
                          name = "Accessibilité santé humaine : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
@@ -305,11 +305,13 @@ Cartes de l'accessibilité aux aménités
 
 :::::
 
+:::: {#fig-corrcomm}
 
+::: {.panel-tabset}
+
+## autres commerces
 
 ```{r}
-#| label: fig-corrcomm
-#| fig-cap: "Corrélation entre Alimentation et autres commerces"
 #| fig-asp: 1
 
 data |> 
@@ -320,13 +322,57 @@ data |>
   ggplot() +
   geom_hex(aes(x = alim, y=commerces, weight = ind)) +
   coord_equal() +
-  scale_x_log10(name = "surface équivalente des commerces alimentaires") +
-  scale_y_log10(name = "surface équivalente des autres commerces") +
+  scale_x_log10(name = "surface équivalente des commerces alimentaires", limits = c(1, 10000)) +
+  scale_y_log10(name = "surface équivalente des autres commerces", limits = c(1, 10000)) +
   scale_fill_gradient(low = "white", high = "steelblue4", name = "individus")+
   theme_ofce(legend.position = c(0.05, 0.95),
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
+## vs sorties
+
+```{r}
+#| fig-asp: 1
+
+data |> 
+  st_drop_geometry() |> 
+  select(ind, se, type, fromidINS) |> 
+  mutate(type = factor(type)) |> 
+  pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
+  ggplot() +
+  geom_hex(aes(x = alim, y=sortie, weight = ind)) +
+  coord_equal() +
+  scale_x_log10(name = "surface équivalente des commerces alimentaires", limits = c(1, 10000)) +
+  scale_y_log10(name = "surface équivalente des sorties (bars, restaurants, cinéma)", limits = c(1, 10000)) +
+  scale_fill_gradient(low = "white", high = "seagreen4", name = "individus")+
+  theme_ofce(legend.position = c(0.05, 0.95),
+             legend.justification = c(0,1),
+             legend.key.width = unit(36, "pt"))
+```
+## vs santé humaine
+
+```{r}
+#| fig-asp: 1
+
+data |> 
+  st_drop_geometry() |> 
+  select(ind, se, type, fromidINS) |> 
+  mutate(type = factor(type)) |> 
+  pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
+  ggplot() +
+  geom_hex(aes(x = alim, y=sante, weight = ind)) +
+  coord_equal() +
+  scale_x_log10(name = "surface équivalente des commerces alimentaires", limits = c(1, 10000)) +
+  scale_y_log10(name = "surface équivalente des sorties (bars, restaurants, cinéma)", limits = c(1, 10000)) +
+  scale_fill_gradient(low = "white", high = "darkorange3", name = "individus")+
+  theme_ofce(legend.position = c(0.05, 0.95),
+             legend.justification = c(0,1),
+             legend.key.width = unit(36, "pt"))
+```
+:::
+Corrélation entre Alimentation et autres commerces
+:::: 
 
 :::: {#fig-denscom}
 :::: {.panel-tabset}
@@ -413,18 +459,51 @@ Lien densité accessibilité aux commerces
 ### Courbes de Lorenz
 
 ```{r}
+#| label: fig-lorenz
+#| fig-cap: "Courbe de Lorenz, accessibilité aux aménités"
+#| fig-asp: 0.8
+
 lorenz <- data |> 
   st_drop_geometry() |> 
   group_by(type) |> 
   arrange(se) |> 
   mutate(cumind = cumsum(ind)/sum(ind))
 
-ggplot(lorenz) + 
+lorenz_redux <- lorenz|> 
+  mutate(
+    cumind = round(cumind,2)) |> 
+  group_by(cumind, type) |> 
+  summarize(se = mean(se)) |> 
+  group_by(type) |> 
+  mutate(rse = log(se)/max(log(se))) |> 
+  ungroup() |> 
+  mutate(
+    type = factor(type, c("alim", "sante", "commerces", "sortie"),
+                  c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")),
+    tooltip = glue("<b>{type}</b><br>{round(100*cumind)}% des résidents ont une accessibilité aux aménités d'au plus {round(se)} ({round(rse*100)}% du max)"))
+
+gg <- ggplot(lorenz) + 
   aes(x=cumind, y = se, color = type) +
-  geom_step()+
-  theme_ofce() + 
-  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", commerces = "yellow3")) +
-  scale_y_log10()
+  geom_step() +
+  geom_point_interactive(
+    shape = 1,size = 0.1, hover_nearest = TRUE,
+    data = lorenz_redux,
+    aes(tooltip = tooltip, data_id = cumind, color = type))+
+  theme_ofce(
+    legend.position = c(0.05, 0.95),
+    legend.justification = c(0,1),
+    legend.direction = "vertical" ) + 
+  xlab("% de la population de la métropole AMP") +
+  ylab("Accessibilité aux aménités") +
+  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", commerces = "yellow3"), name = "") +
+  scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
+  scale_y_log10() +
+  ofce_caption(
+    source  = glue("C200, OSM, fichiers fonciers {version}"), ofce = FALSE,
+    lecture = "Les individus sont classés dans l'ordre de leur accessibilité aux aménités. 10% de la population d'AMP n'a accès à aucun commerce alimentaire, contre 7% pour les commerces non alimentaires et 12% pour la santé humaine et 14% pour les bars, restaurants et cinéma.",
+    wrap = 80)
+
+girafy(gg, r=1)
 
 ```
 
