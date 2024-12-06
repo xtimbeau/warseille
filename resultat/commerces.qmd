@@ -149,7 +149,7 @@ ggplot() +
   geom_sf(
     data = data |> filter(type == "alim") ,
     mapping= aes(fill = factor(wqse)), col=NA) + 
-  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
+  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
                          name = "Accessibilité alimentaire : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
   theme(legend.position = "bottom", 
@@ -169,7 +169,7 @@ ggplot() +
   geom_sf(
     data= data |> filter(type == "commerces"),
     mapping= aes(fill = factor(wqse)), col=NA) + 
-  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
+  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
                          name = "Accessibilité autres commerces : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
   theme(legend.position = "bottom", 
@@ -190,7 +190,7 @@ ggplot() +
   geom_sf(
     data= data |> filter(type == "sortie"),
     mapping= aes(fill = factor(wqse)), col=NA) + 
-  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
+  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
                          name = "Accessibilité sorties : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
   theme(legend.position = "bottom", 
@@ -210,7 +210,7 @@ ggplot() +
   geom_sf(
     data= data |> filter(type == "sante"),
     mapping= aes(fill = factor(wqse)), col=NA) + 
-  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
+  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
                          name = "Accessibilité santé humaine : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
   theme(legend.position = "bottom", 
@@ -233,7 +233,7 @@ ggplot() +
 ```{r }
 
 library(colourvalues)
-pal <- paletteer_d("PNWColors::Sunset2", 5, direction=1) |> col2rgb() |> t()
+pal <- paletteer_d("fishualize::Bodianus_rufus", 5, direction=-1) |> col2rgb() |> t()
 color_txxk <- function(x, min = 1, max = 5, palette = pal, rev=FALSE) {
   if(rev) {
     color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
@@ -537,26 +537,42 @@ lm( log(d_car) ~ log(se), data = ind_emc2 |> filter(!is.na(se_q), n>10, d_car >0
 
 A partir des données de distance (ou de temps de parcours), de la localisation des résidents et des localisations des aménités, on puet construire un indicateur dit de "densité inversée" par lequel on représente la population qu'on balaye (soit à 15 minutes de marche ou de transport en commun, soit à 30 minutes de voiture).
 
-:::: {.panel-tabset}
-
-## 15 m. marche ou tc
 
 ```{r}
 #| fig-asp: 1
 dens_inv <- bd_read("dens_inv") |> 
+  group_by(idINS) |>
+  summarize(
+    scot = first(scot),
+    si_w = first(si_w),
+    si_c = first(si_c)) |> 
+  filter(!is.na(si_w)|!is.na(si_c)) |> 
   mutate(
     qsiw = as.numeric(cut(si_w, quantile(si_w, probs = 0:5/5, na.rm=TRUE), include.lowest = TRUE)),
     qsic = as.numeric(cut(si_c, quantile(si_c, probs = 0:5/5, na.rm=TRUE), include.lowest = TRUE))) |> 
+  select(idINS, qsic, qsiw, scot) |> 
+  ungroup() |> 
+  pivot_longer(cols = c(qsic, qsiw))  |> 
+  drop_na() |> 
+  mutate(value = factor(value),
+         name = factor(name, c("qsiw", "qsic"), c("Marche ou TC (15 min.)", "Voiture (30 min.)"))) |> 
   r3035::sidINS2sf()
 
+bb <- bd_read("communes") |> 
+  filter(INSEE_COM %in% c("13028", "13088", "13050", "13048")) |>
+  st_transform(3035) |> 
+  st_bbox()
+
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
-    data= dens_inv |> filter(scot) |> drop_na(qsiw),
-    mapping= aes(fill = factor(qsiw)), col=NA) + 
-  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
-                         name = "Accessibilité santé humaine : ", label = c("très faible", "", "", "", "très élevée"))+
+    data= dens_inv |> filter(scot),
+    mapping= aes(fill = value), col=NA) + 
+  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
+                         label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
+  facet_wrap(vars(name)) +
+  coord_sf(xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax), crs = st_crs(3035)) +
   theme(legend.position = "bottom", 
         legend.title = element_text(size = rel(.7)),
         legend.key.height = unit(6, "pt"),
@@ -564,26 +580,6 @@ ggplot() +
 
 ```
 
-## 30 m. voiture
-```{r}
-#| fig-asp: 1
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf(
-    data= dens_inv |> filter(scot) |> drop_na(qsic),
-    mapping= aes(fill = factor(qsic)), col=NA) + 
-  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
-                         name = "Accessibilité santé humaine : ", label = c("très faible", "", "", "", "très élevée"))+
-  theme_ofce_void() +
-  theme(legend.position = "bottom", 
-        legend.title = element_text(size = rel(.7)),
-        legend.key.height = unit(6, "pt"),
-        legend.margin = margin(b=6)) 
-
-
-```
-::::
 
 ## Références bibliographiques {.unnumbered}
 
