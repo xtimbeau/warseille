@@ -535,7 +535,55 @@ lm( log(d_car) ~ log(se), data = ind_emc2 |> filter(!is.na(se_q), n>10, d_car >0
 
 ### Densité inversée
 
+A partir des données de distance (ou de temps de parcours), de la localisation des résidents et des localisations des aménités, on puet construire un indicateur dit de "densité inversée" par lequel on représente la population qu'on balaye (soit à 15 minutes de marche ou de transport en commun, soit à 30 minutes de voiture).
 
+:::: {.panel-tabset}
+
+## 15 m. marche ou tc
+
+```{r}
+#| fig-asp: 1
+dens_inv <- bd_read("dens_inv") |> 
+  mutate(
+    qsiw = as.numeric(cut(si_w, quantile(si_w, probs = 0:5/5, na.rm=TRUE), include.lowest = TRUE)),
+    qsic = as.numeric(cut(si_c, quantile(si_c, probs = 0:5/5, na.rm=TRUE), include.lowest = TRUE))) |> 
+  r3035::sidINS2sf()
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= dens_inv |> filter(scot) |> drop_na(qsiw),
+    mapping= aes(fill = factor(qsiw)), col=NA) + 
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
+                         name = "Accessibilité santé humaine : ", label = c("très faible", "", "", "", "très élevée"))+
+  theme_ofce_void() +
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) 
+
+```
+
+## 30 m. voiture
+```{r}
+#| fig-asp: 1
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= dens_inv |> filter(scot) |> drop_na(qsic),
+    mapping= aes(fill = factor(qsic)), col=NA) + 
+  scale_fill_paletteer_d("PNWColors::Sunset2", direction=-1, 
+                         name = "Accessibilité santé humaine : ", label = c("très faible", "", "", "", "très élevée"))+
+  theme_ofce_void() +
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) 
+
+
+```
+::::
 
 ## Références bibliographiques {.unnumbered}
 
