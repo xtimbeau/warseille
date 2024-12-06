@@ -66,8 +66,8 @@ contributes:
       number-sections: true
       number-depth: 3
       html-math-method: katex
-      fig-dpi: 600
-      fig-format: png
+      fig-dpi: 1200
+      fig-format: svg
       reference-location: margin
       logo: ofce_m.png
       callout-icon: false
