@@ -16,8 +16,8 @@ library(sf)
 library(writexl)
 library(dplyr)
 conflict_prefer_all("dplyr", quiet = TRUE)
-source("secrets/azure.R")
-bl <- load("baselayer.rda")
+source("mglobals.r")
+
 
 # bloque les downloads
 download <- TRUE
@@ -218,6 +218,7 @@ communes <- communes |>
     scot = SIREN_EPCI %in% epci.metropole)
 
 qs::qsave(communes, communes_ar_file)
+bd_write(communes)
 
 iris <- qs::qread(iris_file)
 irises <- st_join(zone_emploi, iris) |> pull(CODE_IRIS)

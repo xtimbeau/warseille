@@ -9,12 +9,14 @@ library(conflicted)
 library(data.table)
 library(r3035)
 library(qs)
-conflict_prefer_all("dplyr", quiet=TRUE)
-source("secrets/azure.R")
+library(arrow)
+  conflict_prefer_all("dplyr", quiet=TRUE)
+source("mglobals.r")
 
 bl <- load("baselayer.rda")
 
 c200 <- qread(c200_file) 
+
 # version 2017
 
 mobpro95 <- qs::qread(mobpro_file)
@@ -22,8 +24,8 @@ mobpro95 <- qs::qread(mobpro_file)
 communes <- mobpro95 |> filter(mobpro95) |>  distinct(COMMUNE) |> pull()
 dclts <- mobpro95 |> filter(mobpro95) |> distinct(DCLT) |> pull()
 ttes_com <- unique(c(dclts, communes))
-
-iris <- qread(iris_file) |> 
+full_iris <- qread(iris_file)
+iris <- full_iris |> 
   filter(DEPCOM %in% ttes_com) |> 
   mutate(id = 1:n())
 
@@ -60,6 +62,31 @@ act_mobpro <- qs::qread(mobpro_file) |>
   summarize(act_mobpro.tot = sum(NB),
             fuite_mobpro.tot = sum(NB)-sum(NB[mobpro95==TRUE], na.rm=TRUE))
 
+# on ajoute les aménités
+c200a <- open_dataset(amenites_file) |> 
+  collect() |> 
+  mutate(idINS = r3035::expand_idINS(idINS)) |> 
+  r3035::idINS2sf() |> 
+  st_join(y  = full_iris, join = st_intersects)
+  
+c200a_orp <- c200a |> filter(is.na(CODE_IRIS)) |> 
+  select(idINS, starts_with("surf")) |> 
+  st_join(full_iris, join = st_nearest_feature)
+
+c200a <- bind_rows(c200a |> filter(!is.na(CODE_IRIS)),
+                   c200a_orp) |> 
+  st_drop_geometry() |> 
+  pivot_longer(cols = starts_with("surf"), names_to = "type", values_to = "surf") |> 
+  mutate(type = stringr::str_remove(type, "surf_eq_")) |> 
+  filter(surf>0) |> 
+  group_by(idINS) |> 
+  summarize(across(c(CODE_IRIS, DEPCOM), first),
+            amenite = str_c(type, collapse= "_")) |> 
+  transmute(idINS = r3035::contract_idINS(idINS), 
+            IRIS = CODE_IRIS, com = DEPCOM, com22 = DEPCOM, 
+            dep = stringr::str_sub(DEPCOM, 1, 2),
+            amenite)
+
 c200i <- c200 |> 
   semi_join(com_ze, by=c("com22"="idcom")) |> 
   mutate(IRIS = CODE_IRIS, 
@@ -80,15 +107,18 @@ c200e <- empze |>
     IRIS = iris$CODE_IRIS[flat_irises],
     emp, emp_resident) 
 
-c200ze <- full_join(c200i |> st_drop_geometry(), 
-                    c200e |> st_drop_geometry() |> select(idINS, emp, emp_resident, IRIS, com, dep),
+c200ze <- c200i |>
+  st_drop_geometry() |> 
+  full_join(c200e |> st_drop_geometry() |> select(idINS, emp, emp_resident, IRIS, com, dep),
                     by = "idINS", suffix = c("",".e")) |> 
+  full_join(c200a, by = "idINS", suffix = c("", ".a")) |> 
   mutate(
-    dep = if_else(is.na(dep), dep.e, dep),
-    com = if_else(is.na(com), com.e, com),
-    IRIS = if_else(is.na(IRIS), IRIS.e, IRIS),
-    across(c(emp, emp_resident, ind, men, adultes, ind_18_64, ind_snv, act_mobpro),~replace_na(.x, 0))) |>
-  select(-ends_with(".e")) |> 
+    dep = if_else(is.na(dep), if_else(is.na(dep.e), dep.a, dep.e), dep),
+    com = if_else(is.na(com), if_else(is.na(com.e), com.a, com.e), com),
+    IRIS = if_else(is.na(IRIS), if_else(is.na(IRIS.e), IRIS.a, IRIS.e), IRIS),
+    across(c(emp, emp_resident, ind, men, adultes, ind_18_64, ind_snv, act_mobpro),~replace_na(.x, 0)),
+    amenite = replace_na(amenite, "") ) |>
+  select(-ends_with(".e"), -ends_with(".a")) |> 
   mutate(geometry = r3035::sidINS2square(idINS)) |> 
   st_as_sf(crs=3035) 
 
