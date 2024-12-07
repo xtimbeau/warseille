@@ -28,11 +28,14 @@ trgc <- qs::qread(trgc_file)
 wdist <- trgc@triplet |> select(group_from=fromidINS, group_to = toidINS, w = d)
 
 tic();meaps <- multishuf_oc_grouped(
-  tranked, attraction="marche", parametres=c(4.5, 49.34), verbose=FALSE,
+  tranked, attraction="marche", parametres=c(13, 11.0455), verbose=FALSE,
   weights = wdist); toc()
 
-tic();meaps <- multishuf_oc_grouped(
-  trgc, attraction="marche", parametres=c(11.5, 6.86), verbose=FALSE,
+tic();meaps_c <- multishuf_oc_grouped(
+  trgc, attraction="marche", parametres=c(17.5, 4.94), verbose=FALSE,
+  weights = wdist); toc()
+tic();meaps_aic <- all_in_grouped(
+  trgc, attraction="marche", parametres=c(17.5, 4.94), verbose=FALSE,
   weights = wdist); toc()
 
 meaps <- all_in_grouped(
@@ -55,9 +58,8 @@ res_c <- meaps_optim(trgc, attraction="marche", c(5, 50),
                    weights = wdist, lower = c(0, 1), upper = c(100, 150), future = FALSE)
 
 res_ai_c <- meaps_optim(trgc, attraction="marche", c(5, 50), 
-                      version = "all_in", klway = "wlk", discret = seq(3,30, by=.5),
+                      version = "all_in", klway = "wlk", discret = seq(5,30, by=.5),
                       weights = wdist, lower = c(0, 1), upper = c(100, 150), future = TRUE)
-
 
 res_uw <- meaps_optim(tranked, attraction="marche", c(5, 50), 
                    version = "multishuf_oc", klway = "lk", discret = seq(3,15, by=.25),
@@ -67,4 +69,4 @@ res_ai_uw <- meaps_optim(tranked, attraction="marche", c(5, 50),
                       version = "all_in", klway = "lk", discret = seq(3,15, by=.25),
                       weights = wdist, lower = c(0, 1), upper = c(100, 150), future = TRUE)
 
-qs::qsave(list(res, res_ai, res_c, res_ai_c), "larcohelle_estimation.qs")
+qs::qsave(list(res, res_ai, res_c, res_ai_c), "AMP_estimation.qs")

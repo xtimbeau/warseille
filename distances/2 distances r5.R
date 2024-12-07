@@ -17,7 +17,7 @@ conflict_prefer_all( "dplyr", quiet=TRUE)
 conflict_prefer('wday', 'lubridate', quiet=TRUE)
 arrow::set_cpu_count(16)
 ## globals --------------------
-load("baselayer.rda")
+source("mglobals.r")
 
 # ds <- open_dataset("DVFdata", partitioning = c("Communes"))
 
@@ -33,9 +33,9 @@ DCLTs <- mobpro |> distinct(DCLT) |> pull()
 
 idINSes <- qs::qread(c200ze_file) |> 
   st_drop_geometry() |> 
-  select(com=com, idINS, scot, emp_resident, ind, act_mobpro) |> 
+  select(com=com, idINS, scot, emp_resident, ind, amenite) |> 
   mutate(from = scot & (ind>0) & com%in%COMMUNEs,
-         to = emp_resident>0 & com%in%DCLTs) |> 
+         to = (emp_resident>0 & com%in%DCLTs) | (amenite != "") | (ind>0)) |> 
   filter(from | to)
 
 origines <- idINSes |> 
@@ -47,8 +47,8 @@ origines <- idINSes |>
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
 destinations <- idINSes |> 
-  semi_join(mobpro |> distinct(DCLT), by = c("com"="DCLT")) |> 
-  filter(emp_resident>0) |> 
+  # semi_join(mobpro |> distinct(DCLT), by = c("com"="DCLT")) |> 
+  filter(to) |> 
   mutate(lon = r3035::idINS2lonlat(idINS)$lon,
          lat = r3035::idINS2lonlat(idINS)$lat) |> 
   select(lon, lat, idINS, emp_resident) |> 
@@ -104,7 +104,7 @@ walk(coms, ~{
     "{mdir}/distances/src/transit/{.x}/transit.parquet" |> glue())
 }, .progress=TRUE)
 
-## transit 95 --------------
+ ## transit 95 --------------
 future::plan("multisession", workers=4)
 
 r5_transit5 <- routing_setup_r5(
