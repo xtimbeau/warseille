@@ -6,8 +6,9 @@
 ---
 
 ```{r init, include=FALSE}
-ofce::init_qmd()
+uu <- ofce::init_qmd()
 version <- bd_read("version_aa")
+library(paletteer)
 ```
 
 # Déplacements pour le motif commerce
@@ -43,10 +44,22 @@ L'enquête mobilité certifiée CEREMA (EMC^2^) délivre une information de loca
 ```{r}
 #| label: fig-subemc2
 #| fig-cap: "Subdivisions de l'EMC^2^"
-tmap_mode("view")
-tmap_options(check.and.fix = TRUE)
-bd_read("Tmap zone de l'enquete")
+zones_res <- bd_read("zones_res") |> 
+  mutate(tooltip = glue("<b>{NOM_ZF}</b><br>Commune : {CODE_COM}")) |> 
+  st_transform(4326) |> 
+  st_simplify(dTolerance = 100)
+bb <- st_bbox(zones_res)
+memc2 <- ggplot() +
+  bd_read("decor_carte_large") +
+  geom_sf(
+    data = zones_res,
+    mapping= aes(fill = CODE_COM, tooltip = tooltip), 
+    col="white", linewidth = 0.1, alpha = .5, show.legend=FALSE) + 
+  coord_sf(crs = st_crs(4326), xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax)) +
+  theme_ofce_void() +
+  ofce::ofce_caption(source="EMC^2^, Enquête Mobilité Certifiée CEREMA", ofce=FALSE, wrap = 80)
 
+memc2
 ```
 
 ## Construction d'un indicateur de proximité des aménités

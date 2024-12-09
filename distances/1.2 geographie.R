@@ -17,8 +17,7 @@ library(writexl)
 library(dplyr)
 conflict_prefer_all("dplyr", quiet = TRUE)
 source("secrets/azure.R")
-bl <- load("baselayer.rda")
-
+source("mglobals.r")
 # bloque les downloads
 download <- TRUE
 
