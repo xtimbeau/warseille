@@ -15,7 +15,7 @@ conflict_prefer_all( "dplyr", quiet=TRUE)
 conflict_prefer('wday', 'lubridate', quiet=TRUE)
 
 ## globals --------------------
-load("baselayer.rda")
+source("mglobals.r")
 
 # OSM en format silicate ------------
 # c'est enregistré, donc on peut passer si c'est  déjà fait
@@ -42,9 +42,9 @@ DCLTs <- mobpro |> distinct(DCLT) |> pull()
 
 idINSes <- qs::qread(c200ze_file) |> 
   st_drop_geometry() |> 
-  select(com=com, idINS, scot, emp_resident, ind) |> 
+  select(com=com, idINS, scot, emp_resident, ind, amenite) |> 
   mutate(from = scot & (ind>0) & com%in%COMMUNEs,
-         to = emp_resident>0 & com%in%DCLTs) |> 
+         to = (emp_resident>0 & com%in%DCLTs) | (amenite != "") | (ind>0)) |> 
   filter(from | to)
 
 # voiture ---------
@@ -56,7 +56,7 @@ car_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                   wt_profile_file = "distances/dodgr_profiles_altcar.json",
                                   distances = TRUE,
                                   denivele = TRUE,
-                                  n_threads = 16L,
+                                  n_threads = 24L,
                                   overwrite = TRUE,
                                   nofuture = TRUE)
 qs::qsave(car_router, "/space_mounts/data/marseille/distances/car_router.qs")
@@ -115,7 +115,7 @@ walk_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                    turn_penalty = TRUE,
                                    distances = TRUE,
                                    denivele = TRUE,
-                                   n_threads = 16L,
+                                   n_threads = 32L,
                                    overwrite = TRUE,
                                    nofuture = TRUE)
 

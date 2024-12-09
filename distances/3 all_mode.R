@@ -19,14 +19,19 @@ progressr::handlers(progressr::handler_progress(format = ":bar :percent :eta", w
 arrow::set_cpu_count(8)
 
 cli::cli_alert_info("lecture de baselayer dans {.path {getwd()}}")
-load("baselayer.rda")
+source("mglobals.r")
 
 modes <- set_names(c("walk_tblr", 'bike_tblr', 'car_dgr'))
 
-communes <- com2021epci |> pull(INSEE_COM)
+communes <- qs::qread(communes_ref_file) |> 
+  filter(ar)|> 
+  st_drop_geometry() |> 
+  filter(SIREN_EPCI %in% epci.metropole) |> 
+  pull(INSEE_COM) |> sort()
+
 unlink(dist_dts, recursive=TRUE, force=TRUE)
 dir.create(dist_dts)
-plan("multisession", workers = 8)
+plan("multisession", workers = 4)
 distances <- future_walk(communes, \(commune) {
   dirn <- str_c(dist_dts, "/", commune)
   dir.create(dirn)

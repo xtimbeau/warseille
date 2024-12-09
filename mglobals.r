@@ -24,8 +24,8 @@ newpredict_file <- "annexes/newpredict.r"
 enqmobstarter_file <- "enqmob_starter_V2.R"
 mod_rep <- "{mdir}/mod" |> glue()
 output_rep <- "{mdir}/output/" |> glue()
-dir.create(output_rep)
-dir.create(mod_rep)
+dir.create(output_rep, showWarnings = FALSE)
+dir.create(mod_rep, showWarnings = FALSE)
 
 # distances, probas et tutti quanti
 r5files_rep <- "{mdir}/distances/router" |> glue()
@@ -43,15 +43,16 @@ kmpro_file <- "{dir_dist}/km_pro.parquet"
 kmnonpro_file <- "{dir_dist}/km_nonpro.parquet"
 trajets_pro_file <- "{dir_dist}/trajets_pro.parquet" |> glue()
 meaps_rep <- "{dir_dist}/meaps" |> glue()
-dir.create(meaps_rep)
+dir.create(meaps_rep, showWarnings = FALSE)
 meaps_file <- "{meaps_rep}/meaps_est.rda" |> glue()
 decor_carte_file <- "{mdir}/decor_carte.rda" |> glue()
 mobilites_file <- "{mdir}/mobilites.qs" |> glue()
 repository_notc <- "{temp_dir}/notc" |> glue()
-dir.create(repository_notc)
+dir.create(repository_notc, showWarnings = FALSE)
 localr5 <- str_c(localdata, "/r5_base")
 localr5car <- str_c(localdata, "/r5car")
 
+amenites_file <- "{dir_dist}/amenites.qs" |> glue()
 trg_file <- "{dir_dist}/trg.qs" |> glue()
 drg_file <- "{dir_dist}/drg.qs" |> glue()
 trgc_file <- "{dir_dist}/trgc.qs" |> glue()
