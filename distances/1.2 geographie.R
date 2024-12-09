@@ -255,7 +255,7 @@ bbx <- st_bbox(com2021epci)
 
 mblr3_large <- mapboxapi::get_static_tiles(
   location = st_union(communes |> filter(ze)) |> st_buffer(-1000) |> st_transform(4326),
-  zoom=10, 
+  zoom=9, 
   style_id = "ckjka0noe1eg819qrhuu1vigs", 
   username="xtimbeau",
   access_token = Sys.getenv("mapbox_token")) 
