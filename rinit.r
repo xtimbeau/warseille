@@ -174,5 +174,3 @@ tkn <- Sys.getenv("mapbox_token")
 mapdeck::set_token(tkn)
 
 style <- "mapbox://styles/xtimbeau/ckyx5exex000r15n0rljbh8od"
-
-
