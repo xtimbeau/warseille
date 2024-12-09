@@ -42,10 +42,11 @@ DCLTs <- mobpro |> distinct(DCLT) |> pull()
 
 idINSes <- qs::qread(c200ze_file) |> 
   st_drop_geometry() |> 
-  select(com=com, idINS, scot, emp_resident, ind, amenite) |> 
-  mutate(from = scot & (ind>0) & com%in%COMMUNEs,
-         to = (emp_resident>0 & com%in%DCLTs) | (amenite != "") | (ind>0)) |> 
-  filter(from | to)
+  select(com=com, idINS, scot, emp_resident, ind, amenite, ze) |> 
+  mutate(
+    from = ze & (ind>0) ,
+    to = (emp_resident>0) | (amenite != "" & ze) | (ind>0 & ze)) |> 
+  filter((from ) | (to ))
 
 # voiture ---------
 
@@ -56,14 +57,16 @@ car_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                   wt_profile_file = "distances/dodgr_profiles_altcar.json",
                                   distances = TRUE,
                                   denivele = TRUE,
-                                  n_threads = 24L,
+                                  n_threads = 16L,
                                   overwrite = TRUE,
                                   nofuture = TRUE)
 qs::qsave(car_router, "/space_mounts/data/marseille/distances/car_router.qs")
 car_router <- qs::qread("/space_mounts/data/marseille/distances/car_router.qs")
+path <- glue("{mdir}/distances/src/car_dgr2")
+unlink(path, recursive=TRUE)
 dgr_distances_by_com(idINSes, mobpro,
                      car_router, 
-                     path=glue("{mdir}/distances/src/car_dgr2"),
+                     path=path,
                      clusterize = TRUE)  
 
 # on patche les distances en voiture afin d'introduire un coût fixe de démarrage et 
@@ -74,7 +77,7 @@ dgr_distances_by_com(idINSes, mobpro,
 
 gc()
 
-car_dgr2 <- open_dataset(glue("{mdir}/distances/src/car_dgr2")) |> 
+car_dgr2 <- open_dataset(path) |> 
   to_duckdb()
 
 qs::qread(c200ze_file) |> 
@@ -115,7 +118,7 @@ walk_router <- routing_setup_dodgr(path = glue("{mdir}/dodgr/"),
                                    turn_penalty = TRUE,
                                    distances = TRUE,
                                    denivele = TRUE,
-                                   n_threads = 32L,
+                                   n_threads = 16L,
                                    overwrite = TRUE,
                                    nofuture = TRUE)
 
