@@ -31,7 +31,7 @@ communes <- qs::qread(communes_ref_file) |>
 
 unlink(dist_dts, recursive=TRUE, force=TRUE)
 dir.create(dist_dts)
-plan("multisession", workers = 4)
+plan("multisession", workers = 2)
 distances <- future_walk(communes, \(commune) {
   dirn <- str_c(dist_dts, "/", commune)
   dir.create(dirn)
