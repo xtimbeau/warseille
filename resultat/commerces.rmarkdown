@@ -11,6 +11,10 @@ version <- bd_read("version_aa")
 library(paletteer)
 ```
 
+
+
+
+
 # Déplacements pour le motif commerce
 
 ## Proposition de méthode
@@ -21,6 +25,10 @@ L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose
 
 En particulier, le motif commerce est plus complexe à appréhender parce que les lieux de commerces sont nombreux, bien plus nombreux que les lieux d'étude ou de travail. Or le motif commerce est un élément important des mobilités. Le @tbl-emp donne les valeurs agrégées moyenne pour un adulte en France hors Ile de France. Le motif "courses" représente 15% des kilomètres parcourus.
 
+
+
+
+
 ```{r}
 #| label: tbl-emp
 #| tbl-cap: Enquête mobilité des personnes 2019
@@ -29,7 +37,15 @@ bd_read("EMP2019_AA3") |> pluck(1)
 
 ```
 
+
+
+
+
 L'enquête EMC^2^ donne une information construite sur le même schéma d'enquête que l'enquête mobilité nationale. On peut donc la comparer avec l'enquête nationale. Le @tbl-emc2 est construit comme pour l'EMP. Ce tableau est encore en construction, et nous devons affiner l'utilisation des pondérations. D'autre part, il ne concerne que les jours de semaine, nous n'avons pas intégré la base pour les week-ends. D'autres vérifications sont nécessaires. A ce stade, notre exploitation de l'EMC^2^ montre moins de kilomètres parcourus dans la métropole d'Aix Marseille Provence.
+
+
+
+
 
 ```{r}
 #| label: tbl-emc2
@@ -39,7 +55,15 @@ bd_read("EMP_Marseille_AA3") |> pluck(1)
 
 ```
 
+
+
+
+
 L'enquête mobilité certifiée CEREMA (EMC^2^) délivre une information de location assez fine. Elle correspond peu ou prou à la définition de l'IRIS [@fig-subemc2]. Cette information permet donc pour d'autres motifs que le motif professionnel de construire une matrice origine destination, c'est-à-dire une information comparable à la donnée du recensement MOPBRO. Il existe cependant une nuance importante, l'EMC^2^ repose sur un échantillon représentatif mais pas exhaustif. Or, pour construire une matrice origine destination détaillée au niveau le plus fin, il faudrait un échantillon bien plus important. En revanche pour des découpages moins fins (14 zones comme dans le découpage D10 AOTU) ou encore des découpages "fonctionnels", reposant sur la caractérisation des zones par la surface de commerce. C'est sur cette base que nous proposons d'ajuster un modèle de trajets effectifs semblable à MEAPS pour les mobilités professionnelles.
+
+
+
+
 
 ```{r}
 #| label: fig-subemc2
@@ -62,6 +86,10 @@ memc2 <- ggplot() +
 memc2
 ```
 
+
+
+
+
 ## Construction d'un indicateur de proximité des aménités
 
 ### Sources de données
@@ -74,6 +102,10 @@ Notre source principale est celle des fichiers fonciers. Elle donne une informat
 Nous classons les commerces en 4 catégories : alimentaire, commerces (non alimentaires), sorties, santé humaine.
 
 La classification est indiquée dans le @tbl-classification. Par rapport aux choix de l'AUPA, nous avons considéré que les pharmacies étaient des commerces "ordinaires" et limité la notion de santé humaine aux cabinets médicaux (généralistes, spécialistes ou dentistes) en excluant les hôpitaux. Comme nous tenons compte de la surface, les hôpîtaux auraient dominé cette catégorie sans que cela ait vraiment du sens. Le but recherché est de quantifier l'usage habituel de la santé et donc la proximité de services de santé.
+
+
+
+
 
 ```{r}
 #| label: tbl-classification
@@ -89,7 +121,15 @@ readxl::read_xlsx("commerces/classification.xlsx") |>
   cols_label(`Catégorie` = "")
 ```
 
+
+
+
+
 Les fichiers fonciers, bien que construit pour la perception d'une taxe comportent parfois des informations curieuses, pouvant laisser croire à un bruit. Par exemple, certaines surfaces commerciales sont très importantes (il existe des supérettes de plus de 100 000 m²) ou la notion de surface principale est parfois ambigue (comme le montre celle qui est retenue pour les campings). Nous utilisons donc avec prudence cette donnée en la limitant suivant certaines catégories. Ainsi, le @tbl-cap donne les intervalles dans lesquels sont contraintes les surfaces principales.
+
+
+
+
 
 ```{r}
 #| label: tbl-cap
@@ -101,6 +141,10 @@ bd_read("les_surfaces") |>
   cols_hide(surf) 
 
 ```
+
+
+
+
 
 Les sources alternatives aux fichiers fonciers sont :
 
@@ -126,6 +170,10 @@ A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers param
 Le paramètre $\beta$ est sélectionné de façon à égaliser les rapports interquantiles de la surface ajustée. Ceci conduit à donner un poids égal à la diversité et à la surface ajustée dans la surface équivalente. EN changeant le paramètre $\beta$ on peut modifier ce ratio.
 
 Pour les différents super type de commerces, le tableau suivant résume le nombre d'espèce et quelques statistiques essentielles :
+
+
+
+
 
 ```{r}
 #| label: tbl-commerces
@@ -219,11 +267,19 @@ tbl2 |>
 ```
 
 
+
+
+
+
 ### Indicateur de proximité des aménités pour AMP
 
 ::::: {#fig-surfeq_map }
 
 ::: column-margin
+
+
+
+
 ```{r dnwstat}
 vqh <- bd_read("vqh") |>
   r3035::sidINS2sf(idINS = "fromidINS") |> 
@@ -238,6 +294,10 @@ download_this(
   button_label = "données accessibilité aux aménités au carreau, résidents", 
   output_name = glue("amenites_idINS_pdvR_MetAMP.{version}"))
 ```
+
+
+
+
 :::
 
 <details name = "cac" open>
@@ -245,6 +305,10 @@ download_this(
 
 :::: panel-tabset
 ## Alimentation
+
+
+
+
 
 ```{r}
 #| fig-asp: 1
@@ -266,7 +330,15 @@ ggplot() +
                      note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).", ofce=FALSE, wrap = 80)
 ```
 
+
+
+
+
 ## Autres commerces
+
+
+
+
 ```{r}
 #| fig-asp: 1
 
@@ -287,7 +359,15 @@ ggplot() +
                      note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces autres qu'alimentaires).", ofce=FALSE, wrap = 80)
 ```
 
+
+
+
+
 ## Sorties
+
+
+
+
 ```{r}
 #| fig-asp: 1
 
@@ -307,7 +387,15 @@ ggplot() +
                      note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici restaurants, bars et cinéma).", ofce=FALSE, wrap = 80)
 ```
 
+
+
+
+
 ## Santé humaine
+
+
+
+
 ```{r}
 #| fig-asp: 1
 
@@ -326,6 +414,10 @@ ggplot() +
   ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
                      note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).", ofce=FALSE, wrap = 80)
 ```
+
+
+
+
 ::::
 
 </details>
@@ -335,6 +427,10 @@ ggplot() +
 
 :::: {.panel-tabset}
 ## Alimentation
+
+
+
+
 
 ```{r }
 
@@ -375,7 +471,15 @@ vqh |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
 
+
+
+
+
 ## Autres commerces
+
+
+
+
 
 
 ```{r }
@@ -403,6 +507,10 @@ vqh |>
               tooltip = "tooltip") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
+
+
+
+
 ::::
 
 </details>
@@ -416,6 +524,10 @@ Cartes de l'accessibilité aux aménités
 ::: {.panel-tabset}
 
 ## autres commerces
+
+
+
+
 
 ```{r}
 #| fig-asp: 1
@@ -436,7 +548,15 @@ vqh |>
              legend.key.width = unit(36, "pt"))
 ```
 
+
+
+
+
 ## vs sorties
+
+
+
+
 
 ```{r}
 #| fig-asp: 1
@@ -456,7 +576,15 @@ vqh |>
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
+
+
+
 ## vs santé humaine
+
+
+
+
 
 ```{r}
 #| fig-asp: 1
@@ -476,6 +604,10 @@ vqh |>
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
+
+
+
 :::
 Corrélation entre Alimentation et autres commerces
 :::: 
@@ -483,6 +615,10 @@ Corrélation entre Alimentation et autres commerces
 :::: {#fig-denscom}
 :::: {.panel-tabset}
 ## Alimentation
+
+
+
+
 
 ```{r}
 #| fig-asp: 1
@@ -502,7 +638,15 @@ vqh |>
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
+
+
+
 ## Autres commerces
+
+
+
+
 
 ```{r}
 #| fig-asp: 1
@@ -522,7 +666,15 @@ vqh |>
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
+
+
+
 ## Sorties
+
+
+
+
 
 ```{r}
 #| fig-asp: 1
@@ -542,7 +694,15 @@ vqh |>
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
+
+
+
 ## Santé humaine
+
+
+
+
 
 ```{r}
 #| fig-asp: 1
@@ -562,11 +722,19 @@ vqh |>
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
+
+
+
 ::::
 Lien densité accessibilité aux commerces
 ::::
 
 ### Courbes de Lorenz
+
+
+
+
 
 ```{r}
 #| label: fig-lorenz
@@ -622,9 +790,17 @@ girafy(gg, r=1)
 ```
 
 
+
+
+
+
 ### Indicateur et EMC^2^
 
 On injecte l'indicateur de commerce alimentaire calculé dans les zones de résidence de l'EMC^2^ AMP. On peut alors confronter les distances parcourues en voiture à la valeur moyenne de l'indicateur sur la zone. Le graphique indique une nette corrélation négative.
+
+
+
+
 
 ```{r}
 #| label: fig-emc2alim
@@ -651,7 +827,15 @@ ggplot(data_emc2 |> filter(!is.na(q), n>10))+
 
 ```
 
+
+
+
+
 La régression suivante confirme ce résultat :
+
+
+
+
 
 ```{r}
 n_min <- 10
@@ -704,9 +888,17 @@ res |>
 
 ```
 
+
+
+
+
 ### Densité inversée
 
 A partir des données de distance (ou de temps de parcours), de la localisation des résidents et des localisations des aménités, on puet construire un indicateur dit de "densité inversée" par lequel on représente la population qu'on balaye (soit à 15 minutes de marche ou de transport en commun, soit à 30 minutes de voiture).
+
+
+
+
 
 
 ```{r}
@@ -752,7 +944,12 @@ ggplot() +
 ```
 
 
+
+
+
+
 ## Références bibliographiques {.unnumbered}
 
 ::: {#refs}
 :::
+
