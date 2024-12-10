@@ -33,14 +33,14 @@ DCLTs <- mobpro |> distinct(DCLT) |> pull()
 
 idINSes <- qs::qread(c200ze_file) |> 
   st_drop_geometry() |> 
-  select(com=com, idINS, scot, emp_resident, ind, amenite) |> 
-  mutate(from = scot & (ind>0) & com%in%COMMUNEs,
-         to = (emp_resident>0 & com%in%DCLTs) | (amenite != "") | (ind>0)) |> 
-  filter(from | to)
+  select(com=com, idINS, scot, emp_resident, ind, amenite, ze) |> 
+  mutate(
+    from = ze & (ind>0) ,
+    to = (emp_resident>0) | (amenite != "" & ze) | (ind>0 & ze)) |> 
+  filter((from ) | (to ))
 
 origines <- idINSes |> 
-  semi_join(mobpro |> distinct(COMMUNE), by = c("com"="COMMUNE")) |> 
-  filter(ind>0) |> 
+  filter(from) |> 
   mutate(lon = r3035::idINS2lonlat(idINS)$lon,
          lat = r3035::idINS2lonlat(idINS)$lat) |> 
   select(lon, lat, idINS, ind) |> 
@@ -71,7 +71,7 @@ future::plan("multisession", workers=4)
 r5_transit <- routing_setup_r5(
   path = '~/files/localr5/', 
   date=jour_du_transit,
-  n_threads = 16,
+  n_threads = 8,
   extended = TRUE)
 
 iso_transit_dt <- iso_accessibilite(quoi = destinations, 
@@ -104,7 +104,7 @@ walk(coms, ~{
     "{mdir}/distances/src/transit/{.x}/transit.parquet" |> glue())
 }, .progress=TRUE)
 
- ## transit 95 --------------
+  ## transit 95 --------------
 future::plan("multisession", workers=4)
 
 r5_transit5 <- routing_setup_r5(
