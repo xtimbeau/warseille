@@ -41,6 +41,8 @@ bd_read("EMP_Marseille_AA3") |> pluck(1)
 
 L'enquête mobilité certifiée CEREMA (EMC^2^) délivre une information de location assez fine. Elle correspond peu ou prou à la définition de l'IRIS [@fig-subemc2]. Cette information permet donc pour d'autres motifs que le motif professionnel de construire une matrice origine destination, c'est-à-dire une information comparable à la donnée du recensement MOPBRO. Il existe cependant une nuance importante, l'EMC^2^ repose sur un échantillon représentatif mais pas exhaustif. Or, pour construire une matrice origine destination détaillée au niveau le plus fin, il faudrait un échantillon bien plus important. En revanche pour des découpages moins fins (14 zones comme dans le découpage D10 AOTU) ou encore des découpages "fonctionnels", reposant sur la caractérisation des zones par la surface de commerce. C'est sur cette base que nous proposons d'ajuster un modèle de trajets effectifs semblable à MEAPS pour les mobilités professionnelles.
 
+Le périmètre de l'EMC^2^ est plus large que celui de l'EPCI AMP. Nous limitons notre analyse de l'accès aux zones commerciales au périmètre de l'EPCI (AMP) et donc "oublions" les observations de l'EMC^2^ qui sont en dehors.
+
 ```{r}
 #| label: fig-subemc2
 #| fig-cap: "Subdivisions de l'EMC^2^"
@@ -49,12 +51,14 @@ zones_res <- bd_read("zones_res") |>
   st_transform(4326) |> 
   st_simplify(dTolerance = 100)
 bb <- st_bbox(zones_res)
+coms <- bd_read("communes") |> filter(SIREN_EPCI == SIREN_EPCI[INSEE_COM=="13101"]) |> st_union()
 memc2 <- ggplot() +
   bd_read("decor_carte_large") +
   geom_sf(
     data = zones_res,
     mapping= aes(fill = CODE_COM, tooltip = tooltip), 
     col="white", linewidth = 0.1, alpha = .5, show.legend=FALSE) + 
+  geom_sf(data=coms, color = "black", linewidth = 0.2, fill = "transparent") +
   coord_sf(crs = st_crs(4326), xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax)) +
   theme_ofce_void() +
   ofce::ofce_caption(source="EMC^2^, Enquête Mobilité Certifiée CEREMA", ofce=FALSE, wrap = 80)
@@ -113,17 +117,18 @@ Les sources alternatives aux fichiers fonciers sont :
 Nous tenons compte enfin de la diversité des commerces à partir de l'information des fichiers fonciers. Par exemple, pour la catégorie fonctionnelle commerce nous agrégeons les surfaces commerciales, en les multipliant par un indice de diversité qui est minimum lorsqu'une seule espèce de commerce est présente et maximal lorsque toutes les espèces sont représentées. Ce type d'indicateur est souvent utilisé en écologie. Il permet donc de donner plus de poids à un bouquet diversifié de commerce totalisant 1 000 m² plutôt qu'à un unique commerce (un garage disons) de 1 000 m².
 
 Formellement, l'indicateur de proximité des aménités $\mathcal{A}$ est construit comme :
+
 $$
 \mathcal{A}_c  = \left( \sum_{j \in V_{15 \space min}(i), j\in J} {s_j^\alpha \times w_J^{1-\alpha}}\right)^\beta \times  \sum_{j \in V_{15 \space min}(i), j \in J} {\frac {1}{w_J \times p_J^2}} 
 $$
 
 La première partie de l'indicateur $\mathcal{A}$ est la somme des surfaces dans le vosinage de chaque carreau de résidents à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie de l'indicateur permet de prendre en compte la diversité des commerces accessibles dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (par exemple, parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifiques). Le paramètre $w_J$ accorde aux catégories un poids en diversité, permettant de compter les grandes surfaces alimentaires comme contribuant plus à la diversité qu'une surface commerciale spécialisée.
 
-Le rôle des paramètres $\alpha$ et $\beta$ est de moduler l'expression $\mathcal{A}_c$. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont camptabilisés, indepandement de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet multiplicatif de la surface. 
+Le rôle des paramètres $\alpha$ et $\beta$ est de moduler l'expression $\mathcal{A}_c$. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont camptabilisés, indepandement de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet multiplicatif de la surface.
 
-A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers paramètres ($w_i$, $\alpha$, $\beta$). Nous avons fixé des valeurs a priori, afin de pouvoir étudier des variantes et évaluer la différence d'analyse produite. Nous verrons que l'indicateur est utilisé non pas en tant que tel, mais principalement par quantile, ce qui le rend insensible à des transformations monotones. L'heuristique consiste à choisir $\alpha$ et $w_i$ de façon à ce que les surfaces ne comptent pas trop. Si on considère un groupe de 6 commerces spécialisés de 100m², on souhaite que ces commerces soient comparables à un super marché de 2500m². En choisissant $w_i = 6$ pour le supermarché et $\alpha = 0.25$ la surface ajustée vaut 3,4 pour les 6 commerces et 4,2 pour le supermarché. Pour des commerces spécialisés de 50m², la surface ajustée serait de 3,1 et de 4,7 pour un hypermarché de 5000 m².  Ce choix donne donc une importance modérée aux surfaces. 
+A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers paramètres ($w_i$, $\alpha$, $\beta$). Nous avons fixé des valeurs a priori, afin de pouvoir étudier des variantes et évaluer la différence d'analyse produite. Nous verrons que l'indicateur est utilisé non pas en tant que tel, mais principalement par quantile, ce qui le rend insensible à des transformations monotones. L'heuristique consiste à choisir $\alpha$ et $w_i$ de façon à ce que les surfaces ne comptent pas trop. Si on considère un groupe de 6 commerces spécialisés de 100m², on souhaite que ces commerces soient comparables à un super marché de 2500m². En choisissant $w_i = 6$ pour le supermarché et $\alpha = 0.25$ la surface ajustée vaut 3,4 pour les 6 commerces et 4,2 pour le supermarché. Pour des commerces spécialisés de 50m², la surface ajustée serait de 3,1 et de 4,7 pour un hypermarché de 5000 m². Ce choix donne donc une importance modérée aux surfaces.
 
-Le paramètre $\beta$ est sélectionné de façon à égaliser les rapports interquantiles de la surface ajustée. Ceci conduit à donner un poids égal à la diversité et à la surface ajustée dans la surface équivalente. EN changeant le paramètre $\beta$ on peut modifier ce ratio.
+Le paramètre $\beta$ est sélectionné de façon à égaliser les rapports inter-quantiles de la surface ajustée. Ceci conduit à donner un poids égal à la diversité et à la surface ajustée dans la surface équivalente. En changeant le paramètre $\beta$ on peut modifier ce ratio.
 
 Pour les différents super type de commerces, le tableau suivant résume le nombre d'espèce et quelques statistiques essentielles :
 
@@ -218,11 +223,9 @@ tbl2 |>
   tab_options(table.font.size = 10)
 ```
 
-
 ### Indicateur de proximité des aménités pour AMP
 
-::::: {#fig-surfeq_map }
-
+:::::: {#fig-surfeq_map}
 ::: column-margin
 ```{r dnwstat}
 vqh <- bd_read("vqh") |>
@@ -240,10 +243,12 @@ download_this(
 ```
 :::
 
-<details name = "cac" open>
-<summary> Cartes statiques </summary>
+<details name="cac" open>
 
-:::: panel-tabset
+<summary>Cartes statiques</summary>
+
+::: panel-tabset
+
 ## Alimentation
 
 ```{r}
@@ -267,6 +272,7 @@ ggplot() +
 ```
 
 ## Autres commerces
+
 ```{r}
 #| fig-asp: 1
 
@@ -288,6 +294,7 @@ ggplot() +
 ```
 
 ## Sorties
+
 ```{r}
 #| fig-asp: 1
 
@@ -308,6 +315,7 @@ ggplot() +
 ```
 
 ## Santé humaine
+
 ```{r}
 #| fig-asp: 1
 
@@ -323,17 +331,20 @@ ggplot() +
         legend.title = element_text(size = rel(.7)),
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
-  ofce::ofce_caption(source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-                     note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).", ofce=FALSE, wrap = 80)
+  ofce::ofce_caption(
+    source=glue("C200, OSM, Fichiers fonciers, version {version}"),
+    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).", ofce=FALSE, wrap = 80)
+
 ```
-::::
+:::
 
 </details>
 
-<details name = "cac">
+<details name="cac">
+
 <summary>Cartes interactives</summary>
 
-:::: {.panel-tabset}
+::: panel-tabset
 ## Alimentation
 
 ```{r }
@@ -373,10 +384,10 @@ vqh |>
               legend = le,
               tooltip = "tooltip") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
+
 ```
 
 ## Autres commerces
-
 
 ```{r }
 
@@ -403,18 +414,15 @@ vqh |>
               tooltip = "tooltip") |>
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
-::::
+:::
 
 </details>
 
 Cartes de l'accessibilité aux aménités
-
-:::::
+::::::
 
 :::: {#fig-corrcomm}
-
-::: {.panel-tabset}
-
+::: panel-tabset
 ## autres commerces
 
 ```{r}
@@ -428,8 +436,8 @@ vqh |>
   ggplot() +
   geom_hex(aes(x = alim, y=comm, weight = ind)) +
   coord_equal() +
-  scale_x_log10(name = "surface équivalente des commerces alimentaires", limits = c(1, 500)) +
-  scale_y_log10(name = "surface équivalente des autres commerces", limits = c(1, 500)) +
+  scale_x_log10(name = "surface équivalente des commerces alimentaires", limits = c(1, 1000)) +
+  scale_y_log10(name = "surface équivalente des autres commerces", limits = c(1, 1000)) +
   scale_fill_gradient(low = "white", high = "steelblue4", name = "individus")+
   theme_ofce(legend.position = c(0.05, 0.95),
              legend.justification = c(0,1),
@@ -449,13 +457,14 @@ vqh |>
   ggplot() +
   geom_hex(aes(x = alim, y=sortie, weight = ind)) +
   coord_equal() +
-  scale_x_log10(name = "surface équivalente des commerces alimentaires", limits = c(1, 500)) +
-  scale_y_log10(name = "surface équivalente des sorties (bars, restaurants, cinéma)", limits = c(1, 500)) +
+  scale_x_log10(name = "surface équivalente des commerces alimentaires", limits = c(1, 1000)) +
+  scale_y_log10(name = "surface équivalente des sorties (bars, restaurants, cinéma)", limits = c(1, 1000)) +
   scale_fill_gradient(low = "white", high = "seagreen4", name = "individus")+
   theme_ofce(legend.position = c(0.05, 0.95),
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
 ## vs santé humaine
 
 ```{r}
@@ -469,19 +478,20 @@ vqh |>
   ggplot() +
   geom_hex(aes(x = alim, y=sante, weight = ind)) +
   coord_equal() +
-  scale_x_log10(name = "surface équivalente des commerces alimentaires", limits = c(1, 500)) +
-  scale_y_log10(name = "surface équivalente des sorties (bars, restaurants, cinéma)", limits = c(1, 500)) +
+  scale_x_log10(name = "surface équivalente des commerces alimentaires", limits = c(1, 1000)) +
+  scale_y_log10(name = "surface équivalente des sorties (bars, restaurants, cinéma)", limits = c(1, 1000)) +
   scale_fill_gradient(low = "white", high = "darkorange3", name = "individus")+
   theme_ofce(legend.position = c(0.05, 0.95),
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
 :::
+
 Corrélation entre Alimentation et autres commerces
-:::: 
+::::
 
 :::: {#fig-denscom}
-:::: {.panel-tabset}
+::: panel-tabset
 ## Alimentation
 
 ```{r}
@@ -494,14 +504,15 @@ vqh |>
   pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
   ggplot() +
   geom_hex(aes(x = ind, y=alim, weight = ind)) +
-  scale_x_log10(name = "densité")+
-  scale_y_log10(name = "surface équivalente, alimentation", limits = c(1, 500))+
+  scale_x_log10(name = "densité", limits = c(1, 1000))+
+  scale_y_log10(name = "surface équivalente, alimentation", limits = c(1, 1000))+
   coord_equal() +
   scale_fill_gradient(low = "white", high = "purple4")+
   theme_ofce(legend.position = c(0.05, 0.95),
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
 ## Autres commerces
 
 ```{r}
@@ -514,14 +525,15 @@ vqh |>
   pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
   ggplot() +
   geom_hex(aes(x = ind, y=comm, weight = ind)) +
-  scale_x_log10(name = "densité")+
-  scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 500))+
+  scale_x_log10(name = "densité", limits = c(1, 1000))+
+  scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 1000))+
   coord_equal() +
   scale_fill_gradient(low = "white", high = "yellow3")+
   theme_ofce(legend.position = c(0.05, 0.95),
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
 ## Sorties
 
 ```{r}
@@ -534,14 +546,15 @@ vqh |>
   pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
   ggplot() +
   geom_hex(aes(x = ind, y=sortie, weight = ind)) +
-  scale_x_log10(name = "densité")+
-  scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 500))+
+  scale_x_log10(name = "densité", c(1, 1000))+
+  scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 1000))+
   coord_equal() +
   scale_fill_gradient(low = "white", high = "orange3")+
   theme_ofce(legend.position = c(0.05, 0.95),
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
+
 ## Santé humaine
 
 ```{r}
@@ -554,15 +567,16 @@ vqh |>
   pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
   ggplot() +
   geom_hex(aes(x = ind, y=sante, weight = ind)) +
-  scale_x_log10(name = "densité")+
-  scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 500))+
+  scale_x_log10(name = "densité", limits = c(1, 1000))+
+  scale_y_log10(name = "surface équivalente, autres commerces", limits = c(1, 1000))+
   coord_equal() +
   scale_fill_gradient(low = "white", high = "seagreen4")+
   theme_ofce(legend.position = c(0.05, 0.95),
              legend.justification = c(0,1),
              legend.key.width = unit(36, "pt"))
 ```
-::::
+:::
+
 Lien densité accessibilité aux commerces
 ::::
 
@@ -587,15 +601,30 @@ lorenz_redux <- lorenz|>
   mutate(
     cumind = round(cumind,2)) |> 
   group_by(cumind, type) |> 
-  summarize(se = mean(se)) |> 
+  summarize(
+    se = mean(se),
+    div = mean(div),
+    sa = mean(sa),
+    sb = mean(sb),
+    n = mean(n),
+    n_e = mean(n_e)) |> 
   group_by(type) |> 
   mutate(rse = pmax(log(se), 0)/max(log(se))) |> 
   ungroup() |> 
   mutate(
-    type = factor(type, c("alim", "sante", "comm", "sortie"),
-                  c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")),
-    tooltip = glue("<b>{type}</b><br>{round(100*cumind)}% des résidents ont une accessibilité aux aménités d'au plus {round(se)} ({round(rse*100)}% du max)"))
+    type = factor(type, c("alim", "sante", "comm", "sortie")),
+    tooltip = glue(
+      "<b>{type}</b>
+      {round(100*cumind)}% des résidents ont une accessibilité aux aménités d'au plus {round(se)} ({round(rse*100)}% du max)
+      Surface équivalente moyenne : {round(se)}
+      Diversité moyenne : {round(div,1)}
+      Surface ajustée moyenne : {round(sa,1)}
+      Surface : {round(sb)}m²
+      Nbre d'unités : {round(n)}
+      Nbre d'espèces : {round(n_e, 1)}"))
+
 src <- str_c("C200, OSM, fichiers fonciers, version ", version)
+
 gg <- ggplot(lorenz) + 
   aes(x=cumind, y = se, color = type) +
   geom_step() +
@@ -608,41 +637,46 @@ gg <- ggplot(lorenz) +
     legend.justification = c(0,1),
     legend.direction = "vertical" ) + 
   xlab("% de la population de la métropole AMP") +
-  ylab("Accessibilité aux aménités") +
-  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", comm = "yellow3"), name = "") +
+  ylab("Proximité moyenne des aménités") +
+  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", comm = "yellow3"),
+                     labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties"),
+                     name = "") +
   scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
   scale_y_log10() +
   ofce_caption(
     source = src, ofce = FALSE,
-    note = "Les individus sont classés dans l'ordre de leur accessibilité aux aménités. 10% de la population d'AMP n'a accès à aucun commerce alimentaire, contre 7% pour les commerces non alimentaires et 12% pour la santé humaine et 14% pour les bars, restaurants et cinéma.",
+    note = "Les individus sont classés dans l'ordre de leur proximité aux aménités. 10% de la population d'AMP n'a accès à aucun commerce alimentaire, contre 7% pour les commerces non alimentaires et 12% pour la santé humaine et 14% pour les bars, restaurants et cinéma.",
     wrap = 100)
 
 girafy(gg, r=1)
 
 ```
 
-
 ### Indicateur et EMC^2^
 
-On injecte l'indicateur de commerce alimentaire calculé dans les zones de résidence de l'EMC^2^ AMP. On peut alors confronter les distances parcourues en voiture à la valeur moyenne de l'indicateur sur la zone. Le graphique indique une nette corrélation négative.
+On injecte les indicateurs d'accès aux commerces (les 4 types) ainsi que deux indicateurs de densité (densité simple et pondérée par la population) dans les zones de résidence de l'EMC^2^ AMP. On peut alors confronter les distances parcourues en voiture à la valeur moyenne des indicateurs sur chacune des zones. Le graphique indique une nette corrélation négative pour les 6 indicateurs retenus, ici découpés en quantile. Ce type de graphique permet de calibrer l'indicateur sur la distance parcourue.
 
 ```{r}
 #| label: fig-emc2alim
 #| fig-cap: Distance parcourue par décile d'accessibilité aux commerces alimentaires
 ind_emc2 <- bd_read("ind_emc2")
 
+labels <- set_names(c("Alimentaire", "Commerces non alimentaires", "Bars, restaurants, cinémas", "Santé humaine", 
+                      "Densité", "Densité pondérée"),
+                    c("alim","comm","sortie","sante", "dens", "pwd"))
+
 data_emc2 <- ind_emc2 |> 
   pivot_longer(cols = c(alim, comm, sortie, sante, dens, pwd), names_to = "type", values_to = "se") |> 
-  mutate(type = factor(type, c("alim","comm","sortie","sante", "dens", "pwd"),
-                       c("Alimentaire", "Commerces non alimentaires", "Bars, restaurants, cinémas", "Santé humaine", 
-                         "Densité", "Densité pondérée"))) |> 
+  mutate(type = factor(type, c("alim","comm","sortie","sante", "dens", "pwd"))) |> 
   group_by(type) |> 
   mutate(
+    type_lab = labels[type],
     q = santoku::chop_deciles(se, weights = poids_t, extend = FALSE, labels = str_c("d", 1:10)) ) 
+
 
 ggplot(data_emc2 |> filter(!is.na(q), n>10))+
   aes(x = q, y = d_car, color = type) +
-  facet_wrap(vars(type), ncol = 2) +
+  facet_wrap(vars(type), ncol = 2, labeller = as_labeller(labels)) +
   scale_color_manual(values = c("skyblue2", "skyblue3", "skyblue4", "skyblue1", "orange2", "orange3")) + 
   geom_boxplot(outliers = FALSE, show.legend = FALSE) + 
   xlab("décile de surface équivalente ou de densité") +
@@ -651,23 +685,27 @@ ggplot(data_emc2 |> filter(!is.na(q), n>10))+
 
 ```
 
-La régression suivante confirme ce résultat :
+On confirme cette analyse en effectuant des régressions (log)linéaires en utilisant les déciles des indicateurs en variables explicatives. 3 variables de contrôle ont été ajoutées (revenu par unité de consommation moyen de la zone (en log), part des individus avec enfants dans la population, part des actifs occupés dans la population). Les résultats confirment les éléments déjà vus. Les zones de résidence qui comportent moins de 10 individus sondés par l'EMC^2^ sont exclues de l'analyse sans que cela ne modifie véritablement les résultats.
+
+1.  les indicateurs des différentes aménités (regroupées en 4 grandes catégories) sont très proches en termes d'explication de la distance parcourue en voiture. La densité ou la densité pondérée expliquent également les distances parcourues en voiture, avec quelques nuances (par exemple, le revenu ne joue plus). Les variables de contrôle (part des individus avec enfants, part des actifs occupés) sont significatifs, d'un signe interprétable et assez constants parmi les variables expliquées.
+
+2.  La distance parcourue décroît nettement avec l'accessibilité aux commerces ou la densité. Ce résultat important valide la construction de ces indicateurs et permet de les calibrer. Par ailleurs, l'effet trouvé est important, puisque entre le premier décile d'accès aux aménités (en gros pas d'aménités accessibles à pied en moins de 15 minutes) et le dernier (zones très denses et très dotées) est de l'ordre de 4 (entre ×4,3 et ×3,1 suivant les indicateurs)[^4].
+
+3.  Les coefficients estimés permettent éventuellement de distinguer des catégories d'accessibilité, en regroupant les déciles quant ils ont des coefficients proches. En se basant sur l'indicateur pour les commerces alimentaires, les 3 premiers déciles peuvent être regroupés en une seule catégorie où l'accessibilité aux aménités n'est pas assez élevée pour empêcher l'utilisation de la voiture. D'après la @fig-lorenz, cela correspond à un niveau de proximité moyen aux commerces alimentaires d'environ 32 (surface équivalente) ce qui est relativement élevé : en moyenne la diversité y atteint 5,7, soit un peu plus de la moitié de la diversité maximale et la surface brute est de l'ordre de 500 m² de surface commerciale. C'est quelque chose qui correspond à 3 commerces alimentaires. On peut ensuite inclure les 3 déciles suivants, pour un effet de réduction de 1,5 des distances parcourues et les 4 derniers déciles, avec une distinction possible pour le dernier décile. Cette catégorisation illustre le calibrage que permet l'analyse de régression.
+
+[^4]: Cette valeur se lit sur le tableau en prenant le coefficient du dernier décile, moins celui du premier (égal à 0 par référence) et en élevant $e$ à la puissance de cette différence.
 
 ```{r}
 n_min <- 10
-fmrl <- "log(1+d_car) ~  q +log(rev_uc) + actoccup + enfants"
-alim <- lm( fmrl ,data = data_emc2 |> filter(type == "Alimentaire", n>n_min)) 
-comm <- lm( fmrl ,data = data_emc2 |> filter(type == "Commerces non alimentaires", n>n_min)) 
-sortie <- lm( fmrl ,data = data_emc2 |> filter(type == "Bars, restaurants, cinémas", n>n_min)) 
-sante <- lm( fmrl ,data = data_emc2 |> filter(type == "Santé humaine", n>n_min)) 
-dens <- lm( fmrl ,data = data_emc2 |> filter(type == "Densité", n>n_min)) 
-pwd <- lm( fmrl ,data = data_emc2 |> filter(type == "Densité pondérée", n>n_min)) 
-
+fmrl <- "log(1+d_car) ~  q + log(rev_uc) + actoccup + enfants"
+fmrl_alt <- "log(1+d_car) ~  log(se) + log(rev_uc) + actoccup + enfants"
 res <- map_dfr(c("alim", "comm", "sortie", "sante", "dens", "pwd"), \(.mod) {
-  r2 <- broom::glance(get(.mod)) |> 
+  mod <- lm( fmrl ,data = data_emc2 |> filter(type == .mod, n>n_min)) 
+  mod_alt <- lm( fmrl_alt ,data = data_emc2 |> filter(type == .mod, n>n_min)) 
+  r2 <- broom::glance(mod) |> 
     select(r.squared, adj.r.squared, nobs) |> 
-    mutate(mod = .mod)
-  coef <- broom::tidy(get(.mod)) |> 
+    mutate(mod = labels[.mod])
+  coef <- broom::tidy(mod) |> 
     select(term, e = estimate, se = std.error, p = p.value) |> 
     pivot_wider(names_from = term, values_from = c(e, se, p)) |> 
     rename(c = `e_(Intercept)`,
@@ -677,37 +715,61 @@ res <- map_dfr(c("alim", "comm", "sortie", "sante", "dens", "pwd"), \(.mod) {
            se_rev_uc = `se_log(rev_uc)`,
            p_rev_uc = `p_log(rev_uc)`) |> 
     rename_with(.fn = ~str_remove(.x, "^e_"))
-  bind_cols(r2, coef)
+  alt <- broom::tidy(mod_alt) |> 
+    filter(term == "log(se)")
+  alt <- tibble(se = alt$estimate,
+                se_se = alt$std.error,
+                p_se = alt$p.value)
+    
+  bind_cols(r2, coef, alt)
 })
 
-fmt_c <- function(s,se, p) {
+fmt_c <- function(s, se, p) {
   stars <- ifelse(p<=0.01, "***", ifelse(p<=0.05, "**", ifelse(p<=.1, "*", "")))
-  str_c(round(s, 2), stars, "<br>(", round(se,2), ")")
+  str_c(round(s, 2), stars, "<br>(", ifelse(se==0, "-", round(se,2)), ")")
 }
-res |> 
+tbl <- res |> 
   mutate(
     rev_uc = fmt_c(rev_uc, se_rev_uc, p_rev_uc),
     enfants = fmt_c(enfants, se_enfants, p_enfants),
     actoccup = fmt_c(actoccup, se_actoccup, p_actoccup),
+    se = fmt_c(se, se_se, p_se),
     c = fmt_c(c, se_c, p_c)) |> 
-  select(-c(se_rev_uc, p_rev_uc, se_enfants, p_enfants, se_actoccup, p_actoccup, se_c, p_c)) |> 
+  select(-c(se_rev_uc, p_rev_uc, se_enfants, p_enfants, se_actoccup, p_actoccup, se_c, p_c, se_se, p_se)) |> 
   mutate(
-    across(starts_with("qd"), ~ fmt_c(.x, res[[str_c("se_", cur_column())]], res[[str_c("p_", cur_column())]]), .names = "c{.col}")) |> 
-  select(mod, r.squared, adj.r.squared, nobs, rev_uc, enfants, actoccup, c, starts_with("cqd"), starts_with("qd")) |> 
+    across(starts_with("qd"), 
+           ~ fmt_c(.x, res[[str_c("se_", cur_column())]], res[[str_c("p_", cur_column())]]), 
+           .names = "c{.col}")) |>
+  mutate(cqd1 = " 0<br>ref", qd1 = 0) |> 
+  relocate(cqd1, .before = cqd2) |> 
+  relocate(qd1, .before = qd2) |> 
+  select(mod, r.squared, adj.r.squared, nobs, rev_uc, enfants, actoccup, se, c,
+         starts_with("cqd"), starts_with("qd")) |> 
   rename_with(.cols = starts_with("cqd"), .fn = ~str_remove(.x, "cq") ) |> 
   gt() |>
-  fmt_markdown() |> 
+  fmt_markdown(c(rev_uc, enfants, actoccup, c, se, d1,d2,d3,d4,d5,d6,d7,d8,d9,d10)) |> 
   fmt_percent(c(r.squared, adj.r.squared), decimals = 1) |> 
+  cols_label(r.squared = md("$R^2$"), adj.r.squared = md("$\\bar{R}^2$"), c = "constante", mod = "") |> 
+  tab_options(table.font.size = 10) |> 
+  cols_align("left", 1) |> 
+  cols_align("center", -1) 
+
+tbl |> 
+  cols_hide(c(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10, 
+              qd1,qd2,qd3,qd4,qd5,qd6,qd7,qd8,qd9,qd10) ) 
+
+tbl |> 
+  cols_hide(c(r.squared, adj.r.squared, nobs, rev_uc, enfants, actoccup, c, se) ) |> 
   cols_nanoplot(starts_with("qd"), plot_type = "bar", new_col_name = "deciles") |> 
-  cols_label(r.squared = md("$R^2$"), adj.r.squared = md("$\\bar{R}^2$")) |> 
-  tab_options(table.font.size = 10)
+  cols_label(deciles = "déciles") |> 
+  cols_align("left", 1) |> 
+  cols_align("center", -1) 
 
 ```
 
 ### Densité inversée
 
 A partir des données de distance (ou de temps de parcours), de la localisation des résidents et des localisations des aménités, on puet construire un indicateur dit de "densité inversée" par lequel on représente la population qu'on balaye (soit à 15 minutes de marche ou de transport en commun, soit à 30 minutes de voiture).
-
 
 ```{r}
 #| fig-asp: 1
@@ -750,7 +812,6 @@ ggplot() +
         legend.margin = margin(b=6)) 
 
 ```
-
 
 ## Références bibliographiques {.unnumbered}
 
