@@ -30,7 +30,6 @@ book:
     right: "**CC BY 4.0**"
   sidebar:
     docked: true
-    pinned: false
   chapters:
     - index.qmd
     - localisations.qmd
@@ -38,6 +37,8 @@ book:
     - trajets.qmd
     - commerces.qmd
     - next.qmd
+  appendices:
+    - codebook.qmd
     
 execute: 
   freeze: auto

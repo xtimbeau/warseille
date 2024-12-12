@@ -1,0 +1,320 @@
+---
+title: "codebook"
+---
+
+```{r}
+ofce::init_qmd()
+```
+
+Lorsque c'est pertinent, les données des graphiques ou des tableaux sont proposées au téléchargement. Ces données téléchargeable sont rassemblées dans cette annexe avec le détail des colonnes, des noms et des méthodes de construction.
+
+## C200 résidents
+
+```{r}
+c200ze <- bd_read("c200ze") |> st_transform(4326)
+download_this(
+  c200ze |> 
+    st_drop_geometry() |> 
+  filter(ind > 0, scot) |> 
+  transmute(
+    idINS = r3035::expand_idINS(idINS), ind, dep, idcom=com22, IRIS,
+    act_mobpro),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label  = "données ind&actifs au carreau",
+  output_name = "ind_act_idINS_MetAM"
+)
+```
+
+*Source* : [INSEE](https://www.insee.fr/fr/statistiques/7655511?sommaire=7655515), année 2019, [MOBPRO](https://www.insee.fr/fr/statistiques/7630376) année 2020
+
+-   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+
+-   `ind` : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.
+
+-   `dep` : numéro du département
+
+-   `idcom` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`
+
+-   `IRIS` : code IRIS, géographie 2021
+
+-   `act_mobpro` : actifs au sens de MOBPRO 2020 (somme des individus par commune, reprojetté au carreau proportionnellement aux adultes de C200)
+
+## C200 emploi {#sec-c200emp}
+
+```{r}
+download_this(
+  c200ze |> 
+    st_drop_geometry() |> 
+  filter(emp > 0) |> 
+  transmute(
+    idINS = r3035::expand_idINS(idINS), emp, emp_resident, idcom=com22, IRIS,
+    act = tactocc1564 * ind_18_64),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label  = "données emploi&emploi résident au carreau",
+  output_name = "emp_empres_idINS_MetAM"
+)
+```
+
+*Source* : [INSEE](https://www.insee.fr/fr/statistiques/7655511?sommaire=7655515), année 2019, [MOBPRO](https://www.insee.fr/fr/statistiques/7630376) année 2020, Fichiers Fonciers 2021 [CEREMA](https://doc-datafoncier.cerema.fr/doc/ff/), population active [INSEE](https://www.insee.fr/fr/statistiques/7632867?sommaire=7632977)
+
+-   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+
+-   `emp`: emplois au carreau. Issu de MOBPRO (somme sur les communes de travail `DCLT`), projetté à partir des surfaces foncières par NAF 5 catégories (celle de MOBPRO).
+
+-   `emp_resident` : emplois du carreau occupés par des résidents de la métropole AMP
+
+-   `idcom` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`
+
+-   `IRIS` : code IRIS, géographie 2021
+
+-   `act` : nombre d'actifs à partir des taux d'activité communaux INSEE, multiplié par les adultes du carreau C200.
+
+## Accessibilité {#sec-access}
+
+```{r}
+c200zea <- bd_read("c200ze") |> 
+  st_drop_geometry() |> 
+  select(idINS, act_mobpro)
+t_access <- bd_read("t_access") |> 
+  left_join(c200zea, by = c("idINS"="idINS"))
+download_this(
+  t_access |> 
+    st_drop_geometry() |> 
+    mutate(idINS = r3035::expand_idINS(idINS)),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données temps d'accessibilité au carreau",
+  output_name = "temps_accessibilite_idINS_MetAM"
+)
+```
+
+*Source* : calcul des auteurs à partir des sources déjà citées, plus [OSM](https://www.openstreetmap.org/#map=6/46.45/2.21) et [GTFS de la métropole](https://data.ampmetropole.fr/explore/dataset/lignes-des-reseaux-de-transport-rtm-regie-des-transports-de-marseille/information/)
+
+-   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+
+-   `com` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
+
+-   `ind` : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.
+
+-   `act_mobpro` : actifs au sens de MOBPRO 2020 (somme des individus par commune, reprojetté au carreau proportionnellement aux adultes de C200).
+
+-   `to10k`, `to20k`, `to50k`, `to100k`, `to200k`, `to300k`, `to500k`, `to4M` : Pour chaque carreau le temps en minute pour atteindre respectivement 10 000, 20 000, 50 000, etc.. emplois en partant du carreau identifié par `idINS`. Le calcul est fait pour chaque mode en établissant les temps de parcours entre chaque carreau d'origine et de destination, en utilisant un routeur et les données ouvertes OSM. On additionne ensuite tous les emplois localisés (voir [C200 emplois](#sec-c200emp)) à l'intérieur des isochrones. On inverse ensuite la fonction temps/emplois.
+
+-   `mode` : mode de transport utilisé pour le routeur. Les valeurs possibles sont "`walk_tblr`" marche à pied avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur `dogr` ; "`bike_tblr`" vélo avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur `dogr` ; "`car_dgr`" voiture, moteur `dogr` et "`transit`" transport en commun, tramway, bus, métro, trains urbain (TER), bateaux, moteur `r5r` et données `GTFS`.
+
+-   `mode_lib` : mode de transport `mode` en clair.
+
+## Accessibilité par commune
+
+```{r}
+access_par_com <- bd_read("access_par_com")
+download_this(
+access_par_com,
+  class  = "dbtn",
+  icon = "fa fa-download",
+  button_label  = "données temps d'accès par commune",
+  output_name = "access_commune_metAM"
+)
+```
+
+*Source* : calculs des auteurs à partir des sources déjà citées. Aggrégation par commune de la donnée [accessibilité](#sec-access)
+
+-   `com` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
+
+-   `mode` : mode de transport utilisé pour le routeur. Les valeurs possibles sont "`walk_tblr`" marche à pied avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur `dogr` ; "`bike_tblr`" vélo avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur `dogr` ; "`car_dgr`" voiture, moteur `dogr` et "`transit`" transport en commun, tramway, bus, métro, trains urbain (TER), bateaux, moteur `r5r` et données `GTFS`.
+
+-   `temps` : temps de parcours (de `to10k`, `to20k`, ...)
+
+-   `emp` : emploi accessible dans le temps, agrégé à partir de la donnée accessibilité en prenant la moyenne pondérée par le produit emploi par actif des temps entre chaque carreau d'origine (appartenent à `com)` et de destination (repartition uniforme à partir de `DCLT` de MOBPRO.
+
+-   `repr` : nombre d'actif dans la commune `com`.
+
+-   `label` : nom de la commune `com` en clair
+
+## Déciles de niveau de vie  {#sec-deciles}
+
+```{r}
+c200ze <- c200ze |> 
+  mutate(
+    ndv = ind_snv/ind,
+    decile = santoku::chop(
+      ndv,
+      MetricsWeighted::weighted_quantile(ndv, w = ind, probs = 1:10/10, names=FALSE),
+      labels = str_c("d", 1:10)))
+
+deciles <- c200ze |> 
+  st_drop_geometry() |> 
+  mutate(
+    zone = case_match(com,
+                      str_c(13201:13216) ~ "Marseille",
+                      "13039"  ~ 'Fos-sur-Mer',
+                      "13001" ~ 'Aix-en-Provence', 
+                      .default = "autres")) |> 
+  group_by(zone, decile) |> 
+  summarize(ind = sum(ind), .groups = "drop")
+
+download_this(
+  deciles,
+  class  = "dbtn",
+  icon = "fa fa-download",
+  button_label  = "données répartition des déciles",
+  output_name = "deciles_metAM"
+)
+```
+
+*Source* : calculs des auteurs à partir des sources déjà citées.
+
+-   `zone` : zone d'agrégation de C200
+
+-   `decile` : décile de niveau de vie
+
+-   `ind` : nombre d'individu dans le croisement `decile` par `zone`
+
+## Accessibilité par déciles de niveau de vie
+
+```{r}
+d_access <- t_access |>
+  st_drop_geometry() |>
+  left_join(
+    c200ze |> st_drop_geometry() |> select(idINS = idINS, ndv, decile),
+    by = "idINS") |> 
+  filter(mode %in% c("bike_tblr", "car_dgr", "transit5", "walk_tblr")) |> 
+  mutate(
+    zone = case_match(com,
+                      str_c(13201:13216) ~ "Marseille",
+                      "13039"  ~ 'Fos-sur-Mer',
+                      "13001" ~ 'Aix-en-Provence', 
+                      .default = "autres"))
+
+download_this(
+d_access |> 
+  mutate(idINS = r3035::expand_idINS(idINS)),
+  class  = "dbtn",
+  icon = "fa fa-download",
+  button_label  = "données accessibilité et revenu au carreau",
+  output_name = "access_revenu_metAM"
+)
+```
+
+*Source* : jointure de l'[accessibilité](#sec-access) et des [déciles de niveau de vie](#sec-deciles)
+
+-   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+
+-   `com` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
+
+-   `ind` : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.
+
+-   `act_mobpro` : actifs au sens de MOBPRO 2020 (somme des individus par commune, reprojetté au carreau proportionnellement aux adultes de C200).
+
+-   `to10k`, `to20k`, `to50k`, `to100k`, `to200k`, `to300k`, `to500k`, `to4M` : Pour chaque carreau le temps en minute pour atteindre respectivement 10 000, 20 000, 50 000, etc.. emplois en partant du carreau identifié par `idINS`. Le calcul est fait pour chaque mode en établissant les temps de parcours entre chaque carreau d'origine et de destination, en utilisant un routeur et les données ouvertes OSM. On additionne ensuite tous les emplois localisés (voir [C200 emplois](#sec-c200emp)) à l'intérieur des isochrones. On inverse ensuite la fonction temps/emplois.
+
+-   `mode` : mode de transport utilisé pour le routeur. Les valeurs possibles sont "`walk_tblr`" marche à pied avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur `dogr` ; "`bike_tblr`" vélo avec une pénalisation de Tobler qui ralentit le vélo dans les montées et l'accélère dans les descentes (avec une perte pour un dénivelé total nul), moteur `dogr` ; "`car_dgr`" voiture, moteur `dogr` et "`transit`" transport en commun, tramway, bus, métro, trains urbain (TER), bateaux, moteur `r5r` et données `GTFS`.
+
+-   `mode_lib` : mode de transport `mode` en clair.
+
+-   `zone` : zone d'agrégation de C200
+
+-   `decile` : décile de niveau de vie
+
+## CO~2~ au carreau, point de vue résident
+
+```{r}
+download_this(
+  bd_read("meaps_from") |> 
+    st_drop_geometry() |> 
+    mutate(fromidINS = r3035::expand_idINS(fromidINS)),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données CO2 au carreau, résidents", 
+  output_name = glue("co2_idINS_pdvR_MetAMP.{version}"))
+```
+
+*Source* : calculs des auteurs à partir des sources citées
+
+-   `fromidINS` : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+
+-   `com` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
+
+-   `km_i` : nombre de kilomètres en voiture générés par MEAPS pour le carreau de départ vers potentiellement tous les carreaux de destination, agrégé sur les catégories de ménages
+
+-   `co2_i` : Emissions de CO~2~ imputées aux résidents du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages.
+
+-   `f_i` : flux de départ du carreau de résidence (en personne). Egal par construction à `act_mobpro` aux immobiles près.
+
+-   `km_pa` : `km_i` divisé par `f_i`, soit les kilomètres par actif.
+
+-   `co2_pa` : `co2_i` divisé par `f_i`, soit les émissions de CO~2~ par actif.
+
+## CO~2~ au carreau, point de vue emploi
+
+```{r}
+download_this(
+  bd_read("meaps_to") |> 
+    st_drop_geometry() |> 
+    mutate(toidINS = r3035::expand_idINS(toidINS)),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données CO2 au carreau, emploi",
+  output_name = glue("co2_idINS_pdvE_MetAMP.{version}"))
+```
+
+*Source* : calculs des auteurs à partir des sources citées
+
+-   `toidINS` : code INSPIRE du carreau d'arrivée ou d'emploi (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+
+-   `com` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
+
+-   `scot` : indicatrice qui vaut `TRUE` pour les emplois de la métropole AMP.
+
+-   `km_j` : nombre de kilomètres en voiture générés par MEAPS pour le carreau d'arrivée depuis potentiellement tous les carreaux de départ, agrégé sur les catégories de ménages. Attention, cette donnée ne comptabilise pas les actifs hors métropole et est donc partielle, surtout sur la périphérie. Sera corrigé dans une prochaine version.
+
+-   `co2_j` : Emissions de CO~2~ imputées aux emplois du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages.
+
+-   `f_j` : flux d'arrivée du carreau de résidence (en personne). Egal par construction à `emp_resident` (voir l'avertissement pour `km_j`)
+
+-   `km_pe` : `km_j` divisé par `f_j`, soit les kilomètres par emploi.
+
+-   `co2_pe` : `co2_i` divisé par `f_i`, soit les émissions de CO~2~ par actif.
+
+## Revenu et CO~2~ 
+
+```{r}
+download_this(
+  bd_read("km_iris") |> 
+    st_drop_geometry(),
+  icon = "fa fa-download",
+  class = "dbtn",
+  button_label = "données CO2-niveau de vie à l'IRIS",
+  output_name = glue("co2_IRIS_ndv_MetAMP.{version}")
+)
+```
+
+*Source* : calculs des auteurs à partir des sources citées
+
+-   `IRIS` : code IRIS, géographie 2021
+
+-   `km_pa` : `km_i` divisé par `f_i`, soit les kilomètres par actif ; agrégé à l'IRIS (correctement).
+
+-   `f_i` : flux de départ du carreau de résidence (en personne). Egal par construction à `act_mobpro` ; agrégé à l'IRIS (correctement).
+
+<!-- -->
+
+-   `co2_i` : Emissions de CO~2~ imputées aux résidents du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages ; agrégé à l'IRIS (correctement).
+
+-   `n` : nombre de carreaux dans l'IRIS.
+
+-   `snv` : niveau de vie moyen dans l'IRIS.
+
+-   `ind` : nombre d'individus dans l'IRIS.
+
+-   `prix` : prix des transactions par m² (DV3F) moyen dans l'IRIS en 2021
+
+<!-- -->
+
+-   `tx` : croissance des prix des transactions immobilières par m² dans l'IRIS de 2017 à 2021 (à vérifier)
+
+-   `shape` : nom curieux pour la zone considéré (permet de faire les ronds et les losanges sur le graphique)
+
+-   `dens` : densité simple dans l'IRIS
