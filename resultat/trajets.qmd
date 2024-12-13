@@ -75,14 +75,16 @@ ggplot() +
 
 ::: column-margin
 ```{r dnwstat}
-download_this(
-  bd_read("meaps_from") |> 
+bd_read("meaps_from") |> 
     st_drop_geometry() |> 
-    mutate(fromidINS = r3035::expand_idINS(fromidINS)),
+    mutate(fromidINS = r3035::expand_idINS(fromidINS)) |> 
+    vroom::vroom_write("dnwld/co2_idINS_pdvR_MetAMP.csv", delim = ";")
+
+download_link(
+  link = "dnwld/co2_idINS_pdvR_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtn",
-  button_label = "données CO2 au carreau, résidents", 
-  output_name = glue("co2_idINS_pdvR_MetAMP.{version}"))
+  button_label = "données CO2 au carreau, résidents")
 ```
 :::
 
@@ -184,14 +186,16 @@ ggplot() +
 
 ::: column-margin
 ```{r}
-download_this(
-  bd_read("meaps_to") |> 
-    st_drop_geometry() |> 
-    mutate(toidINS = r3035::expand_idINS(toidINS)),
+bd_read("meaps_to") |> 
+  st_drop_geometry() |> 
+  mutate(toidINS = r3035::expand_idINS(toidINS)) |> 
+  vroom::vroom_write("dnwld/co2_idINS_pdvE_MetAMP.csv", delim = ";")
+
+download_link(
+  link = "dnwld/co2_idINS_pdvE_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtn",
-  button_label = "données CO2 au carreau, emploi",
-  output_name = glue("co2_idINS_pdvE_MetAMP.{version}"))
+  button_label = "données CO2 au carreau, emploi")
 ```
 :::
 
@@ -249,14 +253,16 @@ bd_read("distrev") +
 
 ::: column-margin
 ```{r}
-download_this(
-  bd_read("km_iris") |> 
-    st_drop_geometry(),
+
+bd_read("km_iris") |> 
+    st_drop_geometry() |> 
+  vroom::vroom_write("dnwld/co2_ndv_IRIS_MetAMP.csv", delim = ";")
+
+download_link(
+  "dnwld/CO2_ndv_IRIS_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtn",
-  button_label = "données CO2-niveau de vie à l'IRIS",
-  output_name = glue("co2_IRIS_ndv_MetAMP.{version}")
-)
+  button_label = "données CO2-niveau de vie à l'IRIS")
 ```
 :::
 
@@ -272,22 +278,74 @@ On notera la corrélation négative, au moins pour les localisations les plus di
 #| label: fig-polkm
 #| fig-cap: Km pro versus pollution
 #| fig-asp: 0.8
-bd_read("poldist")+ 
-  patchwork::plot_annotation(
-    caption=glue::glue(
+
+library(patchwork)
+library(stars)
+inset_map <- bd_read("inset_map")
+
+
+km_iris_pol <- bd_read("km_iris_pol")
+
+(base <- ggplot(km_iris_pol)+
+  aes(y=km_pa, x=sudair, size=dens, fill = prix, shape = shape)+
+  scale_fill_distiller(palette="Spectral", 
+                       trans="log", direction = -1,
+                       oob = scales::squish,
+                       limits = c(1000, 8000),
+                       aesthetics = c( "fill"),
+                       breaks = c(1000, 3000, 8000),
+                       name="prix immobilier\n€/m² 2022")+
+  geom_point(alpha=0.95, stroke=.1, color = "transparent") + 
+  scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
+  guides(size=guide_legend(title = "Actifs/ha", 
+                           override.aes = list(color="grey25")),
+         shape = "none") + 
+  scale_x_continuous("Indice Cumulé de pollution de l'AIR (ICAIR) annuel",
+                     labels = scales::label_number(big.mark = " ")) + 
+  scale_y_continuous("CO2 émis pour le motif professionel (moyenne par an de l'IRIS)", 
+                     labels = scales::label_number(big.mark = " ")) +
+  # geom_smooth(col="lightblue", fill = "lightblue1", aes(weight = f_i)) +
+  theme_ofce(base_size = 10, legend.position = "bottom") +
+    labs(caption=glue::glue(
       "*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS, DV3F CEREMA, MEAPS. *version {version}*
        <br>*Note* : Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille,
       <br> les losanges pour la commune d'Aix-en-Provence,
-       <br>les ronds pour les autres communes.<br>"),
-    theme = theme_ofce()) 
+       <br>les ronds pour les autres communes.<br>"))  + 
+  patchwork::inset_element(inset_map, left=0.7, bottom=0.63, right=1, top=1) + 
+  theme(plot.margin = margin()))
+
+top_dens <- ggplot(km_iris_pol)+
+  geom_density(aes(x=sudair, y=after_stat(density), weight=co2_i), 
+               color = "black", fill="palegreen", alpha=0.25, linewidth=0.2)+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+right_dens <- ggplot(km_iris_pol)+
+  geom_density(aes(x=km_pa, y=after_stat(density), weight=co2_i), 
+               color = "black", fill="palegreen", alpha=0.25, linewidth=0.2)+
+  coord_flip()+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+
+patchwork::wrap_plots(
+  top_dens, patchwork::plot_spacer(), base,  right_dens,
+  ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
+  theme(panel.spacing = unit(0, "pt"), 
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))  
+  
 ```
 
 ::: column-margin
 ```{r}
-download_this(bd_read("km_iris_pol") |> sf::st_drop_geometry(),
+
+bd_read("km_iris_pol") |> sf::st_drop_geometry() |> 
+  vroom::vroom_write("dnwld/co2_IRIS_pol_MetAMP.csv", delim = ";")
+
+download_link(
+  link = "dnwld/co2_IRIS_pol_MetAMP.csv",
   icon = "fa fa-download", class = "dbtn",
-  button_label = "données CO2-pollution à l'IRIS",
-  output_name = glue("co2_IRIS_pol_MetAMP.{version}"))
+  button_label = "données CO2-pollution à l'IRIS")
 ```
 :::
 
@@ -297,24 +355,56 @@ download_this(bd_read("km_iris_pol") |> sf::st_drop_geometry(),
 #| label: fig-poldens
 #| fig-cap: Densité de population versus pollution
 #| fig-asp: 0.8
-bd_read("poldens")+ 
-  patchwork::plot_annotation(
-    caption=glue::glue(
-      "*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS, DV3F CEREMA, MEAPS. *version {version}*
+
+(base <- ggplot(km_iris_pol)+
+    aes(y=dens, x=sudair, size=dens, fill = prix, shape = shape)+
+    scale_fill_distiller(palette="Spectral", 
+                         trans="log", direction = -1,
+                         oob = scales::squish,
+                         limits = c(1000, 8000),
+                         aesthetics = c( "fill"),
+                         breaks = c(1000, 3000, 8000),
+                         name="prix immobilier\n€/m² 2022")+
+    geom_point(alpha=0.95, stroke=.1, color = "transparent") + 
+    scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
+    guides(size=guide_legend(title = "Actifs/ha", 
+                             override.aes = list(color="grey25")),
+           shape = "none") + 
+    scale_x_continuous("Indice Cumulé de pollution de l'AIR (ICAIR) annuel",
+                       labels = scales::label_number(big.mark = " ")) + 
+    scale_y_continuous("Densité de l'IRIS", 
+                       labels = scales::label_number(big.mark = " ")) +
+    # geom_smooth(col="lightblue", fill = "lightblue1", aes(weight = f_i)) +
+    theme_ofce(base_size = 10, legend.position = "bottom")+ 
+    labs(
+      caption=glue::glue(
+        "*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS, DV3F CEREMA, MEAPS. *version {version}*
        <br>*Note* : Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille,
       <br> les losanges pour la commune d'Aix-en-Provence,
-       <br>les ronds pour les autres communes.<br>"),
-    theme = theme_ofce()) 
-```
+       <br>les ronds pour les autres communes.<br>")  ) +
+    patchwork::inset_element(inset_map, left=0.7, bottom=0.63, right=1, top=1) + 
+    theme(plot.margin = margin()))
 
-::: column-margin
-```{r}
-download_this(bd_read("km_iris_pol") |> sf::st_drop_geometry(),
-  icon = "fa fa-download", class = "dbtn",
-  button_label = "données CO2-pollution à l'IRIS",
-  output_name = glue("co2_IRIS_pol_MetAMP.{version}"))
+top_dens <- ggplot(km_iris_pol)+
+  geom_density(aes(x=sudair, y=after_stat(density), weight=co2_i), 
+               color = "black", fill="palegreen", alpha=0.25, linewidth=0.2)+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+right_dens <- ggplot(km_iris_pol)+
+  geom_density(aes(x=dens, y=after_stat(density), weight=co2_i), 
+               color = "black", fill="palegreen", alpha=0.25, linewidth=0.2)+
+  coord_flip()+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+
+patchwork::wrap_plots(
+  top_dens, patchwork::plot_spacer(), base,  right_dens,
+  ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
+  theme(panel.spacing = unit(0, "pt"), 
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
 ```
-:::
 
 ## Densité et émissions de CO~2~
 

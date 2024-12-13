@@ -6,7 +6,7 @@
 ---
 
 ```{r init, include=FALSE}
-source("init.R")
+ofce::init_qmd()
 ```
 
 # Calcul des distances et accessibilité
@@ -178,14 +178,23 @@ t_access |>
 
 ::: column-margin
 ```{r}
-download_this(
-  t_access |> 
+c200zea <- bd_read("c200ze") |> 
+  st_drop_geometry() |> 
+  select(idINS, act_mobpro)
+
+td_access <- bd_read("t_access") |> 
+  left_join(c200zea, by = c("idINS"="idINS")) |> 
     st_drop_geometry() |> 
-    mutate(idINS = r3035::expand_idINS(idINS)),
+    mutate(idINS = r3035::expand_idINS(idINS)) 
+
+td_access |>
+  vroom::vroom_write("dnwld/temps_accessibilite_idINS_MetAM.csv", delim = ";")
+
+download_link(
+  link = "dnwld/temps_accessibilite_idINS_MetAM.csv",
   icon = "fa fa-download",
   class = "dbtn",
-  button_label = "données temps d'accessibilité au carreau",
-  output_name = "temps_accessibilite_idINS_MetAM"
+  button_label = "données temps d'accessibilité au carreau"
 )
 ```
 :::
@@ -242,12 +251,14 @@ ggplot(data) +
 
 ::: column-margin
 ```{r}
-download_this(
-access_par_com,
+
+access_par_com |> vroom::vroom_write("dnwld/access_par_com_MetAMP.csv", delim = ";")
+
+download_link(
+  "dnwld/access_par_com_MetAMP.csv",
   class  = "dbtn",
   icon = "fa fa-download",
-  button_label  = "données temps d'accès par commune",
-  output_name = "access_commune_metAM"
+  button_label  = "données temps d'accès par commune"
 )
 ```
 :::
@@ -352,12 +363,12 @@ On utilise le revenu moyen par unité de consommation au carreau (et donc une do
 library(MetricsWeighted)
 library(santoku)
 
-c200ze <- c200ze |> 
+c200ze <- bd_read("c200ze") |> 
   mutate(
     ndv = ind_snv/ind,
-    decile = chop(
+    decile = santoku::chop(
       ndv,
-      weighted_quantile(ndv, w = ind, probs = 1:10/10, names=FALSE),
+      MetricsWeighted::weighted_quantile(ndv, w = ind, probs = 1:10/10, names=FALSE),
       labels = str_c("d", 1:10)))
   
 d_access <- t_access |>
@@ -425,12 +436,13 @@ ggplot(deciles)+
 
 ::: column-margin
 ```{r}
-download_this(
-  deciles,
+deciles |> vroom::vroom_write("dnwld/deciles_MetAMP.csv", delim = ";")
+
+download_link(
+  "dnwld/deciles_MetAMP.csv",
   class  = "dbtn",
   icon = "fa fa-download",
-  button_label  = "données répartition des déciles",
-  output_name = "deciles_metAM"
+  button_label  = "données répartition des déciles"
 )
 ```
 :::
@@ -490,13 +502,26 @@ Accessibilités en fonction du décile de niveau de vie
 
 ::: column-margin
 ```{r}
-download_this(
-d_access |> 
-  mutate(idINS = r3035::expand_idINS(idINS)),
+d_access <- t_access |>
+  st_drop_geometry() |>
+  left_join(
+    c200ze |> st_drop_geometry() |> select(idINS = idINS, ndv, decile),
+    by = "idINS") |> 
+  filter(mode %in% c("bike_tblr", "car_dgr", "transit5", "walk_tblr")) |> 
+  mutate(
+    zone = case_match(com,
+                      str_c(13201:13216) ~ "Marseille",
+                      "13039"  ~ 'Fos-sur-Mer',
+                      "13001" ~ 'Aix-en-Provence', 
+                      .default = "autres"))
+
+d_access |> vroom::vroom_write("dnwld/access_revenu_metAM.csv", delim = ";")
+
+download_link(
+  link = "dnwld/access_revenu_metAM.csv",
   class  = "dbtn",
   icon = "fa fa-download",
-  button_label  = "données accessibilité et revenu au carreau",
-  output_name = "access_revenu_metAM"
+  button_label  = "données accessibilité et revenu au carreau"
 )
 ```
 :::

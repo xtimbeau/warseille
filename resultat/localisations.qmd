@@ -6,7 +6,8 @@
 ---
 
 ```{r init, include=FALSE}
-source("init.R")
+ofce::init_qmd()
+
 ```
 
 # Localisation des résidents, des actifs et des emplois
@@ -77,18 +78,19 @@ c200ze |>
 
 ```
 ```{r}
-download_this(
-  c200ze |> 
+bd_read("c200ze") |> 
     st_drop_geometry() |> 
   filter(ind > 0, scot) |> 
   transmute(
     idINS = r3035::expand_idINS(idINS), ind, dep, idcom=com22, IRIS,
-    act_mobpro),
+    act_mobpro) |> 
+  vroom::vroom_write("dnwld/ind_act_idINS_MetAM.csv", delim = ";")
+
+download_link(
+  link = "dnwld/ind_act_idINS_MetAM.csv",
   icon = "fa fa-download",
   class = "dbtn",
-  button_label  = "données ind&actifs au carreau",
-  output_name = "ind_act_idINS_MetAM"
-)
+  button_label  = "données ind&actifs au carreau")
 ```
 
 ## actifs MOBPRO (2020)
@@ -120,20 +122,24 @@ c200ze |>
               legend_format = list(fill_colour = as.integer)) |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 ```
+
 ```{r}
-download_this(
-  c200ze |> 
+bd_read("c200ze") |> 
     st_drop_geometry() |> 
-  filter(act_mobpro > 0, scot) |> 
+  filter(emp > 0) |> 
   transmute(
-    idINS = r3035::expand_idINS(idINS), ind, dep, idcom=com22, IRIS,
-    act_mobpro),
+    idINS = r3035::expand_idINS(idINS), emp, emp_resident, idcom=com22, IRIS,
+    act = tactocc1564 * ind_18_64) |> 
+  vroom::vroom_write("dnwld/emp_empres_idINS_MetAM.csv", delim = ";")
+
+download_link(
+  link = "dnwld/emp_empres_idINS_MetAM.csv",
   icon = "fa fa-download",
   class = "dbtn",
-  button_label  = "données ind&actifs au carreau",
-  output_name = "ind_act_idINS_MetAM"
+  button_label  = "données emploi&emploi résident au carreau"
 )
 ```
+
 ## emploi MOBPRO (2020)
 
 ```{r}
@@ -162,20 +168,6 @@ c200ze |>
               legend_format = list(fill_colour = as.integer)) |> 
   mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
 
-```
-```{r}
-download_this(
-  c200ze |> 
-    st_drop_geometry() |> 
-  filter(emp > 0) |> 
-  transmute(
-    idINS = r3035::expand_idINS(idINS), emp, emp_resident, idcom=com22, IRIS,
-    act = tactocc1564 * ind_18_64),
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label  = "données emploi&emploi résident au carreau",
-  output_name = "emp_empres_idINS_MetAM"
-)
 ```
 :::
 

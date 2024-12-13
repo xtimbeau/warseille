@@ -240,14 +240,17 @@ vqh <- bd_read("vqh") |>
   r3035::sidINS2sf(idINS = "fromidINS") |> 
   mutate(wqse = factor(wqse))
 
-download_this(
-  vqh |> 
-    st_drop_geometry() |> 
-    mutate(fromidINS = r3035::expand_idINS(fromidINS)),
+vqh |>
+  st_drop_geometry() |>
+  mutate(fromidINS = r3035::expand_idINS(fromidINS)) |> 
+  select(-id_s, -id_d, -beta, -s, -wqse, -qse) |> 
+  vroom::vroom_write("dnwld/amenites_idINS_pdvR_MetAMP.csv", delim = ";")
+
+download_link(
+  "dnwld/amenites_idINS_pdvR_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtn", 
-  button_label = "données accessibilité aux aménités au carreau, résidents", 
-  output_name = glue("amenites_idINS_pdvR_MetAMP.{version}"))
+  button_label = "données accessibilité aux aménités au carreau, résidents")
 ```
 :::
 
@@ -629,14 +632,19 @@ ggplot() +
 
 ::: {.column-margin}
 ```{r}
-data <- lien_se_si |> filter( m == 1) |> select(t, residus) |> unnest(residus) |> mutate(idINS = r3035::expand_idINS(idINS))
+lien_se_si |> 
+  filter( m == 1) |>
+  select(type = t, residus) |> 
+  mutate(type = str_remove(type, "^se_")) |> 
+  unnest(residus) |> 
+  mutate(idINS = r3035::expand_idINS(idINS)) |> 
+  vroom::vroom_write("dnwld/residus_prox-dens_MetAMP.csv", delim = ";")
 
-download_this(
-  data,
+download_link(
+  "dnwld/residus_prox-dens_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtn", 
-  button_label = "données résidus modèles proximité/densité (log)", 
-  output_name = glue("residus"))
+  button_label = "données résidus modèles proximité/densité (log)")
 
 ```
 :::
@@ -954,15 +962,16 @@ ggplot() +
 data <- proj |> 
   select(idINS, ind, freq, dist) |> 
   mutate(idINS = r3035::expand_idINS(idINS),
-         co2 =  dist * 365 * 218/1000000 ) |> 
-  st_drop_geometry()
+         co2_pi =  dist * 365 * 218/1000000 ) |> 
+  select(idINS, ind, co2_pi) |> 
+  st_drop_geometry() |> 
+  vroom::vroom_write("dnwld/co2_motif_commerce_MetAMP.csv", delim = ";")
 
-download_this(
-  data,
+download_link(
+  "dnwld/co2_motif_commerce_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtn", 
-  button_label = "données CO2 pour le motif courses", 
-  output_name = glue("co2_courses"))
+  button_label = "données CO2 pour le motif courses")
 
 ```
 :::
