@@ -269,7 +269,7 @@ cookieconsent.run({
 </div>
 <p><em>Source</em> : <a href="https://www.insee.fr/fr/statistiques/7655511?sommaire=7655515">INSEE</a>, année 2019, <a href="https://www.insee.fr/fr/statistiques/7630376">MOBPRO</a> année 2020</p>
 <ul>
-<li><p><code>idINS</code> : code <a href="https://knowledge-base.inspire.ec.europa.eu/index_en">INSPIRE</a> (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier). Nous avons omis dans le code INSPIRE les premiers caractères qui décrivent le système de coordonnées (<code>FR_CRS3035)</code> ainsi que le <code>m</code> de la résolution pour éviter de surcharger la chaîne de caractères. Le code est donc <code>r200NyyyyyyyExxxxxxx</code> où <code>yyyyyyy</code> et <code>xxxxxxx</code> sont les coordonnées dans la projection EPSG:3035 LAEA en mètres. Ce codage n’est pas très efficient, nous utilisons (normalement ce n’est plus présent dans les fichiers téléchargeables) un codage dérivé qui s’écrit <code>xxxxxxx/200*100000 +``yyyyyyy/200</code> qui est un entier à 10 chiffres bien plus petit que la chaîne de caractère standard.</p></li>
+<li><p><code>idINS</code> : code <a href="https://knowledge-base.inspire.ec.europa.eu/index_en">INSPIRE</a> (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier). Nous avons omis dans le code INSPIRE les premiers caractères qui décrivent le système de coordonnées (<code>FR_CRS3035)</code> ainsi que le <code>m</code> de la résolution pour éviter de surcharger la chaîne de caractères. Le code est donc <code>r200NyyyyyyyExxxxxxx</code> où <code>yyyyyyy</code> et <code>xxxxxxx</code> sont les coordonnées dans la projection EPSG:3035 LAEA en mètres. Ce codage n’est pas très efficient, nous utilisons (normalement ce n’est plus présent dans les fichiers téléchargeables) un codage dérivé qui s’écrit <code>xxxxxxx/200*100000 +``yyyyyyy/200</code> qui est un entier à 10 chiffres bien plus petit que la chaîne de caractère standard.</p></li>
 <li><p><code>ind</code> : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.</p></li>
 <li><p><code>dep</code> : numéro du département</p></li>
 <li><p><code>idcom</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code></p></li>
@@ -288,7 +288,7 @@ cookieconsent.run({
 </div>
 <p><em>Source</em> : <a href="https://www.insee.fr/fr/statistiques/7655511?sommaire=7655515">INSEE</a>, année 2019, <a href="https://www.insee.fr/fr/statistiques/7630376">MOBPRO</a> année 2020, Fichiers Fonciers 2021 <a href="https://doc-datafoncier.cerema.fr/doc/ff/">CEREMA</a>, population active <a href="https://www.insee.fr/fr/statistiques/7632867?sommaire=7632977">INSEE</a></p>
 <ul>
-<li><p><code>idINS</code> : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
+<li><p><code>idINS</code> : code INSPIRE (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
 <li><p><code>emp</code>: emplois au carreau. Issu de MOBPRO (somme sur les communes de travail <code>DCLT</code>), projetté à partir des surfaces foncières par NAF 5 catégories (celle de MOBPRO).</p></li>
 <li><p><code>emp_resident</code> : emplois du carreau occupés par des résidents de la métropole AMP</p></li>
 <li><p><code>idcom</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code></p></li>
@@ -307,7 +307,7 @@ cookieconsent.run({
 </div>
 <p><em>Source</em> : calcul des auteurs à partir des sources déjà citées, plus <a href="https://www.openstreetmap.org/#map=6/46.45/2.21">OSM</a> et <a href="https://data.ampmetropole.fr/explore/dataset/lignes-des-reseaux-de-transport-rtm-regie-des-transports-de-marseille/information/">GTFS de la métropole</a></p>
 <ul>
-<li><p><code>idINS</code> : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
+<li><p><code>idINS</code> : code INSPIRE (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
 <li><p><code>com</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
 <li><p><code>ind</code> : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.</p></li>
 <li><p><code>act_mobpro</code> : actifs au sens de MOBPRO 2020 (somme des individus par commune, reprojetté au carreau proportionnellement aux adultes de C200).</p></li>
@@ -325,12 +325,12 @@ cookieconsent.run({
 </a>
 </div>
 </div>
-<p><em>Source</em> : calculs des auteurs à partir des sources déjà citées. Aggrégation par commune de la donnée <a href="#sec-access">accessibilité</a></p>
+<p><em>Source</em> : calculs des auteurs à partir des sources déjà citées. Agrégation par commune de la donnée <a href="#sec-access">accessibilité</a></p>
 <ul>
 <li><p><code>com</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
 <li><p><code>mode</code> : mode de transport utilisé pour le routeur. Les valeurs possibles sont « <code>walk_tblr</code> » marche à pied avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur <code>dogr</code> ; « <code>bike_tblr</code> » vélo avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur <code>dogr</code> ; « <code>car_dgr</code> » voiture, moteur <code>dogr</code> et « <code>transit</code> » transport en commun, tramway, bus, métro, trains urbain (TER), bateaux, moteur <code>r5r</code> et données <code>GTFS</code>.</p></li>
 <li><p><code>temps</code> : temps de parcours (de <code>to10k</code>, <code>to20k</code><span style="white-space:nowrap">, …)</span></p></li>
-<li><p><code>emp</code> : emploi accessible dans le temps, agrégé à partir de la donnée accessibilité en prenant la moyenne pondérée par le produit emploi par actif des temps entre chaque carreau d’origine (appartenent à <code>com)</code> et de destination (repartition uniforme à partir de <code>DCLT</code> de MOBPRO.</p></li>
+<li><p><code>emp</code> : emploi accessible dans le temps, agrégé à partir de la donnée accessibilité en prenant la moyenne pondérée par le produit emploi par actif des temps entre chaque carreau d’origine (appartenant à <code>com)</code> et de destination (répartition uniforme à partir de <code>DCLT</code> de MOBPRO).</p></li>
 <li><p><code>repr</code> : nombre d’actif dans la commune <code>com</code>.</p></li>
 <li><p><code>label</code> : nom de la commune <code>com</code> en clair</p></li>
 </ul>
@@ -362,7 +362,7 @@ cookieconsent.run({
 </div>
 <p><em>Source</em> : jointure de l’<a href="#sec-access">accessibilité</a> et des <a href="#sec-deciles">déciles de niveau de vie</a></p>
 <ul>
-<li><p><code>idINS</code> : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
+<li><p><code>idINS</code> : code INSPIRE (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
 <li><p><code>com</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
 <li><p><code>ind</code> : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.</p></li>
 <li><p><code>act_mobpro</code> : actifs au sens de MOBPRO 2020 (somme des individus par commune, reprojetté au carreau proportionnellement aux adultes de C200).</p></li>
@@ -384,8 +384,8 @@ cookieconsent.run({
 </div>
 <p><em>Source</em> : calculs des auteurs à partir des sources citées</p>
 <ul>
-<li><p><code>fromidINS</code> : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
-<li><p><code>com</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
+<li><p><code>fromidINS</code> : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
+<li><p><code>com</code> : Code INSEE de la commune (attention, ce n’est pas le code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
 <li><p><code>km_i</code> : nombre de kilomètres en voiture générés par MEAPS pour le carreau de départ vers potentiellement tous les carreaux de destination, agrégé sur les catégories de ménages</p></li>
 <li><p><code>co2_i</code> : Emissions de CO<sub>2</sub> imputées aux résidents du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages.</p></li>
 <li><p><code>f_i</code> : flux de départ du carreau de résidence (en personne). Egal par construction à <code>act_mobpro</code> aux immobiles près.</p></li>
@@ -404,7 +404,7 @@ cookieconsent.run({
 </div>
 <p><em>Source</em> : calculs des auteurs à partir des sources citées</p>
 <ul>
-<li><p><code>toidINS</code> : code INSPIRE du carreau d’arrivée ou d’emploi (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
+<li><p><code>toidINS</code> : code INSPIRE du carreau d’arrivée ou d’emploi (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
 <li><p><code>com</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
 <li><p><code>scot</code> : indicatrice qui vaut <code>TRUE</code> pour les emplois de la métropole AMP.</p></li>
 <li><p><code>km_j</code> : nombre de kilomètres en voiture générés par MEAPS pour le carreau d’arrivée depuis potentiellement tous les carreaux de départ, agrégé sur les catégories de ménages. Attention, cette donnée ne comptabilise pas les actifs hors métropole et est donc partielle, surtout sur la périphérie. Sera corrigé dans une prochaine version.</p></li>
@@ -512,7 +512,7 @@ cookieconsent.run({
 </div>
 <p><em>Source</em> : calculs des auteurs à partir des sources citées</p>
 <ul>
-<li><p><code>idINS</code> : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
+<li><p><code>idINS</code> : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
 <li><p><code>r</code> : résidu de la régression log linéaire (voir document)</p></li>
 <li><p><code>ind</code> : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.</p></li>
 <li><p><code>co2_pi</code> : tonnes de CO<sub>2</sub> émises par individu pour le motif courses (ou commerce) imputées au résidents du carreau</p></li>
