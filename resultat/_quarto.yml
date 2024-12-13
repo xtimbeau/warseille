@@ -1,5 +1,7 @@
 project:
   type: book
+  resources: 
+    - dnwld
 
 date: 12/14/2023
 date-modified: today

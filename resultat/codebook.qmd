@@ -6,29 +6,22 @@ title: "codebook"
 ofce::init_qmd()
 ```
 
-Lorsque c'est pertinent, les données des graphiques ou des tableaux sont proposées au téléchargement. Ces données téléchargeable sont rassemblées dans cette annexe avec le détail des colonnes, des noms et des méthodes de construction.
+Lorsque c'est pertinent, les données des graphiques ou des tableaux sont proposées au téléchargement. Ces données téléchargeables sont rassemblées dans cette annexe avec le détail des colonnes, des noms et des méthodes de construction.
 
 ## C200 résidents
 
 ```{r}
-c200ze <- bd_read("c200ze") |> st_transform(4326)
-download_this(
-  c200ze |> 
-    st_drop_geometry() |> 
-  filter(ind > 0, scot) |> 
-  transmute(
-    idINS = r3035::expand_idINS(idINS), ind, dep, idcom=com22, IRIS,
-    act_mobpro),
+download_link(
+  link = "dnwld/ind_act_idINS_MetAMP.csv",
   icon = "fa fa-download",
-  class = "dbtn",
-  button_label  = "données ind&actifs au carreau",
-  output_name = "ind_act_idINS_MetAM"
+  class = "dbtnlg",
+  button_label  = "données ind&actifs au carreau"
 )
 ```
 
 *Source* : [INSEE](https://www.insee.fr/fr/statistiques/7655511?sommaire=7655515), année 2019, [MOBPRO](https://www.insee.fr/fr/statistiques/7630376) année 2020
 
--   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+-   `idINS` : code [INSPIRE](https://knowledge-base.inspire.ec.europa.eu/index_en) (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier). Nous avons omis dans le code INSPIRE les premiers caractères qui décrivent le système de coordonnées (`FR_CRS3035)` ainsi que le `m` de la résolution pour éviter de surcharger la chaîne de caractères. Le code est donc `r200NyyyyyyyExxxxxxx` où `yyyyyyy` et `xxxxxxx` sont les coordonnées dans la projection EPSG:3035 LAEA en mètres. Ce codage n'est pas très efficient, nous utilisons (normalement ce n'est plus présent dans les fichiers téléchargeables) un codage dérivé qui s'écrit `xxxxxxx/200*100000 +``yyyyyyy/200` qui est un entier à 10 chiffres bien plus petit que la chaîne de caractère standard.
 
 -   `ind` : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.
 
@@ -43,23 +36,17 @@ download_this(
 ## C200 emploi {#sec-c200emp}
 
 ```{r}
-download_this(
-  c200ze |> 
-    st_drop_geometry() |> 
-  filter(emp > 0) |> 
-  transmute(
-    idINS = r3035::expand_idINS(idINS), emp, emp_resident, idcom=com22, IRIS,
-    act = tactocc1564 * ind_18_64),
+download_link(
+  link = "dnwld/emp_empres_idINS_MetAMP.csv",
   icon = "fa fa-download",
-  class = "dbtn",
-  button_label  = "données emploi&emploi résident au carreau",
-  output_name = "emp_empres_idINS_MetAM"
+  class = "dbtnlg",
+  button_label  = "données emploi&emploi résident au carreau"
 )
 ```
 
 *Source* : [INSEE](https://www.insee.fr/fr/statistiques/7655511?sommaire=7655515), année 2019, [MOBPRO](https://www.insee.fr/fr/statistiques/7630376) année 2020, Fichiers Fonciers 2021 [CEREMA](https://doc-datafoncier.cerema.fr/doc/ff/), population active [INSEE](https://www.insee.fr/fr/statistiques/7632867?sommaire=7632977)
 
--   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+-   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
 
 -   `emp`: emplois au carreau. Issu de MOBPRO (somme sur les communes de travail `DCLT`), projetté à partir des surfaces foncières par NAF 5 catégories (celle de MOBPRO).
 
@@ -74,25 +61,17 @@ download_this(
 ## Accessibilité {#sec-access}
 
 ```{r}
-c200zea <- bd_read("c200ze") |> 
-  st_drop_geometry() |> 
-  select(idINS, act_mobpro)
-t_access <- bd_read("t_access") |> 
-  left_join(c200zea, by = c("idINS"="idINS"))
-download_this(
-  t_access |> 
-    st_drop_geometry() |> 
-    mutate(idINS = r3035::expand_idINS(idINS)),
+download_link(
+  link = "dnwld/temps_accessibilite_idINS_MetAM.csv",
   icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données temps d'accessibilité au carreau",
-  output_name = "temps_accessibilite_idINS_MetAM"
+  class = "dbtnlg",
+  button_label = "données temps d'accessibilité au carreau"
 )
 ```
 
 *Source* : calcul des auteurs à partir des sources déjà citées, plus [OSM](https://www.openstreetmap.org/#map=6/46.45/2.21) et [GTFS de la métropole](https://data.ampmetropole.fr/explore/dataset/lignes-des-reseaux-de-transport-rtm-regie-des-transports-de-marseille/information/)
 
--   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+-   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
 
 -   `com` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
 
@@ -109,17 +88,15 @@ download_this(
 ## Accessibilité par commune
 
 ```{r}
-access_par_com <- bd_read("access_par_com")
-download_this(
-access_par_com,
-  class  = "dbtn",
+download_link(
+  "dnwld/access_par_com_MetAMP.csv",
+  class  = "dbtnlg",
   icon = "fa fa-download",
-  button_label  = "données temps d'accès par commune",
-  output_name = "access_commune_metAM"
+  button_label  = "données temps d'accès par commune"
 )
 ```
 
-*Source* : calculs des auteurs à partir des sources déjà citées. Aggrégation par commune de la donnée [accessibilité](#sec-access)
+*Source* : calculs des auteurs à partir des sources déjà citées. Agrégation par commune de la donnée [accessibilité](#sec-access)
 
 -   `com` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
 
@@ -127,37 +104,18 @@ access_par_com,
 
 -   `temps` : temps de parcours (de `to10k`, `to20k`, ...)
 
--   `emp` : emploi accessible dans le temps, agrégé à partir de la donnée accessibilité en prenant la moyenne pondérée par le produit emploi par actif des temps entre chaque carreau d'origine (appartenent à `com)` et de destination (repartition uniforme à partir de `DCLT` de MOBPRO.
+-   `emp` : emploi accessible dans le temps, agrégé à partir de la donnée accessibilité en prenant la moyenne pondérée par le produit emploi par actif des temps entre chaque carreau d'origine (appartenant à `com)` et de destination (répartition uniforme à partir de `DCLT` de MOBPRO).
 
 -   `repr` : nombre d'actif dans la commune `com`.
 
 -   `label` : nom de la commune `com` en clair
 
-## Déciles de niveau de vie  {#sec-deciles}
+## Déciles de niveau de vie {#sec-deciles}
 
 ```{r}
-c200ze <- c200ze |> 
-  mutate(
-    ndv = ind_snv/ind,
-    decile = santoku::chop(
-      ndv,
-      MetricsWeighted::weighted_quantile(ndv, w = ind, probs = 1:10/10, names=FALSE),
-      labels = str_c("d", 1:10)))
-
-deciles <- c200ze |> 
-  st_drop_geometry() |> 
-  mutate(
-    zone = case_match(com,
-                      str_c(13201:13216) ~ "Marseille",
-                      "13039"  ~ 'Fos-sur-Mer',
-                      "13001" ~ 'Aix-en-Provence', 
-                      .default = "autres")) |> 
-  group_by(zone, decile) |> 
-  summarize(ind = sum(ind), .groups = "drop")
-
-download_this(
-  deciles,
-  class  = "dbtn",
+download_link(
+  "dnwld/deciles_MetAMP.csv",
+  class  = "dbtnlg",
   icon = "fa fa-download",
   button_label  = "données répartition des déciles",
   output_name = "deciles_metAM"
@@ -175,32 +133,17 @@ download_this(
 ## Accessibilité par déciles de niveau de vie
 
 ```{r}
-d_access <- t_access |>
-  st_drop_geometry() |>
-  left_join(
-    c200ze |> st_drop_geometry() |> select(idINS = idINS, ndv, decile),
-    by = "idINS") |> 
-  filter(mode %in% c("bike_tblr", "car_dgr", "transit5", "walk_tblr")) |> 
-  mutate(
-    zone = case_match(com,
-                      str_c(13201:13216) ~ "Marseille",
-                      "13039"  ~ 'Fos-sur-Mer',
-                      "13001" ~ 'Aix-en-Provence', 
-                      .default = "autres"))
-
-download_this(
-d_access |> 
-  mutate(idINS = r3035::expand_idINS(idINS)),
-  class  = "dbtn",
+download_link(
+  link = "dnwld/access_revenu_metAM.csv",
+  class  = "dbtnlg",
   icon = "fa fa-download",
-  button_label  = "données accessibilité et revenu au carreau",
-  output_name = "access_revenu_metAM"
+  button_label  = "données accessibilité et revenu au carreau"
 )
 ```
 
 *Source* : jointure de l'[accessibilité](#sec-access) et des [déciles de niveau de vie](#sec-deciles)
 
--   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+-   `idINS` : code INSPIRE (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
 
 -   `com` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
 
@@ -221,21 +164,18 @@ d_access |>
 ## CO~2~ au carreau, point de vue résident
 
 ```{r}
-download_this(
-  bd_read("meaps_from") |> 
-    st_drop_geometry() |> 
-    mutate(fromidINS = r3035::expand_idINS(fromidINS)),
+download_link(
+  link = "dnwld/co2_idINS_pdvR_MetAMP.csv",
   icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données CO2 au carreau, résidents", 
-  output_name = glue("co2_idINS_pdvR_MetAMP.{version}"))
+  class = "dbtnlg",
+  button_label = "données CO2 au carreau, résidents")
 ```
 
 *Source* : calculs des auteurs à partir des sources citées
 
--   `fromidINS` : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+-   `fromidINS` : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
 
--   `com` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
+-   `com` : Code INSEE de la commune (attention, ce n'est pas le code postal). Les arrondissements de Marseille sont de la forme `131xx`.
 
 -   `km_i` : nombre de kilomètres en voiture générés par MEAPS pour le carreau de départ vers potentiellement tous les carreaux de destination, agrégé sur les catégories de ménages
 
@@ -250,19 +190,16 @@ download_this(
 ## CO~2~ au carreau, point de vue emploi
 
 ```{r}
-download_this(
-  bd_read("meaps_to") |> 
-    st_drop_geometry() |> 
-    mutate(toidINS = r3035::expand_idINS(toidINS)),
+download_link(
+  link = "dnwld/co2_idINS_pdvE_MetAMP.csv",
   icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données CO2 au carreau, emploi",
-  output_name = glue("co2_idINS_pdvE_MetAMP.{version}"))
+  class = "dbtnlg",
+  button_label = "données CO2 au carreau, emploi")
 ```
 
 *Source* : calculs des auteurs à partir des sources citées
 
--   `toidINS` : code INSPIRE du carreau d'arrivée ou d'emploi (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+-   `toidINS` : code INSPIRE du carreau d'arrivée ou d'emploi (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
 
 -   `com` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
 
@@ -278,17 +215,14 @@ download_this(
 
 -   `co2_pe` : `co2_i` divisé par `f_i`, soit les émissions de CO~2~ par actif.
 
-## Revenu et CO~2~ 
+## Revenu et CO~2~
 
 ```{r}
-download_this(
-  bd_read("km_iris") |> 
-    st_drop_geometry(),
+download_link(
+  link = "dnwld/co2_ndv_IRIS_MetAMP.csv",
   icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données CO2-niveau de vie à l'IRIS",
-  output_name = glue("co2_IRIS_ndv_MetAMP.{version}")
-)
+  class = "dbtnlg",
+  button_label = "données CO2-niveau de vie à l'IRIS")
 ```
 
 *Source* : calculs des auteurs à partir des sources citées
@@ -298,8 +232,6 @@ download_this(
 -   `km_pa` : `km_i` divisé par `f_i`, soit les kilomètres par actif ; agrégé à l'IRIS (correctement).
 
 -   `f_i` : flux de départ du carreau de résidence (en personne). Egal par construction à `act_mobpro` ; agrégé à l'IRIS (correctement).
-
-<!-- -->
 
 -   `co2_i` : Emissions de CO~2~ imputées aux résidents du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages ; agrégé à l'IRIS (correctement).
 
@@ -311,10 +243,115 @@ download_this(
 
 -   `prix` : prix des transactions par m² (DV3F) moyen dans l'IRIS en 2021
 
-<!-- -->
+-   `tx` : croissance des prix des transactions immobilières par m² dans l'IRIS de 2011 à 2022
+
+-   `shape` : nom curieux pour la zone considéré (permet de faire les ronds et les losanges sur le graphique)
+
+-   `dens` : densité simple dans l'IRIS
+
+## Pollution subie CO~2~ émis
+
+```{r}
+download_link(
+  link = "dnwld/co2_IRIS_pol_MetAMP.csv",
+  icon = "fa fa-download",
+  class = "dbtnlg",
+  button_label = "données CO2-pollution à l'IRIS")
+```
+
+*Source* : calculs des auteurs à partir des sources citées
+
+-   `IRIS` : code IRIS, géographie 2021
+
+-   `km_pa` : `km_i` divisé par `f_i`, soit les kilomètres par actif ; agrégé à l'IRIS (correctement).
+
+-   `f_i` : flux de départ du carreau de résidence (en personne). Egal par construction à `act_mobpro` ; agrégé à l'IRIS (correctement).
+
+-   `co2_i` : Emissions de CO~2~ imputées aux résidents du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages ; agrégé à l'IRIS (correctement).
+
+-   `n` : nombre de carreaux dans l'IRIS.
+
+-   `snv` : niveau de vie moyen dans l'IRIS.
+
+-   `ind` : nombre d'individus dans l'IRIS.
+
+-   `prix` : prix des transactions par m² (DV3F) moyen dans l'IRIS en 2021
 
 -   `tx` : croissance des prix des transactions immobilières par m² dans l'IRIS de 2017 à 2021 (à vérifier)
 
 -   `shape` : nom curieux pour la zone considéré (permet de faire les ronds et les losanges sur le graphique)
 
 -   `dens` : densité simple dans l'IRIS
+
+-   `sudair` : [ICAIR365](https://www.atmosud.org/article/icair-lindice-cumule-de-lair), qui cumule l'effet de 4 polluants (NO~2~, O~3~, PM2.5, PM10) sur une année (ici l'année 2022), construit par [AtmoSud](https://www.atmosud.org/), projeté au carreau 200m et agrégé à l'IRIS, pondéré par la population au carreau 200m.
+
+## Proximité aux aménités
+
+```{r}
+download_link(
+  "dnwld/amenites_idINS_pdvR_MetAMP.csv",
+  icon = "fa fa-download",
+  class = "dbtnlg", 
+  button_label = "données accessibilité aux aménités au carreau, résidents")
+```
+
+*Source* : calculs des auteurs à partir des sources citées
+
+-   `type` : type d'aménité (4 catégories : alimentaire, non alimentaire, sorties, santé humaine)
+
+-   `fromidINS` : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+
+-   `ind` : nombre d'individus dans l'IRIS.
+
+-   `div` : indice de diversité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+
+-   `n` : nombre d'unité d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+
+-   `n_e` : nombre d'espèces (code NAF 5 caractères) d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+
+-   `sa` : surface ajustée (voir document) d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+
+-   `sb` : surface brute totale (sprincp) des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+
+-   `se` : surface équivalente (voir document) ou indicateur de proimité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+
+## Lien densité proximité, résidu
+
+```{r}
+
+download_link(
+  "dnwld/residus_prox-dens_MetAMP.csv",
+  icon = "fa fa-download",
+  class = "dbtnlg", 
+  button_label = "données résidus modèles proximité/densité (log)")
+
+```
+
+*Source* : calculs des auteurs à partir des sources citées
+
+-   `type` : type d'aménité (4 catégories : alimentaire, non alimentaire, sorties, santé humaine)
+
+-   `idINS` : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+
+-   `r` : résidu de la régression log linéaire (voir document)
+
+## CO~2~ pour le motif commerce
+
+```{r}
+
+download_link(
+  "dnwld/co2_motif_commerce_MetAMP.csv",
+  icon = "fa fa-download",
+  class = "dbtnlg", 
+  button_label = "données CO2 pour le motif courses")
+```
+
+*Source* : calculs des auteurs à partir des sources citées
+
+-   `idINS` : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+
+-   `r` : résidu de la régression log linéaire (voir document)
+
+-   `ind` : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.
+
+-   `co2_pi` : tonnes de CO~2~ émises par individu pour le motif courses (ou commerce) imputées au résidents du carreau
