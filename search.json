@@ -407,7 +407,7 @@
     "href": "codebook.html#co2-pour-le-motif-commerce",
     "title": "Annexe A — codebook",
     "section": "A.13 CO2 pour le motif commerce",
-    "text": "A.13 CO2 pour le motif commerce\n\n\n\n données CO2 pour le motif courses\n\n\n\nSource : calculs des auteurs à partir des sources citées\n\nidINS : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le idINS sur un entier).\nr : résidu de la régression log linéaire (voir document)\nind : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.\nco2_pi : tonnes de CO2 émises par individu pour le motif courses (ou commerce) imputées au résidents du carreau",
+    "text": "A.13 CO2 pour le motif commerce\n\n\n\n données CO2 pour le motif courses\n\n\n\nSource : calculs des auteurs à partir des sources citées\n\nidINS : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le idINS sur un entier).\nind : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.\nco2_pi : tonnes de CO2 émises par individu pour le motif courses (ou commerce) imputées au résidents du carreau",
     "crumbs": [
       "Annexes",
       "<span class='chapter-number'>A</span>  <span class='chapter-title'>codebook</span>"
