@@ -84,10 +84,10 @@ bd_read("c200ze") |>
   transmute(
     idINS = r3035::expand_idINS(idINS), ind, dep, idcom=com22, IRIS,
     act_mobpro) |> 
-  vroom::vroom_write("dnwld/ind_act_idINS_MetAM.csv", delim = ";")
+  vroom::vroom_write("dnwld/ind_act_idINS_MetAMP.csv", delim = ";")
 
 download_link(
-  link = "dnwld/ind_act_idINS_MetAM.csv",
+  link = "dnwld/ind_act_idINS_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtn",
   button_label  = "données ind&actifs au carreau")
@@ -130,10 +130,10 @@ bd_read("c200ze") |>
   transmute(
     idINS = r3035::expand_idINS(idINS), emp, emp_resident, idcom=com22, IRIS,
     act = tactocc1564 * ind_18_64) |> 
-  vroom::vroom_write("dnwld/emp_empres_idINS_MetAM.csv", delim = ";")
+  vroom::vroom_write("dnwld/emp_empres_idINS_MetAMP.csv", delim = ";")
 
 download_link(
-  link = "dnwld/emp_empres_idINS_MetAM.csv",
+  link = "dnwld/emp_empres_idINS_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtn",
   button_label  = "données emploi&emploi résident au carreau"

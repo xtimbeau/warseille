@@ -188,10 +188,10 @@ td_access <- bd_read("t_access") |>
     mutate(idINS = r3035::expand_idINS(idINS)) 
 
 td_access |>
-  vroom::vroom_write("dnwld/temps_accessibilite_idINS_MetAM.csv", delim = ";")
+  vroom::vroom_write("dnwld/temps_accessibilite_idINS_MetAMP.csv", delim = ";")
 
 download_link(
-  link = "dnwld/temps_accessibilite_idINS_MetAM.csv",
+  link = "dnwld/temps_accessibilite_idINS_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtn",
   button_label = "données temps d'accessibilité au carreau"
@@ -515,10 +515,10 @@ d_access <- t_access |>
                       "13001" ~ 'Aix-en-Provence', 
                       .default = "autres"))
 
-d_access |> vroom::vroom_write("dnwld/access_revenu_metAM.csv", delim = ";")
+d_access |> vroom::vroom_write("dnwld/access_revenu_MetAMP.csv", delim = ";")
 
 download_link(
-  link = "dnwld/access_revenu_metAM.csv",
+  link = "dnwld/access_revenu_MetAMP.csv",
   class  = "dbtn",
   icon = "fa fa-download",
   button_label  = "données accessibilité et revenu au carreau"

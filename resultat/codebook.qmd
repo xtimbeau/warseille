@@ -21,7 +21,7 @@ download_link(
 
 *Source* : [INSEE](https://www.insee.fr/fr/statistiques/7655511?sommaire=7655515), année 2019, [MOBPRO](https://www.insee.fr/fr/statistiques/7630376) année 2020
 
--   `idINS` : code [INSPIRE](https://knowledge-base.inspire.ec.europa.eu/index_en) (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier). Nous avons omis dans le code INSPIRE les premiers caractères qui décrivent le système de coordonnées (`FR_CRS3035)` ainsi que le `m` de la résolution pour éviter de surcharger la chaîne de caractères. Le code est donc `r200NyyyyyyyExxxxxxx` où `yyyyyyy` et `xxxxxxx` sont les coordonnées dans la projection EPSG:3035 LAEA en mètres. Ce codage n'est pas très efficient, nous utilisons (normalement ce n'est plus présent dans les fichiers téléchargeables) un codage dérivé qui s'écrit `xxxxxxx/200*100000 +``yyyyyyy/200` qui est un entier à 10 chiffres bien plus petit que la chaîne de caractère standard.
+-   `idINS` : code [INSPIRE](https://knowledge-base.inspire.ec.europa.eu/index_en) (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier). Nous avons omis dans le code INSPIRE les premiers caractères qui décrivent le système de coordonnées (`FR_CRS3035)` ainsi que le `m` de la résolution pour éviter de surcharger la chaîne de caractères. Le code est donc `r200NyyyyyyyExxxxxxx` où `yyyyyyy` et `xxxxxxx` sont les coordonnées dans la projection EPSG:3035 LAEA en mètres. Ce codage n'est pas très efficient, nous utilisons (ce codage n'est plus présent dans les fichiers téléchargeables) un codage dérivé inversible et non destructeur qui s'écrit `xxxxxxx/200*100000 + yyyyyyy/200` qui est un entier à 10 chiffres (qui peut être codé comme un float64 sur 8 octets ou un int sur 4 octets) deux fois à quatre fois plus petit que la chaîne de caractère standard de 19 caractères ou octets.
 
 -   `ind` : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.
 
@@ -62,7 +62,7 @@ download_link(
 
 ```{r}
 download_link(
-  link = "dnwld/temps_accessibilite_idINS_MetAM.csv",
+  link = "dnwld/temps_accessibilite_idINS_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg",
   button_label = "données temps d'accessibilité au carreau"
@@ -134,7 +134,7 @@ download_link(
 
 ```{r}
 download_link(
-  link = "dnwld/access_revenu_metAM.csv",
+  link = "dnwld/access_revenu_MetAMP.csv",
   class  = "dbtnlg",
   icon = "fa fa-download",
   button_label  = "données accessibilité et revenu au carreau"
@@ -349,8 +349,6 @@ download_link(
 *Source* : calculs des auteurs à partir des sources citées
 
 -   `idINS` : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
-
--   `r` : résidu de la régression log linéaire (voir document)
 
 -   `ind` : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.
 
