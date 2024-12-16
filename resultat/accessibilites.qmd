@@ -252,7 +252,9 @@ ggplot(data) +
 ::: column-margin
 ```{r}
 
-access_par_com |> vroom::vroom_write("dnwld/access_par_com_MetAMP.csv", delim = ";")
+access_par_com |> 
+  select(-repr) |> 
+  vroom::vroom_write("dnwld/access_par_com_MetAMP.csv", delim = ";")
 
 download_link(
   "dnwld/access_par_com_MetAMP.csv",

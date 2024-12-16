@@ -5,7 +5,7 @@ author:
 ---
 
 ```{r init, include=FALSE}
-source("init.R")
+ofce::init_qmd()
 version <- bd_read("version")
 ```
 
@@ -256,6 +256,7 @@ bd_read("distrev") +
 
 bd_read("km_iris") |> 
     st_drop_geometry() |> 
+  select(-shape) |> 
   vroom::vroom_write("dnwld/co2_ndv_IRIS_MetAMP.csv", delim = ";")
 
 download_link(
@@ -343,7 +344,9 @@ patchwork::wrap_plots(
 ::: column-margin
 ```{r}
 
-bd_read("km_iris_pol") |> sf::st_drop_geometry() |> 
+bd_read("km_iris_pol") |> 
+  sf::st_drop_geometry() |> 
+  select(-shape) |> 
   vroom::vroom_write("dnwld/co2_IRIS_pol_MetAMP.csv", delim = ";")
 
 download_link(
