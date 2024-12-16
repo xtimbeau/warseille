@@ -773,7 +773,7 @@ On confirme cette analyse en effectuant des régressions (log)linéaires en util
 
 2.  La distance parcourue décroît nettement avec l'accessibilité aux commerces ou la densité. Ce résultat important valide la construction de ces indicateurs et permet de les calibrer. Par ailleurs, l'effet trouvé est important, puisque entre le premier décile d'accès aux aménités (en gros pas d'aménités accessibles à pied en moins de 15 minutes) et le dernier (zones très denses et très dotées) est de l'ordre de 4 (entre ×4,3 et ×3,1 suivant les indicateurs)[^4].
 
-3.  Les coefficients estimés permettent éventuellement de distinguer des catégories d'accessibilité, en regroupant les déciles quant ils ont des coefficients proches. En se basant sur l'indicateur pour les commerces alimentaires, les 3 premiers déciles peuvent être regroupés en une seule catégorie où l'accessibilité aux aménités n'est pas assez élevée pour empêcher l'utilisation de la voiture. D'après la @fig-lorenz, cela correspond à un niveau de proximité moyen aux commerces alimentaires d'environ 32 (surface équivalente) ce qui est relativement élevé : en moyenne la diversité y atteint 5,7, soit un peu plus de la moitié de la diversité maximale et la surface brute est de l'ordre de 500 m² de surface commerciale. C'est quelque chose qui correspond à 3 commerces alimentaires. On peut ensuite inclure les 3 déciles suivants, pour un effet de réduction de 1,5 des distances parcourues et les 4 derniers déciles, avec une distinction possible pour le dernier décile. Cette catégorisation illustre le calibrage que permet l'analyse de régression.
+3.  Les coefficients estimés permettent éventuellement de distinguer des catégories d'accessibilité, en regroupant les déciles quant ils ont des coefficients proches. En se basant sur l'indicateur pour les commerces alimentaires, les 3 premiers déciles peuvent être regroupés en une seule catégorie où l'accessibilité aux aménités n'est pas assez élevée pour empêcher l'utilisation de la voiture. D'après le @fig-lorenz, cela correspond à un niveau de proximité moyen aux commerces alimentaires d'environ 32 (surface équivalente) ce qui est relativement élevé : en moyenne la diversité y atteint 5,7, soit un peu plus de la moitié de la diversité maximale et la surface brute est de l'ordre de 500 m² de surface commerciale. C'est quelque chose qui correspond à 3 commerces alimentaires. On peut ensuite inclure les 3 déciles suivants, pour un effet de réduction de 1,5 des distances parcourues et les 4 derniers déciles, avec une distinction possible pour le dernier décile. Cette catégorisation illustre le calibrage que permet l'analyse de régression.
 
 [^4]: Cette valeur se lit sur le tableau en prenant le coefficient du dernier décile, moins celui du premier (égal à 0 par référence) et en élevant $e$ à la puissance de cette différence.
 
@@ -824,7 +824,8 @@ tbl <- res |>
     actoccup = fmt_c(actoccup, se_actoccup, p_actoccup),
     se = fmt_c(se, se_se, p_se),
     c = fmt_c(c, se_c, p_c)) |> 
-  select(-c(se_rev_uc, p_rev_uc, se_enfants, p_enfants, se_actoccup, p_actoccup, se_c, p_c, se_se, p_se)) |> 
+  select(-c(se_rev_uc, p_rev_uc, se_enfants, p_enfants, se_actoccup,
+            p_actoccup, se_c, p_c, se_se, p_se)) |> 
   mutate(
     across(starts_with("qd"), 
            ~ fmt_c(.x, res[[str_c("se_", cur_column())]], res[[str_c("p_", cur_column())]]), 
@@ -836,9 +837,11 @@ tbl <- res |>
          starts_with("cqd"), starts_with("qd")) |> 
   rename_with(.cols = starts_with("cqd"), .fn = ~str_remove(.x, "cq") ) |> 
   gt() |>
-  fmt_markdown(c(r.squared, adj.r.squared,rev_uc, enfants, actoccup, c, se, d1,d2,d3,d4,d5,d6,d7,d8,d9,d10)) |> 
+  fmt_markdown(c(r.squared, adj.r.squared,rev_uc, enfants, actoccup,
+                 c, se, d1,d2,d3,d4,d5,d6,d7,d8,d9,d10)) |> 
   fmt_percent(c(r.squared, adj.r.squared), decimals = 1) |> 
-  cols_label(r.squared = md("*R^2^*"), adj.r.squared = md("*adj. R^2^*"), c = "constante", mod = "", rev_uc = md("rev~uc~")) |> 
+  cols_label(r.squared = md("*R^2^*"), adj.r.squared = md("*adj. R^2^*"), 
+             c = "constante", mod = "", rev_uc = md("rev~uc~")) |> 
   tab_options(
     table.font.size = 12) |> 
   cols_align("left", 1) |> 
@@ -856,6 +859,28 @@ tbl |>
   cols_label(deciles = "déciles") |> 
   cols_align("left", 1) |> 
   cols_align("center", -1) 
+```
+
+```{r}
+res |> 
+  select(mod, starts_with("qd"), starts_with("se_qd")) |> 
+  mutate(qd1 = 0, se_qd1 = 0) |> 
+  rename_with(.cols = starts_with("qd"), ~str_c("q_", .x)) |> 
+  pivot_longer(cols = c(starts_with("q_qd"), starts_with("se_qd")),
+               names_sep = "_", 
+               names_to = c("type", "dec")) |> 
+  mutate(
+    dec = dec |> str_remove("qd"),
+    dec = str_c("d", dec) |> factor(str_c("d", 1:10)),
+    mod = factor(mod, labels )) |> 
+  pivot_wider(id_cols = c(mod, dec), names_from = type, values_from = value) |> 
+  arrange(mod, dec) |> 
+  ggplot() + 
+  geom_pointrange(
+    aes(x = dec, y = q, ymin = q - 2*se, ymax = q + 2*se, color = mod),
+    position = position_dodge(width=0.5)) +
+  scale_color_manual(values = c("skyblue2", "skyblue3", "skyblue4", "skyblue1", "orange2", "orange3")) + 
+  theme_ofce()
 ```
 
 :::
@@ -910,8 +935,9 @@ ggplot() +
         legend.title = element_text(size = rel(.7)),
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
-  ofce_caption(source = "C200, Fichiers fonciers, OSM, cacluls des auteurs", ofce = FALSE,
-               note = "La densité inversée consiste à évaluer le nombre d'habitants que l'on peut ateindre en partant d'un carrean en un temps et un mode donné. Le ratio moyen entre la marche à pied/TC 15 minute et la voiture 30 min est de 0.033.")
+  ofce_caption(
+    source = "C200, Fichiers fonciers, OSM, cacluls des auteurs", ofce = FALSE,
+    note = "La densité inversée consiste à évaluer le nombre d'habitants que l'on peut ateindre en partant d'un carrean en un temps et un mode donné. Le ratio moyen entre la marche à pied/TC 15 minute et la voiture 30 min est de 0.033.")
 
 ```
 
@@ -919,7 +945,7 @@ ggplot() +
 
 Nous avons utilisé la version individus des modèles de régression évoqués plus haut. Ces modèles reprennent comme variables explicatives la proiximité fdes commerces et les informations socio économiques disponibles dans l'EMC^2^ et que l'on peut reconstruire au carreau 200m. Ces variables sont le niveau de vie, la structure familliale et le statut d'occupation (actif occupé ou non). La différence principale avec le modèle estimé sur les zones de l'EMC^2^ est que l'on ajoute une équation pour la probabilité de faire ses courses le jour de l'enquête et une équation pour la distance parcourue si on fait ses courses ce jour là. Dans le modèle estimé sur zones, cette distinction n'est pas nécessaire parce qu'on calcule une moyenne des distances parcourues entre ceux qui font des courses et ceux qui n'en font pas.
 
-Une fois le modèle estimé, il est projeté au carreau 200m en suivant la méthode déployée dans @meaps2024a. Pour chaque carreau, on projette le modèle pour chaque catégorie de ménage (ici dans chaque carreau, il y a 8 catégories de ménages) et on fait la moyenne des distances projettées par carreau pondérée par la proportion par carreau de chaque catégorie. Le niveau de vie n'est connu qu'en moyenne au carreau, il est donc appliqué à toutes les catégories de ménage du carreau. Une fois aggrégées par carreau, on applique un coefficient fixe pour estimer le CO~2~ par individu par an lié au motif commerce.
+Une fois le modèle estimé, il est projeté au carreau 200m en suivant la méthode déployée dans @meaps2024a. Pour chaque carreau, on projette le modèle pour chaque catégorie de ménage (ici dans chaque carreau, il y a 8 catégories de ménages) et on fait la moyenne des distances projetées par carreau pondérée par la proportion par carreau de chaque catégorie. Le niveau de vie n'est connu qu'en moyenne au carreau, il est donc appliqué à toutes les catégories de ménage du carreau. Une fois agrégées par carreau, on applique un coefficient fixe pour estimer le CO~2~ par individu par an lié au motif commerce.
 
 ```{r}
 #| label: fig-proj
