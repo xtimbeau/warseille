@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-4b51a4bf77e9ad423813bf88e2af8fdd.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-4ec431e717e94830c497b8cf92d307ee.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-1b168621e50e0ca4a653f4c42ef3658c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -98,6 +98,7 @@ cookieconsent.run({
 </script> 
   
 <script src="site_libs/font-awesome-6.5.2/js/script.js"></script>
+
 
 
 </head>
@@ -245,7 +246,7 @@ cookieconsent.run({
     <div>
     <div class="quarto-title-meta-heading">Modifié le</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">14 décembre 2024</p>
+      <p class="date-modified">16 décembre 2024</p>
     </div>
   </div>
     
@@ -268,12 +269,12 @@ cookieconsent.run({
 </div>
 <p><em>Source</em> : <a href="https://www.insee.fr/fr/statistiques/7655511?sommaire=7655515">INSEE</a>, année 2019, <a href="https://www.insee.fr/fr/statistiques/7630376">MOBPRO</a> année 2020</p>
 <ul>
-<li><p><code>idINS</code> : code <a href="https://knowledge-base.inspire.ec.europa.eu/index_en">INSPIRE</a> (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier). Nous avons omis dans le code INSPIRE les premiers caractères qui décrivent le système de coordonnées (<code>FR_CRS3035)</code> ainsi que le <code>m</code> de la résolution pour éviter de surcharger la chaîne de caractères. Le code est donc <code>r200NyyyyyyyExxxxxxx</code> où <code>yyyyyyy</code> et <code>xxxxxxx</code> sont les coordonnées dans la projection EPSG:3035 LAEA en mètres. Ce codage n’est pas très efficient, nous utilisons (ce codage n’est plus présent dans les fichiers téléchargeables) un codage dérivé inversible et non destructeur qui s’écrit <code>xxxxxxx/200*100000 + yyyyyyy/200</code> qui est un entier à 10 chiffres (qui peut être codé comme un float64 sur 8 octets ou un int sur 4 octets) deux fois à quatre fois plus petit que la chaîne de caractère standard de 19 caractères ou octets.</p></li>
+<li><p><code>idINS</code> : code <a href="https://knowledge-base.inspire.ec.europa.eu/index_en">INSPIRE</a> (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier). Nous avons omis dans le code INSPIRE les premiers caractères qui décrivent le système de coordonnées (<code>FR_CRS3035)</code> ainsi que le <code>m</code> de la résolution pour éviter de surcharger la chaîne de caractères. Le code est donc <code>r200NyyyyyyyExxxxxxx</code> où <code>yyyyyyy</code> et <code>xxxxxxx</code> sont les coordonnées dans la projection EPSG:3035 LAEA en mètres. Ce codage n’est pas très efficient, nous utilisons (ce codage n’est plus présent dans les fichiers téléchargeables) un codage dérivé inversible et non destructeur qui s’écrit <code>xxxxxxx/200*100000 + yyyyyyy/200</code> qui est un entier à 10 chiffres (qui peut être codé comme un float64 sur 8 octets ou un int32 sur 4 octets) deux fois à quatre fois plus petit que la chaîne de caractères standard de 19 caractères ou octets.</p></li>
 <li><p><code>ind</code> : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.</p></li>
-<li><p><code>dep</code> : numéro du département</p></li>
-<li><p><code>idcom</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code></p></li>
-<li><p><code>IRIS</code> : code IRIS, géographie 2021</p></li>
-<li><p><code>act_mobpro</code> : actifs au sens de MOBPRO 2020 (somme des individus par commune, reprojetté au carreau proportionnellement aux adultes de C200)</p></li>
+<li><p><code>dep</code> : numéro du département.</p></li>
+<li><p><code>idcom</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
+<li><p><code>IRIS</code> : code IRIS, géographie 2021.</p></li>
+<li><p><code>act_mobpro</code> : actifs au sens de MOBPRO 2020 (somme des individus par commune, reprojetté au carreau proportionnellement aux adultes de C200).</p></li>
 </ul>
 </section>
 <section id="sec-c200emp" class="level2" data-number="A.2">
@@ -290,8 +291,8 @@ cookieconsent.run({
 <li><p><code>idINS</code> : code INSPIRE (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
 <li><p><code>emp</code>: emplois au carreau. Issu de MOBPRO (somme sur les communes de travail <code>DCLT</code>), projetté à partir des surfaces foncières par NAF 5 catégories (celle de MOBPRO).</p></li>
 <li><p><code>emp_resident</code> : emplois du carreau occupés par des résidents de la métropole AMP</p></li>
-<li><p><code>idcom</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code></p></li>
-<li><p><code>IRIS</code> : code IRIS, géographie 2021</p></li>
+<li><p><code>idcom</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
+<li><p><code>IRIS</code> : code IRIS, géographie 2021.</p></li>
 <li><p><code>act</code> : nombre d’actifs à partir des taux d’activité communaux INSEE, multiplié par les adultes du carreau C200.</p></li>
 </ul>
 </section>
@@ -328,10 +329,9 @@ cookieconsent.run({
 <ul>
 <li><p><code>com</code> : Code INSEE de la commune (attention, c’est différent du code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
 <li><p><code>mode</code> : mode de transport utilisé pour le routeur. Les valeurs possibles sont « <code>walk_tblr</code> » marche à pied avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur <code>dogr</code> ; « <code>bike_tblr</code> » vélo avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur <code>dogr</code> ; « <code>car_dgr</code> » voiture, moteur <code>dogr</code> et « <code>transit</code> » transport en commun, tramway, bus, métro, trains urbain (TER), bateaux, moteur <code>r5r</code> et données <code>GTFS</code>.</p></li>
-<li><p><code>temps</code> : temps de parcours (de <code>to10k</code>, <code>to20k</code><span style="white-space:nowrap">, …)</span></p></li>
+<li><p><code>temps</code> : temps de parcours (de <code>to10k</code>, <code>to20k</code><span style="white-space:nowrap">, …).</span></p></li>
 <li><p><code>emp</code> : emploi accessible dans le temps, agrégé à partir de la donnée accessibilité en prenant la moyenne pondérée par le produit emploi par actif des temps entre chaque carreau d’origine (appartenant à <code>com)</code> et de destination (répartition uniforme à partir de <code>DCLT</code> de MOBPRO).</p></li>
-<li><p><code>repr</code> : nombre d’actif dans la commune <code>com</code>.</p></li>
-<li><p><code>label</code> : nom de la commune <code>com</code> en clair</p></li>
+<li><p><code>label</code> : nom de la commune <code>com</code> en clair.</p></li>
 </ul>
 </section>
 <section id="sec-deciles" class="level2" data-number="A.5">
@@ -345,9 +345,9 @@ cookieconsent.run({
 </div>
 <p><em>Source</em> : calculs des auteurs à partir des sources déjà citées.</p>
 <ul>
-<li><p><code>zone</code> : zone d’agrégation de C200</p></li>
-<li><p><code>decile</code> : décile de niveau de vie</p></li>
-<li><p><code>ind</code> : nombre d’individu dans le croisement <code>decile</code> par <code>zone</code></p></li>
+<li><p><code>zone</code> : zone d’agrégation de C200.</p></li>
+<li><p><code>decile</code> : décile de niveau de vie.</p></li>
+<li><p><code>ind</code> : nombre d’individu dans le croisement <code>decile</code> par <code>zone.</code></p></li>
 </ul>
 </section>
 <section id="accessibilité-par-déciles-de-niveau-de-vie" class="level2" data-number="A.6">
@@ -368,8 +368,8 @@ cookieconsent.run({
 <li><p><code>to10k</code>, <code>to20k</code>, <code>to50k</code>, <code>to100k</code>, <code>to200k</code>, <code>to300k</code>, <code>to500k</code>, <code>to4M</code> : Pour chaque carreau le temps en minute pour atteindre respectivement <span style="white-space:nowrap">10 000,</span> <span style="white-space:nowrap">20 000,</span> <span style="white-space:nowrap">50 000,</span> etc.. emplois en partant du carreau identifié par <code>idINS</code>. Le calcul est fait pour chaque mode en établissant les temps de parcours entre chaque carreau d’origine et de destination, en utilisant un routeur et les données ouvertes OSM. On additionne ensuite tous les emplois localisés (voir <a href="#sec-c200emp">C200 emplois</a>) à l’intérieur des isochrones. On inverse ensuite la fonction temps/emplois.</p></li>
 <li><p><code>mode</code> : mode de transport utilisé pour le routeur. Les valeurs possibles sont « <code>walk_tblr</code> » marche à pied avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur <code>dogr</code> ; « <code>bike_tblr</code> » vélo avec une pénalisation de Tobler qui ralentit le vélo dans les montées et l’accélère dans les descentes (avec une perte pour un dénivelé total nul), moteur <code>dogr</code> ; « <code>car_dgr</code> » voiture, moteur <code>dogr</code> et « <code>transit</code> » transport en commun, tramway, bus, métro, trains urbain (TER), bateaux, moteur <code>r5r</code> et données <code>GTFS</code>.</p></li>
 <li><p><code>mode_lib</code> : mode de transport <code>mode</code> en clair.</p></li>
-<li><p><code>zone</code> : zone d’agrégation de C200</p></li>
-<li><p><code>decile</code> : décile de niveau de vie</p></li>
+<li><p><code>zone</code> : zone d’agrégation de C200.</p></li>
+<li><p><code>decile</code> : décile de niveau de vie.</p></li>
 </ul>
 </section>
 <section id="co2-au-carreau-point-de-vue-résident" class="level2" data-number="A.7">
@@ -385,7 +385,7 @@ cookieconsent.run({
 <ul>
 <li><p><code>fromidINS</code> : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
 <li><p><code>com</code> : Code INSEE de la commune (attention, ce n’est pas le code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
-<li><p><code>km_i</code> : nombre de kilomètres en voiture générés par MEAPS pour le carreau de départ vers potentiellement tous les carreaux de destination, agrégé sur les catégories de ménages</p></li>
+<li><p><code>km_i</code> : nombre de kilomètres en voiture générés par MEAPS pour le carreau de départ vers potentiellement tous les carreaux de destination, agrégé sur les catégories de ménages.</p></li>
 <li><p><code>co2_i</code> : Emissions de CO<sub>2</sub> imputées aux résidents du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages.</p></li>
 <li><p><code>f_i</code> : flux de départ du carreau de résidence (en personne). Egal par construction à <code>act_mobpro</code> aux immobiles près.</p></li>
 <li><p><code>km_pa</code> : <code>km_i</code> divisé par <code>f_i</code>, soit les kilomètres par actif.</p></li>
@@ -408,7 +408,7 @@ cookieconsent.run({
 <li><p><code>scot</code> : indicatrice qui vaut <code>TRUE</code> pour les emplois de la métropole AMP.</p></li>
 <li><p><code>km_j</code> : nombre de kilomètres en voiture générés par MEAPS pour le carreau d’arrivée depuis potentiellement tous les carreaux de départ, agrégé sur les catégories de ménages. Attention, cette donnée ne comptabilise pas les actifs hors métropole et est donc partielle, surtout sur la périphérie. Sera corrigé dans une prochaine version.</p></li>
 <li><p><code>co2_j</code> : Emissions de CO<sub>2</sub> imputées aux emplois du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages.</p></li>
-<li><p><code>f_j</code> : flux d’arrivée du carreau de résidence (en personne). Egal par construction à <code>emp_resident</code> (voir l’avertissement pour <code>km_j</code>)</p></li>
+<li><p><code>f_j</code> : flux d’arrivée du carreau de résidence (en personne). Egal par construction à <code>emp_resident</code> (voir l’avertissement pour <code>km_j</code>).</p></li>
 <li><p><code>km_pe</code> : <code>km_j</code> divisé par <code>f_j</code>, soit les kilomètres par emploi.</p></li>
 <li><p><code>co2_pe</code> : <code>co2_i</code> divisé par <code>f_i</code>, soit les émissions de CO<sub>2</sub> par actif.</p></li>
 </ul>
@@ -424,17 +424,16 @@ cookieconsent.run({
 </div>
 <p><em>Source</em> : calculs des auteurs à partir des sources citées</p>
 <ul>
-<li><p><code>IRIS</code> : code IRIS, géographie 2021</p></li>
+<li><p><code>IRIS</code> : code IRIS, géographie 2021.</p></li>
 <li><p><code>km_pa</code> : <code>km_i</code> divisé par <code>f_i</code>, soit les kilomètres par <span style="white-space:nowrap">actif ;</span> agrégé à l’IRIS (correctement).</p></li>
 <li><p><code>f_i</code> : flux de départ du carreau de résidence (en personne). Egal par construction à <code>act_mobpro</code> ; agrégé à l’IRIS (correctement).</p></li>
 <li><p><code>co2_i</code> : Emissions de CO<sub>2</sub> imputées aux résidents du carreau au titre des déplacements professionnels agrégé sur les catégories de <span style="white-space:nowrap">ménages ;</span> agrégé à l’IRIS (correctement).</p></li>
 <li><p><code>n</code> : nombre de carreaux dans l’IRIS.</p></li>
 <li><p><code>snv</code> : niveau de vie moyen dans l’IRIS.</p></li>
 <li><p><code>ind</code> : nombre d’individus dans l’IRIS.</p></li>
-<li><p><code>prix</code> : prix des transactions par m² (DV3F) moyen dans l’IRIS en 2021</p></li>
-<li><p><code>tx</code> : croissance des prix des transactions immobilières par m² dans l’IRIS de 2011 à 2022</p></li>
-<li><p><code>shape</code> : nom curieux pour la zone considéré (permet de faire les ronds et les losanges sur le graphique)</p></li>
-<li><p><code>dens</code> : densité simple dans l’IRIS</p></li>
+<li><p><code>prix</code> : prix des transactions par m² (DV3F) moyen dans l’IRIS en 2021.</p></li>
+<li><p><code>tx</code> : croissance des prix des transactions immobilières par m² dans l’IRIS de 2011 à 2022.</p></li>
+<li><p><code>dens</code> : densité simple dans l’IRIS.</p></li>
 </ul>
 </section>
 <section id="pollution-subie-co2-émis" class="level2" data-number="A.10">
@@ -455,11 +454,10 @@ cookieconsent.run({
 <li><p><code>n</code> : nombre de carreaux dans l’IRIS.</p></li>
 <li><p><code>snv</code> : niveau de vie moyen dans l’IRIS.</p></li>
 <li><p><code>ind</code> : nombre d’individus dans l’IRIS.</p></li>
-<li><p><code>prix</code> : prix des transactions par m² (DV3F) moyen dans l’IRIS en 2021</p></li>
-<li><p><code>tx</code> : croissance des prix des transactions immobilières par m² dans l’IRIS de 2017 à 2021 (à vérifier)</p></li>
-<li><p><code>shape</code> : nom curieux pour la zone considéré (permet de faire les ronds et les losanges sur le graphique)</p></li>
-<li><p><code>dens</code> : densité simple dans l’IRIS</p></li>
-<li><p><code>sudair</code> : <a href="https://www.atmosud.org/article/icair-lindice-cumule-de-lair">ICAIR365</a>, qui cumule l’effet de 4 polluants (NO<sub>2</sub>, O<sub>3</sub>, PM2.5, PM10) sur une année (ici l’année 2022), construit par <a href="https://www.atmosud.org/">AtmoSud</a>, projeté au carreau 200m et agrégé à l’IRIS, pondéré par la population au carreau 200m.</p></li>
+<li><p><code>prix</code> : prix des transactions par m² (DV3F) moyen dans l’IRIS en 2022.</p></li>
+<li><p><code>tx</code> : croissance des prix des transactions immobilières par m² dans l’IRIS de 2011 à 2022 (DV3F).</p></li>
+<li><p><code>dens</code> : densité simple dans l’IRIS.</p></li>
+<li><p><code>sudair</code> : <a href="https://www.atmosud.org/article/icair-lindice-cumule-de-lair">ICAIR365</a>, qui cumule l’effet de 4 polluants (NO<sub>2</sub>, O<sub>3</sub>, PM<sub>2.5</sub>, PM<sub>10</sub>) sur une année (ici l’année 2022), construit par <a href="https://www.atmosud.org/">AtmoSud</a>, projeté au carreau 200m et agrégé à l’IRIS, pondéré par la population au carreau 200m.</p></li>
 </ul>
 </section>
 <section id="proximité-aux-aménités" class="level2" data-number="A.11">
@@ -480,8 +478,8 @@ cookieconsent.run({
 <li><p><code>n</code> : nombre d’unité d’aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité</p></li>
 <li><p><code>n_e</code> : nombre d’espèces (code NAF 5 caractères) d’aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité</p></li>
 <li><p><code>sa</code> : surface ajustée (voir document) d’aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité</p></li>
-<li><p><code>sb</code> : surface brute totale (sprincp) des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité</p></li>
-<li><p><code>se</code> : surface équivalente (voir document) ou indicateur de proimité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité</p></li>
+<li><p><code>sb</code> : surface brute totale (sprincp) des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité.</p></li>
+<li><p><code>se</code> : surface équivalente (voir document) ou indicateur de proximité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité.</p></li>
 </ul>
 </section>
 <section id="lien-densité-proximité-résidu" class="level2" data-number="A.12">
@@ -497,7 +495,7 @@ cookieconsent.run({
 <ul>
 <li><p><code>type</code> : type d’aménité (4 <span style="white-space:nowrap">catégories :</span> alimentaire, non alimentaire, sorties, santé humaine)</p></li>
 <li><p><code>idINS</code> : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
-<li><p><code>r</code> : résidu de la régression log linéaire (voir document)</p></li>
+<li><p><code>r</code> : résidu de la régression log linéaire (voir <a href="commerces.html#sec-resprox">document</a>).</p></li>
 </ul>
 </section>
 <section id="co2-pour-le-motif-commerce" class="level2" data-number="A.13">
@@ -513,7 +511,7 @@ cookieconsent.run({
 <ul>
 <li><p><code>idINS</code> : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
 <li><p><code>ind</code> : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.</p></li>
-<li><p><code>co2_pi</code> : tonnes de CO<sub>2</sub> émises par individu pour le motif courses (ou commerce) imputées au résidents du carreau</p></li>
+<li><p><code>co2_pi</code> : tonnes de CO<sub>2</sub> émises par individu pour le motif courses (ou commerce) imputées au résidents du carreau.</p></li>
 </ul>
 
 
