@@ -180,12 +180,14 @@ communes <- qs::qread(communes_ref_file) |>
 com2021epci <- communes |> 
   filter(SIREN_EPCI %in% epci.metropole) |> 
   mutate(EPCI = SIREN_EPCI) |> 
-  st_transform(3035)
+  st_transform(3035) |> 
+  st_simplify(dTolerance = 100)
 
 geoepci <- com2021epci |> 
   group_by(EPCI) |> 
   summarize() |>
-  st_transform(3035)
+  st_transform(3035) |> 
+  st_simplify(dTolerance = 100)
 
 # là c'est où c'est possible de faire des modifications aux iris 
 
@@ -243,7 +245,7 @@ irises <- st_join(zone_emploi, iris) |> pull(CODE_IRIS)
 
 mblr3 <- mapboxapi::get_static_tiles(
   location = st_union(com2021epci) |> st_buffer(-1000) |> st_transform(4326),
-  zoom=10, 
+  zoom=8, 
   style_id = "ckjka0noe1eg819qrhuu1vigs", 
   username="xtimbeau",
   access_token = Sys.getenv("mapbox_token")) 
@@ -255,7 +257,7 @@ bbx <- st_bbox(com2021epci)
 
 mblr3_large <- mapboxapi::get_static_tiles(
   location = st_union(communes |> filter(ze)) |> st_buffer(-1000) |> st_transform(4326),
-  zoom=9, 
+  zoom=7, 
   style_id = "ckjka0noe1eg819qrhuu1vigs", 
   username="xtimbeau",
   access_token = Sys.getenv("mapbox_token")) 
@@ -280,7 +282,6 @@ decor_carte <- list(
     line_width = 0.2, height = unit(0.1, "cm"), 
     text_cex = 0.4, pad_y = unit(0.1, "cm")),
   theme(
-    text = element_text(family = "Roboto"),
     legend.key.size = unit(0.5, "cm"),
     legend.title = element_text(size=6, margin=margin(1,1,1,1, "pt")),
     legend.text =  element_text(size=5), legend.justification = c(1,0.9)))
@@ -305,7 +306,6 @@ decor_carte_large <- list(
     line_width = 0.2, height = unit(0.1, "cm"), 
     text_cex = 0.4, pad_y = unit(0.1, "cm")),
   theme(
-    text = element_text(family = "Roboto"),
     legend.key.size = unit(0.5, "cm"),
     legend.title = element_text(size=6, margin=margin(1,1,1,1, "pt")),
     legend.text =  element_text(size=5), legend.justification = c(1,0.9)))
