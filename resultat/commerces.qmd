@@ -777,7 +777,13 @@ On confirme cette analyse en effectuant des régressions (log)linéaires en util
 
 [^4]: Cette valeur se lit sur le tableau en prenant le coefficient du dernier décile, moins celui du premier (égal à 0 par référence) et en élevant $e$ à la puissance de cette différence.
 
-Les observation du modèle estimé sont les zones EMC^2^, indexées par $i$, où le nombre d'individus sondés (présent dans l'EMC^2^) est supérieur à 10. L'équation du modèle est $log(d_i) = a log(rev_{uc,i}) + b p_{enf,i} + c p_{act,i} + d_k \mathcal{A}_{i,k} + e + \varepsilon_i$ où les $k$ sont les quantiles, pondérés par la population, de l'indicateur de proximité (ainsi le premier quantile vaut 1 pour les 10% de la population qui ont la proximité la plus faible). Le premier décile est la valeur de référence et n'est pas estimé.
+Les observation du modèle estimé sont les zones EMC^2^, indexées par $i$, où le nombre d'individus sondés (présent dans l'EMC^2^) est supérieur à 10. L'équation du modèle est : 
+
+$$
+log(d_i) = a \times log(rev_{uc,i}) + b \times p_{enf,i} + c \times p_{act,i} + d_k \times \mathcal{A}_{i,k} + e + \varepsilon_i
+$$
+
+où les $k$ sont les quantiles, pondérés par la population, de l'indicateur de proximité (ainsi le premier quantile vaut 1 pour les 10% de la population qui ont la proximité la plus faible). Le premier décile est la valeur de référence et n'est pas estimé.
 
 ::: {.column-page-right}
 ```{r}
@@ -862,6 +868,15 @@ tbl |>
 ```
 
 ```{r}
+
+dmc2 <- data_emc2 |> 
+  group_by(q, type) |>
+  drop_na(q) |>
+  summarize(m = mean(d_car), se = sd(d_car)) |>
+  group_by(type) |>
+  mutate( m = m/m[q == "d1"]) |> 
+  select(mod = type, dec = q, q_data = m, se_data = se) |> 
+  mutate(mod = factor(labels[mod], labels))
 res |> 
   select(mod, starts_with("qd"), starts_with("se_qd")) |> 
   mutate(qd1 = 0, se_qd1 = 0) |> 
@@ -874,11 +889,19 @@ res |>
     dec = str_c("d", dec) |> factor(str_c("d", 1:10)),
     mod = factor(mod, labels )) |> 
   pivot_wider(id_cols = c(mod, dec), names_from = type, values_from = value) |> 
+  mutate(
+    qmin = exp(q - 2*se),
+    qmax = exp(q + 2*se),
+    q = exp(q)) |> 
   arrange(mod, dec) |> 
+  left_join(dmc2, by = c("mod", "dec")) |> 
   ggplot() + 
+  facet_wrap(vars(mod), ncol = 2) +
   geom_pointrange(
-    aes(x = dec, y = q, ymin = q - 2*se, ymax = q + 2*se, color = mod),
-    position = position_dodge(width=0.5)) +
+    aes(x = dec, y = q, ymin = qmin, ymax = qmax, color = mod)) + 
+  geom_point(
+    aes(x = dec, y = q_data, color = mod),
+    position = position_nudge(x= 0.25))+
   scale_color_manual(values = c("skyblue2", "skyblue3", "skyblue4", "skyblue1", "orange2", "orange3")) + 
   theme_ofce()
 ```
