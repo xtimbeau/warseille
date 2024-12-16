@@ -37,7 +37,7 @@ library(tidyverse)
 library(r3035)
 library(sf)
 library(arrow)
-dropbox <- "/dropbox/dv3f/dv3fv232"
+dropbox <- "/dropbox/dv3f/dv3fv241"
 
 db <- open_dataset(glue("{dropbox}/mutation")) |> 
   to_duckdb()
