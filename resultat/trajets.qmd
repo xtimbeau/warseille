@@ -281,6 +281,7 @@ On notera la corrélation négative, au moins pour les localisations les plus di
 
 library(patchwork)
 library(stars)
+library(legendry)
 inset_map <- bd_read("inset_map")
 
 
@@ -295,17 +296,20 @@ km_iris_pol <- bd_read("km_iris_pol")
                        aesthetics = c( "fill"),
                        breaks = c(1000, 3000, 8000),
                        name="prix immobilier\n€/m² 2022")+
-  geom_point(alpha=0.95, stroke=.1, color = "transparent") + 
+  geom_point(alpha=0.5, stroke=0, color = "black") + 
+  scale_size_area(
+    name = "Densité", max_size = 8) +
   scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
-  guides(size=guide_legend(title = "Actifs/ha", 
-                           override.aes = list(color="grey25")),
-         shape = "none") + 
+  guides(shape = "none") + 
   scale_x_continuous("Indice Cumulé de pollution de l'AIR (ICAIR) annuel",
                      labels = scales::label_number(big.mark = " ")) + 
   scale_y_continuous("CO2 émis pour le motif professionel (moyenne par an de l'IRIS)", 
                      labels = scales::label_number(big.mark = " ")) +
   # geom_smooth(col="lightblue", fill = "lightblue1", aes(weight = f_i)) +
-  theme_ofce(base_size = 10, legend.position = "bottom") +
+  theme_ofce(
+    base_size = 10,
+    legend.position = c(1, 0.6),
+    legend.justification = c(1,1), legend.direction = "vertical") +
     labs(caption=glue::glue(
       "*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS, DV3F CEREMA, MEAPS. *version {version}*
        <br>*Note* : Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille,
