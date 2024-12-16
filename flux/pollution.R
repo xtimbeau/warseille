@@ -8,8 +8,8 @@ library(MetricsWeighted)
 library(ofce)
 library(glue)
 source("secrets/azure.R")
-load("baselayer.rda")
-
+source("mglobals.r")
+conflicted::conflicts_prefer(dplyr::filter)
 curl::curl_download("https://geoservices.atmosud.org/geoserver/mod_sudpaca_2022/ows?service=WMS&version=1.1.1&request=GetMap&layers=mod_sudpaca_2022:mod_sudpaca_2022_icair365&styles=&bbox=799602.0,6214473.0,1077706.0,6453458.0&width=768&height=659&srs=EPSG:2154&format=image/geotiff",
               destfile = "/tmp/sudair.tiff")
 version <- bd_read("version")
@@ -24,6 +24,7 @@ bb <- st_bbox(c200ze)
 pol3035.stars <- stars::st_warp(pol, r200) |> 
   mutate(sudair = ifelse(sudair==253, NA, sudair))
 
+
 pol3035 <- as_tibble(pol3035.stars) |> mutate(idINS = r3035::sidINS3035(x,y))
 dd <- 10000
 inset_map <- ggplot()+geom_stars(data=pol3035.stars |> st_crop(r200), show.legend=FALSE)+ 
@@ -32,6 +33,8 @@ inset_map <- ggplot()+geom_stars(data=pol3035.stars |> st_crop(r200), show.legen
   theme_void()+
   theme(plot.caption = element_text(family="Open Sans", size = 6))+
   scale_fill_viridis_c(option="turbo", direction=1, na.value="transparent")
+
+bd_write(inset_map)
 
 km_iris <- bd_read("km_iris") |> 
   left_join(
@@ -112,6 +115,12 @@ bd_write(poldist)
                        labels = scales::label_number(big.mark = " ")) +
     # geom_smooth(col="lightblue", fill = "lightblue1", aes(weight = f_i)) +
     theme_ofce(base_size = 10, legend.position = "bottom")+ 
+    labs(
+      caption=glue::glue(
+        "*Source* : MOBPRO, EMP 2019, C200, OSM, GTFS, DV3F CEREMA, MEAPS. *version {version}*
+       <br>*Note* : Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille,
+      <br> les losanges pour la commune d'Aix-en-Provence,
+       <br>les ronds pour les autres communes.<br>")  ) +
     patchwork::inset_element(inset_map, left=0.7, bottom=0.63, right=1, top=1) + 
     theme(plot.margin = margin()))
 
