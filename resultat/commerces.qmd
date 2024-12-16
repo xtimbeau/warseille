@@ -5,9 +5,10 @@ author:
   - name: Scotia Hille
 bibliography:
   references.bib
+cache: TRUE
 ---
 
-```{r init, include=FALSE}
+```{r init, include=FALSE, cache=FALSE}
 uu <- ofce::init_qmd()
 version <- bd_read("version_aa")
 library(paletteer)
@@ -122,7 +123,7 @@ Les sources alternatives aux fichiers fonciers sont :
 
 Nous tenons compte enfin de la diversité des commerces à partir de l'information des fichiers fonciers. Par exemple, pour la catégorie fonctionnelle commerce nous agrégeons les surfaces commerciales, en les multipliant par un indice de diversité qui est minimum lorsqu'une seule espèce de commerce est présente et maximal lorsque toutes les espèces sont représentées. Ce type d'indicateur est souvent utilisé en écologie. Il permet donc de donner plus de poids à un bouquet diversifié de commerce totalisant 1 000 m² plutôt qu'à un unique commerce (un garage disons) de 1 000 m².
 
-### Formalisation
+### Formalisation {#sec-proxform}
 
 Formellement, l'indicateur de proximité des aménités $\mathcal{A}$ est construit comme :
 
@@ -500,11 +501,16 @@ vqh |>
     note = "On découpe le plan composé de la densité (axe des X) et l'indicateur de proximité des aménités (axe des Y) avec des hexagones. On compte à l'intérieur de ces hexagones la population résidente et la couleur est d'autant plus foncée que le nombre d'habitants est élevé. Chaque graphique représente la corrélation entre les indicateurs de proximité et la densité.") 
 ```
 
+### Localisation des anomalies de proximité {#sec-resprox}
+
 Sur la base de ces données, on construit des modèle simples de régression reliant la densité et la proximité des aménités. Ces modèles sont résumés dans le tableau suivant ([@tbl-sise]).
+
+Le modèle estimé est $log(\mathcal{A}_{c,i}) = c \times log(dens_i) + \varepsilon_i$ où chaque carreau $i$ est une observation et la densité est le nombre d'habitants dans un rayon de 15 minutes à pied ou en transport en commun.
 
 ```{r}
 #| label: tbl-sise
 #| tbl-cap: Modèles de régression densité/proximité
+#| html-table-processing: none
 
 lien_se_si <- bd_read("lien_se_si")
 
@@ -521,10 +527,9 @@ lien_se_si |>
     gt() |> 
   fmt_percent(r2, decimals =1) |> 
   fmt_markdown(c ) |> 
-  cols_label(t = "", r2 = md("$R^2$"), c = md("$c$")) |> 
-  tab_footnote("La proximité synthétique est constuire en ajoutant 5 fois la proximité alimentaire à 3 fois celle des commerces non alimentaires, 2 fois les sorties et une fois la santé humaine, par un raisonnement de fréquence de fréquentation", location = cells_body(columns = t, rows = t == "Synthétique")) |> 
-  tab_source_note(md("Le modèle estimé est $log(\\mathcal(A)_c) = c \\times log(dens) + \\varepsilon$ où chaque carreau est une observation et la densité est le nombre d'habitants dans un rayon de 15 minutes à pied.") ) |> 
-  tab_options(quarto.disable_processing = TRUE)
+  cols_label(t = "", r2 = md("*R^2^*"), c = md("*c*")) |> 
+  tab_footnote("La proximité synthétique est constuire en ajoutant 5 fois la proximité alimentaire à 3 fois celle des commerces non alimentaires, 2 fois les sorties et une fois la santé humaine, par un raisonnement de fréquence de fréquentation", location = cells_body(columns = t, rows = t == "Synthétique")) |>
+  tab_options(quarto.disable_processing = FALSE)
 ```
 
 On peut représenter les résidus de ces modèles sur une carte. Cela donne un indicateur de l'abondance de commerces relativement à la densité de population.
@@ -772,11 +777,12 @@ On confirme cette analyse en effectuant des régressions (log)linéaires en util
 
 [^4]: Cette valeur se lit sur le tableau en prenant le coefficient du dernier décile, moins celui du premier (égal à 0 par référence) et en élevant $e$ à la puissance de cette différence.
 
+Les observation du modèle estimé sont les zones EMC^2^, indexées par $i$, où le nombre d'individus sondés (présent dans l'EMC^2^) est supérieur à 10. L'équation du modèle est $log(d_i) = a log(rev_{uc,i}) + b p_{enf,i} + c p_{act,i} + d_k \mathcal{A}_{i,k} + e + \varepsilon_i$ où les $k$ sont les quantiles, pondérés par la population, de l'indicateur de proximité (ainsi le premier quantile vaut 1 pour les 10% de la population qui ont la proximité la plus faible). Le premier décile est la valeur de référence et n'est pas estimé.
+
 ::: {.column-page-right}
 ```{r}
 #| label: tbl-regresemc2
 #| tbl-cap: Modèles de régression sur les zones de l'EMC^2^
-#| html-table-processing: none
 
 n_min <- 10
 fmrl <- "log(1+d_car) ~  q + log(rev_uc) + actoccup + enfants"
@@ -832,25 +838,26 @@ tbl <- res |>
   gt() |>
   fmt_markdown(c(r.squared, adj.r.squared,rev_uc, enfants, actoccup, c, se, d1,d2,d3,d4,d5,d6,d7,d8,d9,d10)) |> 
   fmt_percent(c(r.squared, adj.r.squared), decimals = 1) |> 
-  cols_label(r.squared = md("$R^2$"), adj.r.squared = md("$\\bar{R}^2$"), c = "constante", mod = "") |> 
+  cols_label(r.squared = md("*R^2^*"), adj.r.squared = md("*adj. R^2^*"), c = "constante", mod = "", rev_uc = md("rev~uc~")) |> 
   tab_options(
     table.font.size = 12) |> 
   cols_align("left", 1) |> 
-  cols_align("center", -1) |> 
-  tab_source_note(md("Le modèle estimé est pour chque zone où le nombre d'individus sondés est supérieur à 10. L'équation du modèle est $log(d) = a log(rev_{uc}) + b p_{enf} + c p_{act} + d_i \\mathcal{A}_i + e + \\varepsilon$ où les $i$ sont les quantiles pondérés par la population de l'indicateur de proximité (le premier quantile vaut 1 pour les 10% de la population qui ont la proximité la plus faible). Le premier décile est la valeur de référenc et n'est pas estimé"))
+  cols_align("center", -1)
 
 tbl |> 
   cols_hide(c(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10, 
               qd1,qd2,qd3,qd4,qd5,qd6,qd7,qd8,qd9,qd10) ) 
+```
 
+```{r}
 tbl |> 
   cols_hide(c(r.squared, adj.r.squared, nobs, rev_uc, enfants, actoccup, c, se) ) |> 
   cols_nanoplot(starts_with("qd"), plot_type = "bar", new_col_name = "deciles") |> 
   cols_label(deciles = "déciles") |> 
   cols_align("left", 1) |> 
   cols_align("center", -1) 
-
 ```
+
 :::
 
 ## Densité inversée
@@ -908,7 +915,7 @@ ggplot() +
 
 ```
 
-## Projection des distances et estiation des émissions de CO~2~ spatialisées
+## Projection des distances et estimation des émissions de CO~2~ spatialisées
 
 Nous avons utilisé la version individus des modèles de régression évoqués plus haut. Ces modèles reprennent comme variables explicatives la proiximité fdes commerces et les informations socio économiques disponibles dans l'EMC^2^ et que l'on peut reconstruire au carreau 200m. Ces variables sont le niveau de vie, la structure familliale et le statut d'occupation (actif occupé ou non). La différence principale avec le modèle estimé sur les zones de l'EMC^2^ est que l'on ajoute une équation pour la probabilité de faire ses courses le jour de l'enquête et une équation pour la distance parcourue si on fait ses courses ce jour là. Dans le modèle estimé sur zones, cette distinction n'est pas nécessaire parce qu'on calcule une moyenne des distances parcourues entre ceux qui font des courses et ceux qui n'en font pas.
 

@@ -21,17 +21,17 @@ download_link(
 
 *Source* : [INSEE](https://www.insee.fr/fr/statistiques/7655511?sommaire=7655515), année 2019, [MOBPRO](https://www.insee.fr/fr/statistiques/7630376) année 2020
 
--   `idINS` : code [INSPIRE](https://knowledge-base.inspire.ec.europa.eu/index_en) (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier). Nous avons omis dans le code INSPIRE les premiers caractères qui décrivent le système de coordonnées (`FR_CRS3035)` ainsi que le `m` de la résolution pour éviter de surcharger la chaîne de caractères. Le code est donc `r200NyyyyyyyExxxxxxx` où `yyyyyyy` et `xxxxxxx` sont les coordonnées dans la projection EPSG:3035 LAEA en mètres. Ce codage n'est pas très efficient, nous utilisons (ce codage n'est plus présent dans les fichiers téléchargeables) un codage dérivé inversible et non destructeur qui s'écrit `xxxxxxx/200*100000 + yyyyyyy/200` qui est un entier à 10 chiffres (qui peut être codé comme un float64 sur 8 octets ou un int sur 4 octets) deux fois à quatre fois plus petit que la chaîne de caractère standard de 19 caractères ou octets.
+-   `idINS` : code [INSPIRE](https://knowledge-base.inspire.ec.europa.eu/index_en) (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier). Nous avons omis dans le code INSPIRE les premiers caractères qui décrivent le système de coordonnées (`FR_CRS3035)` ainsi que le `m` de la résolution pour éviter de surcharger la chaîne de caractères. Le code est donc `r200NyyyyyyyExxxxxxx` où `yyyyyyy` et `xxxxxxx` sont les coordonnées dans la projection EPSG:3035 LAEA en mètres. Ce codage n'est pas très efficient, nous utilisons (ce codage n'est plus présent dans les fichiers téléchargeables) un codage dérivé inversible et non destructeur qui s'écrit `xxxxxxx/200*100000 + yyyyyyy/200` qui est un entier à 10 chiffres (qui peut être codé comme un float64 sur 8 octets ou un int32 sur 4 octets) deux fois à quatre fois plus petit que la chaîne de caractères standard de 19 caractères ou octets.
 
 -   `ind` : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.
 
--   `dep` : numéro du département
+-   `dep` : numéro du département.
 
--   `idcom` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`
+-   `idcom` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
 
--   `IRIS` : code IRIS, géographie 2021
+-   `IRIS` : code IRIS, géographie 2021.
 
--   `act_mobpro` : actifs au sens de MOBPRO 2020 (somme des individus par commune, reprojetté au carreau proportionnellement aux adultes de C200)
+-   `act_mobpro` : actifs au sens de MOBPRO 2020 (somme des individus par commune, reprojetté au carreau proportionnellement aux adultes de C200).
 
 ## C200 emploi {#sec-c200emp}
 
@@ -52,9 +52,9 @@ download_link(
 
 -   `emp_resident` : emplois du carreau occupés par des résidents de la métropole AMP
 
--   `idcom` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`
+-   `idcom` : Code INSEE de la commune (attention, c'est différent du code postal). Les arrondissements de Marseille sont de la forme `131xx`.
 
--   `IRIS` : code IRIS, géographie 2021
+-   `IRIS` : code IRIS, géographie 2021.
 
 -   `act` : nombre d'actifs à partir des taux d'activité communaux INSEE, multiplié par les adultes du carreau C200.
 
@@ -102,13 +102,11 @@ download_link(
 
 -   `mode` : mode de transport utilisé pour le routeur. Les valeurs possibles sont "`walk_tblr`" marche à pied avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur `dogr` ; "`bike_tblr`" vélo avec une pénalisation de Tobler qui ralentit la marche dans les montées, moteur `dogr` ; "`car_dgr`" voiture, moteur `dogr` et "`transit`" transport en commun, tramway, bus, métro, trains urbain (TER), bateaux, moteur `r5r` et données `GTFS`.
 
--   `temps` : temps de parcours (de `to10k`, `to20k`, ...)
+-   `temps` : temps de parcours (de `to10k`, `to20k`, ...).
 
 -   `emp` : emploi accessible dans le temps, agrégé à partir de la donnée accessibilité en prenant la moyenne pondérée par le produit emploi par actif des temps entre chaque carreau d'origine (appartenant à `com)` et de destination (répartition uniforme à partir de `DCLT` de MOBPRO).
 
--   `repr` : nombre d'actif dans la commune `com`.
-
--   `label` : nom de la commune `com` en clair
+-   `label` : nom de la commune `com` en clair.
 
 ## Déciles de niveau de vie {#sec-deciles}
 
@@ -124,11 +122,11 @@ download_link(
 
 *Source* : calculs des auteurs à partir des sources déjà citées.
 
--   `zone` : zone d'agrégation de C200
+-   `zone` : zone d'agrégation de C200.
 
--   `decile` : décile de niveau de vie
+-   `decile` : décile de niveau de vie.
 
--   `ind` : nombre d'individu dans le croisement `decile` par `zone`
+-   `ind` : nombre d'individu dans le croisement `decile` par `zone.`
 
 ## Accessibilité par déciles de niveau de vie
 
@@ -157,9 +155,9 @@ download_link(
 
 -   `mode_lib` : mode de transport `mode` en clair.
 
--   `zone` : zone d'agrégation de C200
+-   `zone` : zone d'agrégation de C200.
 
--   `decile` : décile de niveau de vie
+-   `decile` : décile de niveau de vie.
 
 ## CO~2~ au carreau, point de vue résident
 
@@ -177,11 +175,11 @@ download_link(
 
 -   `com` : Code INSEE de la commune (attention, ce n'est pas le code postal). Les arrondissements de Marseille sont de la forme `131xx`.
 
--   `km_i` : nombre de kilomètres en voiture générés par MEAPS pour le carreau de départ vers potentiellement tous les carreaux de destination, agrégé sur les catégories de ménages
+-   `km_i` : nombre de kilomètres en voiture générés par MEAPS pour le carreau de départ vers potentiellement tous les carreaux de destination, agrégé sur les catégories de ménages.
 
 -   `co2_i` : Emissions de CO~2~ imputées aux résidents du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages.
 
--   `f_i` : flux de départ du carreau de résidence (en personne). Egal par construction à `act_mobpro` aux immobiles près.
+-   `f_i` : flux de départ du carreau de résidence (en personne). Égal par construction à `act_mobpro` aux immobiles près.
 
 -   `km_pa` : `km_i` divisé par `f_i`, soit les kilomètres par actif.
 
@@ -209,7 +207,7 @@ download_link(
 
 -   `co2_j` : Emissions de CO~2~ imputées aux emplois du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages.
 
--   `f_j` : flux d'arrivée du carreau de résidence (en personne). Egal par construction à `emp_resident` (voir l'avertissement pour `km_j`)
+-   `f_j` : flux d'arrivée du carreau de résidence (en personne). Egal par construction à `emp_resident` (voir l'avertissement pour `km_j`).
 
 -   `km_pe` : `km_j` divisé par `f_j`, soit les kilomètres par emploi.
 
@@ -227,7 +225,7 @@ download_link(
 
 *Source* : calculs des auteurs à partir des sources citées
 
--   `IRIS` : code IRIS, géographie 2021
+-   `IRIS` : code IRIS, géographie 2021.
 
 -   `km_pa` : `km_i` divisé par `f_i`, soit les kilomètres par actif ; agrégé à l'IRIS (correctement).
 
@@ -241,13 +239,11 @@ download_link(
 
 -   `ind` : nombre d'individus dans l'IRIS.
 
--   `prix` : prix des transactions par m² (DV3F) moyen dans l'IRIS en 2021
+-   `prix` : prix des transactions par m² (DV3F) moyen dans l'IRIS en 2021.
 
--   `tx` : croissance des prix des transactions immobilières par m² dans l'IRIS de 2011 à 2022
+-   `tx` : croissance des prix des transactions immobilières par m² dans l'IRIS de 2011 à 2022.
 
--   `shape` : nom curieux pour la zone considéré (permet de faire les ronds et les losanges sur le graphique)
-
--   `dens` : densité simple dans l'IRIS
+-   `dens` : densité simple dans l'IRIS.
 
 ## Pollution subie CO~2~ émis
 
@@ -275,15 +271,13 @@ download_link(
 
 -   `ind` : nombre d'individus dans l'IRIS.
 
--   `prix` : prix des transactions par m² (DV3F) moyen dans l'IRIS en 2021
+-   `prix` : prix des transactions par m² (DV3F) moyen dans l'IRIS en 2022.
 
--   `tx` : croissance des prix des transactions immobilières par m² dans l'IRIS de 2017 à 2021 (à vérifier)
+-   `tx` : croissance des prix des transactions immobilières par m² dans l'IRIS de 2011 à 2022 (DV3F).
 
--   `shape` : nom curieux pour la zone considéré (permet de faire les ronds et les losanges sur le graphique)
+-   `dens` : densité simple dans l'IRIS.
 
--   `dens` : densité simple dans l'IRIS
-
--   `sudair` : [ICAIR365](https://www.atmosud.org/article/icair-lindice-cumule-de-lair), qui cumule l'effet de 4 polluants (NO~2~, O~3~, PM2.5, PM10) sur une année (ici l'année 2022), construit par [AtmoSud](https://www.atmosud.org/), projeté au carreau 200m et agrégé à l'IRIS, pondéré par la population au carreau 200m.
+-   `sudair` : [ICAIR365](https://www.atmosud.org/article/icair-lindice-cumule-de-lair), qui cumule l'effet de 4 polluants (NO~2~, O~3~, PM~2.5~, PM~10~) sur une année (ici l'année 2022), construit par [AtmoSud](https://www.atmosud.org/), projeté au carreau 200m et agrégé à l'IRIS, pondéré par la population au carreau 200m.
 
 ## Proximité aux aménités
 
@@ -303,17 +297,17 @@ download_link(
 
 -   `ind` : nombre d'individus dans l'IRIS.
 
--   `div` : indice de diversité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+-   `div` : indice de diversité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
 
--   `n` : nombre d'unité d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+-   `n` : nombre d'unité d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
 
--   `n_e` : nombre d'espèces (code NAF 5 caractères) d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+-   `n_e` : nombre d'espèces (code NAF 5 caractères) d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
 
--   `sa` : surface ajustée (voir document) d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+-   `sa` : surface ajustée (voir [document](#sec-proxform)) d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
 
--   `sb` : surface brute totale (sprincp) des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+-   `sb` : surface brute totale (`sprincp`) des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
 
--   `se` : surface équivalente (voir document) ou indicateur de proimité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité
+-   `se` : surface équivalente (voir [document](#sec-proxform)) ou indicateur de proximité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
 
 ## Lien densité proximité, résidu
 
@@ -333,7 +327,7 @@ download_link(
 
 -   `idINS` : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
 
--   `r` : résidu de la régression log linéaire (voir document)
+-   `r` : résidu de la régression log linéaire (voir [document](#sec-resprox)).
 
 ## CO~2~ pour le motif commerce
 
@@ -352,4 +346,4 @@ download_link(
 
 -   `ind` : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.
 
--   `co2_pi` : tonnes de CO~2~ émises par individu pour le motif courses (ou commerce) imputées au résidents du carreau
+-   `co2_pi` : tonnes de CO~2~ émises par individu pour le motif courses (ou commerce) imputées au résidents du carreau.
