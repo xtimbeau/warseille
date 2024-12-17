@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Annexe  codebook – Métropole d'Aix Marseille Provence</title>
+<title>Annexe  Données téléchargeables, codebook – Métropole d'Aix Marseille Provence</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,7 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./next.html" rel="prev">
+<link href="./annexe_commerces.html" rel="prev">
 <link href="./images/meaps-favicon.png" rel="icon" type="image/png">
 <script src="site_libs/cookie-consent/cookie-consent.js"></script>
 <link href="site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
@@ -100,6 +100,49 @@ cookieconsent.run({
 <script src="site_libs/font-awesome-6.5.2/js/script.js"></script>
 
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -113,7 +156,7 @@ cookieconsent.run({
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
         <a class="flex-grow-1 no-decor" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-          <h1 class="quarto-secondary-nav-title">Annexe <span style="white-space:nowrap">A —</span> codebook</h1>
+          <h1 class="quarto-secondary-nav-title">Annexe <span style="white-space:nowrap">B —</span> Données téléchargeables, codebook</h1>
         </a>     
       <button type="button" class="btn quarto-search-button" aria-label="Recherche" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -191,8 +234,14 @@ cookieconsent.run({
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./annexe_commerces.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Motif commerce, détail des données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./codebook.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">codebook</span></span></a>
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Données téléchargeables, codebook</span></span></a>
   </div>
 </li>
       </ul>
@@ -203,19 +252,20 @@ cookieconsent.run({
     <h2 id="toc-title">Sur cette page</h2>
    
   <ul>
-  <li><a href="#c200-résidents" id="toc-c200-résidents" class="nav-link active" data-scroll-target="#c200-résidents"><span class="header-section-number">A.1</span> C200 résidents</a></li>
-  <li><a href="#sec-c200emp" id="toc-sec-c200emp" class="nav-link" data-scroll-target="#sec-c200emp"><span class="header-section-number">A.2</span> C200 emploi</a></li>
-  <li><a href="#sec-access" id="toc-sec-access" class="nav-link" data-scroll-target="#sec-access"><span class="header-section-number">A.3</span> Accessibilité</a></li>
-  <li><a href="#accessibilité-par-commune" id="toc-accessibilité-par-commune" class="nav-link" data-scroll-target="#accessibilité-par-commune"><span class="header-section-number">A.4</span> Accessibilité par commune</a></li>
-  <li><a href="#sec-deciles" id="toc-sec-deciles" class="nav-link" data-scroll-target="#sec-deciles"><span class="header-section-number">A.5</span> Déciles de niveau de vie</a></li>
-  <li><a href="#accessibilité-par-déciles-de-niveau-de-vie" id="toc-accessibilité-par-déciles-de-niveau-de-vie" class="nav-link" data-scroll-target="#accessibilité-par-déciles-de-niveau-de-vie"><span class="header-section-number">A.6</span> Accessibilité par déciles de niveau de vie</a></li>
-  <li><a href="#co2-au-carreau-point-de-vue-résident" id="toc-co2-au-carreau-point-de-vue-résident" class="nav-link" data-scroll-target="#co2-au-carreau-point-de-vue-résident"><span class="header-section-number">A.7</span> CO<sub>2</sub> au carreau, point de vue résident</a></li>
-  <li><a href="#co2-au-carreau-point-de-vue-emploi" id="toc-co2-au-carreau-point-de-vue-emploi" class="nav-link" data-scroll-target="#co2-au-carreau-point-de-vue-emploi"><span class="header-section-number">A.8</span> CO<sub>2</sub> au carreau, point de vue emploi</a></li>
-  <li><a href="#revenu-et-co2" id="toc-revenu-et-co2" class="nav-link" data-scroll-target="#revenu-et-co2"><span class="header-section-number">A.9</span> Revenu et CO<sub>2</sub></a></li>
-  <li><a href="#pollution-subie-co2-émis" id="toc-pollution-subie-co2-émis" class="nav-link" data-scroll-target="#pollution-subie-co2-émis"><span class="header-section-number">A.10</span> Pollution subie CO<sub>2</sub> émis</a></li>
-  <li><a href="#proximité-aux-aménités" id="toc-proximité-aux-aménités" class="nav-link" data-scroll-target="#proximité-aux-aménités"><span class="header-section-number">A.11</span> Proximité aux aménités</a></li>
-  <li><a href="#lien-densité-proximité-résidu" id="toc-lien-densité-proximité-résidu" class="nav-link" data-scroll-target="#lien-densité-proximité-résidu"><span class="header-section-number">A.12</span> Lien densité proximité, résidu</a></li>
-  <li><a href="#co2-pour-le-motif-commerce" id="toc-co2-pour-le-motif-commerce" class="nav-link" data-scroll-target="#co2-pour-le-motif-commerce"><span class="header-section-number">A.13</span> CO<sub>2</sub> pour le motif commerce</a></li>
+  <li><a href="#c200-résidents" id="toc-c200-résidents" class="nav-link active" data-scroll-target="#c200-résidents"><span class="header-section-number">B.1</span> C200 résidents</a></li>
+  <li><a href="#sec-c200emp" id="toc-sec-c200emp" class="nav-link" data-scroll-target="#sec-c200emp"><span class="header-section-number">B.2</span> C200 emploi</a></li>
+  <li><a href="#sec-access" id="toc-sec-access" class="nav-link" data-scroll-target="#sec-access"><span class="header-section-number">B.3</span> Accessibilité</a></li>
+  <li><a href="#accessibilité-par-commune" id="toc-accessibilité-par-commune" class="nav-link" data-scroll-target="#accessibilité-par-commune"><span class="header-section-number">B.4</span> Accessibilité par commune</a></li>
+  <li><a href="#sec-deciles" id="toc-sec-deciles" class="nav-link" data-scroll-target="#sec-deciles"><span class="header-section-number">B.5</span> Déciles de niveau de vie</a></li>
+  <li><a href="#accessibilité-par-déciles-de-niveau-de-vie" id="toc-accessibilité-par-déciles-de-niveau-de-vie" class="nav-link" data-scroll-target="#accessibilité-par-déciles-de-niveau-de-vie"><span class="header-section-number">B.6</span> Accessibilité par déciles de niveau de vie</a></li>
+  <li><a href="#co2-au-carreau-point-de-vue-résident" id="toc-co2-au-carreau-point-de-vue-résident" class="nav-link" data-scroll-target="#co2-au-carreau-point-de-vue-résident"><span class="header-section-number">B.7</span> CO<sub>2</sub> au carreau, point de vue résident</a></li>
+  <li><a href="#co2-au-carreau-point-de-vue-emploi" id="toc-co2-au-carreau-point-de-vue-emploi" class="nav-link" data-scroll-target="#co2-au-carreau-point-de-vue-emploi"><span class="header-section-number">B.8</span> CO<sub>2</sub> au carreau, point de vue emploi</a></li>
+  <li><a href="#revenu-et-co2" id="toc-revenu-et-co2" class="nav-link" data-scroll-target="#revenu-et-co2"><span class="header-section-number">B.9</span> Revenu et CO<sub>2</sub></a></li>
+  <li><a href="#pollution-subie-co2-émis" id="toc-pollution-subie-co2-émis" class="nav-link" data-scroll-target="#pollution-subie-co2-émis"><span class="header-section-number">B.10</span> Pollution subie CO<sub>2</sub> émis</a></li>
+  <li><a href="#proximité-aux-aménités" id="toc-proximité-aux-aménités" class="nav-link" data-scroll-target="#proximité-aux-aménités"><span class="header-section-number">B.11</span> Proximité aux aménités</a></li>
+  <li><a href="#lien-densité-proximité-résidu" id="toc-lien-densité-proximité-résidu" class="nav-link" data-scroll-target="#lien-densité-proximité-résidu"><span class="header-section-number">B.12</span> Lien densité proximité, résidu</a></li>
+  <li><a href="#modèles-de-régressions-emc2" id="toc-modèles-de-régressions-emc2" class="nav-link" data-scroll-target="#modèles-de-régressions-emc2"><span class="header-section-number">B.13</span> Modèles de régressions EMC<sup>2</sup></a></li>
+  <li><a href="#co2-pour-le-motif-commerce" id="toc-co2-pour-le-motif-commerce" class="nav-link" data-scroll-target="#co2-pour-le-motif-commerce"><span class="header-section-number">B.14</span> CO<sub>2</sub> pour le motif commerce</a></li>
   </ul>
 </nav>
 </nav>
@@ -228,7 +278,7 @@ cookieconsent.run({
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title d-none d-lg-block">Annexe <span style="white-space:nowrap">A —</span> codebook</h1>
+<h1 class="title d-none d-lg-block">Annexe <span style="white-space:nowrap">B —</span> Données téléchargeables, codebook</h1>
 </div>
 
 
@@ -246,7 +296,7 @@ cookieconsent.run({
     <div>
     <div class="quarto-title-meta-heading">Modifié le</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">16 décembre 2024</p>
+      <p class="date-modified">17 décembre 2024</p>
     </div>
   </div>
     
@@ -258,8 +308,8 @@ cookieconsent.run({
 
 
 <p>Lorsque c’est pertinent, les données des graphiques ou des tableaux sont proposées au téléchargement. Ces données téléchargeables sont rassemblées dans cette annexe avec le détail des colonnes, des noms et des méthodes de construction.</p>
-<section id="c200-résidents" class="level2" data-number="A.1">
-<h2 data-number="A.1" class="anchored" data-anchor-id="c200-résidents"><span class="header-section-number">A.1</span> C200 résidents</h2>
+<section id="c200-résidents" class="level2" data-number="B.1">
+<h2 data-number="B.1" class="anchored" data-anchor-id="c200-résidents"><span class="header-section-number">B.1</span> C200 résidents</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/ind_act_idINS_MetAMP.csv">
@@ -277,8 +327,8 @@ cookieconsent.run({
 <li><p><code>act_mobpro</code> : actifs au sens de MOBPRO 2020 (somme des individus par commune, reprojetté au carreau proportionnellement aux adultes de C200).</p></li>
 </ul>
 </section>
-<section id="sec-c200emp" class="level2" data-number="A.2">
-<h2 data-number="A.2" class="anchored" data-anchor-id="sec-c200emp"><span class="header-section-number">A.2</span> C200 emploi</h2>
+<section id="sec-c200emp" class="level2" data-number="B.2">
+<h2 data-number="B.2" class="anchored" data-anchor-id="sec-c200emp"><span class="header-section-number">B.2</span> C200 emploi</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/emp_empres_idINS_MetAMP.csv">
@@ -296,8 +346,8 @@ cookieconsent.run({
 <li><p><code>act</code> : nombre d’actifs à partir des taux d’activité communaux INSEE, multiplié par les adultes du carreau C200.</p></li>
 </ul>
 </section>
-<section id="sec-access" class="level2" data-number="A.3">
-<h2 data-number="A.3" class="anchored" data-anchor-id="sec-access"><span class="header-section-number">A.3</span> Accessibilité</h2>
+<section id="sec-access" class="level2" data-number="B.3">
+<h2 data-number="B.3" class="anchored" data-anchor-id="sec-access"><span class="header-section-number">B.3</span> Accessibilité</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/temps_accessibilite_idINS_MetAMP.csv">
@@ -316,8 +366,8 @@ cookieconsent.run({
 <li><p><code>mode_lib</code> : mode de transport <code>mode</code> en clair.</p></li>
 </ul>
 </section>
-<section id="accessibilité-par-commune" class="level2" data-number="A.4">
-<h2 data-number="A.4" class="anchored" data-anchor-id="accessibilité-par-commune"><span class="header-section-number">A.4</span> Accessibilité par commune</h2>
+<section id="accessibilité-par-commune" class="level2" data-number="B.4">
+<h2 data-number="B.4" class="anchored" data-anchor-id="accessibilité-par-commune"><span class="header-section-number">B.4</span> Accessibilité par commune</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/access_par_com_MetAMP.csv">
@@ -334,8 +384,8 @@ cookieconsent.run({
 <li><p><code>label</code> : nom de la commune <code>com</code> en clair.</p></li>
 </ul>
 </section>
-<section id="sec-deciles" class="level2" data-number="A.5">
-<h2 data-number="A.5" class="anchored" data-anchor-id="sec-deciles"><span class="header-section-number">A.5</span> Déciles de niveau de vie</h2>
+<section id="sec-deciles" class="level2" data-number="B.5">
+<h2 data-number="B.5" class="anchored" data-anchor-id="sec-deciles"><span class="header-section-number">B.5</span> Déciles de niveau de vie</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/deciles_MetAMP.csv">
@@ -350,8 +400,8 @@ cookieconsent.run({
 <li><p><code>ind</code> : nombre d’individu dans le croisement <code>decile</code> par <code>zone.</code></p></li>
 </ul>
 </section>
-<section id="accessibilité-par-déciles-de-niveau-de-vie" class="level2" data-number="A.6">
-<h2 data-number="A.6" class="anchored" data-anchor-id="accessibilité-par-déciles-de-niveau-de-vie"><span class="header-section-number">A.6</span> Accessibilité par déciles de niveau de vie</h2>
+<section id="accessibilité-par-déciles-de-niveau-de-vie" class="level2" data-number="B.6">
+<h2 data-number="B.6" class="anchored" data-anchor-id="accessibilité-par-déciles-de-niveau-de-vie"><span class="header-section-number">B.6</span> Accessibilité par déciles de niveau de vie</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/access_revenu_MetAMP.csv">
@@ -372,8 +422,8 @@ cookieconsent.run({
 <li><p><code>decile</code> : décile de niveau de vie.</p></li>
 </ul>
 </section>
-<section id="co2-au-carreau-point-de-vue-résident" class="level2" data-number="A.7">
-<h2 data-number="A.7" class="anchored" data-anchor-id="co2-au-carreau-point-de-vue-résident"><span class="header-section-number">A.7</span> CO<sub>2</sub> au carreau, point de vue résident</h2>
+<section id="co2-au-carreau-point-de-vue-résident" class="level2" data-number="B.7">
+<h2 data-number="B.7" class="anchored" data-anchor-id="co2-au-carreau-point-de-vue-résident"><span class="header-section-number">B.7</span> CO<sub>2</sub> au carreau, point de vue résident</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/co2_idINS_pdvR_MetAMP.csv">
@@ -387,13 +437,13 @@ cookieconsent.run({
 <li><p><code>com</code> : Code INSEE de la commune (attention, ce n’est pas le code postal). Les arrondissements de Marseille sont de la forme <code>131xx</code>.</p></li>
 <li><p><code>km_i</code> : nombre de kilomètres en voiture générés par MEAPS pour le carreau de départ vers potentiellement tous les carreaux de destination, agrégé sur les catégories de ménages.</p></li>
 <li><p><code>co2_i</code> : Emissions de CO<sub>2</sub> imputées aux résidents du carreau au titre des déplacements professionnels agrégé sur les catégories de ménages.</p></li>
-<li><p><code>f_i</code> : flux de départ du carreau de résidence (en personne). Egal par construction à <code>act_mobpro</code> aux immobiles près.</p></li>
+<li><p><code>f_i</code> : flux de départ du carreau de résidence (en personne). Égal par construction à <code>act_mobpro</code> aux immobiles près.</p></li>
 <li><p><code>km_pa</code> : <code>km_i</code> divisé par <code>f_i</code>, soit les kilomètres par actif.</p></li>
 <li><p><code>co2_pa</code> : <code>co2_i</code> divisé par <code>f_i</code>, soit les émissions de CO<sub>2</sub> par actif.</p></li>
 </ul>
 </section>
-<section id="co2-au-carreau-point-de-vue-emploi" class="level2" data-number="A.8">
-<h2 data-number="A.8" class="anchored" data-anchor-id="co2-au-carreau-point-de-vue-emploi"><span class="header-section-number">A.8</span> CO<sub>2</sub> au carreau, point de vue emploi</h2>
+<section id="co2-au-carreau-point-de-vue-emploi" class="level2" data-number="B.8">
+<h2 data-number="B.8" class="anchored" data-anchor-id="co2-au-carreau-point-de-vue-emploi"><span class="header-section-number">B.8</span> CO<sub>2</sub> au carreau, point de vue emploi</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/co2_idINS_pdvE_MetAMP.csv">
@@ -413,8 +463,8 @@ cookieconsent.run({
 <li><p><code>co2_pe</code> : <code>co2_i</code> divisé par <code>f_i</code>, soit les émissions de CO<sub>2</sub> par actif.</p></li>
 </ul>
 </section>
-<section id="revenu-et-co2" class="level2" data-number="A.9">
-<h2 data-number="A.9" class="anchored" data-anchor-id="revenu-et-co2"><span class="header-section-number">A.9</span> Revenu et CO<sub>2</sub></h2>
+<section id="revenu-et-co2" class="level2" data-number="B.9">
+<h2 data-number="B.9" class="anchored" data-anchor-id="revenu-et-co2"><span class="header-section-number">B.9</span> Revenu et CO<sub>2</sub></h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/co2_ndv_IRIS_MetAMP.csv">
@@ -436,8 +486,8 @@ cookieconsent.run({
 <li><p><code>dens</code> : densité simple dans l’IRIS.</p></li>
 </ul>
 </section>
-<section id="pollution-subie-co2-émis" class="level2" data-number="A.10">
-<h2 data-number="A.10" class="anchored" data-anchor-id="pollution-subie-co2-émis"><span class="header-section-number">A.10</span> Pollution subie CO<sub>2</sub> émis</h2>
+<section id="pollution-subie-co2-émis" class="level2" data-number="B.10">
+<h2 data-number="B.10" class="anchored" data-anchor-id="pollution-subie-co2-émis"><span class="header-section-number">B.10</span> Pollution subie CO<sub>2</sub> émis</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/co2_IRIS_pol_MetAMP.csv">
@@ -460,8 +510,8 @@ cookieconsent.run({
 <li><p><code>sudair</code> : <a href="https://www.atmosud.org/article/icair-lindice-cumule-de-lair">ICAIR365</a>, qui cumule l’effet de 4 polluants (NO<sub>2</sub>, O<sub>3</sub>, PM<sub>2.5</sub>, PM<sub>10</sub>) sur une année (ici l’année 2022), construit par <a href="https://www.atmosud.org/">AtmoSud</a>, projeté au carreau 200m et agrégé à l’IRIS, pondéré par la population au carreau 200m.</p></li>
 </ul>
 </section>
-<section id="proximité-aux-aménités" class="level2" data-number="A.11">
-<h2 data-number="A.11" class="anchored" data-anchor-id="proximité-aux-aménités"><span class="header-section-number">A.11</span> Proximité aux aménités</h2>
+<section id="proximité-aux-aménités" class="level2" data-number="B.11">
+<h2 data-number="B.11" class="anchored" data-anchor-id="proximité-aux-aménités"><span class="header-section-number">B.11</span> Proximité aux aménités</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/amenites_idINS_pdvR_MetAMP.csv">
@@ -474,16 +524,16 @@ cookieconsent.run({
 <li><p><code>type</code> : type d’aménité (4 <span style="white-space:nowrap">catégories :</span> alimentaire, non alimentaire, sorties, santé humaine)</p></li>
 <li><p><code>fromidINS</code> : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPS:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le <code>idINS</code> sur un entier).</p></li>
 <li><p><code>ind</code> : nombre d’individus dans l’IRIS.</p></li>
-<li><p><code>div</code> : indice de diversité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité</p></li>
-<li><p><code>n</code> : nombre d’unité d’aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité</p></li>
-<li><p><code>n_e</code> : nombre d’espèces (code NAF 5 caractères) d’aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité</p></li>
-<li><p><code>sa</code> : surface ajustée (voir document) d’aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité</p></li>
-<li><p><code>sb</code> : surface brute totale (sprincp) des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité.</p></li>
-<li><p><code>se</code> : surface équivalente (voir document) ou indicateur de proximité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité.</p></li>
+<li><p><code>div</code> : indice de diversité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité.</p></li>
+<li><p><code>n</code> : nombre d’unité d’aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité.</p></li>
+<li><p><code>n_e</code> : nombre d’espèces (code NAF 5 caractères) d’aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité.</p></li>
+<li><p><code>sa</code> : surface ajustée (voir <a href="commerces.html#sec-proxform">document</a>) d’aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité.</p></li>
+<li><p><code>sb</code> : surface brute totale (<code>sprincp</code>) des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité.</p></li>
+<li><p><code>se</code> : surface équivalente (voir <a href="commerces.html#sec-proxform">document</a>) ou indicateur de proximité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d’aménité.</p></li>
 </ul>
 </section>
-<section id="lien-densité-proximité-résidu" class="level2" data-number="A.12">
-<h2 data-number="A.12" class="anchored" data-anchor-id="lien-densité-proximité-résidu"><span class="header-section-number">A.12</span> Lien densité proximité, résidu</h2>
+<section id="lien-densité-proximité-résidu" class="level2" data-number="B.12">
+<h2 data-number="B.12" class="anchored" data-anchor-id="lien-densité-proximité-résidu"><span class="header-section-number">B.12</span> Lien densité proximité, résidu</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/residus_prox-dens_MetAMP.csv">
@@ -498,8 +548,27 @@ cookieconsent.run({
 <li><p><code>r</code> : résidu de la régression log linéaire (voir <a href="commerces.html#sec-resprox">document</a>).</p></li>
 </ul>
 </section>
-<section id="co2-pour-le-motif-commerce" class="level2" data-number="A.13">
-<h2 data-number="A.13" class="anchored" data-anchor-id="co2-pour-le-motif-commerce"><span class="header-section-number">A.13</span> CO<sub>2</sub> pour le motif commerce</h2>
+<section id="modèles-de-régressions-emc2" class="level2" data-number="B.13">
+<h2 data-number="B.13" class="anchored" data-anchor-id="modèles-de-régressions-emc2"><span class="header-section-number">B.13</span> Modèles de régressions EMC<sup>2</sup></h2>
+<div class="cell">
+<div class="cell-output-display">
+<a href="dnwld/residus_emc2_MetAMP.csv">
+<button class="btn btn-default dbtnlg"><i class="fa fa-download"></i> résidus des régressions de distance</button>
+</a>
+</div>
+</div>
+<p><em>Source</em> : calculs des auteurs à partir des sources citées, voir <a href="#fig-regresemc2">document</a>.</p>
+<ul>
+<li><p><code>mod</code> : modèle (la variable explicative de proximité pour les types d’aménité)</p></li>
+<li><p><code>nobs</code> : nombre de zones dans l’échantillon de la régression (les zones avec moins de 10 individus ne sont pas retenues)</p></li>
+<li><p><code>r.squared</code>, <code>adj.r.squarred</code> : <span class="math inline">R^2</span> et <span class="math inline">R^2</span> ajustés pour les modèles considérés</p></li>
+<li><p><code>c</code>, <code>qd[2:10]</code>, <code>rev_uc</code>, <code>actocup</code>, <code>enfants</code>, <code>se</code> : coefficients estimés pour les variables correspondantes.</p></li>
+<li><p><code>se_c</code>, <code>se_``qd[2:10]</code>, <code>se_``rev_uc</code>, <code>se_``actocup</code>, <code>se_``enfants</code>, <code>se_``se</code> : erreur standard des coefficients estimés pour les variables correspondantes.</p></li>
+<li><p><code>p_c</code>, <code>p_qd[2:10]</code>, <code>p_rev_uc</code>, <code>p_actocup</code>, <code>p_enfants</code>, <code>p_se</code> : <em>p-value</em> des coefficients estimés pour les variables correspondantes.</p></li>
+</ul>
+</section>
+<section id="co2-pour-le-motif-commerce" class="level2" data-number="B.14">
+<h2 data-number="B.14" class="anchored" data-anchor-id="co2-pour-le-motif-commerce"><span class="header-section-number">B.14</span> CO<sub>2</sub> pour le motif commerce</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/co2_motif_commerce_MetAMP.csv">
@@ -939,8 +1008,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./next.html" class="pagination-link" aria-label="Prochaines étapes">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Prochaines étapes</span></span>
+      <a href="./annexe_commerces.html" class="pagination-link" aria-label="Motif commerce, détail des données">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Motif commerce, détail des données</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
