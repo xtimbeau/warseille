@@ -35,10 +35,13 @@ library(conflicted, quietly = TRUE)
 library(sf, quietly = TRUE)
 library(tmap, quietly = TRUE)
 library(mapdeck, quietly = TRUE)
+
 options(
   ofce.base_size = 12,
-  ofce.background_color = "transparent")
-showtext_opts(dpi = 92)
+  ofce.background_color = "transparent",
+  ofce.source_data.src_in = "file")
+
+showtext_opts(dpi = 192)
 showtext_auto()
 options(cli.ignore_unknown_rstudio_theme = TRUE)
 tooltip_css  <-  
