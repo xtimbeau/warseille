@@ -42,6 +42,10 @@ Les indicateurs de proximité pour chaque grande catégorie de commerces sont fo
 #| fig-cap: Corrélation entre indicateurs de proximité
 #| fig-asp: 1.3
 
+vqh <- bd_read("vqh") |>
+  r3035::sidINS2sf(idINS = "fromidINS") |> 
+  mutate(wqse = factor(wqse))
+
 labels <- set_names(
   c("Alimentaire", "Commerces non alimentaires", "Bars, restaurants, cinémas", "Santé humaine"), 
   c("alim","comm","sortie","sante"))
@@ -71,7 +75,7 @@ vqh |>
 
 ## Densité et indicateur de proximité
 
-Les graphiques suivants ([@fig-denscom]) explorent le lien entre densité et proximité. La corrélation est importante mais moins forte qu'entre les indicateurs.
+Les graphiques suivants ([@fig-denscom]) explorent le lien entre densité et proximité. La corrélation est importante mais moins forte qu'entre les indicateurs de proximité pour les différentes aménités.
 
 ```{r}
 #| label: fig-denscom

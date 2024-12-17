@@ -109,7 +109,7 @@ margin_download <- function(data, output_name = "donnees", label = "données") {
 margin_link <- function(data, output_name = "donnees", label = "données") {
   if(knitr::is_html_output()) {
     link <- stringr::str_c("dnwld/", output_name, ".csv")
-    vroom::vroom_write(data, link)
+    vroom::vroom_write(data, link, delim = ";")
     downloadthis::download_link(
       link,
       icon = "fa fa-download",
