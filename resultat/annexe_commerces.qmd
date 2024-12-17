@@ -1,0 +1,100 @@
+---
+title: "Motif commerce, détail des données"
+---
+
+```{r}
+ofce::init_qmd()
+```
+
+## Classifications 
+
+```{r}
+#| label: tbl-classification
+#| tbl-cap: Classification des commerces en catégories fonctionnelles
+
+library(gt)
+library(tidyverse)
+readxl::read_xlsx("commerces/classification.xlsx") |> 
+  mutate(`Catégorie` = toupper(`Catégorie`)) |> 
+  group_by(Classification) |> 
+  gt() |>  
+  gt::sub_missing() |> 
+  cols_label(`Catégorie` = "")
+```
+
+```{r}
+#| label: tbl-cap
+#| tbl-cap: Limites de surface, commerces alimentaires
+
+bd_read("les_surfaces") |> 
+  gt() |> 
+  cols_label(NAF_TXT = "", cconac = "Code NAF", smin = "Minimum (m²)", smax = "Maximum (m²)") |> 
+  cols_hide(surf) 
+
+```
+
+## Lien entre les indicateurs de proximité pour les types d'aménité
+
+Les indicateurs de proximité pour chaque grande catégorie de commerces sont fortement corrélés entre eux. C'est ce qui ressort des graphiques suivants ([@fig-corrcomm]).
+
+```{r}
+#| label: fig-corrcomm
+#| fig-cap: Corrélation entre indicateurs de proximité
+#| fig-asp: 1.3
+
+labels <- set_names(
+  c("Alimentaire", "Commerces non alimentaires", "Bars, restaurants, cinémas", "Santé humaine"), 
+  c("alim","comm","sortie","sante"))
+
+vqh |> 
+  st_drop_geometry() |> 
+  select(ind, se, type, fromidINS) |> 
+  mutate(type = factor(type)) |> 
+  pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
+  pivot_longer(cols = c(comm, sortie, sante), names_to = "ny", values_to = "y") |> 
+  mutate(ny = labels[ny]) |> 
+  ggplot() +
+  geom_hex(aes(x = alim, y=y, weight = ind)) +
+  coord_equal() +
+  scale_x_log10(name = "indicateur de proximité commerces alimentaires", limits = c(1, 1000)) +
+  scale_y_log10(name = "indicateur de proximité (autres que alimentaire)", limits = c(1, 1000)) +
+  scale_fill_gradient(low = "white", high = "steelblue4", name = "individus")+
+  facet_wrap(vars(ny), ncol = 2) +
+  theme_ofce(legend.position = c(1, 0.0),
+             legend.justification = c(1,0),
+             legend.title = element_text(vjust = 1),
+             legend.key.width = unit(36, "pt")) +
+  ofce_caption(
+    source = "C200, Fichiers fonciers, OSM, calculs des auteurs", ofce = FALSE,
+    note = "On découpe le plan composé de l'indicateur de proximité des commerces alimentaires (axe des X) et l'indicateur de proximité des autres commerces (axe des Y) avec des hexagones. On compte à l'intérieur de ces hexagones la population résidente et la couleur est d'autant plus foncée que le nombre d'habitants est élevé. Chaque graphique représente la corrélation entre les indicateurs, ainsi les hexagones en diagonale dans le graphique le plus à cause sont ceux où se trouve la population. On observe 2 pôles (proximité très élevée, le centre de Marseile) et proximité élevée (autres centre-villes).")
+```
+
+## Densité et indicateur de proximité
+
+Les graphiques suivants ([@fig-denscom]) explorent le lien entre densité et proximité. La corrélation est importante mais moins forte qu'entre les indicateurs.
+
+```{r}
+#| label: fig-denscom
+#| fig-cap: Lien densité accessibilité aux commerces
+#| fig-asp: 1.2
+
+vqh |> 
+  st_drop_geometry() |> 
+  select(ind, se, type, fromidINS) |> 
+  mutate(type = factor(type)) |> 
+  mutate(ltype = labels[type]) |> 
+  ggplot() +
+  geom_hex(aes(x = ind, y=se, weight = ind)) +
+  scale_x_log10(name = "densité", limits = c(5, 5000))+
+  scale_y_log10(name = "indicateur de proximité", limits = c(1, 1000))+
+  coord_equal() +
+  facet_wrap(vars(ltype)) +
+  scale_fill_gradient(low = "white", high = "purple4")+
+  theme_ofce(legend.position = c(0.5, 1),
+             legend.justification = c(0,1),
+             legend.title = element_text(vjust = 1),
+             legend.key.width = unit(36, "pt")) +
+  ofce_caption(
+    source = "C200, Fichiers fonciers, OSM, calculs des auteurs", ofce = FALSE, 
+    note = "On découpe le plan composé de la densité (axe des X) et l'indicateur de proximité des aménités (axe des Y) avec des hexagones. On compte à l'intérieur de ces hexagones la population résidente et la couleur est d'autant plus foncée que le nombre d'habitants est élevé. Chaque graphique représente la corrélation entre les indicateurs de proximité et la densité.") 
+```

@@ -4,7 +4,7 @@ author:
   - name: Xavier Timbeau 
   - name: Scotia Hille
 bibliography:
-  references.bib
+  - references.bib
 cache: TRUE
 ---
 
@@ -26,7 +26,7 @@ En particulier, le motif commerce est plus complexe à appréhender parce que le
 
 ```{r}
 #| label: tbl-emp
-#| tbl-cap: Enquête mobilité des personnes 2019
+#| tbl-cap: Enquête mobilité des personnes 2019, déplacement en voiture
 
 bd_read("EMP2019_AA3") |> pluck(1)
 
@@ -86,110 +86,48 @@ Nous classons les commerces en 4 catégories : alimentaire, commerces (non alime
 
 La classification est indiquée dans le @tbl-classification. Par rapport aux choix de l'AUPA, nous avons considéré que les pharmacies étaient des commerces "ordinaires" et limité la notion de santé humaine aux cabinets médicaux (généralistes, spécialistes ou dentistes) en excluant les hôpitaux. Comme nous tenons compte de la surface, les hôpîtaux auraient dominé cette catégorie sans que cela ait vraiment du sens. Le but recherché est de quantifier l'usage habituel de la santé et donc la proximité de services de santé.
 
-```{r}
-#| label: tbl-classification
-#| tbl-cap: Classification des commerces en catégories fonctionnelles
+Les fichiers fonciers, bien que construit pour la perception d'une taxe comportent parfois des informations visiblement erronées. Par exemple, certaines surfaces commerciales sont très importantes (il existe des supérettes de plus de 100 000 m²) ou la notion de surface principale est parfois ambigue (comme le montre celle qui est retenue pour les campings). Nous utilisons donc avec prudence cette donnée en la limitant suivant certaines catégories. Ainsi, le @tbl-cap donne les intervalles dans lesquels sont contraintes les surfaces principales.
 
-library(gt)
-library(tidyverse)
-readxl::read_xlsx("commerces/classification.xlsx") |> 
-  mutate(`Catégorie` = toupper(`Catégorie`)) |> 
-  group_by(Classification) |> 
-  gt() |>  
-  gt::sub_missing() |> 
-  cols_label(`Catégorie` = "")
-```
+:::: {#tip-alternatives .callout-tip collapse="true"}
 
-Les fichiers fonciers, bien que construit pour la perception d'une taxe comportent parfois des informations curieuses, pouvant laisser croire à un bruit. Par exemple, certaines surfaces commerciales sont très importantes (il existe des supérettes de plus de 100 000 m²) ou la notion de surface principale est parfois ambigue (comme le montre celle qui est retenue pour les campings). Nous utilisons donc avec prudence cette donnée en la limitant suivant certaines catégories. Ainsi, le @tbl-cap donne les intervalles dans lesquels sont contraintes les surfaces principales.
-
-```{r}
-#| label: tbl-cap
-#| tbl-cap: Limites de surface
-
-bd_read("les_surfaces") |> 
-  gt() |> 
-  cols_label(NAF_TXT = "", cconac = "Code NAF", smin = "Minimum (m²)", smax = "Maximum (m²)") |> 
-  cols_hide(surf) 
-
-```
-
-Les sources alternatives aux fichiers fonciers sont :
+# Les sources alternatives aux fichiers fonciers
 
 1.  la base des équipements. A notre connaissance, depuis le changement de nomenclature dans la base des fichiers fonciers de 2018, les fichiers fonciers excluent les entités juridiques qui n'ont pas d'activité et cette modification rapproche la source équipement de la source fichiers fonciers.
 2.  Des enquêtes sur les commerces, comme l'enquête BD COM 2020 à Paris, présentée par l'[APUR](https://www.apur.org/dataviz/commerces-paris/). Ce type d'enquête est assez robuste car il repose sur des observations directes des surfaces commerciales ouvertes au public. En revanche, le champ géographique est habituellement trop limité (ici uniquement la commune de Paris). Nous n'avons pas connaissance d'une enquête comparable pour l’agglomération AMP.
-3.  La base de données OpenStreetMap, en accès libre. Réalisée à partir d'une information participative, elle constitue une alternative simple à mobiliser[^3]. Dans nos analyses préliminaires, elle recoupe assez bien les fichiers fonciers tout en illustrant certains problèmes d'identification (par exemple, des établissements considérés comme "supermarchés" dans les fichiers fonciers sont répertoriés comme épicerie dans OSM et les implémentations (taille du pâté de maison) donnent plutôt raison à OSM. C'est pour limiter cet effet que nous avons cappé les surfaces.
+3.  La base de données OpenStreetMap, en accès libre. Réalisée à partir d'une information participative, elle constitue une alternative simple à mobiliser^(a)^. Dans nos analyses préliminaires, elle recoupe assez bien les fichiers fonciers tout en illustrant certains problèmes d'identification (par exemple, des établissements considérés comme "supermarchés" dans les fichiers fonciers sont répertoriés comme épicerie dans OSM et les implémentations (taille du pâté de maison) donnent plutôt raison à OSM. C'est pour limiter cet effet que nous avons cappé les surfaces.
 
-[^3]: Elle contient des informations également sur les trafics illégaux (stupéfiants), ce qui peut être intéressant à exploiter.
+::: {.aside}
+a. Elle contient des informations également sur les trafics illégaux (stupéfiants), ce qui peut être intéressant à exploiter.
+:::
 
-Nous tenons compte enfin de la diversité des commerces à partir de l'information des fichiers fonciers. Par exemple, pour la catégorie fonctionnelle commerce nous agrégeons les surfaces commerciales, en les multipliant par un indice de diversité qui est minimum lorsqu'une seule espèce de commerce est présente et maximal lorsque toutes les espèces sont représentées. Ce type d'indicateur est souvent utilisé en écologie. Il permet donc de donner plus de poids à un bouquet diversifié de commerce totalisant 1 000 m² plutôt qu'à un unique commerce (un garage disons) de 1 000 m².
+:::: 
+
+Nous tenons compte enfin de la diversité des commerces à partir de l'information des fichiers fonciers. Par exemple, pour la catégorie fonctionnelle commerce nous agrégeons les surfaces commerciales, en les multipliant par un indice de diversité qui est minimum lorsqu'une seule espèce de commerce est présente et maximal lorsque toutes les espèces sont représentées. Ce type d'indicateur est souvent utilisé en écologie. Il permet donc de donner plus de poids à un bouquet diversifié de commerce totalisant 1 000 m² plutôt qu'à un unique commerce (un garage disons) de 1 000 m². Ceci est détaillé dans la section suivante.
 
 ### Formalisation {#sec-proxform}
 
-Formellement, l'indicateur de proximité des aménités $\mathcal{A}$ est construit comme :
+Formellement, l'indicateur de proximité des aménités $\mathcal{P}$ est construit comme :
 
 $$
-\mathcal{A}_c  = \left( \sum_{j \in V_{15 \space min}(i), j\in J} {s_j^\alpha \times w_J^{1-\alpha}}\right)^\beta \times  \sum_{j \in V_{15 \space min}(i), j \in J} {\frac {1}{w_J \times p_J^2}} 
+\mathcal{P}_c  = \left( \sum_{j \in V_{15 \space min}(i), j\in J} {s_j^\alpha \times w_J^{1-\alpha}}\right)^\beta \times  \sum_{j \in V_{15 \space min}(i), j \in J} {\frac {1}{w_J \times p_J^2}} 
 $$
 
-La première partie de l'indicateur $\mathcal{A}$ est la somme des surfaces dans le vosinage de chaque carreau de résidents à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie de l'indicateur permet de prendre en compte la diversité des commerces accessibles dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (par exemple, parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifiques). Le paramètre $w_J$ accorde aux catégories un poids en diversité, permettant de compter les grandes surfaces alimentaires comme contribuant plus à la diversité qu'une surface commerciale spécialisée.
+La première partie de l'indicateur $\mathcal{P}_c$ est la somme des surfaces dans le vosinage de chaque carreau de résidents à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie de l'indicateur permet de prendre en compte la diversité des commerces accessibles dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (par exemple, parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifiques). Le paramètre $w_J$ accorde aux catégories un poids en diversité, permettant de compter les grandes surfaces alimentaires comme contribuant plus à la diversité qu'une surface commerciale spécialisée.
 
-Le rôle des paramètres $\alpha$ et $\beta$ est de moduler l'expression $\mathcal{A}_c$. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont comptabilisés, indépendament de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet multiplicatif de la surface.
+Le rôle des paramètres $\alpha$ et $\beta$ est de moduler l'expression $\mathcal{P}_c$. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont comptabilisés, indépendament de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet multiplicatif de la surface.
 
 A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers paramètres ($w_i$, $\alpha$, $\beta$). Nous avons fixé des valeurs a priori, afin de pouvoir étudier des variantes et évaluer la différence d'analyse produite. Nous verrons que l'indicateur est utilisé non pas en tant que tel, mais principalement par quantile, ce qui le rend insensible à des transformations monotones. L'heuristique consiste à choisir $\alpha$ et $w_i$ de façon à ce que les surfaces ne comptent pas trop. Si on considère un groupe de 6 commerces spécialisés de 100m², on souhaite que ces commerces soient comparables à un super marché de 2500m². En choisissant $w_i = 6$ pour le supermarché et $\alpha = 0.25$ la surface ajustée vaut 3,4 pour les 6 commerces et 4,2 pour le supermarché. Pour des commerces spécialisés de 50m², la surface ajustée serait de 3,1 et de 4,7 pour un hypermarché de 5000 m². Ce choix donne donc une importance modérée aux surfaces.
 
 Le paramètre $\beta$ est sélectionné de façon à égaliser les rapports inter-quantiles de la surface ajustée. Ceci conduit à donner un poids égal à la diversité et à la surface ajustée dans la surface équivalente. En changeant le paramètre $\beta$ on peut modifier ce ratio.
 
-Pour les différents super type de commerces, le tableau suivant résume le nombre d'espèce et quelques statistiques essentielles :
+Pour les différents type de commerces, le tableau suivant résume le nombre d'espèce et quelques statistiques essentielles :
 
 ```{r}
 #| label: tbl-commerces
 #| tbl-cap: Types de commerces
-library(MetricsWeighted)
-stat1  <- bd_read("commerces") |> 
-  group_by(type, cconac) |>
-  summarize(
-    sw= first(w), 
-    n = n(),
-    s = sum(sprincp)) |> 
-  group_by(type) |> 
-  summarize(
-    n_w = sum(sw)
-  )
+#| column: body-outset-right
 
-stat2 <-  bd_read("commerces") |> 
-  group_by(type) |> 
-  summarize(
-    n_cconac = n_distinct(cconac),
-    n = n(),
-    s_mean = mean(sprincp),
-    s_q10 = quantile(sprincp, probs = 0.1),
-    s_q50 = quantile(sprincp, probs = 0.5),
-    s_q90 = quantile(sprincp, probs = 0.9)
-  )
-
-stat3 <- bd_read("vqh") |> 
-  group_by(type) |> 
-  summarize(
-    div_q10 = weighted_quantile(div, w = ind, probs = 0.1),
-    div_q50 = weighted_quantile(div, w = ind, probs = 0.5),
-    div_q90 = weighted_quantile(div, w = ind, probs = 0.9),
-    sa_q10 = weighted_quantile(sa, w = ind, probs = 0.1),
-    sa_q50 = weighted_quantile(sa, w = ind, probs = 0.5),
-    sa_q90 = weighted_quantile(sa, w = ind, probs = 0.9),
-    se_q10 = weighted_quantile(div*sa, w = ind, probs = 0.1),
-    se_q50 = weighted_quantile(div*sa, w = ind, probs = 0.5),
-    se_q90 = weighted_quantile(div*sa, w = ind, probs = 0.9)
-  ) |> mutate(div_id = div_q90/div_q10,
-              sa_id = sa_q90/sa_q10,
-              se_id = se_q90/se_q10)
-
-stat <- stat1 |> 
-  left_join(stat2, by = "type") |> 
-  left_join(stat3, by = "type") |> 
-  mutate(type  = factor(
-    type,
-    c("alim", "comm", "sortie", "sante"),
-    c("Alimentaire", "Commerces non alimentaires", "Bars, restaurants, cinémas", "Santé humaine")))
+stat <- source_data("commerces/stat.R")
 
 tbl1 <- stat |> 
   select(type, n_w, n_cconac, n, 
@@ -233,6 +171,10 @@ tbl2 |>
 ```
 
 ### Indicateur de proximité des aménités pour AMP
+
+L'application de la méthode décrite au dessus à partir des données décrites dans la première section permet de calculer l'indicateur de proximité pour les 4 types d'aménités. Sur les cartes, la coloration est établie après une découpage en quintile, pondéré par la population. Ainsi, la couleur bleu foncée est attribuée aux carreaux dasn lesquels résident les 20% de la population qui a le plus haut niveau de proximité. Comme ce découpage est identique pour les 4 types d'aménité, il n'est pas possible de les comparer entre elles. La @fig-lorenz repose sur la même notion (les quantiles), sans normaliser l'indicateur de proximité.
+
+On observe que de façon commune aux quatre aménités la proximité élevée est une caractéristique des centre villes. C'est vrai pour les arrondissements centraux de Marseille comme pour Aix en Provence, la Ciotat ou Salon de Provence. Ces hauts niveaux de proximité sont liés à la fois à une grande diversité des commerces, un grand nombre de commerce ou de services ainsi qu'une surface cumulée importante. Le centre commercial "Plan de Campagne" appraît également, bien que la population aux alentours soit plutôt faible. Une part importante du territoire habité est associée à une proximité très faible (premier quintile pondéré de proximité)
 
 :::::: {#fig-surfeq_map}
 ::: column-margin
@@ -435,77 +377,13 @@ vqh |>
 Cartes de l'accessibilité aux aménités
 ::::::
 
-### Lien entre les différents indicateurs
 
-Les indicateurs de proximité pour chaque grande catégorie de commerces sont fortement corrélés entre eux. C'est ce qui ressort des graphiques suivants ([@fig-corrcomm]).
-
-```{r}
-#| label: fig-corrcomm
-#| fig-cap: Corrélation entre indicateurs de proximité
-#| fig-asp: 1.3
-
-labels <- set_names(
-  c("Alimentaire", "Commerces non alimentaires", "Bars, restaurants, cinémas", "Santé humaine"), 
-  c("alim","comm","sortie","sante"))
-
-vqh |> 
-  st_drop_geometry() |> 
-  select(ind, se, type, fromidINS) |> 
-  mutate(type = factor(type)) |> 
-  pivot_wider(id_cols = c(fromidINS, ind), names_from = type, values_from = se) |> 
-  pivot_longer(cols = c(comm, sortie, sante), names_to = "ny", values_to = "y") |> 
-  mutate(ny = labels[ny]) |> 
-  ggplot() +
-  geom_hex(aes(x = alim, y=y, weight = ind)) +
-  coord_equal() +
-  scale_x_log10(name = "indicateur de proximité commerces alimentaires", limits = c(1, 1000)) +
-  scale_y_log10(name = "indicateur de proximité (autres que alimentaire)", limits = c(1, 1000)) +
-  scale_fill_gradient(low = "white", high = "steelblue4", name = "individus")+
-  facet_wrap(vars(ny), ncol = 2) +
-  theme_ofce(legend.position = c(1, 0.0),
-             legend.justification = c(1,0),
-             legend.title = element_text(vjust = 1),
-             legend.key.width = unit(36, "pt")) +
-  ofce_caption(
-    source = "C200, Fichiers fonciers, OSM, calculs des auteurs", ofce = FALSE,
-    note = "On découpe le plan composé de l'indicateur de proximité des commerces alimentaires (axe des X) et l'indicateur de proximité des autres commerces (axe des Y) avec des hexagones. On compte à l'intérieur de ces hexagones la population résidente et la couleur est d'autant plus foncée que le nombre d'habitants est élevé. Chaque graphique représente la corrélation entre les indicateurs, ainsi les hexagones en diagonale dans le graphique le plus à cause sont ceux où se trouve la population. On observe 2 pôles (proximité très élevée, le centre de Marseile) et proximité élevée (autres centre-villes).")
-```
-
-### Densité et proximité
-
-Les graphiques suivants ([@fig-denscom]) explorent le lien entre densité et proximité. La corrélation est importante mais moins forte qu'entre les indicateurs.
-
-```{r}
-#| label: fig-denscom
-#| fig-cap: Lien densité accessibilité aux commerces
-#| fig-asp: 1.2
-
-vqh |> 
-  st_drop_geometry() |> 
-  select(ind, se, type, fromidINS) |> 
-  mutate(type = factor(type)) |> 
-  mutate(ltype = labels[type]) |> 
-  ggplot() +
-  geom_hex(aes(x = ind, y=se, weight = ind)) +
-  scale_x_log10(name = "densité", limits = c(5, 5000))+
-  scale_y_log10(name = "indicateur de proximité", limits = c(1, 1000))+
-  coord_equal() +
-  facet_wrap(vars(ltype)) +
-  scale_fill_gradient(low = "white", high = "purple4")+
-  theme_ofce(legend.position = c(0.5, 1),
-             legend.justification = c(0,1),
-             legend.title = element_text(vjust = 1),
-             legend.key.width = unit(36, "pt")) +
-  ofce_caption(
-    source = "C200, Fichiers fonciers, OSM, calculs des auteurs", ofce = FALSE, 
-    note = "On découpe le plan composé de la densité (axe des X) et l'indicateur de proximité des aménités (axe des Y) avec des hexagones. On compte à l'intérieur de ces hexagones la population résidente et la couleur est d'autant plus foncée que le nombre d'habitants est élevé. Chaque graphique représente la corrélation entre les indicateurs de proximité et la densité.") 
-```
 
 ### Localisation des anomalies de proximité {#sec-resprox}
 
 Sur la base de ces données, on construit des modèle simples de régression reliant la densité et la proximité des aménités. Ces modèles sont résumés dans le tableau suivant ([@tbl-sise]).
 
-Le modèle estimé est $log(\mathcal{A}_{c,i}) = c \times log(dens_i) + \varepsilon_i$ où chaque carreau $i$ est une observation et la densité est le nombre d'habitants dans un rayon de 15 minutes à pied ou en transport en commun.
+Le modèle estimé est $log(\mathcal{P}_{c,i}) = c \times log(dens_i) + \varepsilon_i$ où chaque carreau $i$ est une observation et la densité est le nombre d'habitants dans un rayon de 15 minutes à pied ou en transport en commun.
 
 ```{r}
 #| label: tbl-sise
@@ -767,7 +645,7 @@ On confirme cette analyse en effectuant des régressions (log)linéaires en util
 Les observation du modèle estimé sont les zones EMC^2^, indexées par $i$, où le nombre d'individus sondés (présent dans l'EMC^2^) est supérieur à 10. L'équation du modèle est : 
 
 $$
-log(d_i) = a \times log(rev_{uc,i}) + b \times p_{enf,i} + c \times p_{act,i} + d_k \times \mathcal{A}_{i,k} + e + \varepsilon_i
+log(d_i) = a \times log(rev_{uc,i}) + b \times p_{enf,i} + c \times p_{act,i} + d_k \times \mathcal{P}_{i,k} + e + \varepsilon_i
 $$
 
 où les $k$ sont les quantiles, pondérés par la population, de l'indicateur de proximité (ainsi le premier quantile vaut 1 pour les 10% de la population qui ont la proximité la plus faible). Le premier décile est la valeur de référence et n'est pas estimé.
@@ -777,18 +655,25 @@ resemc2 <- source_data("commerces/regresemc2.R")
 ```
 
 
-::: {.column-page-right}
+::: {#fig-regresemc2}
 
 :::: {.panel-tabset}
 
 ## Graphique
 
+::: {.column-margin}
+
 ```{r}
-#| label: fig-regresemc2
-#| fig-cap: Modèles de régression sur les zones de l'EMC^2^
+margin_link(resemc2$res, "residus_emc2_MetAMP", "résidus des régressions de distance")
+
+```
+:::
+
+
+```{r}
 #| fig-asp: 1.2
 
-resemc2$res |> 
+gg <- resemc2$res |> 
   select(mod, starts_with("qd"), starts_with("se_qd")) |> 
   mutate(qd1 = 0, se_qd1 = 0) |> 
   rename_with(.cols = starts_with("qd"), ~str_c("q_", .x)) |> 
@@ -798,7 +683,7 @@ resemc2$res |>
   mutate(
     dec = dec |> str_remove("qd"),
     dec = str_c("d", dec) |> factor(str_c("d", 1:10)),
-    mod = factor(mod, labels )) |> 
+    mod = factor(mod, c("Alimentaire", "Com. non alim.", "Bars, ...", "Santé humaine", "Densité", "Densité pondérée"))) |> 
   pivot_wider(id_cols = c(mod, dec), names_from = type, values_from = value) |> 
   mutate(
     qmin = exp(q - 2*se),
@@ -806,22 +691,29 @@ resemc2$res |>
     q = exp(q)) |> 
   arrange(mod, dec) |> 
   left_join(resemc2$dmc2, by = c("mod", "dec")) |> 
+  mutate(tooltip = glue("<b>{mod}</b><br>décile : {dec}<br>{round(q*100, 1)}% du décile d1<br>Observé : {round(q_data*100)}% du décile d1")) |> 
   ggplot() + 
   facet_wrap(vars(mod), ncol = 2) +
-  geom_pointrange(
-    aes(x = dec, y = q, ymin = qmin, ymax = qmax, color = mod)) + 
+  geom_pointrange_interactive(
+    aes(x = dec, y = q, ymin = qmin, ymax = qmax, color = mod, tooltip = tooltip, data_id = dec),
+    hover_nearest = TRUE) + 
   geom_point(
     aes(x = dec, y = q_data, color = mod),
-    position = position_nudge(x= 0.25))+
-  scale_color_manual(values = c("skyblue2", "skyblue3", "skyblue4", "skyblue1", "orange2", "orange3")) + 
-  theme_ofce()
+    position = position_nudge(x= 0.25), shape = 5)+
+  scale_color_manual(values = c("skyblue2", "skyblue3", "skyblue4", "skyblue1", "orange2", "orange3"), name = NULL) + 
+  ofce_caption(
+    source = "EMC^2^ AMP, C200, Fichiers Fonciers, calculs des auteurs", ofce = FALSE,
+    note = "Le graphique présente l'effet relatif au premier décile de proximité d'un autre décile de proximité sur les distances parcourues pour le motif courses. Ainsi, pour le dernier décile de proximité aux commerces aliementaires, le modèle estimé prévoit des distances parcourues 0,18 fois celles du décile d1. Le losange représente la valeur moyenne pour le décile de proximité d'après l'EMC^2^ AMP.") +
+  theme_ofce() 
+
+girafy(gg)
 ```
 
 ## Tableaux
 
+::: {.column-page-inset-right}
+
 ```{r}
-#| label: tbl-regresemc2
-#| tbl-cap: Modèles de régression sur les zones de l'EMC^2^
 
 resemc2$tbl |> 
   gt() |>
@@ -831,7 +723,7 @@ resemc2$tbl |>
   cols_label(r.squared = md("*R^2^*"), adj.r.squared = md("*adj. R^2^*"), 
              c = "constante", mod = "", rev_uc = md("rev~uc~")) |> 
   tab_options(
-    table.font.size = 12) |> 
+    table.font.size = 10) |> 
   cols_align("left", 1) |> 
   cols_align("center", -1) |> 
   cols_hide(c(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10, 
@@ -846,7 +738,7 @@ resemc2$tbl |>
   cols_label(r.squared = md("*R^2^*"), adj.r.squared = md("*adj. R^2^*"), 
              c = "constante", mod = "", rev_uc = md("rev~uc~")) |> 
   tab_options(
-    table.font.size = 12) |> 
+    table.font.size = 10) |> 
   cols_align("left", 1) |> 
   cols_align("center", -1) |> 
   cols_hide(c(r.squared, adj.r.squared, nobs, rev_uc, enfants, actoccup, c, se) ) |> 
@@ -856,9 +748,15 @@ resemc2$tbl |>
   cols_align("center", -1) 
 
 ```
+:::
 
 ::::
+
+Modèles de régression sur les zones de l'EMC^2^
+
 :::
+
+
 
 ## Densité inversée
 

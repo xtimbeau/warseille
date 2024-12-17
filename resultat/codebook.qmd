@@ -329,6 +329,26 @@ download_link(
 
 -   `r` : résidu de la régression log linéaire (voir [document](#sec-resprox)).
 
+## Modèles de régressions EMC^2^ 
+
+```{r}
+inline_link("residus_emc2_MetAMP", "résidus des régressions de distance")
+```
+
+*Source* : calculs des auteurs à partir des sources citées, voir [document](#fig-regresemc2).
+
+-   `mod` : modèle (la variable explicative de proximité pour les types d'aménité)
+
+-   `nobs` : nombre de zones dans l'échantillon de la régression (les zones avec moins de 10 individus ne sont pas retenues)
+
+-   `r.squared`, `adj.r.squarred` : $R^2$ et $R^2$ ajustés pour les modèles considérés
+
+-   `c`, `qd[2:10]`, `rev_uc`, `actocup`, `enfants`, `se` : coefficients estimés pour les variables correspondantes.
+
+-   `se_c`, `se_``qd[2:10]`, `se_``rev_uc`, `se_``actocup`, `se_``enfants`, `se_``se` : erreur standard des coefficients estimés pour les variables correspondantes.
+
+-   `p_c`, `p_qd[2:10]`, `p_rev_uc`, `p_actocup`, `p_enfants`, `p_se` : *p-value* des coefficients estimés pour les variables correspondantes.
+
 ## CO~2~ pour le motif commerce
 
 ```{r}
