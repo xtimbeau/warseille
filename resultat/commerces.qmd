@@ -34,7 +34,7 @@ bd_read("EMP2019_AA3") |> pluck(1)
 
 Nous proposons une méthode qui consiste à construire :
 
-1.  un indicateur de proximité pour chaque carreau de résidence. Cet indicateur est construit en analysant dans le voisinage de chqeu carreau (par exemple à 15 minutes de marche en retenant le seuil de la ville du quart d'heure) le nombre de commerces, leur diversité et leur taille. En agrégeant ces dimensions, on peut associer à chaque carreau un nombre qui résume la proximité des commerces. Les aménités (ici principalement des commerces ou des services aux ménages) sont connues à partir des fichiers fonciers et des codes utilisateurs NAF qui y sont renseignés. Ceci permet de décliner l'indicateur de proximité selon 4 grands types d'aménités (commerces alimentaires, commerces non alimentaires, sorties, santé humaine). Cet indicateur de proximité synthétise beaucoup d'informations géographiques, mais il n'est pas interprétable directement.
+1.  un indicateur de proximité pour chaque carreau de résidence. Cet indicateur est construit en analysant dans le voisinage de chaque carreau (par exemple à 15 minutes de marche en retenant le seuil de la ville du quart d'heure) le nombre de commerces, leur diversité et leur taille. En agrégeant ces dimensions, on peut associer à chaque carreau un nombre qui résume la proximité des commerces. Les aménités (ici principalement des commerces ou des services aux ménages) sont connues à partir des fichiers fonciers et des codes utilisateurs NAF qui y sont renseignés. Ceci permet de décliner l'indicateur de proximité selon 4 grands types d'aménités (commerces alimentaires, commerces non alimentaires, sorties, santé humaine). Cet indicateur de proximité synthétise beaucoup d'informations géographiques, mais il n'est pas interprétable directement.
 
 2.  A partir de l'Enquête Certifiée CEREMA (EMC^2^), on peut identifier les comportements des ménages et les relier à l'indicateur de proximité. En effet l'EMC^2^ délivre une information de localisation assez fine, permet d'identifier les motifs et de repérer les caractéristiques socio économiques des individus. L'information de localisation correspond peu ou prou à la définition de l'IRIS [@fig-subemc2]. Cette information ne permet pas de construire une matrice origine destination, c'est-à-dire une information comparable à la donnée du recensement MOPBRO, parce que l'EMC^2^ repose sur un échantillon insuffisamment représentatif à la maille de l'IRIS. Pour construire une matrice origine destination détaillée au niveau le plus fin, il faudrait un échantillon bien plus important. En injectant l'indicateur de proximité dans les zones de résidence de l'EMC^2^, on contourne ce problème d'échantillon.
 
@@ -174,7 +174,9 @@ tbl2 |>
 
 L'application de la méthode décrite au dessus à partir des données décrites dans la première section permet de calculer l'indicateur de proximité pour les 4 types d'aménités. Sur les cartes, la coloration est établie après une découpage en quintile, pondéré par la population. Ainsi, la couleur bleu foncée est attribuée aux carreaux dasn lesquels résident les 20% de la population qui a le plus haut niveau de proximité. Comme ce découpage est identique pour les 4 types d'aménité, il n'est pas possible de les comparer entre elles. La @fig-lorenz repose sur la même notion (les quantiles), sans normaliser l'indicateur de proximité.
 
-On observe que de façon commune aux quatre aménités la proximité élevée est une caractéristique des centre villes. C'est vrai pour les arrondissements centraux de Marseille comme pour Aix en Provence, la Ciotat ou Salon de Provence. Ces hauts niveaux de proximité sont liés à la fois à une grande diversité des commerces, un grand nombre de commerce ou de services ainsi qu'une surface cumulée importante. Le centre commercial "Plan de Campagne" appraît également, bien que la population aux alentours soit plutôt faible. Une part importante du territoire habité est associée à une proximité très faible (premier quintile pondéré de proximité)
+On observe que de façon commune aux quatre aménités la proximité élevée est une caractéristique des centre villes. C'est vrai pour les arrondissements centraux de Marseille comme pour Aix en Provence, la Ciotat ou Salon de Provence. Ces hauts niveaux de proximité sont liés à la fois à une grande diversité des commerces, un grand nombre de commerce ou de services ainsi qu'une surface cumulée importante. Le centre commercial "Plan de Campagne" appraît également, bien que la population aux alentours soit plutôt faible. Une part importante du territoire habité est associée à une proximité très faible (premier quintile pondéré de proximité).
+
+D'une aménité à l'autre, le schéma global est conservé. Les aménités "sortie" (bars, restaurants et cinémas) ou "santé humaine" sont plus concentrées spatialement, ce qui est amplifié par le @fig-regsise. La ressemblance n'est toutefois qu'apparente puisque le découpage en quintile écrase les différences. Le lien entre les indicateurs de proxiumité pour les différentes aménités est détaillé en annexe (@fig-corrcomm) ainsi que le lien avec la densité (@fig-denscom).
 
 :::::: {#fig-surfeq_map}
 ::: column-margin
@@ -377,13 +379,86 @@ vqh |>
 Cartes de l'accessibilité aux aménités
 ::::::
 
+###  Répartition de la population en fonction de la proximité
+
+Le graphique suivant est construit en classant la population par proximité croissante. On découpe ensuite en centile la population et on calcule pour chaque centile les valeurs moyennes qui composent l'indicateur de proximité (que l'on peut lire en survolant le graphique avec la souris).
+
+```{r}
+#| label: fig-lorenz
+#| fig-cap: "Courbe de Lorenz, accessibilité aux aménités"
+#| fig-asp: 0.8
+
+vqh <- bd_read("vqh") |>
+  r3035::sidINS2sf(idINS = "fromidINS") |> 
+  mutate(wqse = factor(wqse))
+
+lorenz <- vqh |> 
+  st_drop_geometry() |> 
+  group_by(type) |> 
+  arrange(se) |> 
+  mutate(cumind = cumsum(ind)/sum(ind))
+
+lorenz_redux <- lorenz|> 
+  mutate(
+    cumind = round(cumind,2)) |> 
+  group_by(cumind, type) |> 
+  summarize(
+    se = mean(se),
+    div = mean(div),
+    sa = mean(sa),
+    sb = mean(sb),
+    n = mean(n),
+    n_e = mean(n_e)) |> 
+  group_by(type) |> 
+  mutate(rse = pmax(log(se), 0)/max(log(se))) |> 
+  ungroup() |> 
+  mutate(
+    type = factor(type, c("alim", "sante", "comm", "sortie")),
+    tooltip = glue(
+      "<b>{type}</b>
+      {round(100*cumind)}% des résidents ont une accessibilité aux aménités d'au plus {round(se)} ({round(rse*100)}% du max)
+      Surface équivalente moyenne : {round(se)}
+      Diversité moyenne : {round(div,1)}
+      Surface ajustée moyenne : {round(sa,1)}
+      Surface : {round(sb)}m²
+      Nbre d'unités : {round(n)}
+      Nbre d'espèces : {round(n_e, 1)}"))
+
+src <- str_c("C200, OSM, fichiers fonciers, version ", version)
+
+gg <- ggplot(lorenz) + 
+  aes(x=cumind, y = se, color = type) +
+  geom_step() +
+  geom_point_interactive(
+    shape = 1, size = 0.1, hover_nearest = TRUE,
+    data = lorenz_redux,
+    aes(tooltip = tooltip, data_id = cumind))+
+  theme_ofce(
+    legend.position = c(0.05, 0.95),
+    legend.justification = c(0,1),
+    legend.direction = "vertical" ) + 
+  xlab("% de la population de la métropole AMP") +
+  ylab("Proximité moyenne des aménités") +
+  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", comm = "yellow3"),
+                     labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties"),
+                     name = "") +
+  scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
+  scale_y_log10() +
+  ofce_caption(
+    source = src, ofce = FALSE,
+    note = "Les individus sont classés dans l'ordre de leur proximité aux aménités. 10% de la population d'AMP n'a accès à aucun commerce alimentaire, contre 7% pour les commerces non alimentaires et 12% pour la santé humaine et 14% pour les bars, restaurants et cinéma.",
+    wrap = 100)
+
+girafy(gg, r=1)
+
+```
 
 
 ### Localisation des anomalies de proximité {#sec-resprox}
 
-Sur la base de ces données, on construit des modèle simples de régression reliant la densité et la proximité des aménités. Ces modèles sont résumés dans le tableau suivant ([@tbl-sise]).
+Sur la base de ces données, on construit des modèle simples et linéraire de régression reliant la densité et la proximité des aménités. Ces modèles sont résumés dans le tableau suivant ([@tbl-sise]).
 
-Le modèle estimé est $log(\mathcal{P}_{c,i}) = c \times log(dens_i) + \varepsilon_i$ où chaque carreau $i$ est une observation et la densité est le nombre d'habitants dans un rayon de 15 minutes à pied ou en transport en commun.
+Le modèle estimé est $log(\mathcal{P}_{c,i}) = \alpha \times log(dens_i) + c + \varepsilon_i$ où chaque carreau $i$ est une observation et la densité est le nombre d'habitants dans un rayon de 15 minutes à pied ou en transport en commun.
 
 ```{r}
 #| label: tbl-sise
@@ -405,12 +480,12 @@ lien_se_si |>
     gt() |> 
   fmt_percent(r2, decimals =1) |> 
   fmt_markdown(c ) |> 
-  cols_label(t = "", r2 = md("*R^2^*"), c = md("*c*")) |> 
-  tab_footnote("La proximité synthétique est constuire en ajoutant 5 fois la proximité alimentaire à 3 fois celle des commerces non alimentaires, 2 fois les sorties et une fois la santé humaine, par un raisonnement de fréquence de fréquentation", location = cells_body(columns = t, rows = t == "Synthétique")) |>
+  cols_label(t = "", r2 = md("*R^2^*"), c = md("*\u03b1*")) |> 
+  tab_footnote("La proximité synthétique est construite en ajoutant 5 fois la proximité alimentaire à 3 fois celle des commerces non alimentaires, 2 fois les sorties et une fois la santé humaine, par un raisonnement de fréquence de fréquentation", location = cells_body(columns = t, rows = t == "Synthétique")) |>
   tab_options(quarto.disable_processing = FALSE)
 ```
 
-On peut représenter les résidus de ces modèles sur une carte. Cela donne un indicateur de l'abondance de commerces relativement à la densité de population.
+On peut représenter les résidus de ces modèles sur une carte. Cela donne un indicateur de l'abondance de commerces relativement à la densité de population. Il apparaît que les aménités sont plus concentrées spatialement que la population. Les zones à "excès" d'aménité sont aussi les zones de densité élevée. Cependant, quelques zones font exception, comme le centre commercial "Plan de Campagne", entre Marseille et Aix en Provence.
 
 :::: {#fig-regsise}
 ::: panel-tabset
@@ -515,97 +590,74 @@ ggplot() +
 
 ::: {.column-margin}
 ```{r}
-lien_se_si |> 
+data <- lien_se_si |> 
   filter( m == 1) |>
   select(type = t, residus) |> 
   mutate(type = str_remove(type, "^se_")) |> 
   unnest(residus) |> 
-  mutate(idINS = r3035::expand_idINS(idINS)) |> 
-  vroom::vroom_write("dnwld/residus_prox-dens_MetAMP.csv", delim = ";")
+  mutate(idINS = r3035::expand_idINS(idINS)) 
 
-download_link(
-  "dnwld/residus_prox-dens_MetAMP.csv",
-  icon = "fa fa-download",
-  class = "dbtn", 
-  button_label = "données résidus modèles proximité/densité (log)")
+margin_link(
+  data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
 
 ```
 :::
 
-
-###  Répartition de la population en fonction de la proximité
-
-Le graphique suivant est construit en classant la population par proximité croissante. On découpe ensuite en centile la population et on calcule pour chaque centile les valeurs moyennes qui composent l'indicateur de proximité (que l'on peut lire en survolant le graphique avec la souris).
-
 ```{r}
-#| label: fig-lorenz
-#| fig-cap: "Courbe de Lorenz, accessibilité aux aménités"
-#| fig-asp: 0.8
-
-vqh <- bd_read("vqh") |>
-  r3035::sidINS2sf(idINS = "fromidINS") |> 
-  mutate(wqse = factor(wqse))
-
-lorenz <- vqh |> 
-  st_drop_geometry() |> 
+data <- lien_se_si |>
+  filter(m==1) |> 
+  mutate(type = str_remove(t, "^se_")) |> 
+  select(type, residus) |> 
+  unnest(residus) |> 
+  left_join(bd_read("c200ze") |> select(idINS, ind, ind_snv), by="idINS") |> 
   group_by(type) |> 
-  arrange(se) |> 
-  mutate(cumind = cumsum(ind)/sum(ind))
+  mutate(ndv = scale(ind_snv/ind)[,1],
+         r = scale(r)[,1])
 
-lorenz_redux <- lorenz|> 
-  mutate(
-    cumind = round(cumind,2)) |> 
-  group_by(cumind, type) |> 
-  summarize(
-    se = mean(se),
-    div = mean(div),
-    sa = mean(sa),
-    sb = mean(sb),
-    n = mean(n),
-    n_e = mean(n_e)) |> 
-  group_by(type) |> 
-  mutate(rse = pmax(log(se), 0)/max(log(se))) |> 
-  ungroup() |> 
-  mutate(
-    type = factor(type, c("alim", "sante", "comm", "sortie")),
-    tooltip = glue(
-      "<b>{type}</b>
-      {round(100*cumind)}% des résidents ont une accessibilité aux aménités d'au plus {round(se)} ({round(rse*100)}% du max)
-      Surface équivalente moyenne : {round(se)}
-      Diversité moyenne : {round(div,1)}
-      Surface ajustée moyenne : {round(sa,1)}
-      Surface : {round(sb)}m²
-      Nbre d'unités : {round(n)}
-      Nbre d'espèces : {round(n_e, 1)}"))
-
-src <- str_c("C200, OSM, fichiers fonciers, version ", version)
-
-gg <- ggplot(lorenz) + 
-  aes(x=cumind, y = se, color = type) +
-  geom_step() +
-  geom_point_interactive(
-    shape = 1, size = 0.1, hover_nearest = TRUE,
-    data = lorenz_redux,
-    aes(tooltip = tooltip, data_id = cumind))+
-  theme_ofce(
-    legend.position = c(0.05, 0.95),
-    legend.justification = c(0,1),
-    legend.direction = "vertical" ) + 
-  xlab("% de la population de la métropole AMP") +
-  ylab("Proximité moyenne des aménités") +
-  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", comm = "yellow3"),
-                     labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties"),
-                     name = "") +
-  scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
-  scale_y_log10() +
-  ofce_caption(
-    source = src, ofce = FALSE,
-    note = "Les individus sont classés dans l'ordre de leur proximité aux aménités. 10% de la population d'AMP n'a accès à aucun commerce alimentaire, contre 7% pour les commerces non alimentaires et 12% pour la santé humaine et 14% pour les bars, restaurants et cinéma.",
-    wrap = 100)
-
-girafy(gg, r=1)
+labels <- set_names(labels, names(labels) |> str_remove("^se_"))
 
 ```
+:::: {#fig-resndv}
+
+::: {.panel-tabset}
+
+```{r}
+#| output: asis
+
+
+res <- purrr::map_chr(names(labels), ~ {
+    knitr::knit_child(text = c(
+      "## `r labels[[.x]]`",
+      "", 
+      "```{r}",
+      "#| fig-asp: 1",
+      "ggplot(data |> filter(type == .x)) +",
+      "  geom_hex(aes(x = ndv, y = r)) +",
+      "  coord_equal(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) +",
+      "  xlab('Niveau de vie (standardisé)') +",
+      "  ylab('Excès/déficit de proximité (standardisé)') +",
+      "  scale_fill_gradient(low = 'white', high = 'green3', name = 'individus') +",
+      "  geom_hline(yintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + ",
+      "  geom_vline(xintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + ",
+      "  theme_ofce(
+           legend.key.width = unit(36, 'pt'),
+           legend.title = element_text(vjust = 1)) +",
+      "  ofce_caption(source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs', ofce=FALSE,",
+      "               note = 'On standardise les deux variables (niveau de vie et résidu de proximité) en centrant et réduisant. Le nombre d\u2019individus est indiqué par la couleur.')",
+      "```",
+      "",
+      ""
+    ), envir = environment(), quiet = TRUE)
+  })
+
+cat(res, sep = '\n')
+```
+:::
+
+Niveau de vie vs excès ou déficit de proximité par rapport à la densité
+
+::::
+
 
 ## Proximité et EMC^2^
 
@@ -654,13 +706,6 @@ où les $k$ sont les quantiles, pondérés par la population, de l'indicateur de
 resemc2 <- source_data("commerces/regresemc2.R")
 ```
 
-
-::: {#fig-regresemc2}
-
-:::: {.panel-tabset}
-
-## Graphique
-
 ::: {.column-margin}
 
 ```{r}
@@ -669,6 +714,12 @@ margin_link(resemc2$res, "residus_emc2_MetAMP", "résidus des régressions de di
 ```
 :::
 
+
+::::: {#fig-regresemc2}
+
+:::: {.panel-tabset}
+
+## Graphique
 
 ```{r}
 #| fig-asp: 1.2
@@ -754,7 +805,7 @@ resemc2$tbl |>
 
 Modèles de régression sur les zones de l'EMC^2^
 
-:::
+:::::
 
 
 

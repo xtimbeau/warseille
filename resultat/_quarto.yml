@@ -40,8 +40,8 @@ book:
     - commerces.qmd
     - next.qmd
   appendices:
-    - codebook.qmd
     - annexe_commerces.qmd
+    - codebook.qmd
     
 execute: 
   freeze: auto
