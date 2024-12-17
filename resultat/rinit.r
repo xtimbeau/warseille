@@ -95,7 +95,7 @@ margin_download <- function(data, output_name = "donnees", label = "données") {
   if(knitr::is_html_output()) {
     if(lobstr::obj_size(data)> 1e+5)
       cli::cli_alert("la taille de l'objet est supérieure à 100kB")
-    fn <- str_c("ofce-prev2409-", tolower(output_name))
+    fn <- tolower(output_name)
     downloadthis::download_this(
       data,
       icon = "fa fa-download",
@@ -106,11 +106,36 @@ margin_download <- function(data, output_name = "donnees", label = "données") {
     return(invisible(NULL))
 }
 
+margin_link <- function(data, output_name = "donnees", label = "données") {
+  if(knitr::is_html_output()) {
+    link <- stringr::str_c("dnwld/", output_name, ".csv")
+    vroom::vroom_write(data, link)
+    downloadthis::download_link(
+      link,
+      icon = "fa fa-download",
+      class = "dbtn",
+      button_label  = label)
+  } else
+    return(invisible(NULL))
+}
+
+inline_link <- function(link, label = "données") {
+  if(knitr::is_html_output()) {
+    le_link <- stringr::str_c("dnwld/", link, ".csv")
+    downloadthis::download_link(
+      le_link,
+      icon = "fa fa-download",
+      class = "dbtnlg",
+      button_label  = label)
+  } else
+    return(invisible(NULL))
+}
+
 inline_download <- function(data, label = "données", output_name = "donnees") {
   downloadthis::download_this(
     data,
     icon = "fa fa-download",
-    class = "dbtn-inline",
+    class = "dbtnlg",
     button_label  = label,
     output_name = output_name
   )
