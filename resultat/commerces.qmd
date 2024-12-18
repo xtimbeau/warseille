@@ -595,7 +595,7 @@ data <- lien_se_si |>
   select(type = t, residus) |> 
   mutate(type = str_remove(type, "^se_")) |> 
   unnest(residus) |> 
-  mutate(idINS = r3035::expand_idINS(idINS)) 
+  mutate(idINS = r3035::expand_idINS(idINS))
 
 margin_link(
   data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
@@ -603,60 +603,61 @@ margin_link(
 ```
 :::
 
+Les graphiques suivants (@fig-resndv) permettent de représenter le territoire sous un angle combinant la proximité des commerces (purgée de la densité) et le niveau de vie. Ces grpahiques indiquent une corrélation négative entre l'excès de proximité par rapport à la densité (axe des Y) et le niveau de vie : là où le niveau de vie est plus élevé que la moyenne, la proximité est plutôt plus faible qu'attendue compte tenu de la densité. Cette corrélation est cependant assez faible, laissant de nombreuses situations émerger. 
+Pour les commerces alimentaires ce phénomène est assez marqué : dans le cadran supérieur gauche, proche de l'orgine, (du graphique en haut à gauche du panneau du @fig-resndv) on trouve un nombre important d'individus (les hexagones sont colorés), indiquant une proximité plus élevée que la moyenne et des niveau de vie plutôt inférieurs à la moyenne 
+
 ```{r}
+library(santoku)
+probs <- 1:5
 data <- lien_se_si |>
   filter(m==1) |> 
   mutate(type = str_remove(t, "^se_")) |> 
   select(type, residus) |> 
+  filter(type != "agg") |> 
   unnest(residus) |> 
-  left_join(bd_read("c200ze") |> select(idINS, ind, ind_snv), by="idINS") |> 
+  left_join(bd_read("c200ze") |> st_drop_geometry() |> select(idINS, ind, ind_snv), by="idINS") |> 
+  left_join(vqh |> st_drop_geometry() |> select(type, idINS = fromidINS, se ), by = c("idINS", "type")) |> 
   group_by(type) |> 
-  mutate(ndv = scale(ind_snv/ind)[,1],
-         r = scale(r)[,1])
+  mutate(
+    ind_snv = ind_snv + rnorm(length(ind_snv)),
+    qndv = chop_quantiles(ind_snv/ind, weights = ind, labels = str_c("q", probs), probs = probs/max(probs)),
+    qse = chop_quantiles(se, weights = ind, labels = str_c("q", probs), probs = probs/max(probs)),
+    qr = chop_quantiles(r, weights = ind, labels = str_c("q", probs), probs = probs/max(probs)),
+    ndv = scale(log(ind_snv/ind))[,1],
+    r = scale(r)[,1],
+    se = scale(log(se))[,1]) |> 
+  ungroup()
 
 labels <- set_names(labels, names(labels) |> str_remove("^se_"))
 
 ```
-:::: {#fig-resndv}
-
-::: {.panel-tabset}
 
 ```{r}
-#| output: asis
+#| label: fig-resndv
+#| fig-cap: Niveau de vie vs excès ou déficit de proximité par rapport à la densité
+#| fig-asp: 1.2
+#| cache: FALSE
 
+g2 <- ggplot(data |> filter(type != "agg", between(ndv, -2.5, 2.5), between(r, -2.5, 2.5))) +
+  geom_hex_interactive(
+    aes(x = ndv, y = se, weight = ind, tooltip = after_stat(count)), 
+    binwidth = 0.25) +
+  coord_fixed(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) +
+  xlab('Niveau de vie (log standardisé)') +
+  ylab('Excès/déficit de proximité (log standardisé)') +
+  scale_fill_gradient(low = 'white', high = 'steelblue4', name = 'individus') +
+  geom_hline(yintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + 
+  geom_vline(xintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + 
+  facet_wrap(vars(type), labeller = as_labeller(labels)) +
+  theme_ofce(
+    legend.key.width = unit(36, 'pt'),
+    legend.title = element_text(vjust = 1)) +
+  ofce_caption(
+    source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs', ofce=FALSE,
+    note = 'On standardise les deux variables (niveau de vie et résidu de proximité, en log) en centrant et réduisant. Le nombre d\u2019individus est indiqué par la couleur.')
 
-res <- purrr::map_chr(names(labels), ~ {
-    knitr::knit_child(text = c(
-      "## `r labels[[.x]]`",
-      "", 
-      "```{r}",
-      "#| fig-asp: 1",
-      "ggplot(data |> filter(type == .x)) +",
-      "  geom_hex(aes(x = ndv, y = r)) +",
-      "  coord_equal(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) +",
-      "  xlab('Niveau de vie (standardisé)') +",
-      "  ylab('Excès/déficit de proximité (standardisé)') +",
-      "  scale_fill_gradient(low = 'white', high = 'green3', name = 'individus') +",
-      "  geom_hline(yintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + ",
-      "  geom_vline(xintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + ",
-      "  theme_ofce(
-           legend.key.width = unit(36, 'pt'),
-           legend.title = element_text(vjust = 1)) +",
-      "  ofce_caption(source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs', ofce=FALSE,",
-      "               note = 'On standardise les deux variables (niveau de vie et résidu de proximité) en centrant et réduisant. Le nombre d\u2019individus est indiqué par la couleur.')",
-      "```",
-      "",
-      ""
-    ), envir = environment(), quiet = TRUE)
-  })
-
-cat(res, sep = '\n')
+girafy(g2)
 ```
-:::
-
-Niveau de vie vs excès ou déficit de proximité par rapport à la densité
-
-::::
 
 
 ## Proximité et EMC^2^
@@ -706,8 +707,13 @@ où les $k$ sont les quantiles, pondérés par la population, de l'indicateur de
 resemc2 <- source_data("commerces/regresemc2.R")
 ```
 
-::: {.column-margin}
+::::: {#fig-regresemc2}
 
+:::: {.panel-tabset}
+
+## Graphique
+
+::: {.column-margin}
 ```{r}
 margin_link(resemc2$res, "residus_emc2_MetAMP", "résidus des régressions de distance")
 
@@ -715,14 +721,9 @@ margin_link(resemc2$res, "residus_emc2_MetAMP", "résidus des régressions de di
 :::
 
 
-::::: {#fig-regresemc2}
-
-:::: {.panel-tabset}
-
-## Graphique
-
 ```{r}
-#| fig-asp: 1.2
+#| fig-asp: 1
+#| cache: FALSE
 
 gg <- resemc2$res |> 
   select(mod, starts_with("qd"), starts_with("se_qd")) |> 
@@ -752,19 +753,21 @@ gg <- resemc2$res |>
     aes(x = dec, y = q_data, color = mod),
     position = position_nudge(x= 0.25), shape = 5)+
   scale_color_manual(values = c("skyblue2", "skyblue3", "skyblue4", "skyblue1", "orange2", "orange3"), name = NULL) + 
+  xlab("Déciles de population classée par proximité")+
+  ylab("Effet relatif au d1") +
   ofce_caption(
     source = "EMC^2^ AMP, C200, Fichiers Fonciers, calculs des auteurs", ofce = FALSE,
-    note = "Le graphique présente l'effet relatif au premier décile de proximité d'un autre décile de proximité sur les distances parcourues pour le motif courses. Ainsi, pour le dernier décile de proximité aux commerces aliementaires, le modèle estimé prévoit des distances parcourues 0,18 fois celles du décile d1. Le losange représente la valeur moyenne pour le décile de proximité d'après l'EMC^2^ AMP.") +
+    note = "Le graphique présente l'effet relatif au premier décile de proximité d'un autre décile de proximité sur les distances parcourues pour le motif courses. Ainsi, pour le dernier décile de proximité aux commerces aliementaires, le modèle estimé prévoit des distances parcourues 0,18 fois celles du décile d1. Le losange représente la valeur moyenne observée pour le décile de proximité d'après l'EMC^2^ AMP.") +
   theme_ofce() 
 
-girafy(gg)
+gg |> girafy()
 ```
 
 ## Tableaux
 
-::: {.column-page-inset-right}
-
 ```{r}
+#| column: body-outset-right
+#| cache: FALSE
 
 resemc2$tbl |> 
   gt() |>
@@ -774,12 +777,16 @@ resemc2$tbl |>
   cols_label(r.squared = md("*R^2^*"), adj.r.squared = md("*adj. R^2^*"), 
              c = "constante", mod = "", rev_uc = md("rev~uc~")) |> 
   tab_options(
-    table.font.size = 10) |> 
+    table.font.size = 9) |> 
   cols_align("left", 1) |> 
   cols_align("center", -1) |> 
   cols_hide(c(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10, 
               qd1,qd2,qd3,qd4,qd5,qd6,qd7,qd8,qd9,qd10) ) |> 
   tab_footnote(md("Le coefficient *se* est estimé avec un modèle où les déciles de proximité sont remplacés par le logarithme de la proximité et identique pour les autres facteurs."), locations = cells_column_labels(se))
+```
+```{r}
+#| column: page-inset-right
+#| cache: FALSE
 
 resemc2$tbl |> 
   gt() |>
@@ -789,7 +796,7 @@ resemc2$tbl |>
   cols_label(r.squared = md("*R^2^*"), adj.r.squared = md("*adj. R^2^*"), 
              c = "constante", mod = "", rev_uc = md("rev~uc~")) |> 
   tab_options(
-    table.font.size = 10) |> 
+    table.font.size = 9) |> 
   cols_align("left", 1) |> 
   cols_align("center", -1) |> 
   cols_hide(c(r.squared, adj.r.squared, nobs, rev_uc, enfants, actoccup, c, se) ) |> 
@@ -799,8 +806,6 @@ resemc2$tbl |>
   cols_align("center", -1) 
 
 ```
-:::
-
 ::::
 
 Modèles de régression sur les zones de l'EMC^2^
@@ -808,10 +813,9 @@ Modèles de régression sur les zones de l'EMC^2^
 :::::
 
 
-
 ## Densité inversée
 
-A partir des données de distance (ou de temps de parcours), de la localisation des résidents et des localisations des aménités, on puet construire un indicateur dit de "densité inversée" par lequel on représente la population qu'on balaye (soit à 15 minutes de marche ou de transport en commun, soit à 30 minutes de voiture).
+A partir des données de distance (ou de temps de parcours), de la localisation des résidents et des localisations des aménités, on peut construire un indicateur dit de "densité inversée" par lequel on représente la population qu'on balaye (soit à 15 minutes de marche ou de transport en commun, soit à 30 minutes de voiture).
 
 ```{r}
 #| label: fig-densinv
