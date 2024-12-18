@@ -20,7 +20,7 @@ opts_chunk$set(
   fig.showtext=TRUE,
   cache=FALSE)
 
-source("../secrets/azure.R")
+source("secrets/azure.R")
 
 showtext_opts(dpi=120)
 showtext_auto()
@@ -41,3 +41,4 @@ tkn <- Sys.getenv("mapbox_token")
 mapdeck::set_token(tkn)
 
 style <- "mapbox://styles/xtimbeau/ckyx5exex000r15n0rljbh8od"
+
