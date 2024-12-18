@@ -640,7 +640,7 @@ labels <- set_names(labels, names(labels) |> str_remove("^se_"))
 
 g2 <- ggplot(data |> filter(type != "agg", between(ndv, -2.5, 2.5), between(r, -2.5, 2.5))) +
   geom_hex_interactive(
-    aes(x = ndv, y = se, weight = ind, tooltip = after_stat(count)), 
+    aes(x = ndv, y = r, weight = ind, tooltip = after_stat(count)), 
     binwidth = 0.25) +
   coord_fixed(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) +
   xlab('Niveau de vie (log standardisé)') +

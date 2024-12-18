@@ -6,7 +6,7 @@ title: "Motif commerce, détail des données"
 ofce::init_qmd()
 ```
 
-## Classifications 
+## Classifications
 
 ```{r}
 #| label: tbl-classification
