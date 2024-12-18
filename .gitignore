@@ -40,3 +40,6 @@ resultat/_book
 transit
 transit5
 *.log
+
+resultat/*_files
+resultat/figure
