@@ -16,7 +16,7 @@ book:
   author:
     - name: Xavier Timbeau
     - name: Maxime Parodi
-  reader-mode: true
+  reader-mode: false
   search: true
   page-navigation: true
   bread-crumbs: false
