@@ -58,7 +58,7 @@ contributes:
         - cosmo
         - ofce.scss
       mainfont: Open Sans
-      toc-location: left
+      toc-location: right
       toc-title: Sur cette page
       number-sections: true
       number-depth: 3
