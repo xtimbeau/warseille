@@ -941,6 +941,7 @@ tbl_regression(MOD_freq, exponentiate = TRUE,
   modify_footnote(everything() ~ NA, abbreviation = TRUE)
     
 ```
+Le modèle montre que la probabilité d'effectuer une course en voiture un jour donné diminue à mesure que l'offre de commerces (alimentaires) s'accroît. Une unité de surface équivalente en plus réduit la probabilité d'un facteur de 0,85, ce qui indique un effet assez prononcé sur les comportements. Le fait d'être en couple augmente la probabilité de faire des courses en voiture, tandis qu'avoir des enfants la réduit. L'un dans l'autre, les ménages avec enfants font moins fréquemment des courses en voiture, mais vraisemblablement rationalise plus fortement leurs déplacements et effectuent plus fréquemment des "grosses" courses en voiture. Les actifs ont également tendance à faire moins souvent des courses en voiture, probablement pour la même raison d'une organisation plus serrée et rationalisée des courses. Enfin, le niveau de vie produit aussi un effet : un ménage qui a un niveau de vie de 1000 € supérieur à un autre a une probabilité de faire des courses multipliée par 1,1. 
 
 Le second modèle estime la distance totale parcourue en voiture d'un enquêté qui a fait, le jour observé, au moins une course en voiture. Il s'écrit comme suit :
 
@@ -964,6 +965,8 @@ tbl_regression(MOD_dist,
   modify_footnote(conf.low = NA, abbreviation = TRUE)
 
 ```
+
+Le modèle montre que la distance parcourue en voiture pour faire des courses (ici alimentaires) est d'autant plus faible que l'on dispose de commerces de proximité. Pour chaque unité de surface équivalente supplémentaire dans son voisinage, un résident effectuera non seulement moins souvent ses courses en voiture, mais la distance parcourue sera réduite de 400m. Les personnes vivant en couple et celles ayant des enfants effectueront des trajets un peu plus long en voiture. Une explication possible est que plus la taille d'un ménage augmente, plus ses besoins et envies sont diversifiés et supposent de passer par une plus large gamme de magasins. Enfin, les actifs effectuent des trajets moins long, probablement parce qu'ils résident à proximité des zones denses et des zones d'emploi et, donc, ils vivent en général plus près des commerces que les inactifs.
 
 Une fois les modèles estimés et emboîtés, nous pouvons projeter leur estimation au carreau 200m en suivant la méthode déployée dans @meaps2024a. Pour chaque carreau, on projette la prédiction de comportement pour chaque catégorie de ménage (ici dans chaque carreau, il y a 8 catégories de ménages) et on fait la moyenne des distances projetées par carreau pondérée par la proportion de chaque catégorie dans le carreau. Le niveau de vie n'est connu qu'en moyenne au carreau, il est donc appliqué à toutes les catégories de ménage du carreau. Puis on applique un coefficient fixe pour estimer le niveau de CO~2~ émis par individu et par an au motif commerce.
 
