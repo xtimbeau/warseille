@@ -53,6 +53,9 @@ bibliography: references.bib
 lang: fr
 
 format:
-  ofce-html: default
+  ofce-html:
+    toc-location: right
+    toc-depth: 3
+    toc-expand: true
 
 editor: visual
