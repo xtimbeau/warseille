@@ -36,7 +36,7 @@ Nous proposons une méthode qui exploite plusieurs sources et s'efforce de les r
 
 1.  Tout d'abord, nous construisons un indicateur de proximité des commerces pour chaque carreau de résidence. Cet indicateur est construit en comptant dans le voisinage de chacun de ces carreaux le nombre de commerces, leur diversité et leur taille. La définition du voisinage consiste ici en un seuil de temps de trajets, que nous avons fixé pour l'instant à 15 minutes de marche pour coller à l'idée de ville du quart d'heure. Mais d'autres seuils peuvent être retenus sans difficulté technique. Nous calculons ensuite un indicateur synthétisant la quantité, la diversité et la taille des commerces, de manière à associer à chaque carreau un nombre qui résume la proximité des commerces. Les aménités (ici principalement des commerces ou des services aux ménages) sont connues à partir des fichiers fonciers et des codes utilisateurs NAF qui y sont renseignés. Ceci permet de décliner l'indicateur de proximité selon 4 grands types d'aménités (commerces alimentaires, commerces non alimentaires, sorties, santé humaine). Cet indicateur de proximité synthétise beaucoup d'informations géographiques, mais il n'est pas interprétable directement.
 
-2.  A partir de l'Enquête Certifiée CEREMA (EMC^2^), on peut identifier les comportements des ménages et les relier à l'indicateur de proximité. En effet l'EMC^2^ délivre une information de localisation assez fine, permettant d'identifier les motifs et de repérer les caractéristiques socioéconomiques des individus. L'information de localisation correspond peu ou prou à la définition de l'IRIS [@fig-subemc2]. Cette information ne permet toutefois pas de construire une matrice origine-destination parce que l'EMC^2^ repose sur un échantillon insuffisamment représentatif à la maille de l'IRIS. Pour construire une matrice origine-destination détaillée au niveau le plus fin, il faudrait un échantillon bien plus important. Il est cependant tout à fait possible d'évaluer l'effet moyen de l'indicateur de proximité dans chaque zone de résidence de l'EMC^2^ sur les déplacements moyen au motif "course".
+2.  A partir de l'Enquête Certifiée CEREMA (EMC^2^), on peut identifier les comportements des ménages et les relier à l'indicateur de proximité. En effet l'EMC^2^ délivre une information de localisation assez fine, permettant d'identifier les motifs et de repérer les caractéristiques socioéconomiques des individus. L'information de localisation correspond peu ou prou à la définition de l'IRIS (@fig-subemc2). Cette information ne permet toutefois pas de construire une matrice origine-destination parce que l'EMC^2^ repose sur un échantillon insuffisamment représentatif à la maille de l'IRIS. Pour construire une matrice origine-destination détaillée au niveau le plus fin, il faudrait un échantillon bien plus important. Il est cependant tout à fait possible d'évaluer l'effet moyen de l'indicateur de proximité dans chaque zone de résidence de l'EMC^2^ sur les déplacements moyen au motif "course".
 
 3.  On peut alors estimer des modèles économétriques reliant les distances parcourues et les fréquences aux différentes informations sur l'individu et sur la géographie de son lieu de résidence. Ce modèle peut alors être utilisé pour projeter ces comportements augmentés de la géographie au carreau 200m.
 
@@ -452,9 +452,9 @@ girafy(gg, r=1)
 
 ### Localisation des anomalies de proximité {#sec-resprox}
 
-Sur la base de ces données, on construit des modèle simples et linéraire de régression reliant la densité et la proximité des aménités. Ces modèles sont résumés dans le tableau suivant ([@tbl-sise]).
+Sur la base de ces données, on construit des modèle simples et linéraire de régression reliant la densité et la proximité des aménités. Ces modèles sont résumés dans le tableau suivant (@tbl-sise).
 
-Le modèle estimé est $log(\mathcal{P}_{c,i}) = \alpha \times log(dens_i) + c + \varepsilon_i$ où chaque carreau $i$ est une observation et la densité est le nombre d'habitants dans un rayon de 15 minutes à pied ou en transport en commun.
+Le modèle estimé est $log(\mathcal{P}_{c,i}) = \alpha \times log(dens_i) + \delta + \varepsilon_i$ où chaque carreau $i$ est une observation et la densité est le nombre d'habitants dans un rayon de 15 minutes à pied ou en transport en commun.
 
 ```{r}
 #| label: tbl-sise
@@ -637,25 +637,67 @@ labels <- set_names(labels, names(labels) |> str_remove("^se_"))
 #| fig-asp: 1.2
 #| cache: FALSE
 
-g2 <- ggplot(data |> filter(type != "agg", between(ndv, -2.5, 2.5), between(r, -2.5, 2.5))) +
-  geom_hex_interactive(
-    aes(x = ndv, y = r, weight = ind, tooltip = after_stat(count)), 
-    binwidth = 0.25) +
-  coord_fixed(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) +
-  xlab('Niveau de vie (log standardisé)') +
-  ylab('Excès/déficit de proximité (log standardisé)') +
-  scale_fill_gradient(low = 'white', high = 'steelblue4', name = 'individus') +
-  geom_hline(yintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + 
-  geom_vline(xintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + 
+# g2 <- ggplot(data |> filter(type != "agg", between(ndv, -2.5, 2.5), between(r, -2.5, 2.5))) +
+  # geom_hex_interactive(
+  #   aes(x = ndv, y = r, weight = ind, tooltip = after_stat(count)), 
+  #   binwidth = 0.25) +
+  # coord_fixed(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) +
+  # xlab('Niveau de vie (log standardisé)') +
+  # ylab('Excès/déficit de proximité (log standardisé)') +
+  # scale_fill_gradient(low = 'white', high = 'steelblue4', name = 'individus') +
+  # geom_hline(yintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + 
+  # geom_vline(xintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + 
+  # facet_wrap(vars(type), labeller = as_labeller(labels)) +
+  # theme_ofce(
+  #   legend.key.width = unit(36, 'pt'),
+  #   legend.title = element_text(vjust = 1)) +
+  # ofce_caption(
+  #   source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs', ofce=FALSE,
+  #   note = 'On standardise les deux variables (niveau de vie et résidu de proximité, en log) en centrant et réduisant. Le nombre d\u2019individus est indiqué par la couleur.')
+
+# girafy(g2)
+
+library(legendry)
+
+fmn <- function(x) formatC(signif(x, 3), digits = 3, format='fg', decimal.mark = ",", big.mark=" ")
+
+gdata <- data |> 
+  group_by(type, qr, qndv) |> 
+  summarize(ind = sum(ind), .groups = "drop") |> 
+  mutate(
+    tooltip = glue("<b>{labels[type]}</b><br> {fmn(ind)} individus")
+  )
+  
+ggg <- ggplot(gdata)+
+  geom_point_interactive(
+    aes(x=qndv, y=qr, size = ind, col = type, tooltip = tooltip),
+    alpha = 0.75)+
+  scale_size(range = c(1,10),
+             labels = scales::label_number(scale = 1/1000, suffix="k"), 
+             breaks = c(50000, 100000),
+             name = "Nombre d'individus par cercle",
+             guide = guide_circles( theme = theme(legend.text = element_text(size=6),
+                                                  legend.axis.line = element_line(linewidth = 0.1)) )) + 
   facet_wrap(vars(type), labeller = as_labeller(labels)) +
   theme_ofce(
-    legend.key.width = unit(36, 'pt'),
-    legend.title = element_text(vjust = 1)) +
+    axis.line = element_blank(), 
+    axis.title.x = element_text(margin = margin(t=12)),
+    axis.title.y = element_text(margin = margin(r=12)),
+    legend.justification = c(1,0.5), 
+    legend.title.position = c("left"), 
+    legend.title = element_text(vjust = 0.5, hjust = 0.5, margin = margin(r = 12))
+  ) +
+  xlab("Déciles de niveau de vie")+
+  ylab("Déciles d'excès ou déficit de proximité") +
+  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", comm = "yellow3"),
+                     labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")) +
+  guides(color = "none") +
   ofce_caption(
-    source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs', ofce=FALSE,
-    note = 'On standardise les deux variables (niveau de vie et résidu de proximité, en log) en centrant et réduisant. Le nombre d\u2019individus est indiqué par la couleur.')
+     source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs', ofce=FALSE,
+     note = 'On calcule des quintiles pondéré par la population les deux variables (niveau de vie et résidu de proximité). Le nombre d\u2019individus est indiqué par la couleur et l\u2019aire du cercle.')
 
-girafy(g2)
+
+girafy(ggg) 
 ```
 
 ## Proximité et EMC^2^
@@ -871,7 +913,7 @@ Le premier modèle est la régression logistique suivante :
 
 $$
 \begin{aligned}
-logit(P(c_{car}=1)) = & \alpha \times \mathcal{P}_k + \beta rev_{uc} \\
+logit(P(c_{car}=1)) = & \alpha \times \mathcal{P}_k + \beta \times rev_{uc} \\
 & + \gamma_C \times \mathcal{I}_C + 
 \gamma_E \times \mathcal{I}_E + \gamma_A \times \mathcal{I}_A + \delta
 \end{aligned}
@@ -905,7 +947,7 @@ Le second modèle estime la distance totale parcourue en voiture d'un enquêté 
 
 $$
 \begin{aligned}
-log(d_{car}) = & \alpha^d \times \mathcal{P}_k + \beta^d rev_{uc} \\ 
+log(d_{car}) = & \alpha^d \times \mathcal{P}_k + \beta^d \times rev_{uc} \\ 
 & + \gamma_C^d \times \mathcal{I}_C + \gamma_E^d \times \mathcal{I}_E + \gamma_A^d \times \mathcal{I}_A + \delta^d + \varepsilon
 \end{aligned}
 $$
