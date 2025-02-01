@@ -1,0 +1,1278 @@
+---
+author:
+  - name: Maxime Parodi
+  - name: Xavier Timbeau 
+  - name: Scotia Hille
+bibliography:
+  - references.bib
+cache: TRUE
+---
+
+```{r init, include=FALSE, cache=FALSE}
+uu <- ofce::init_qmd()
+version <- bd_read("version_aa")
+library(paletteer)
+```
+
+
+
+
+
+# Déplacements pour le motif commerce
+
+## Proposition de méthode
+
+L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose sur la disponibilité d'une matrice origine destination très riche, disponible pour chaque année de recensement au niveau intercommunal, décrivant donc les flux de mobilité professionnelle quotidienne usuelle[^commerces2-1] pour toute la France. Cette information est également disponible pour les mobilités scolaires. En revanche, pour les autres motifs de déplacement, on ne dispose pas d'un équivalent.
+
+[^commerces2-1]: Mais sans information de fréquences.
+
+En particulier, les déplacements effectués pour un motif d'achat sont plus complexes à appréhender, en raison de la diversité des type d'achats et de la dispersion des lieux de commerces. Les destinations visées par chaque résident sont ainsi bien plus nombreuses et diversifiés pour ce motif que pour le motif étude ou travail. Or ce motif "courses" est une composante non négligeable des mobilités quotidiennes. Le @tbl-emp donne les valeurs agrégées des distances parcourues en voiture pour un adulte en France hors Ile de France à partir de l'enquête mobilité des personnes certifiée CEREMA de 2019. Le motif "courses" représente 15% des kilomètres parcourus en voiture.
+
+
+
+
+
+```{r}
+#| label: tbl-emp
+#| tbl-cap: Enquête mobilité des personnes 2019, déplacement en voiture
+
+bd_read("EMP2019_AA3") |> pluck(1)
+
+```
+
+
+
+
+
+Nous proposons une méthode qui exploite plusieurs sources et s'efforce de les rapprocher :
+
+1.  Tout d'abord, nous construisons un indicateur de proximité des commerces pour chaque carreau de résidence. Cet indicateur est construit en comptant dans le voisinage de chacun de ces carreaux le nombre de commerces, leur diversité et leur taille. La définition du voisinage consiste ici en un seuil de temps de trajets, que nous avons fixé pour l'instant à 15 minutes de marche pour coller à l'idée de ville du quart d'heure. Mais d'autres seuils peuvent être retenus sans difficulté technique. Nous calculons ensuite un indicateur synthétisant la quantité, la diversité et la taille des commerces, de manière à associer à chaque carreau un nombre qui résume la proximité des commerces. Les aménités (ici principalement des commerces ou des services aux ménages) sont connues à partir des fichiers fonciers et des codes utilisateurs NAF qui y sont renseignés. Ceci permet de décliner l'indicateur de proximité selon 4 grands types d'aménités (commerces alimentaires, commerces non alimentaires, sorties, santé humaine). Cet indicateur de proximité synthétise beaucoup d'informations géographiques, mais il n'est pas interprétable directement.
+
+2.  A partir de l'Enquête Certifiée CEREMA (EMC^2^), on peut identifier les comportements des ménages et les relier à l'indicateur de proximité. En effet l'EMC^2^ délivre une information de localisation assez fine, permettant d'identifier les motifs et de repérer les caractéristiques socioéconomiques des individus. L'information de localisation correspond peu ou prou à la définition de l'IRIS (@fig-subemc2). Cette information ne permet toutefois pas de construire une matrice origine-destination parce que l'EMC^2^ repose sur un échantillon insuffisamment représentatif à la maille de l'IRIS. Pour construire une matrice origine-destination détaillée au niveau le plus fin, il faudrait un échantillon bien plus important. Il est cependant tout à fait possible d'évaluer l'effet moyen de l'indicateur de proximité dans chaque zone de résidence de l'EMC^2^ sur les déplacements moyen au motif "course".
+
+3.  On peut alors estimer des modèles économétriques reliant les distances parcourues et les fréquences aux différentes informations sur l'individu et sur la géographie de son lieu de résidence. Ce modèle peut alors être utilisé pour projeter ces comportements augmentés de la géographie au carreau 200m.
+
+Le périmètre de l'EMC^2^ est plus large que celui de l'EPCI AMP. Nous limitons notre analyse de l'accès aux zones commerciales au périmètre de l'EPCI (AMP) et donc "oublions" les observations de l'EMC^2^ qui sont en dehors.
+
+
+
+
+
+```{r}
+#| label: fig-subemc2
+#| fig-cap: "Subdivisions de l'EMC^2^"
+
+library(ggpattern)
+zones_res <- bd_read("zones_res") |> 
+  mutate(tooltip = glue("<b>{NOM_ZF}</b><br>Commune : {CODE_COM}")) |> 
+  st_transform(4326) |> 
+  st_simplify(dTolerance = 100, preserveTopology = FALSE)
+bb <- st_bbox(zones_res)
+coms <- bd_read("communes") |> filter(SIREN_EPCI == SIREN_EPCI[INSEE_COM=="13101"]) |> st_union()
+ggplot() +
+  bd_read("decor_carte_large") +
+  geom_sf(
+    data = zones_res,
+    mapping= aes(fill = CODE_COM, tooltip = tooltip), 
+    col="white", linewidth = 0.1, alpha = .5, show.legend=FALSE) + 
+  geom_sf_pattern(data=coms, color = "black", linewidth = 0.2, 
+                  fill = "transparent",
+                  pattern_fill = "black",
+                  pattern_color = "transparent",
+                  pattern_density = 0.01,
+                  pattern_spacing = 0.025, 
+                  pattern_angle = 45) +
+  
+  coord_sf(crs = st_crs(4326), xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax)) +
+  theme_ofce_void() +
+  ofce::ofce_caption(source="EMC^2^, Enquête Mobilité Certifiée CEREMA", ofce=FALSE, wrap = 80)
+
+```
+
+
+
+
+
+## Construction d'un indicateur de proximité des aménités
+
+### Sources de données
+
+La première étape est d'identifier les opportunités. Une des difficultés est la versatilité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. Nous proposons ici d’agréger les surfaces commerciales pour chaque carreau en distinguant 4 grandes catégories de commerce. Ces catégories reprennent, avec réinterprétation, le travail réalisé par l'AUPA[^commerces2-2].\
+Notre source principale est celle des fichiers fonciers. Elle donne une information fine sur les secteurs utilisateur du local (code NAF à 5 caractères pour l'entreprise utilisatrice) dans lequel on peut distinguer un commerce de chaussure d'une pharmacie, une supérette d'une grande surface alimentaire. Ce sont des couches agrégées de commerces pour des types de ménages identifiés. Elle permet d'associer au commerce une surface (variable `sprincp` des fichiers fonciers).
+
+[^commerces2-2]: Merci à Théo Shayer, Ludovic Verre et Luc Garnier pour nous avoir partagé leur méthodologie.
+
+Nous classons les commerces en 4 catégories : alimentaire, commerces (non alimentaires), sorties, santé humaine.
+
+La classification est indiquée dans le @tbl-classification. Par rapport aux choix de l'AUPA, nous avons considéré que les pharmacies étaient des commerces "ordinaires" et limité la notion de santé humaine aux cabinets médicaux (généralistes, spécialistes ou dentistes) en excluant les hôpitaux. Comme nous tenons compte de la surface, les hôpîtaux auraient dominé cette catégorie sans que cela ait vraiment du sens. Le but recherché est de quantifier l'usage habituel de la santé et donc la proximité de services de santé.
+
+Les fichiers fonciers, bien que construit pour la perception d'une taxe comportent parfois des informations curieuses, pouvant laisser croire à un bruit. Par exemple, certaines surfaces commerciales sont très importantes (il existe des supérettes de plus de 100 000 m²) ou la notion de surface principale est parfois ambigue (comme le montre celle qui est retenue pour les campings). Nous utilisons donc avec prudence cette donnée en la limitant suivant certaines catégories. Ainsi, le @tbl-cap donne les intervalles dans lesquels sont contraintes les surfaces principales, en accord avec la définition des intitulés des surfaces commerciales.
+
+:::: {#tip-alternatives .callout-tip collapse="true"}
+## Les sources alternatives aux fichiers fonciers
+
+1.  la base des équipements. A notre connaissance, depuis le changement de nomenclature dans la base des fichiers fonciers de 2018, les fichiers fonciers excluent les entités juridiques qui n'ont pas d'activité et cette modification rapproche la source équipement de la source fichiers fonciers.
+2.  Des enquêtes sur les commerces, comme l'enquête BD COM 2020 à Paris, présentée par l'[APUR](https://www.apur.org/dataviz/commerces-paris/). Ce type d'enquête est assez robuste car il repose sur des observations directes des surfaces commerciales ouvertes au public. En revanche, le champ géographique est habituellement trop limité (ici uniquement la commune de Paris). Nous n'avons pas connaissance d'une enquête comparable pour l’agglomération AMP.
+3.  La base de données OpenStreetMap, en accès libre. Réalisée à partir d'une information participative, elle constitue une alternative simple à mobiliser^(a)^. Dans nos analyses préliminaires, elle recoupe assez bien les fichiers fonciers tout en illustrant certains problèmes d'identification (par exemple, des établissements considérés comme "supermarchés" dans les fichiers fonciers sont répertoriés comme épicerie dans OSM et les implémentations (taille du pâté de maison) donnent plutôt raison à OSM. C'est pour limiter cet effet que nous avons borné les surfaces.
+
+::: aside
+a.  Elle contient des informations également sur les trafics illégaux (stupéfiants), ce qui peut être intéressant à exploiter.
+:::
+::::
+
+Nous tenons compte enfin de la diversité des commerces à partir de l'information des fichiers fonciers. Par exemple, pour la catégorie fonctionnelle commerce nous agrégeons les surfaces commerciales, en les multipliant par un indice de diversité qui est minimum lorsqu'une seule espèce de commerce est présente et maximal lorsque toutes les espèces sont représentées. Ce type d'indicateur est souvent utilisé en écologie. Il permet donc de donner plus de poids à un bouquet diversifié de commerce totalisant 1 000 m² plutôt qu'à un unique commerce (un garage disons) de 1 000 m². Ceci est détaillé dans la section suivante.
+
+### Formalisation {#sec-proxform}
+
+Formellement, l'indicateur de proximité des aménités $\mathcal{P}$ est construit comme :
+
+$$
+\mathcal{P}_c  = \left( \sum_{j \in V_{15 \space min}(i), j\in J} {s_j^\alpha \times w_J^{1-\alpha}}\right)^\beta \times  \sum_{j \in V_{15 \space min}(i), j \in J} {\frac {1}{w_J \times p_J^2}} 
+$$
+
+La première partie de l'indicateur $\mathcal{P}_c$ est la somme des surfaces dans le vosinage de chaque carreau de résidents à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie de l'indicateur permet de prendre en compte la diversité des commerces accessibles dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (par exemple, parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifiques). Le paramètre $w_J$ accorde aux catégories un poids en diversité, permettant de compter les grandes surfaces alimentaires comme contribuant plus à la diversité qu'une surface commerciale spécialisée.
+
+Le rôle des paramètres $\alpha$ et $\beta$ est de moduler l'expression $\mathcal{P}_c$. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont comptabilisés, indépendament de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet multiplicatif de la surface.
+
+A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers paramètres ($w_i$, $\alpha$, $\beta$). Nous avons fixé des valeurs a priori, afin de pouvoir étudier des variantes et évaluer la différence d'analyse produite. Nous verrons que l'indicateur est utilisé non pas en tant que tel, mais principalement par quantile, ce qui le rend insensible à des transformations monotones. L'heuristique consiste à choisir $\alpha$ et $w_i$ de façon à ce que les surfaces ne comptent pas trop. Si on considère un groupe de 6 commerces spécialisés de 100m², on souhaite que ces commerces soient comparables à un supermarché de 2500m². En choisissant $w_i = 6$ pour le supermarché et $\alpha = 0.25$ la surface ajustée vaut 3,4 pour les 6 commerces et 4,2 pour le supermarché. Pour des commerces spécialisés de 50m², la surface ajustée serait de 3,1 et de 4,7 pour un hypermarché de 5000 m². Ce choix donne donc une importance modérée aux surfaces.
+
+Le paramètre $\beta$ est choisi de façon à égaliser les rapports inter-quantiles de la surface ajustée. Ceci conduit à donner un poids égal à la diversité et à la surface ajustée pour le calcul de la surface équivalente. En changeant le paramètre $\beta$ on peut modifier ce ratio.
+
+Pour nos 4 grands types de commerces, le tableau suivant résume le nombre d'espèce et quelques statistiques essentielles :
+
+
+
+
+
+```{r}
+#| label: tbl-commerces
+#| tbl-cap: Types de commerces
+#| column: body-outset-right
+
+stat <- source_data("commerces/stat.R")
+tbl1 <- stat |> 
+  select(type, n_w, n_cconac, n, 
+         s_q10, s_q50, s_q90) |> 
+  gt() |> 
+  tab_spanner(label = "surface", columns = starts_with("s_")) |> 
+  tab_spanner(label = "surface ajustée", columns = starts_with("sa_")) |> 
+  tab_spanner(label = "diversité", columns = starts_with("div_")) |> 
+  tab_spanner(label = "surface équivalente", columns = starts_with("se_")) |>
+  cols_label_with(columns = ends_with("_q10"), fn = ~md("1^er^ décile")) |> 
+  cols_label_with(columns = ends_with("_q50"), fn = ~md("médiane")) |>
+  cols_label_with(columns = ends_with("_q90"), fn = ~md("10^e^ décile")) |> 
+  cols_label(type = "", n_w = "Espèces pondérés", n_cconac = "Espèces brutes", n = "Nbr d'unités") |> 
+  cols_align("left", columns = type) |> 
+  fmt_markdown(columns = ) |> 
+  fmt_number(columns = starts_with(c("s_", "sa_", "se_", "div_")), decimals = 1, dec_mark=",")
+
+tbl2 <- stat |> 
+  select(type,
+         sa_q10, sa_q50, sa_q90, 
+         div_q10, div_q50, div_q90,
+         se_q10, se_q50, se_q90 ) |> 
+  gt() |> 
+  tab_spanner(label = "surface", columns = starts_with("s_")) |> 
+  tab_spanner(label = "surface ajustée", columns = starts_with("sa_")) |> 
+  tab_spanner(label = "diversité", columns = starts_with("div_")) |> 
+  tab_spanner(label = "surface équivalente", columns = starts_with("se_")) |>
+  cols_label_with(columns = ends_with("_q10"), fn = ~md("1^er^ décile")) |> 
+  cols_label_with(columns = ends_with("_q50"), fn = ~md("médiane")) |>
+  cols_label_with(columns = ends_with("_q90"), fn = ~md("10^e^ décile")) |> 
+  cols_label(type = "") |> 
+  cols_align("left", columns = type) |> 
+  fmt_markdown(columns = ) |> 
+  fmt_number(columns = starts_with(c("s_", "sa_", "se_", "div_")), decimals = 1, dec_mark=",")
+
+tbl1 |> 
+  tab_options(table.font.size = 10)
+
+tbl2 |> 
+  tab_options(table.font.size = 10)
+```
+
+
+
+
+
+### Indicateur de proximité des aménités pour AMP
+
+L'application de la méthode décrite au dessus à partir des données décrites dans la première section permet de calculer l'indicateur de proximité pour les 4 types d'aménités. Sur les cartes, la coloration est établie après une découpage en quintile, pondéré par la population. Ainsi, la couleur bleu foncée est attribuée aux carreaux dasn lesquels résident les 20% de la population qui a le plus haut niveau de proximité. Comme ce découpage est identique pour les 4 types d'aménité, il n'est pas possible de les comparer entre elles. La @fig-lorenz repose sur la même notion (les quantiles), sans normaliser l'indicateur de proximité.
+
+On observe que de façon commune aux quatre aménités la proximité élevée est une caractéristique des centre villes. C'est vrai pour les arrondissements centraux de Marseille comme pour Aix en Provence, la Ciotat ou Salon de Provence. Ces hauts niveaux de proximité sont liés à la fois à une grande diversité des commerces, un grand nombre de commerce ou de services ainsi qu'une surface cumulée importante. Le centre commercial "Plan de Campagne" appraît également, bien que la population aux alentours soit plutôt faible. Une part importante du territoire habité est associée à une proximité très faible (premier quintile pondéré de proximité).
+
+D'une aménité à l'autre, le schéma global est conservé. Les aménités "sortie" (bars, restaurants et cinémas) ou "santé humaine" sont plus concentrées spatialement, ce qui est amplifié par le @fig-regsise. La ressemblance n'est toutefois qu'apparente puisque le découpage en quintile écrase les différences. Le lien entre les indicateurs de proxiumité pour les différentes aménités est détaillé en annexe (@fig-corrcomm) ainsi que le lien avec la densité (@fig-denscom).
+
+:::::: {#fig-surfeq_map}
+::: column-margin
+
+
+
+
+```{r dnwstat}
+vqh <- bd_read("vqh") |>
+  r3035::sidINS2sf(idINS = "fromidINS") |> 
+  mutate(wqse = factor(wqse))
+
+vqh |>
+  st_drop_geometry() |>
+  mutate(fromidINS = r3035::expand_idINS(fromidINS)) |> 
+  select(-id_s, -id_d, -beta, -s, -wqse, -qse) |> 
+  vroom::vroom_write("dnwld/amenites_idINS_pdvR_MetAMP.csv", delim = ";")
+
+download_link(
+  "dnwld/amenites_idINS_pdvR_MetAMP.csv",
+  icon = "fa fa-download",
+  class = "dbtn", 
+  button_label = "données accessibilité aux aménités au carreau, résidents")
+```
+
+
+
+
+:::
+
+<details name="cac" open>
+
+<summary>Cartes statiques</summary>
+
+::: panel-tabset
+## Alimentation
+
+
+
+
+
+```{r}
+#| fig-asp: 1
+library(sf)
+library(paletteer)
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data = vqh |> filter(type == "alim") ,
+    mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
+  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
+                         name = "Accessibilité alimentaire : ", label = c("très faible", "", "", "", "très élevée"))+
+  theme_ofce_void() +
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) +
+  ofce::ofce_caption(
+    source=glue("C200, OSM, Fichiers fonciers, version {version}"),
+    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).", ofce=FALSE, wrap = 80)
+```
+
+
+
+
+
+## Autres commerces
+
+
+
+
+
+```{r}
+#| fig-asp: 1
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= vqh |> filter(type == "comm"),
+    mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
+  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
+                         name = "Accessibilité autres commerces : ", label = c("très faible", "", "", "", "très élevée"))+
+  theme_ofce_void() +
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) +
+  guides(fill = guide_legend(nrow=1))+
+  ofce::ofce_caption(
+    source=glue("C200, OSM, Fichiers fonciers, version {version}"),
+    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces autres qu'alimentaires).", ofce=FALSE, wrap = 80)
+```
+
+
+
+
+
+## Sorties
+
+
+
+
+
+```{r}
+#| fig-asp: 1
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= vqh |> filter(type == "sortie"),
+    mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
+  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
+                         name = "Accessibilité sorties : ", label = c("très faible", "", "", "", "très élevée"))+
+  theme_ofce_void() +
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) +
+  ofce::ofce_caption(
+    source=glue("C200, OSM, Fichiers fonciers, version {version}"),
+    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici restaurants, bars et cinéma).", ofce=FALSE, wrap = 80)
+```
+
+
+
+
+
+## Santé humaine
+
+
+
+
+
+```{r}
+#| fig-asp: 1
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= vqh |> filter(type == "sante"),
+    mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
+  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
+                         name = "Accessibilité santé humaine : ", label = c("très faible", "", "", "", "très élevée"))+
+  theme_ofce_void() +
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) +
+  ofce::ofce_caption(
+    source=glue("C200, OSM, Fichiers fonciers, version {version}"),
+    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).", ofce=FALSE, wrap = 80)
+
+```
+
+
+
+
+:::
+
+</details>
+
+<details name="cac">
+
+<summary>Cartes interactives</summary>
+
+::: panel-tabset
+## Alimentation
+
+
+
+
+
+```{r }
+
+library(colourvalues)
+pal <- paletteer_d("fishualize::Bodianus_rufus", 5, direction=-1) |> col2rgb() |> t()
+color_txxk <- function(x, min = 1, max = 5, palette = pal, rev=FALSE) {
+  if(rev) {
+    color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
+  } else {
+    color_values(c(min, max, trim(max - x + min, min, max)), palette=palette) |> tail(-2)  
+  }
+}
+legend <- color_values(1:5, palette = pal, summary=TRUE, n_summaries=5)
+le <- legend_element(as.integer(legend$summary_values), rev(legend$summary_colours), "fill", "gradient", "se") |> 
+  mapdeck_legend()
+
+vqh |>
+  filter(type == "alim") |> 
+  transmute(
+    ind,
+    lidINS= r3035::expand_idINS(fromidINS),
+    tooltip=glue::glue(
+      "<b>{type}</b><br>
+    idINS:{lidINS} {ind} individus<br>
+     s: {round(s)}<br>
+     div: {round(div,2)}<br>
+     se: {round(se, 2)}"),
+    cse = color_txxk(as.numeric(wqse))) |>
+  st_transform(4326) |>
+  mapdeck(style = style,
+          height = "60vh",
+          width = "100%") |>
+  add_polygon(fill_colour = "cse",
+              elevation_scale = .5,
+              elevation = "ind",
+              legend = le,
+              tooltip = "tooltip") |>
+  mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
+
+```
+
+
+
+
+
+## Autres commerces
+
+
+
+
+
+```{r }
+
+vqh |>
+  filter(type == "comm") |> 
+  transmute(
+    ind,
+    lidINS= r3035::expand_idINS(fromidINS),
+    tooltip=glue::glue(
+      "<b>{type}</b><br>
+    idINS:{lidINS} {ind} individus<br>
+     s: {round(s)}<br>
+     div: {round(div,2)}<br>
+     se: {round(se, 2)}"),
+    cse = color_txxk(as.numeric(wqse))) |>
+  st_transform(4326) |>
+  mapdeck(style = style,
+          height = "60vh",
+          width = "100%") |>
+  add_polygon(fill_colour = "cse",
+              elevation_scale = .5,
+              elevation = "ind",
+              legend = le,
+              tooltip = "tooltip") |>
+  mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
+```
+
+
+
+
+:::
+
+</details>
+
+Cartes de l'accessibilité aux aménités
+::::::
+
+### Répartition de la population en fonction de la proximité
+
+Le graphique suivant est construit en classant la population par proximité croissante. On découpe ensuite en centile la population et on calcule pour chaque centile les valeurs moyennes qui composent l'indicateur de proximité (que l'on peut lire en survolant le graphique avec la souris).
+
+
+
+
+
+```{r}
+#| label: fig-lorenz
+#| fig-cap: "Courbe de Lorenz, accessibilité aux aménités"
+#| fig-asp: 0.8
+
+vqh <- bd_read("vqh") |>
+  r3035::sidINS2sf(idINS = "fromidINS") |> 
+  mutate(wqse = factor(wqse))
+
+lorenz <- vqh |> 
+  st_drop_geometry() |> 
+  group_by(type) |> 
+  arrange(se) |> 
+  mutate(cumind = cumsum(ind)/sum(ind))
+
+lorenz_redux <- lorenz|> 
+  mutate(
+    cumind = round(cumind,2)) |> 
+  group_by(cumind, type) |> 
+  summarize(
+    se = mean(se),
+    div = mean(div),
+    sa = mean(sa),
+    sb = mean(sb),
+    n = mean(n),
+    n_e = mean(n_e)) |> 
+  group_by(type) |> 
+  mutate(rse = pmax(log(se), 0)/max(log(se))) |> 
+  ungroup() |> 
+  mutate(
+    type = factor(type, c("alim", "sante", "comm", "sortie")),
+    tooltip = glue(
+      "<b>{type}</b>
+      {round(100*cumind)}% des résidents ont une accessibilité aux aménités d'au plus {round(se)} ({round(rse*100)}% du max)
+      Surface équivalente moyenne : {round(se)}
+      Diversité moyenne : {round(div,1)}
+      Surface ajustée moyenne : {round(sa,1)}
+      Surface : {round(sb)}m²
+      Nbre d'unités : {round(n)}
+      Nbre d'espèces : {round(n_e, 1)}"))
+
+src <- str_c("C200, OSM, fichiers fonciers, version ", version)
+
+gg <- ggplot(lorenz) + 
+  aes(x=cumind, y = se, color = type) +
+  geom_step() +
+  geom_point_interactive(
+    shape = 1, size = 0.1, hover_nearest = TRUE,
+    data = lorenz_redux,
+    aes(tooltip = tooltip, data_id = cumind))+
+  theme_ofce(
+    legend.position = c(0.05, 0.95),
+    legend.justification = c(0,1),
+    legend.direction = "vertical" ) + 
+  xlab("% de la population de la métropole AMP") +
+  ylab("Proximité moyenne des aménités") +
+  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", comm = "yellow3"),
+                     labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties"),
+                     name = "") +
+  scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
+  scale_y_log10() +
+  ofce_caption(
+    source = src, ofce = FALSE,
+    note = "Les individus sont classés dans l'ordre de leur proximité aux aménités. 10% de la population d'AMP n'a accès à aucun commerce alimentaire, contre 7% pour les commerces non alimentaires et 12% pour la santé humaine et 14% pour les bars, restaurants et cinéma.",
+    wrap = 100)
+
+girafy(gg, r=1)
+
+```
+
+
+
+
+
+### Localisation des anomalies de proximité {#sec-resprox}
+
+Sur la base de ces données, on construit des modèle simples et linéraire de régression reliant la densité et la proximité des aménités. Ces modèles sont résumés dans le tableau suivant (@tbl-sise).
+
+Le modèle estimé est $log(\mathcal{P}_{c,i}) = \alpha \times log(dens_i) + \delta + \varepsilon_i$ où chaque carreau $i$ est une observation et la densité est le nombre d'habitants dans un rayon de 15 minutes à pied ou en transport en commun.
+
+
+
+
+
+```{r}
+#| label: tbl-sise
+#| tbl-cap: Modèles de régression densité/proximité
+#| html-table-processing: none
+
+lien_se_si <- bd_read("lien_se_si")
+
+labels <- set_names(
+  c("Alimentaire", "Commerces non alimentaires", "Bars, restaurants, cinémas", "Santé humaine", "Synthétique"), 
+  c("se_alim","se_comm","se_sortie","se_sante", "se_agg"))
+
+lien_se_si |>
+  filter(m == 1) |> 
+  select(t, r2, c, se ) |> 
+  mutate(t = labels[t],
+         c = glue("{round(c,2)}<br>({round(se,3)})")) |> 
+  select(-se) |> 
+    gt() |> 
+  fmt_percent(r2, decimals =1) |> 
+  fmt_markdown(c ) |> 
+  cols_label(t = "", r2 = md("*R^2^*"), c = md("*\u03b1*")) |> 
+  tab_footnote("La proximité synthétique est construite en ajoutant 5 fois la proximité alimentaire à 3 fois celle des commerces non alimentaires, 2 fois les sorties et une fois la santé humaine, par un raisonnement de fréquence de fréquentation", location = cells_body(columns = t, rows = t == "Synthétique")) |>
+  tab_options(quarto.disable_processing = FALSE)
+```
+
+
+
+
+
+On peut représenter les résidus de ces modèles sur une carte. Cela donne un indicateur de l'abondance de commerces relativement à la densité de population. Il apparaît que les aménités sont plus concentrées spatialement que la population. Les zones à "excès" d'aménité sont aussi les zones de densité élevée. Cependant, quelques zones font exception, comme le centre commercial "Plan de Campagne", entre Marseille et Aix en Provence.
+
+:::: {#fig-regsise}
+::: panel-tabset
+## Alimentaire
+
+
+
+
+
+```{r}
+#| fig-asp: 1
+data <- lien_se_si |> filter(t == "se_alim", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf( data = data, aes(fill = r, col = r)) +
+  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
+                         aesthetics = c("fill", "color"),
+                         trans = pseudo_log_trans()) +
+  theme_ofce_void(legend.position = "bottom",
+             legend.key.width = unit(36, "pt"), legend.key.height = unit(6, "pt")) +
+  ofce_caption(
+    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
+    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (commerces alimentaires) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.", ofce = FALSE)
+```
+
+
+
+
+
+## Non alim.
+
+
+
+
+
+```{r}
+#| fig-asp: 1
+
+data <- lien_se_si |> filter(t == "se_comm", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf( data = data, aes(fill = r, col = r)) +
+  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
+                         aesthetics = c("fill", "color"),
+                         trans = pseudo_log_trans()) +
+  theme_ofce_void(legend.position = "bottom",
+             legend.key.width = unit(36, "pt"), legend.key.height = unit(6, "pt")) +
+  ofce_caption(
+    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
+    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (commerces non alimentaires) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.", ofce = FALSE)
+```
+
+
+
+
+
+## Sorties
+
+
+
+
+
+```{r}
+#| fig-asp: 1
+
+data <- lien_se_si |> filter(t == "se_sortie", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf( data = data, aes(fill = r, col=r)) +
+  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging",
+                         aesthetics = c("fill", "color"),
+                         trans = pseudo_log_trans()) +
+  theme_ofce_void(legend.position = "bottom",
+             legend.key.width = unit(36, "pt"), legend.key.height = unit(6, "pt")) +
+  ofce_caption(
+    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
+    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (bars, restaurants, cinémas) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.", ofce = FALSE)
+```
+
+
+
+
+
+## Santé humaine
+
+
+
+
+
+```{r}
+#| fig-asp: 1
+
+data <- lien_se_si |> filter(t == "se_sante", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf( data = data, aes(fill = r, col = r)) +
+  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
+                         aesthetics = c("fill", "color"),
+                         trans = pseudo_log_trans())  +
+  theme_ofce_void(legend.position = "bottom",
+             legend.key.width = unit(36, "pt"), 
+             legend.key.height = unit(6, "pt")) +
+  ofce_caption(
+    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
+    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (santé humaine) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.", ofce = FALSE)
+```
+
+
+
+
+
+## Synth.
+
+
+
+
+
+```{r}
+#| fig-asp: 1
+
+data <- lien_se_si |> filter(t == "se_agg", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf( data = data, aes(fill = r, col = r)) +
+  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
+                         aesthetics = c("fill", "color"),
+                         trans = pseudo_log_trans(), name = NULL) +
+  theme_ofce_void(legend.position = "bottom",
+             legend.key.width = unit(36, "pt"), 
+             legend.key.height = unit(6, "pt")) +
+  ofce_caption(
+    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
+    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (synthétique) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.", ofce = FALSE)
+```
+
+
+
+
+:::
+::::
+
+::: column-margin
+
+
+
+
+```{r}
+data <- lien_se_si |> 
+  filter( m == 1) |>
+  select(type = t, residus) |> 
+  mutate(type = str_remove(type, "^se_")) |> 
+  unnest(residus) |> 
+  mutate(idINS = r3035::expand_idINS(idINS))
+
+margin_link(
+  data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
+
+```
+
+
+
+
+:::
+
+Les graphiques suivants (@fig-resndv) permettent de représenter le territoire sous un angle combinant la proximité des commerces (purgée de la densité) et le niveau de vie. Ces grpahiques indiquent une corrélation négative entre l'excès de proximité par rapport à la densité (axe des Y) et le niveau de vie : là où le niveau de vie est plus élevé que la moyenne, la proximité est plutôt plus faible qu'attendue compte tenu de la densité. Cette corrélation est cependant assez faible, laissant de nombreuses situations émerger. Pour les commerces alimentaires ce phénomène est assez marqué : dans le cadran supérieur gauche, proche de l'orgine, (du graphique en haut à gauche du panneau du @fig-resndv) on trouve un nombre important d'individus (les hexagones sont colorés), indiquant une proximité plus élevée que la moyenne et des niveau de vie plutôt inférieurs à la moyenne
+
+
+
+
+
+```{r}
+library(santoku)
+probs <- 1:5
+data <- lien_se_si |>
+  filter(m==1) |> 
+  mutate(type = str_remove(t, "^se_")) |> 
+  select(type, residus) |> 
+  filter(type != "agg") |> 
+  unnest(residus) |> 
+  left_join(bd_read("c200ze") |> st_drop_geometry() |> select(idINS, ind, ind_snv), by="idINS") |> 
+  left_join(vqh |> st_drop_geometry() |> select(type, idINS = fromidINS, se ), by = c("idINS", "type")) |> 
+  group_by(type) |> 
+  mutate(
+    ind_snv = ind_snv + rnorm(length(ind_snv)),
+    qndv = chop_quantiles(ind_snv/ind, weights = ind, labels = str_c("q", probs), probs = probs/max(probs)),
+    qse = chop_quantiles(se, weights = ind, labels = str_c("q", probs), probs = probs/max(probs)),
+    qr = chop_quantiles(r, weights = ind, labels = str_c("q", probs), probs = probs/max(probs)),
+    ndv = scale(log(ind_snv/ind))[,1],
+    r = scale(r)[,1],
+    se = scale(log(se))[,1]) |> 
+  ungroup()
+
+labels <- set_names(labels, names(labels) |> str_remove("^se_"))
+
+```
+
+```{r}
+#| label: fig-resndv
+#| fig-cap: Niveau de vie vs excès ou déficit de proximité par rapport à la densité
+#| fig-asp: 1.2
+#| cache: FALSE
+
+# g2 <- ggplot(data |> filter(type != "agg", between(ndv, -2.5, 2.5), between(r, -2.5, 2.5))) +
+  # geom_hex_interactive(
+  #   aes(x = ndv, y = r, weight = ind, tooltip = after_stat(count)), 
+  #   binwidth = 0.25) +
+  # coord_fixed(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) +
+  # xlab('Niveau de vie (log standardisé)') +
+  # ylab('Excès/déficit de proximité (log standardisé)') +
+  # scale_fill_gradient(low = 'white', high = 'steelblue4', name = 'individus') +
+  # geom_hline(yintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + 
+  # geom_vline(xintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + 
+  # facet_wrap(vars(type), labeller = as_labeller(labels)) +
+  # theme_ofce(
+  #   legend.key.width = unit(36, 'pt'),
+  #   legend.title = element_text(vjust = 1)) +
+  # ofce_caption(
+  #   source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs', ofce=FALSE,
+  #   note = 'On standardise les deux variables (niveau de vie et résidu de proximité, en log) en centrant et réduisant. Le nombre d\u2019individus est indiqué par la couleur.')
+
+# girafy(g2)
+
+library(legendry)
+
+fmn <- function(x) formatC(signif(x, 3), digits = 3, format='fg', decimal.mark = ",", big.mark=" ")
+
+gdata <- data |> 
+  group_by(type, qr, qndv) |> 
+  summarize(ind = sum(ind), .groups = "drop") |> 
+  mutate(
+    tooltip = glue("<b>{labels[type]}</b><br> {fmn(ind)} individus")
+  )
+  
+ggg <- ggplot(gdata)+
+  geom_point_interactive(
+    aes(x=qndv, y=qr, size = ind, col = type, tooltip = tooltip),
+    alpha = 0.75)+
+  scale_size(range = c(1,10),
+             labels = scales::label_number(scale = 1/1000, suffix="k"), 
+             breaks = c(50000, 100000),
+             name = "Nombre d'individus par cercle",
+             guide = guide_circles( theme = theme(legend.text = element_text(size=6),
+                                                  legend.axis.line = element_line(linewidth = 0.1)) )) + 
+  facet_wrap(vars(type), labeller = as_labeller(labels)) +
+  theme_ofce(
+    axis.line = element_blank(), 
+    axis.title.x = element_text(margin = margin(t=12)),
+    axis.title.y = element_text(margin = margin(r=12)),
+    legend.justification = c(1,0.5), 
+    legend.title.position = c("left"), 
+    legend.title = element_text(vjust = 0.5, hjust = 0.5, margin = margin(r = 12))
+  ) +
+  xlab("Déciles de niveau de vie")+
+  ylab("Déciles d'excès ou déficit de proximité") +
+  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", comm = "yellow3"),
+                     labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")) +
+  guides(color = "none") +
+  ofce_caption(
+     source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs', ofce=FALSE,
+     note = 'On calcule des quintiles pondéré par la population les deux variables (niveau de vie et résidu de proximité). Le nombre d\u2019individus est indiqué par la couleur et l\u2019aire du cercle.')
+
+
+girafy(ggg) 
+```
+
+
+
+
+
+## Proximité et EMC^2^
+
+On injecte les indicateurs d'accès aux commerces (les 4 types) ainsi que deux indicateurs de densité (densité simple et pondérée par la population) dans les zones de résidence de l'EMC^2^ AMP. On peut alors confronter les distances parcourues en voiture à la valeur moyenne des indicateurs sur chacune des zones. Le graphique indique une nette corrélation négative pour les 6 indicateurs retenus, ici découpés en quantile. Ce type de graphique permet de calibrer l'indicateur sur la distance parcourue.
+
+
+
+
+
+```{r}
+#| label: fig-emc2alim
+#| fig-cap: Distance parcourue par décile de proximité aux aménités
+#| fig-asp: 1
+
+data_emc2 <- source_data("commerces/data_emc2.R")
+
+ggplot(data_emc2$d |> filter(!is.na(q), n>10))+
+  aes(x = q, y = d_car, color = type) +
+  facet_wrap(vars(type), ncol = 2, labeller = as_labeller(data_emc2$labels)) +
+  scale_color_manual(values = c("skyblue2", "skyblue3", "skyblue4", "skyblue1", "orange2", "orange3")) + 
+  geom_boxplot(outliers = FALSE, show.legend = FALSE, linewidth = 0.25) + 
+  xlab("décile de population classée selon la proximité") +
+  ylab("Distance parcourue moyenne pour les courses en voiture")+
+  theme_ofce() +
+  ofce_caption(
+    source = "EMC^2^, C200, Fichiers fonciers, calculs des auteurs", ofce = FALSE, 
+    note = "On définit les déciles de proximité par rapport à la population, classée par proximité. Le premier décile de proximité est donc celui pour lequel les 10% de la population le moins proches des commerces ou des services sont. Les boites à moustache représentent à l'intérieur d'un décile de proximité la diversité des distances parcourues.")
+
+```
+
+
+
+
+
+On confirme cette analyse en effectuant des régressions (log)linéaires en utilisant les déciles des indicateurs en variables explicatives. 3 variables de contrôle ont été ajoutées (revenu par unité de consommation moyen de la zone (en log), part des individus avec enfants dans la population, part des actifs occupés dans la population). Les résultats confirment les éléments déjà vus. Les zones de résidence qui comportent moins de 10 individus sondés par l'EMC^2^ sont exclues de l'analyse sans que cela ne modifie véritablement les résultats.
+
+1.  les indicateurs des différentes aménités (regroupées en 4 grandes catégories) sont très proches en termes d'explication de la distance parcourue en voiture. La densité ou la densité pondérée expliquent également les distances parcourues en voiture, avec quelques nuances (par exemple, le revenu ne joue plus). Les variables de contrôle (part des individus avec enfants, part des actifs occupés) sont significatifs, d'un signe interprétable et assez constants parmi les variables expliquées.
+
+2.  La distance parcourue décroît nettement avec l'accessibilité aux commerces ou la densité. Ce résultat important valide la construction de ces indicateurs et permet de les calibrer. Par ailleurs, l'effet trouvé est important, puisque entre le premier décile d'accès aux aménités (en gros pas d'aménités accessibles à pied en moins de 15 minutes) et le dernier (zones très denses et très dotées) est de l'ordre de 4 (entre ×4,3 et ×3,1 suivant les indicateurs)[^commerces2-4].
+
+3.  Les coefficients estimés permettent éventuellement de distinguer des catégories d'accessibilité, en regroupant les déciles quant ils ont des coefficients proches. En se basant sur l'indicateur pour les commerces alimentaires, les 3 premiers déciles peuvent être regroupés en une seule catégorie où l'accessibilité aux aménités n'est pas assez élevée pour empêcher l'utilisation de la voiture. D'après le @fig-lorenz, cela correspond à un niveau de proximité moyen aux commerces alimentaires d'environ 32 (surface équivalente) ce qui est relativement élevé : en moyenne la diversité y atteint 5,7, soit un peu plus de la moitié de la diversité maximale et la surface brute est de l'ordre de 500 m² de surface commerciale. C'est quelque chose qui correspond à 3 commerces alimentaires. On peut ensuite inclure les 3 déciles suivants, pour un effet de réduction de 1,5 des distances parcourues et les 4 derniers déciles, avec une distinction possible pour le dernier décile. Cette catégorisation illustre le calibrage que permet l'analyse de régression.
+
+[^commerces2-4]: Cette valeur se lit sur le tableau en prenant le coefficient du dernier décile, moins celui du premier (égal à 0 par référence) et en élevant $e$ à la puissance de cette différence.
+
+Les observation du modèle estimé sont les zones EMC^2^, indexées par $i$, où le nombre d'individus sondés (présent dans l'EMC^2^) est supérieur à 10. L'équation du modèle est :
+
+$$
+log(d_i) = a \times log(rev_{uc,i}) + b \times p_{enf,i} + c \times p_{act,i} + d_k \times \mathcal{P}_{i,k} + e + \varepsilon_i
+$$
+
+où les $k$ sont les quantiles, pondérés par la population, de l'indicateur de proximité (ainsi le premier quantile vaut 1 pour les 10% de la population qui ont la proximité la plus faible). Le premier décile est la valeur de référence et n'est pas estimé.
+
+
+
+
+
+```{r}
+resemc2 <- source_data("commerces/regresemc2.R")
+```
+
+
+
+
+
+::::: {#fig-regresemc2}
+:::: panel-tabset
+## Graphique
+
+::: column-margin
+
+
+
+
+```{r}
+margin_link(resemc2$res, "residus_emc2_MetAMP", "résidus des régressions de distance")
+
+```
+
+
+
+
+:::
+
+
+
+
+
+```{r}
+#| fig-asp: 1
+#| cache: FALSE
+
+gg <- resemc2$res |> 
+  select(mod, starts_with("qd"), starts_with("se_qd")) |> 
+  mutate(qd1 = 0, se_qd1 = 0) |> 
+  rename_with(.cols = starts_with("qd"), ~str_c("q_", .x)) |> 
+  pivot_longer(cols = c(starts_with("q_qd"), starts_with("se_qd")),
+               names_sep = "_", 
+               names_to = c("type", "dec")) |> 
+  mutate(
+    dec = dec |> str_remove("qd"),
+    dec = str_c("d", dec) |> factor(str_c("d", 1:10)),
+    mod = factor(mod, c("Alimentaire", "Com. non alim.", "Bars, ...", "Santé humaine", "Densité", "Densité pondérée"))) |> 
+  pivot_wider(id_cols = c(mod, dec), names_from = type, values_from = value) |> 
+  mutate(
+    qmin = exp(q - 2*se),
+    qmax = exp(q + 2*se),
+    q = exp(q)) |> 
+  arrange(mod, dec) |> 
+  left_join(resemc2$dmc2, by = c("mod", "dec")) |> 
+  mutate(tooltip = glue("<b>{mod}</b><br>décile : {dec}<br>{round(q*100, 1)}% du décile d1<br>Observé : {round(q_data*100)}% du décile d1")) |> 
+  ggplot() + 
+  facet_wrap(vars(mod), ncol = 2) +
+  geom_pointrange_interactive(
+    aes(x = dec, y = q, ymin = qmin, ymax = qmax, color = mod, tooltip = tooltip, data_id = dec),
+    hover_nearest = TRUE) + 
+  geom_point(
+    aes(x = dec, y = q_data, color = mod),
+    position = position_nudge(x= 0.25), shape = 5)+
+  scale_color_manual(values = c("skyblue2", "skyblue3", "skyblue4", "skyblue1", "orange2", "orange3"), name = NULL) + 
+  xlab("Déciles de population classée par proximité")+
+  ylab("Effet relatif au d1") +
+  ofce_caption(
+    source = "EMC^2^ AMP, C200, Fichiers Fonciers, calculs des auteurs", ofce = FALSE,
+    note = "Le graphique présente l'effet relatif au premier décile de proximité d'un autre décile de proximité sur les distances parcourues pour le motif courses. Ainsi, pour le dernier décile de proximité aux commerces aliementaires, le modèle estimé prévoit des distances parcourues 0,18 fois celles du décile d1. Le losange représente la valeur moyenne observée pour le décile de proximité d'après l'EMC^2^ AMP.") +
+  theme_ofce()
+
+gg |> girafy()
+```
+
+
+
+
+
+## Tableaux
+
+
+
+
+
+```{r}
+#| column: body-outset-right
+#| cache: FALSE
+
+resemc2$tbl |> 
+  gt() |>
+  fmt_markdown(c(r.squared, adj.r.squared,rev_uc, enfants, actoccup,
+                 c, se, d1,d2,d3,d4,d5,d6,d7,d8,d9,d10)) |> 
+  fmt_percent(c(r.squared, adj.r.squared), decimals = 1) |> 
+  cols_label(r.squared = md("*R^2^*"), adj.r.squared = md("*adj. R^2^*"), 
+             c = "constante", mod = "", rev_uc = md("rev~uc~")) |> 
+  tab_options(
+    table.font.size = 9) |> 
+  cols_align("left", 1) |> 
+  cols_align("center", -1) |> 
+  cols_hide(c(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10, 
+              qd1,qd2,qd3,qd4,qd5,qd6,qd7,qd8,qd9,qd10) ) |> 
+  tab_footnote(md("Le coefficient *se* est estimé avec un modèle où les déciles de proximité sont remplacés par le logarithme de la proximité et identique pour les autres facteurs."), locations = cells_column_labels(se))
+```
+
+```{r}
+#| column: page-inset-right
+#| cache: FALSE
+
+resemc2$tbl |> 
+  gt() |>
+  fmt_markdown(c(r.squared, adj.r.squared,rev_uc, enfants, actoccup,
+                 c, se, d1,d2,d3,d4,d5,d6,d7,d8,d9,d10)) |> 
+  fmt_percent(c(r.squared, adj.r.squared), decimals = 1) |> 
+  cols_label(r.squared = md("*R^2^*"), adj.r.squared = md("*adj. R^2^*"), 
+             c = "constante", mod = "", rev_uc = md("rev~uc~")) |> 
+  tab_options(
+    table.font.size = 9) |> 
+  cols_align("left", 1) |> 
+  cols_align("center", -1) |> 
+  cols_hide(c(r.squared, adj.r.squared, nobs, rev_uc, enfants, actoccup, c, se) ) |> 
+  cols_nanoplot(starts_with("qd"), plot_type = "bar", new_col_name = "deciles") |> 
+  cols_label(deciles = "déciles") |> 
+  cols_align("left", 1) |> 
+  cols_align("center", -1) 
+
+```
+
+
+
+
+::::
+
+Modèles de régression sur les zones de l'EMC^2^
+:::::
+
+## Densité inversée
+
+A partir des données de distance (ou de temps de parcours), de la localisation des résidents et des localisations des aménités, on peut construire un indicateur dit de "densité inversée" par lequel on représente pour chaque carreau la population qu'on peut atteindre soit à 15 minutes de marche ou de transport en commun, soit à 30 minutes de voiture.
+
+
+
+
+
+```{r}
+#| label: fig-densinv
+#| fig-cap: "Densité inversée, 15 minutes marche à pied et TC et 30 minutes en voiture"
+#| fig-asp: 1
+
+dens_inv <- bd_read("dens_inv") |> 
+  group_by(idINS) |>
+  summarize(
+    scot = first(scot),
+    si_w = first(si_w),
+    si_c = first(si_c)) |> 
+  filter(!is.na(si_w)|!is.na(si_c)) |> 
+  mutate(
+    qsiw = as.numeric(cut(si_w, quantile(si_w, probs = 0:5/5, na.rm=TRUE), include.lowest = TRUE)),
+    qsic = as.numeric(cut(si_c, quantile(si_c, probs = 0:5/5, na.rm=TRUE), include.lowest = TRUE))) |> 
+  select(idINS, qsic, qsiw, scot) |> 
+  ungroup() |> 
+  pivot_longer(cols = c(qsic, qsiw))  |> 
+  drop_na() |> 
+  mutate(value = factor(value),
+         name = factor(name, c("qsiw", "qsic"), c("Marche ou TC (15 min.)", "Voiture (30 min.)"))) |> 
+  r3035::sidINS2sf()
+
+bb <- bd_read("communes") |> 
+  filter(INSEE_COM %in% c("13028", "13088", "13050", "13048")) |>
+  st_transform(3035) |> 
+  st_bbox()
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data = dens_inv |> filter(scot),
+    mapping = aes(fill = value, color = value), linewidth = 0.1) + 
+  scale_fill_paletteer_d("fishualize::Bodianus_rufus", 
+                         direction=1, 
+                         label = c("très faible", "", "", "", "très élevée"), name = "Densité inversée")+
+  scale_color_paletteer_d("fishualize::Bodianus_rufus", 
+                         direction=1, 
+                         label = c("très faible", "", "", "", "très élevée"), name = "Densité inversée")+
+  theme_ofce_void() +
+  facet_wrap(vars(name)) +
+  coord_sf(xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax), crs = st_crs(3035)) +
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) +
+  ofce_caption(
+    source = "C200, Fichiers fonciers, OSM, cacluls des auteurs", ofce = FALSE,
+    note = "La densité inversée consiste à évaluer le nombre d'habitants que l'on peut ateindre en partant d'un carrean en un temps et un mode donné. Le ratio moyen entre la marche à pied/TC 15 minute et la voiture 30 min est de 0.033.")
+
+```
+
+
+
+
+
+## Projection des distances et estimation des émissions de CO~2~ spatialisées
+
+Partant des comportements individuels observés dans l'enquête EMC^2^, nous avons modélisé les distances parcourues en voiture pour effectuer des courses. Cette modélisation est en deux temps : tout d'abord, nous avons effectué une régression logistique pour estimer la probabilité d'un individu d'effectuer un jour donné des courses en prenant sa voiture. Puis, dans le cas où il fait des courses ce jour-là, en voiture, nous avons estimé par une régression simple la distance qu'il parcourt pour l'ensemble des courses effectuées dans la journée. Ces modèles, qui ont vocation à être emboîtés, prennent comme variables explicatives d'un côté une information spatiale, la proximité des commerces mesuré à partir, ici, de l'indicateur de proximité des commerces alimentaires, et d'un autre côté des informations socioéconomiques sur l'individu observé, disponibles à la fois dans l'enquête EMC^2^ et localisable au carreau 200m. Ces variables sont le niveau de vie, le fait d'être ou non en couple, le fait d'avoir ou non des enfants et, enfin, le statut d'occupation (actif occupé ou non).
+
+Le premier modèle est la régression logistique suivante : 
+
+$$
+\begin{aligned}
+logit(P(c_{car}=1)) = & \alpha \times \mathcal{P}_k + \beta \times rev_{uc} \\
+& + \gamma_C \times \mathcal{I}_C + 
+\gamma_E \times \mathcal{I}_E + \gamma_A \times \mathcal{I}_A + \delta
+\end{aligned}
+$$
+
+où $P(c_{car}=1)$ est la probabilité de faire un ou plusieurs déplacements en voiture pour le motif "course" le jour de l'enquête, $\mathcal{P}_k$ est la proximité en déciles pondérés par la population, $rev_uc$ le revenu par unité de consommation, $\mathcal{I}_C$, $\mathcal{I}_E$, $\mathcal{I}_A$ sont des indicatices pour respectivement les individus en couple, avec un ou plusieurs enfants et actif occupé (un chômeur n'est pas un actif occupé). 
+
+
+
+
+
+
+```{r}
+#| label: tbl-logitcourse
+#| tbl-cap: Régression logistique sur la probabilité de faire ses courses en voiture
+
+MOD_freq <- bd_read("Mod frequence courses")
+
+library(gtsummary)
+
+tbl_regression(
+  MOD_freq, exponentiate = TRUE,
+  label = list(se_dec = "Surface équivalente (déciles)",
+               couple = "En couple",
+               enfant = "Avec enfant(s)",
+               ACTOCCUP = "Actif occupé",
+               revenus_hab = "Niveau de vie (en euros)"),
+               estimate_fun = label_style_ratio(digits = 3)) |>
+  modify_header(label = "**Variable**", estimate = "**Coefficient**", conf.low = "**IC à 95%**", p.value = "**P**") |>
+  modify_footnote(everything() ~ NA, abbreviation = TRUE)
+    
+```
+
+
+
+
+
+Le second modèle estime la distance totale parcourue en voiture d'un enquêté qui a fait, le jour observé, au moins une course en voiture. Il s'écrit comme suit :
+
+$$
+\begin{aligned}
+log(d_{car}) = & \alpha^d \times \mathcal{P}_k + \beta^d \times rev_{uc} \\ 
+& + \gamma_C^d \times \mathcal{I}_C + \gamma_E^d \times \mathcal{I}_E + \gamma_A^d \times \mathcal{I}_A + \delta^d + \varepsilon
+\end{aligned}
+$$
+
+où $d_{car}$ est la distance parcourue en voiture si il y a eu déplacement, et les mêmes notations que pour le modèle précédent.
+
+
+
+
+
+```{r}
+#| label: tbl-regdistance
+#| tbl-cap: Régression sur la distance parcourue en voiture pour faire ses courses
+  
+MOD_dist <- bd_read("Mod distance courses")
+
+tbl_regression(MOD_dist,
+               label = list(se_dec = "Surface équivalente (déciles)",
+                            couple = "En couple",
+                            enfant = "Avec enfant(s)",
+                            ACTOCCUP = "Actif occupé",
+                            revenus_hab = "Niveau de vie (en euros)"),
+               estimate_fun = label_style_ratio(digits = 3)) |>
+  modify_header(label = "**Variable**", estimate = "**Coefficient**", conf.low = "**IC à 95%**", p.value = "**P**") |> 
+  modify_footnote(conf.low = NA, abbreviation = TRUE)
+
+```
+
+
+
+
+
+Une fois les modèles estimés et emboîtés, nous pouvons projeter leur estimation au carreau 200m en suivant la méthode déployée dans @meaps2024a . Pour chaque carreau, on projette la prédiction de comportement pour chaque catégorie de ménage (ici dans chaque carreau, il y a 8 catégories de ménages) et on fait la moyenne des distances projetées par carreau pondérée par la proportion de chaque catégorie dans le carreau. Le niveau de vie n'est connu qu'en moyenne au carreau, il est donc appliqué à toutes les catégories de ménage du carreau. Puis on applique un coefficient fixe pour estimer le niveau de CO~2~ émis par individu et par an au motif commerce.
+
+
+
+
+
+```{r}
+#| label: fig-proj
+#| fig-cap: Estimation du CO~2~ par individu pour le motif course projetté au carreau 200m
+#| fig-asp: 1
+
+proj <- bd_read("projection") |> 
+  r3035::sidINS2sf() |> 
+  mutate(
+    wqdist = santoku::chop_quantiles(dist, weights = ind, probs = 0:5/5)
+  )
+
+labels_co2 <- proj |> 
+  st_drop_geometry() |> 
+  group_by(wqdist) |> 
+  summarize(co2 = MetricsWeighted::weighted_mean(dist, w = ind) * 365 * 218/1000000 ) |> 
+  pull(co2) |> 
+  round(2) |> 
+  str_replace("\\.", ",") |> 
+  str_c(" tCO2")
+
+ggplot() +
+  bd_read("decor_carte") +
+  geom_sf(
+    data= proj,
+    mapping= aes(fill = wqdist, col = wqdist), linewidth = 0.1) + 
+  scale_fill_paletteer_d(palette = "fishualize::Bodianus_rufus", 
+                         direction=1, 
+                         label = labels_co2, 
+                         name = NULL)+
+  scale_color_paletteer_d(palette = "fishualize::Bodianus_rufus", 
+                         direction=1, 
+                         label = labels_co2, 
+                         name = NULL)+
+  theme_ofce_void() +
+  # coord_sf(xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax), crs = st_crs(3035)) +
+  theme(legend.position = "bottom", 
+        legend.title = element_text(size = rel(.7)),
+        legend.key.height = unit(6, "pt"),
+        legend.margin = margin(b=6)) +
+  ofce_caption(source = "C200, Fichiers Foncier, EMC^2^. Calculs des auteurs, version 1.0", ofce = FALSE)
+
+```
+
+
+
+
+
+::: column-margin
+
+
+
+
+```{r}
+data <- proj |> 
+  select(idINS, ind, freq, dist) |> 
+  mutate(idINS = r3035::expand_idINS(idINS),
+         co2_pi =  dist * 365 * 218/1000000 ) |> 
+  select(idINS, ind, co2_pi) |> 
+  st_drop_geometry() |> 
+  vroom::vroom_write("dnwld/co2_motif_commerce_MetAMP.csv", delim = ";")
+
+download_link(
+  "dnwld/co2_motif_commerce_MetAMP.csv",
+  icon = "fa fa-download",
+  class = "dbtn", 
+  button_label = "données CO2 pour le motif courses")
+
+```
+
+
+
+
+:::
+
+### Références bibliographiques {.unnumbered}
+
+::: {#refs}
+:::
