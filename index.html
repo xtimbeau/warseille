@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.4">
+<meta name="generator" content="quarto-1.6.40">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -41,12 +41,15 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-d0f1cbce064d012a8bebcd9027fe1a15.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-f26fc57f2b883583f2a4953104012283.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-1b168621e50e0ca4a653f4c42ef3658c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-4ec431e717e94830c497b8cf92d307ee.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
 <link href="site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
+<script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -243,7 +246,7 @@ cookieconsent.run({
     <div>
     <div class="quarto-title-meta-heading">Modifié le</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">19 décembre 2024</p>
+      <p class="date-modified">3 février 2025</p>
     </div>
   </div>
     
@@ -254,9 +257,9 @@ cookieconsent.run({
 </header>
 
 
-
+<p><a href="images/Marseille_vieille_carte.jpg" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="images/Marseille_vieille_carte.jpg" title="Métropole d'Aix Marseille Provence" class="quarto-cover-image img-fluid"></a></p>
 <section id="avertissement" class="level1 unnumbered">
-<h1 class="unnumbered">Avertissement</h1><p><img src="images/Marseille_vieille_carte.jpg" title="Métropole d'Aix Marseille Provence" class="quarto-cover-image nolightbox img-fluid"></p>
+<h1 class="unnumbered">Avertissement</h1>
 <p>Ce site présente les premiers résultats du travail OFCE pour la métropole d’Aix-Marseille dans le cadre du projet OFCE/Villes Vivantes.</p>
 <p>Merci de ne pas diffuser le <span style="white-space:nowrap">lien ;</span></p>
 <p><i class="fa-solid fa-exclamation-triangle" aria-label="exclamation-triangle"></i> les résultats sont encore provisoires et seront mis à jour régulièrement.</p>
@@ -709,6 +712,38 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>
   </div>
 </footer>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 
