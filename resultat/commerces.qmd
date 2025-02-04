@@ -3,9 +3,6 @@ author:
   - name: Maxime Parodi
   - name: Xavier Timbeau 
   - name: Scotia Hille
-bibliography:
-  - references.bib
-cache: TRUE
 ---
 
 ```{r init, include=FALSE, cache=FALSE}
@@ -18,9 +15,9 @@ library(paletteer)
 
 ## Proposition de méthode
 
-L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose sur la disponibilité d'une matrice origine destination très riche, disponible pour chaque année de recensement au niveau intercommunal, décrivant donc les flux de mobilité professionnelle quotidienne usuelle[^commerces2-1] pour toute la France. Cette information est également disponible pour les mobilités scolaires. En revanche, pour les autres motifs de déplacement, on ne dispose pas d'un équivalent.
+L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose sur la disponibilité d'une matrice origine destination très riche, disponible pour chaque année de recensement au niveau intercommunal, décrivant donc les flux de mobilité professionnelle quotidienne usuelle[^1] pour toute la France. Cette information est également disponible pour les mobilités scolaires. En revanche, pour les autres motifs de déplacement, on ne dispose pas d'un équivalent.
 
-[^commerces2-1]: Mais sans information de fréquences.
+[^1]: Mais sans information de fréquences.
 
 En particulier, les déplacements effectués pour un motif d'achat sont plus complexes à appréhender, en raison de la diversité des type d'achats et de la dispersion des lieux de commerces. Les destinations visées par chaque résident sont ainsi bien plus nombreuses et diversifiés pour ce motif que pour le motif étude ou travail. Or ce motif "courses" est une composante non négligeable des mobilités quotidiennes. Le @tbl-emp donne les valeurs agrégées des distances parcourues en voiture pour un adulte en France hors Ile de France à partir de l'enquête mobilité des personnes certifiée CEREMA de 2019. Le motif "courses" représente 15% des kilomètres parcourus en voiture.
 
@@ -34,7 +31,9 @@ bd_read("EMP2019_AA3") |> pluck(1)
 
 Nous proposons une méthode qui exploite plusieurs sources et s'efforce de les rapprocher :
 
-1.  Tout d'abord, nous construisons un indicateur de proximité des commerces pour chaque carreau de résidence. Cet indicateur est construit en comptant dans le voisinage de chacun de ces carreaux le nombre de commerces, leur diversité et leur taille. La définition du voisinage consiste ici en un seuil de temps de trajets, que nous avons fixé pour l'instant à 15 minutes de marche pour coller à l'idée de ville du quart d'heure. Mais d'autres seuils peuvent être retenus sans difficulté technique. Nous calculons ensuite un indicateur synthétisant la quantité, la diversité et la taille des commerces, de manière à associer à chaque carreau un nombre qui résume la proximité des commerces. Les aménités (ici principalement des commerces ou des services aux ménages) sont connues à partir des fichiers fonciers et des codes utilisateurs NAF qui y sont renseignés. Ceci permet de décliner l'indicateur de proximité selon 4 grands types d'aménités (commerces alimentaires, commerces non alimentaires, sorties, santé humaine). Cet indicateur de proximité synthétise beaucoup d'informations géographiques, mais il n'est pas interprétable directement.
+1.  Tout d'abord, nous construisons un indicateur de proximité des commerces pour chaque carreau de résidence. Cet indicateur est construit en comptant dans le voisinage de chacun de ces carreaux le nombre de commerces, leur diversité et leur taille. La définition du voisinage consiste ici en un seuil de temps de trajets, que nous avons fixé pour l'instant à 15 minutes de marche pour coller à l'idée de ville du quart d'heure[^vqh]. Mais d'autres seuils peuvent être retenus sans difficulté technique. Nous calculons ensuite un indicateur synthétisant la quantité, la diversité et la taille des commerces, de manière à associer à chaque carreau un nombre qui résume la proximité des commerces. Les aménités (ici principalement des commerces ou des services aux ménages) sont connues à partir des fichiers fonciers et des codes utilisateurs NAF qui y sont renseignés. Ceci permet de décliner l'indicateur de proximité selon 4 grands types d'aménités (commerces alimentaires, commerces non alimentaires, sorties, santé humaine). Cet indicateur de proximité synthétise beaucoup d'informations géographiques, mais il n'est pas interprétable directement.
+
+[^vqh]: Il n'existe pas de définition homgène de la ville du quart d'heure et certains auteurs retiennent un temps de parcours à pied aller retour de 15 minutes, bien plus court que la définition nous utilisons.
 
 2.  A partir de l'Enquête Certifiée CEREMA (EMC^2^), on peut identifier les comportements des ménages et les relier à l'indicateur de proximité. En effet l'EMC^2^ délivre une information de localisation assez fine, permettant d'identifier les motifs et de repérer les caractéristiques socioéconomiques des individus. L'information de localisation correspond peu ou prou à la définition de l'IRIS (@fig-subemc2). Cette information ne permet toutefois pas de construire une matrice origine-destination parce que l'EMC^2^ repose sur un échantillon insuffisamment représentatif à la maille de l'IRIS. Pour construire une matrice origine-destination détaillée au niveau le plus fin, il faudrait un échantillon bien plus important. Il est cependant tout à fait possible d'évaluer l'effet moyen de l'indicateur de proximité dans chaque zone de résidence de l'EMC^2^ sur les déplacements moyen au motif "course".
 
@@ -77,10 +76,10 @@ ggplot() +
 
 ### Sources de données
 
-La première étape est d'identifier les opportunités. Une des difficultés est la versatilité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. Nous proposons ici d’agréger les surfaces commerciales pour chaque carreau en distinguant 4 grandes catégories de commerce. Ces catégories reprennent, avec réinterprétation, le travail réalisé par l'AUPA[^commerces2-2].\
+La première étape est d'identifier les opportunités. Une des difficultés est la versatilité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. Nous proposons ici d’agréger les surfaces commerciales pour chaque carreau en distinguant 4 grandes catégories de commerce. Ces catégories reprennent, avec réinterprétation, le travail réalisé par l'AUPA[^2].\
 Notre source principale est celle des fichiers fonciers. Elle donne une information fine sur les secteurs utilisateur du local (code NAF à 5 caractères pour l'entreprise utilisatrice) dans lequel on peut distinguer un commerce de chaussure d'une pharmacie, une supérette d'une grande surface alimentaire. Ce sont des couches agrégées de commerces pour des types de ménages identifiés. Elle permet d'associer au commerce une surface (variable `sprincp` des fichiers fonciers).
 
-[^commerces2-2]: Merci à Théo Shayer, Ludovic Verre et Luc Garnier pour nous avoir partagé leur méthodologie.
+[^2]: Merci à Théo Shayer, Ludovic Verre et Luc Garnier pour nous avoir partagé leur méthodologie.
 
 Nous classons les commerces en 4 catégories : alimentaire, commerces (non alimentaires), sorties, santé humaine.
 
@@ -729,11 +728,11 @@ On confirme cette analyse en effectuant des régressions (log)linéaires en util
 
 1.  les indicateurs des différentes aménités (regroupées en 4 grandes catégories) sont très proches en termes d'explication de la distance parcourue en voiture. La densité ou la densité pondérée expliquent également les distances parcourues en voiture, avec quelques nuances (par exemple, le revenu ne joue plus). Les variables de contrôle (part des individus avec enfants, part des actifs occupés) sont significatifs, d'un signe interprétable et assez constants parmi les variables expliquées.
 
-2.  La distance parcourue décroît nettement avec l'accessibilité aux commerces ou la densité. Ce résultat important valide la construction de ces indicateurs et permet de les calibrer. Par ailleurs, l'effet trouvé est important, puisque entre le premier décile d'accès aux aménités (en gros pas d'aménités accessibles à pied en moins de 15 minutes) et le dernier (zones très denses et très dotées) est de l'ordre de 4 (entre ×4,3 et ×3,1 suivant les indicateurs)[^commerces2-4].
+2.  La distance parcourue décroît nettement avec l'accessibilité aux commerces ou la densité. Ce résultat important valide la construction de ces indicateurs et permet de les calibrer. Par ailleurs, l'effet trouvé est important, puisque entre le premier décile d'accès aux aménités (en gros pas d'aménités accessibles à pied en moins de 15 minutes) et le dernier (zones très denses et très dotées) est de l'ordre de 4 (entre ×4,3 et ×3,1 suivant les indicateurs)[^3].
 
 3.  Les coefficients estimés permettent éventuellement de distinguer des catégories d'accessibilité, en regroupant les déciles quant ils ont des coefficients proches. En se basant sur l'indicateur pour les commerces alimentaires, les 3 premiers déciles peuvent être regroupés en une seule catégorie où l'accessibilité aux aménités n'est pas assez élevée pour empêcher l'utilisation de la voiture. D'après le @fig-lorenz, cela correspond à un niveau de proximité moyen aux commerces alimentaires d'environ 32 (surface équivalente) ce qui est relativement élevé : en moyenne la diversité y atteint 5,7, soit un peu plus de la moitié de la diversité maximale et la surface brute est de l'ordre de 500 m² de surface commerciale. C'est quelque chose qui correspond à 3 commerces alimentaires. On peut ensuite inclure les 3 déciles suivants, pour un effet de réduction de 1,5 des distances parcourues et les 4 derniers déciles, avec une distinction possible pour le dernier décile. Cette catégorisation illustre le calibrage que permet l'analyse de régression.
 
-[^commerces2-4]: Cette valeur se lit sur le tableau en prenant le coefficient du dernier décile, moins celui du premier (égal à 0 par référence) et en élevant $e$ à la puissance de cette différence.
+[^3]: Cette valeur se lit sur le tableau en prenant le coefficient du dernier décile, moins celui du premier (égal à 0 par référence) et en élevant $e$ à la puissance de cette différence.
 
 Les observation du modèle estimé sont les zones EMC^2^, indexées par $i$, où le nombre d'individus sondés (présent dans l'EMC^2^) est supérieur à 10. L'équation du modèle est :
 
@@ -909,7 +908,7 @@ ggplot() +
 
 Partant des comportements individuels observés dans l'enquête EMC^2^, nous avons modélisé les distances parcourues en voiture pour effectuer des courses. Cette modélisation est en deux temps : tout d'abord, nous avons effectué une régression logistique pour estimer la probabilité d'un individu d'effectuer un jour donné des courses en prenant sa voiture. Puis, dans le cas où il fait des courses ce jour-là, en voiture, nous avons estimé par une régression simple la distance qu'il parcourt pour l'ensemble des courses effectuées dans la journée. Ces modèles, qui ont vocation à être emboîtés, prennent comme variables explicatives d'un côté une information spatiale, la proximité des commerces mesuré à partir, ici, de l'indicateur de proximité des commerces alimentaires, et d'un autre côté des informations socioéconomiques sur l'individu observé, disponibles à la fois dans l'enquête EMC^2^ et localisable au carreau 200m. Ces variables sont le niveau de vie, le fait d'être ou non en couple, le fait d'avoir ou non des enfants et, enfin, le statut d'occupation (actif occupé ou non).
 
-Le premier modèle est la régression logistique suivante : 
+Le premier modèle est la régression logistique suivante :
 
 $$
 \begin{aligned}
@@ -919,8 +918,7 @@ logit(P(c_{car}=1)) = & \alpha \times \mathcal{P}_k + \beta \times rev_{uc} \\
 \end{aligned}
 $$
 
-où $P(c_{car}=1)$ est la probabilité de faire un ou plusieurs déplacements en voiture pour le motif "course" le jour de l'enquête, $\mathcal{P}_k$ est la proximité en déciles pondérés par la population, $rev_uc$ le revenu par unité de consommation, $\mathcal{I}_C$, $\mathcal{I}_E$, $\mathcal{I}_A$ sont des indicatices pour respectivement les individus en couple, avec un ou plusieurs enfants et actif occupé (un chômeur n'est pas un actif occupé). 
-
+où $P(c_{car}=1)$ est la probabilité de faire un ou plusieurs déplacements en voiture pour le motif "course" le jour de l'enquête, $\mathcal{P}_k$ est la proximité en déciles pondérés par la population, $rev_uc$ le revenu par unité de consommation, $\mathcal{I}_C$, $\mathcal{I}_E$, $\mathcal{I}_A$ sont des indicatices pour respectivement les individus en couple, avec un ou plusieurs enfants et actif occupé (un chômeur n'est pas un actif occupé).
 
 ```{r}
 #| label: tbl-logitcourse
@@ -972,7 +970,7 @@ tbl_regression(MOD_dist,
 
 ```
 
-Une fois les modèles estimés et emboîtés, nous pouvons projeter leur estimation au carreau 200m en suivant la méthode déployée dans @meaps2024a . Pour chaque carreau, on projette la prédiction de comportement pour chaque catégorie de ménage (ici dans chaque carreau, il y a 8 catégories de ménages) et on fait la moyenne des distances projetées par carreau pondérée par la proportion de chaque catégorie dans le carreau. Le niveau de vie n'est connu qu'en moyenne au carreau, il est donc appliqué à toutes les catégories de ménage du carreau. Puis on applique un coefficient fixe pour estimer le niveau de CO~2~ émis par individu et par an au motif commerce.
+Une fois les modèles estimés et emboîtés, nous pouvons projeter leur estimation au carreau 200m en suivant la méthode déployée dans @meaps2024a . Pour chaque carreau, on projette la prédiction de comportement pour chaque catégorie de ménage (dans chaque carreau, il y a 8 catégories de ménages) et on fait la moyenne des distances projetées par carreau pondérée par la proportion de chaque catégorie dans le carreau. Le niveau de vie n'est connu qu'en moyenne au carreau, il est donc appliqué à toutes les catégories de ménage du carreau. Puis on applique un coefficient fixe pour estimer le niveau de CO~2~ émis par individu et par an au motif commerce.
 
 ```{r}
 #| label: fig-proj
@@ -1036,7 +1034,134 @@ download_link(
 ```
 :::
 
-### Références bibliographiques {.unnumbered}
+## Lien entre les émissions et la densité
+
+Nous reproduisons ici le [graphique reliant émissions pour la mobilité professionnelle](trajets.qmd#fig-co2dens) et densité pour les émissions liées au motif commerce. Comme dans ce graphique, chaque point est un IRIS. La couleur des points dépend du prix de l'immobilier en 2022, la taille du nombre d'individus résidant dans l'IRIS. Sur le côté droit et au dessus sont rappelés les densités (i.e. le nombre d'individus en haut, les émissions à droite) correspondant respectivement à l'axe des x et des y. Ces densités permettent d'identifier où se trouve la majorité de la population ou où sont émises la majorité des émissions.
+
+On observe une relation globalement décroissante entre émissions de CO~2~ pour le motif commerce et densité. Ce résultat est un corrolaire en grande partie des résultats précédents. On a vu que la densité de commerces (et donc l'indicateur de proximité des commerces) est étroitement liée à la densité de population. Or les émissions dépendent, d'après la modélisation retenue et calibrée sur l'EMC^2^ d'Aix-Marseille-Provence, de l'indicateur de proximité, entre autres variables explicatives. On retrouve donc ici le lien.
+
+On peut reamrquer quelques différences avec le graphique relient densité et émissions pour le motif professionnel : la plage de variation des émissions pour le motif commerce est bien plus petite (attention cependant le [graphique pour le motif professionnel](trajets.qmd#fig-co2dens) est en tCO~2~/actif et non par individu, voir plus bas @sec-compprocom pour une comparaison directe) ; les masses d'émissions n'ont pas, contrairement au motif professionnel, une allure bimodale. Cela traduit une répartition plus homogène des situations et traduit également l'émergence "spontanée" de commerces là où il y a de la densité.
+
+
+```{r, include = FALSE}
+densite <- proj |> 
+  st_drop_geometry() |> 
+  mutate( co2_pi =  dist * 365 * 218/1000000,
+          co2 = co2_pi * ind ) |> 
+  select(idINS, ind, co2_pi, co2) |> 
+  left_join( c200ze |> 
+               st_drop_geometry() |> 
+               select(idINS, dep, com = com22, iris = IRIS),
+             by = "idINS")
+```
+
+```{r}
+#| label: fig-dens_c
+#| fig-cap: Emissions CO~2~ versus densité (iris)
+
+prix_iris <- bd_read("km_iris") |> 
+  select(iris = IRIS, prix, shape, dens.alt=dens, co2_p = co2_i)
+
+co2_iris <-  densite |> 
+  group_by(iris) |> 
+  summarize(co2_pi_c = sum(co2)/sum(ind),
+            dens = sum(ind)/4/n(),
+            pwd = sum(ind^2)/4/sum(ind),
+            ind = sum(ind),
+            n = n()) |> 
+  left_join(prix_iris, by = "iris")
+
+(base <- ggplot(co2_iris) +
+    aes(x=dens, y=co2_pi_c, fill = prix, weights=ind) +
+    scale_fill_distiller(palette="Spectral", 
+                         trans="log", direction = -1,
+                         oob = scales::squish,
+                         limits = c(1000, 8000),
+                         aesthetics = c( "fill"),
+                         breaks = c(1000, 3000, 8000),
+                         name="prix immobilier (IRIS)\n€/m² 2022")+
+    geom_point(aes(size = dens), 
+               alpha=0.95, shape = 21, color="transparent", stroke=0.1) +
+    guides(size=guide_legend(title = "Actifs/ha", override.aes = list(color="grey25"))) + 
+    scale_x_continuous("Densité (actifs/ha)", labels = scales::label_number(big.mark = " ")) + 
+    scale_y_continuous("tonnes de CO~2~ par an par actif motif commerce", labels = scales::label_number(big.mark = " ")) +
+    geom_smooth(col="gold3", fill = "gold", aes(weight = ind), alpha=0.1) +
+    theme_ofce(base_size = 10, legend.position = "bottom", marquee = TRUE )+
+    theme(plot.margin = margin(),
+          legend.key.width = unit(24, "pt"),
+          legend.title = element_text(hjust = 1),
+          legend.spacing = unit(48, "pt"),
+          axis.title.y = ggtext::element_markdown()))
+
+top_dens <- ggplot(co2_iris)+
+  geom_density(aes(x=dens, y=after_stat(density), weight=ind), 
+               color = "black", fill="gold", alpha=0.25, linewidth=0.2)+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+
+right_dens <- ggplot(co2_iris)+
+  geom_density(aes(x=co2_pi_c, y=after_stat(density), weight=ind), 
+               color = "black", fill="gold", alpha=0.25, linewidth=0.2)+
+  coord_flip()+
+  theme_ofce_void()+
+  theme(plot.margin = margin())
+
+patchwork::wrap_plots(
+  top_dens, patchwork::plot_spacer(), base,  right_dens,
+  ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
+  theme(panel.spacing = unit(0, "pt"), 
+        legend.key.height = unit(6, "pt"),
+        legend.key.width = unit(12, 'pt'),
+        legend.key.spacing = unit(2, 'pt'))
+
+```
+
+## Comparaison des émissions liées au commerce et à la mobilité professionnelle {#sec-compprocom}
+
+Le @fig-comp représente la corrélation entre la mobilité professionnelle et la mobilité pour le motif commerce. Chaque hexagone est coloré en fonction de la population ayant les mêmes émissions au titre de chacun des motifs. Le graphique peremt donc de visualiser la corrélation entre les émissions de CO~2~ pour les deux motifs et d'apprécier la population concernée.
+
+Le graphique fait apparaître 3 éléments principaux :
+
+1.  La corrélation entre les émissions pour les deux motifs est positive. Une régression (log-linéaire, pondérée) indique un coefficient de corrélation de 55%. Ce résultat était attendu, mais la corrélation est loin d'être élevé, ce qui veut dire que les lieux de vie, qui conditionnent les émissions pour les motifs commerce, ne sont pas nécessairement ceux qui donnent la plus grande accessibilité (qui réduit les émissions pour le motif professionnel quotidien).
+
+2.  les émissions pour le motif professionnel sont plus élevées en moyenne et dans une plage plus dispersée que les émissions pour le motif commerce. toujours à partir d'une régression (log linéaire, pondérée) il y a un rapport de 1 à 2,3 entre les deux motifs.
+
+3.  Les émissions pour le motif commerce sont bornées (le minimum observé est de 0,17 tCO~2~ par an par individu). Rappelons que la méthode propose une estimation de la valeur moyen par carreau (il n'y a donc pas de carreau dans lequel personne n'a de voiture, ni n'utilise jamais sa voiture pour les courses), alors que pour le motif mobilité professionnelle, certains carreaux, bien que peu nombreux, se voient imputé une valeur presque nulle des émissions. Ce résultat découle en partie de la méthode choisie (qui n'identifie pas, par exemple, les écarts à la routine domicile travail) et en partie découle des données.
+
+```{r}
+#| label: fig-comp
+#| fig-cap: Mobilité professionnelle quotidienne versus mobilité pour le motif commerce
+
+pro <- bd_read("meaps_from") |> 
+  st_drop_geometry() |> 
+  select(idINS = fromidINS, 
+         co2_pi_p = co2_pi)
+
+comp <- bd_read("projection") |> 
+  select(idINS, ind, dist) |> 
+  mutate(co2_pi_c = dist * 365 * 218/1000000) |> 
+  select(-dist) |> 
+  left_join(pro, by = "idINS")
+
+ggplot(comp) +
+  aes(x= co2_pi_p, y = co2_pi_c) +
+  geom_hex(aes(weight = ind), binwidth = c(.025, .025)) +
+  coord_equal(xlim = c(0,1.5), ylim=c(0,.75)) +
+  scale_fill_gradient(
+    name = "Individus",
+    low = "gray95", high = "steelblue", transform = "sqrt",
+    breaks = c(1, 1000, 10000, 25000)) + 
+  xlab("Emissions par individu pour le motif professionnel") +
+  ylab("Emissions par individu pour le motif commerces") +
+  theme_ofce(
+    legend.position = c(0.95, 0.95),
+    legend.justification = c(1,1),
+    legend.key.width = unit(24, "pt")
+  ) +
+  ofce_caption(source = "C200, Fichiers Foncier, EMC^2^, MEAPS. Calculs des auteurs, version 1.0", ofce = FALSE)
+```
+
+## Références bibliographiques {.unnumbered}
 
 ::: {#refs}
 :::
