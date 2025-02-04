@@ -22,7 +22,7 @@
 
     -   Ecole/études à partir de MOBSCOL
 
-    -   {{< iconify ri progress-line-3 >}} Commerces à partir de la densité de commerces (fichiers fonciers) ou de la densité inversée (accessibilité aux personnes)
+    -   {{< fa check >}} Commerces à partir de la densité de commerces (fichiers fonciers) ou de la densité inversée (accessibilité aux personnes)
 
     -   Autres motifs en se calant sur la densité de personnes
 
