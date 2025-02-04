@@ -445,8 +445,3 @@ gg +
        <br>les ronds pour les autres communes.<br>"),
     theme = theme_ofce()) 
 ```
-
-## Références bibliographiques {.unnumbered}
-
-::: {#refs}
-:::

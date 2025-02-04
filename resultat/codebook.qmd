@@ -360,10 +360,42 @@ download_link(
   button_label = "données CO2 pour le motif courses")
 ```
 
+## CO~2~ pour le motif commerce, données à l'IRIS
+
+```{r}
+
+download_link(
+  "dnwld/CO2_commerces_IRIS.csv",
+  icon = "fa fa-download",
+  class = "dbtnlg", 
+  button_label = "Données CO2 commerce à l'IRIS")
+
+```
+
+Ces données sont l'aggrégation à l'IRIS des données précédentes au carreau 200m.
+
 *Source* : calculs des auteurs à partir des sources citées
 
--   `idINS` : code INSPIRE du carreau de départ ou de résidence (résolution 200m, coordonnées y et x en projection EPSG:3035). Peut être en format contracté où la résolution est enlevée, les lettres N et E sont omises et les coordonnées sont divisées par 200, ce qui permet de coder le `idINS` sur un entier).
+-   `iris` : code INSEE de l'IRIS.
 
--   `ind` : individus au carreau. Ce peut être la moyenne des individus de carreaux regroupés lorsque le carreau contient moins de 11 individus.
+-   `com` : code INSEE de la commune.
 
--   `co2_pi` : tonnes de CO~2~ émises par individu pour le motif courses (ou commerce) imputées au résidents du carreau.
+-   `co2_pi_c` : tonnes de CO~2~ émises par individu pour le motif courses (ou commerce) imputées aux résidents de l'IRIS.
+
+-   `co2_pi_p` : tonnes de CO~2~ émises par individu pour le motif mobilité quotidienne professionnelle imputées aux résidents de l'IRIS.
+
+-   `dens` : densité moyenne des carreaux habités (espérance de densité pour un carreau habité).
+
+-   `pwd` : densité pondérée moyenne des carreaux habités (espérance de densité pour un individu).
+
+-   `ind` : individus dans l'IRIS.
+
+-   `snv` : Niveau de vie (revenu par UC) moyen de l'IRIS.
+
+-   `prix` : Prix des transactions dans l'ancien (DVF), année 2022, €/m².
+
+-   `n` : Nombre de carreaux (200m, 4 ha) habités dans l'IRIS.
+
+-   `labcom` : nom de la commune/arrondissement.
+
+-   `labiris` : nom de l'IRIS.

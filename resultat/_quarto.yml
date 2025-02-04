@@ -48,7 +48,12 @@ execute:
   echo: false
   warning: false
   
+filters:
+  - quarto
+  - section-bibliographies
 bibliography: references.bib
+reference-section-title: Références
+citeproc: false
 
 lang: fr
 

@@ -165,6 +165,10 @@ date_jour <- function(date) {
   str_c(lubridate::day(date), " ", lubridate::month(date,label = TRUE, abbr = FALSE), " ", lubridate::year(date))
 }
 
+euro <- function(x, digits = 4) {
+  str_c(formatC(x, digits = digits, big.mark = " ", decimal.mark = ",", format = "fg"), " €")
+}
+
 if(Sys.getenv("QUARTO_PROJECT_DIR") == "") {
   safe_find_root <- purrr::safely(rprojroot::find_root)
   root <- safe_find_root(rprojroot::is_quarto_project | rprojroot::is_r_package | rprojroot::is_rstudio_project)
