@@ -443,9 +443,8 @@ gg <- ggplot(lorenz) +
   scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
   scale_y_log10() +
   ofce_caption(
-    source = src, ofce = FALSE,
-    note = "Les individus sont classés dans l'ordre de leur proximité aux aménités. 10% de la population d'AMP n'a accès à aucun commerce alimentaire, contre 7% pour les commerces non alimentaires et 12% pour la santé humaine et 14% pour les bars, restaurants et cinéma.",
-    wrap = 100)
+    source = src,
+    note = "Les individus sont classés dans l'ordre de leur proximité aux aménités. 10% de la population d'AMP n'a accès à aucun commerce alimentaire, contre 7% pour les commerces non alimentaires et 12% pour la santé humaine et 14% pour les bars, restaurants et cinéma.")
 
 girafy(gg, r=1)
 
@@ -682,11 +681,9 @@ ggg <- ggplot(gdata)+
   facet_wrap(vars(type), labeller = as_labeller(labels)) +
   theme_ofce(
     axis.line = element_blank(), 
-    axis.title.x = element_text(margin = margin(t=12)),
-    axis.title.y = element_text(margin = margin(r=12)),
     legend.justification = c(1,0.5), 
     legend.title.position = c("left"), 
-    legend.title = element_text(vjust = 0.5, hjust = 0.5, margin = margin(r = 12))
+    legend.title = marquee::element_marquee(vjust = 0.5, hjust = 0.5)
   ) +
   xlab("Déciles de niveau de vie")+
   ylab("Déciles d'excès ou déficit de proximité") +
@@ -897,7 +894,7 @@ ggplot() +
   facet_wrap(vars(name)) +
   coord_sf(xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax), crs = st_crs(3035)) +
   theme(legend.position = "bottom", 
-        legend.title = element_text(size = rel(.7)),
+        legend.text = element_text(hjust=0.5),
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
   ofce_caption(
@@ -932,7 +929,7 @@ library(gtsummary)
 
 tbl_regression(
   MOD_freq, exponentiate = TRUE,
-  label = list(se_dec = "Surface équivalente (déciles)",
+  label = list(se_dec = "Proximité des commerces (déciles)",
                couple = "En couple",
                enfant = "Avec enfant(s)",
                ACTOCCUP = "Actif occupé",
@@ -961,7 +958,7 @@ où $d_{car}$ est la distance parcourue en voiture si il y a eu déplacement, et
 MOD_dist <- bd_read("Mod distance courses")
 
 tbl_regression(MOD_dist,
-               label = list(se_dec = "Surface équivalente (déciles)",
+               label = list(se_dec = "Proximité des commerces (déciles)",
                             couple = "En couple",
                             enfant = "Avec enfant(s)",
                             ACTOCCUP = "Actif occupé",
@@ -1010,31 +1007,29 @@ ggplot() +
   theme_ofce_void() +
   # coord_sf(xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax), crs = st_crs(3035)) +
   theme(legend.position = "bottom", 
-        legend.title = element_text(size = rel(.7)),
+        legend.text = element_text(hjust=0.5),
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
   ofce_caption(source = "C200, Fichiers Foncier, EMC^2^. Calculs des auteurs, version 1.0", ofce = FALSE)
 
 ```
 
-::: column-margin
 ```{r}
+#| column: margin
+
 data <- proj |> 
   select(idINS, ind, freq, dist) |> 
   mutate(idINS = r3035::expand_idINS(idINS),
          co2_pi =  dist * 365 * 218/1000000 ) |> 
   select(idINS, ind, co2_pi) |> 
-  st_drop_geometry() |> 
-  vroom::vroom_write("dnwld/co2_motif_commerce_MetAMP.csv", delim = ";")
+  st_drop_geometry() 
 
-download_link(
-  "dnwld/co2_motif_commerce_MetAMP.csv",
-  icon = "fa fa-download",
-  class = "dbtn", 
-  button_label = "données CO2 pour le motif courses")
+margin_link(
+  data,
+  "co2_motif_commerce_MetAMP.csv",
+  "données CO2 pour le motif courses")
 
 ```
-:::
 
 ## Emissions de CO~2~ et niveau de vie
 
@@ -1098,17 +1093,31 @@ base <- ggplot(co2_iris) +
     aes(size = dens, shape = shape, tooltip = tooltip2),
     hover_nearest = TRUE,
     alpha=0.95, stroke=.1, color = "transparent") +
-  scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
-  guides(size=guide_legend(title = "Individus/ha", override.aes = list(color="grey25")),
-         shape = "none") + 
-  scale_x_continuous("Niveau de vie moyen de l'IRIS", labels = scales::label_number(big.mark = " "), limits = c(15000, 35000)) + 
-  scale_y_continuous("tCO2, motif commerce (moyenne de l'IRIS)", labels = scales::label_number(big.mark = " ")) +
+  scale_shape_manual(
+    values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
+  scale_x_continuous(
+    "Niveau de vie moyen de l'IRIS", 
+                     labels = scales::label_number(big.mark = " "), 
+                     limits = c(15000, 35000)) + 
+  scale_y_continuous(
+    "tCO{.sub 2}, motif commerce (moyenne de l'IRIS)",
+                     labels = scales::label_number(big.mark = " ")) +
   geom_smooth(col="lightblue", fill = "lightblue1", aes(weight = ind)) +
-  theme_ofce(base_size = 10, 
-             legend.title = element_text(hjust = 1),
-             legend.position = "bottom", 
-             marquee = TRUE) +
-  theme(plot.margin = margin())
+  theme_ofce(
+    base_size = 10, 
+    legend.position = "bottom", 
+    marquee = TRUE) +
+  guides(size=guide_legend(title = "Individus/ha", override.aes = list(color="grey25")),
+         fill=guide_colorbar(
+           theme=theme(legend.key.width = unit(96,"pt"),
+                       legend.text = element_text(hjust=0.5),
+                       legend.title = marquee::element_marquee(hjust=1))),
+         shape = "none") + 
+  theme(plot.margin = margin()) +
+  ofce_caption(
+    source = "C200, Fichiers Foncier, EMC^2^. Calculs des auteurs, version 1.0",
+    note = "Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille, les losanges pour la commune d'Aix-en-Provence, les ronds pour les autres communes."
+  )
 
 top_dens <- ggplot(co2_iris)+
   geom_density(aes(x=snv, y=after_stat(density), weight=ind), 
@@ -1125,19 +1134,16 @@ right_dens <- ggplot(co2_iris)+
 pp <- patchwork::wrap_plots(
   top_dens, patchwork::plot_spacer(), base,  right_dens,
   ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
-  theme(panel.spacing = unit(0, "pt"), 
-        legend.key.height = unit(6, "pt"),
-        legend.key.width = unit(12, 'pt'),
-        legend.key.spacing = unit(12, 'pt'))
+  theme(panel.spacing = unit(0, "pt"))
 
 girafy(pp)
 ```
 
-::: column-margin
 ```{r}
+#| column: margin
+ 
 margin_link(co2_iris |> select(-dens.alt, -shape, -tooltip2), "CO2_commerces_IRIS", "Données CO2 commerce à l'IRIS")
 ```
-:::
 
 ## Emissions de CO~2~ et densité
 
@@ -1165,20 +1171,28 @@ base <- ggplot(co2_iris) +
     aes(size = dens, fill = prix, shape = shape, tooltip = tooltip2),
     hover_nearest = TRUE,
     alpha=0.95, color="transparent", stroke=0.1) +
-  guides(size=guide_legend(title = "Actifs/ha", override.aes = list(color="grey25")),
-         shape = "none") + 
+  guides(
+    size=guide_legend(title = "Actifs/ha", override.aes = list(color="grey25")),
+    fill=guide_colorbar(
+      theme=theme(legend.key.width = unit(96,"pt"),
+                  legend.text = element_text(hjust=0.5),
+                  legend.title = marquee::element_marquee(hjust=1))),
+    shape = "none") + 
   scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
   scale_x_continuous("Individus/ha", 
                      labels = scales::label_number(big.mark = " "),
                      limits = c(0,400)) + 
-  scale_y_continuous("tCO2, motif commerce (moyenne de l'IRIS)", 
+  scale_y_continuous("tCO{.sub 2}, motif commerce (moyenne de l'IRIS)", 
                      labels = scales::label_number(big.mark = " ")) +
   geom_smooth(col="gold3", fill = "gold", aes(weight = ind), alpha=0.1) +
-  theme_ofce(base_size = 10, legend.position = "bottom", marquee = TRUE )+
-  theme(plot.margin = margin(),
-        legend.title = element_text(hjust = 1),
-        axis.title = marquee::element_marquee(margin = margin(t=6)),
-        axis.title.y = marquee::element_marquee(margin = margin(r=6)))
+  theme_ofce(base_size = 10, 
+             legend.position = "bottom", 
+             marquee = TRUE )+
+  theme(plot.margin = margin()) +
+  ofce_caption(
+    source = "C200, Fichiers Foncier, EMC^2^. Calculs des auteurs, version 1.0",
+    note = "Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille, les losanges pour la commune d'Aix-en-Provence, les ronds pour les autres communes."
+  )
 
 top_dens <- ggplot(co2_iris)+
   geom_density(aes(x=dens, y=after_stat(density), weight=ind), 
@@ -1204,11 +1218,11 @@ ppp <- patchwork::wrap_plots(
 girafy(ppp)
 ```
 
-::: column-margin
 ```{r}
+#| column: margin
+
 margin_link(co2_iris |> select(-dens.alt, -shape, -tooltip2), "CO2_commerces_IRIS", "Données CO2 commerce à l'IRIS")
 ```
-:::
 
 ## Comparaison des émissions liées au commerce et à la mobilité professionnelle {#sec-compprocom}
 
@@ -1261,6 +1275,11 @@ ggg <- ggplot(comp) +
   ylab("Emissions par individu pour le motif commerces (tCO2/individu/an)") +
   geom_hline(yintercept = moy$co2_pi_c, linetype = "dotted", color = "darkblue") +
   geom_vline(xintercept = moy$co2_pi_p, linetype = "dotted", color = "darkblue") +
+  guides(
+    fill=guide_colorbar(
+      theme=theme(legend.key.width = unit(96,"pt"),
+                  legend.text = element_text(hjust=0.5),
+                  legend.title = marquee::element_marquee(hjust=1)))) + 
   theme_ofce(
     legend.position = c(0.95, 0.95),
     legend.justification = c(1,1),
@@ -1271,8 +1290,9 @@ ggg <- ggplot(comp) +
 girafy(ggg)
 ```
 
-::: column-margin
+
 ```{r}
+#| column: margin
+
 margin_link(co2_iris |> select(-dens.alt, -shape, -tooltip2, -co2_p), "CO2_commerces_IRIS", "Données CO2 commerce à l'IRIS")
 ```
-:::
