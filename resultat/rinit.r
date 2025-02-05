@@ -39,7 +39,10 @@ library(mapdeck, quietly = TRUE)
 options(
   ofce.base_size = 12,
   ofce.background_color = "transparent",
-  ofce.source_data.src_in = "file")
+  ofce.source_data.src_in = "file",
+  ofce.caption.ofce = FALSE,
+  ofce.marquee = TRUE,
+  ofce.caption.wrap = 0)
 
 showtext_opts(dpi = 192)
 showtext_auto()
@@ -115,6 +118,21 @@ margin_link <- function(data, output_name = "donnees", label = "données") {
       icon = "fa fa-download",
       class = "dbtn",
       button_label  = label)
+  } else
+    return(invisible(NULL))
+}
+
+margin_link2 <- function(data, output_name = "donnees", label = "données", force = FALSE) {
+  if(knitr::is_html_output()|force) {
+    link <- stringr::str_c("dnwld/", output_name, ".csv")
+    vroom::vroom_write(data, link, delim = ";")
+    htmltools::div(
+      downloadthis::download_link(
+        link,
+        icon = "fa fa-download",
+        class = "dbtn",
+        button_label  = label),
+      class = "column-margin")
   } else
     return(invisible(NULL))
 }
