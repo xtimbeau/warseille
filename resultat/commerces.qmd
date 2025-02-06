@@ -70,7 +70,8 @@ ggplot() +
   
   coord_sf(crs = st_crs(4326), xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax)) +
   theme_ofce_void() +
-  ofce::ofce_caption(source="EMC^2^, Enquête Mobilité Certifiée CEREMA", ofce=FALSE, wrap = 80)
+  ofce::ofce_caption(
+    source="EMC^2^, Enquête Mobilité Certifiée CEREMA")
 
 ```
 
@@ -162,10 +163,12 @@ tbl2 <- stat |>
   fmt_number(columns = starts_with(c("s_", "sa_", "se_", "div_")), decimals = 1, dec_mark=",")
 
 tbl1 |> 
-  tab_options(table.font.size = 10)
+  tab_options(table.font.size = 10) |> 
+  tab_source_note(md("*Source* : Fichiers fonciers, CEREMA, 2022"))
 
 tbl2 |> 
-  tab_options(table.font.size = 10)
+  tab_options(table.font.size = 10) |> 
+  tab_source_note(md("*Source* : Fichiers fonciers, CEREMA, 2022"))
 ```
 
 ### Indicateur de proximité des aménités pour AMP
@@ -177,25 +180,24 @@ On observe que de façon commune aux quatre aménités la proximité élevée es
 D'une aménité à l'autre, le schéma global est conservé. Les aménités "sortie" (bars, restaurants et cinémas) ou "santé humaine" sont plus concentrées spatialement, ce qui est amplifié par le @fig-regsise. La ressemblance n'est toutefois qu'apparente puisque le découpage en quintile écrase les différences. Le lien entre les indicateurs de proxiumité pour les différentes aménités est détaillé en annexe (@fig-corrcomm) ainsi que le lien avec la densité (@fig-denscom).
 
 :::::: {#fig-surfeq_map}
-::: column-margin
+
 ```{r dnwstat}
+#| column: margin
 vqh <- bd_read("vqh") |>
   r3035::sidINS2sf(idINS = "fromidINS") |> 
   mutate(wqse = factor(wqse))
 
-vqh |>
+data <- vqh |>
   st_drop_geometry() |>
   mutate(fromidINS = r3035::expand_idINS(fromidINS)) |> 
-  select(-id_s, -id_d, -beta, -s, -wqse, -qse) |> 
-  vroom::vroom_write("dnwld/amenites_idINS_pdvR_MetAMP.csv", delim = ";")
+  select(-id_s, -id_d, -beta, -s, -wqse, -qse) 
 
-download_link(
-  "dnwld/amenites_idINS_pdvR_MetAMP.csv",
-  icon = "fa fa-download",
-  class = "dbtn", 
-  button_label = "données accessibilité aux aménités au carreau, résidents")
+margin_link(
+  data,
+  "amenites_idINS_pdvR_MetAMP",
+  "données accessibilité aux aménités au carreau, résidents")
+
 ```
-:::
 
 <details name="cac" open>
 
@@ -216,13 +218,13 @@ ggplot() +
   scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
                          name = "Accessibilité alimentaire : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
-  theme(legend.position = "bottom", 
-        legend.title = element_text(size = rel(.7)),
-        legend.key.height = unit(6, "pt"),
-        legend.margin = margin(b=6)) +
+  theme(legend.position = "bottom",
+        legend.title = marquee::element_marquee(vjust=1, margin = margin(t=0, r=6)),
+        legend.text.position = "bottom", 
+        legend.key.height = unit(6, "pt")) +
   ofce::ofce_caption(
     source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).", ofce=FALSE, wrap = 80)
+    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).")
 ```
 
 ## Autres commerces
@@ -238,14 +240,14 @@ ggplot() +
   scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
                          name = "Accessibilité autres commerces : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
-  theme(legend.position = "bottom", 
-        legend.title = element_text(size = rel(.7)),
-        legend.key.height = unit(6, "pt"),
-        legend.margin = margin(b=6)) +
+  theme(legend.position = "bottom",
+        legend.title = marquee::element_marquee(vjust=1, margin = margin(t=0, r=6)),
+        legend.text.position = "bottom", 
+        legend.key.height = unit(6, "pt")) +
   guides(fill = guide_legend(nrow=1))+
   ofce::ofce_caption(
     source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces autres qu'alimentaires).", ofce=FALSE, wrap = 80)
+    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces autres qu'alimentaires).")
 ```
 
 ## Sorties
@@ -261,13 +263,13 @@ ggplot() +
   scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
                          name = "Accessibilité sorties : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
-  theme(legend.position = "bottom", 
-        legend.title = element_text(size = rel(.7)),
-        legend.key.height = unit(6, "pt"),
-        legend.margin = margin(b=6)) +
+  theme(legend.position = "bottom",
+        legend.title = marquee::element_marquee(vjust=1, margin = margin(t=0, r=6)),
+        legend.text.position = "bottom", 
+        legend.key.height = unit(6, "pt")) +
   ofce::ofce_caption(
     source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici restaurants, bars et cinéma).", ofce=FALSE, wrap = 80)
+    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici restaurants, bars et cinéma).")
 ```
 
 ## Santé humaine
@@ -283,13 +285,13 @@ ggplot() +
   scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
                          name = "Accessibilité santé humaine : ", label = c("très faible", "", "", "", "très élevée"))+
   theme_ofce_void() +
-  theme(legend.position = "bottom", 
-        legend.title = element_text(size = rel(.7)),
-        legend.key.height = unit(6, "pt"),
-        legend.margin = margin(b=6)) +
+  theme(legend.position = "bottom",
+        legend.title = marquee::element_marquee(vjust=1, margin = margin(t=0, r=6)),
+        legend.text.position = "bottom", 
+        legend.key.height = unit(6, "pt")) +
   ofce::ofce_caption(
     source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).", ofce=FALSE, wrap = 80)
+    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).")
 
 ```
 :::
@@ -477,8 +479,11 @@ lien_se_si |>
   fmt_percent(r2, decimals =1) |> 
   fmt_markdown(c ) |> 
   cols_label(t = "", r2 = md("*R^2^*"), c = md("*\u03b1*")) |> 
-  tab_footnote("La proximité synthétique est construite en ajoutant 5 fois la proximité alimentaire à 3 fois celle des commerces non alimentaires, 2 fois les sorties et une fois la santé humaine, par un raisonnement de fréquence de fréquentation", location = cells_body(columns = t, rows = t == "Synthétique")) |>
-  tab_options(quarto.disable_processing = FALSE)
+  tab_footnote(
+    "La proximité synthétique est construite en ajoutant 5 fois la proximité alimentaire à 3 fois celle des commerces non alimentaires, 2 fois les sorties et une fois la santé humaine, par un raisonnement de fréquence de fréquentation", 
+               location = cells_body(columns = t, rows = t == "Synthétique")) |>
+  tab_options(quarto.disable_processing = FALSE) |> 
+  tab_source_note(md("*Sources* : C200, OSM, Fichiers Fonciers, EMC^2^, calculs des auteurs."))
 ```
 
 On peut représenter les résidus de ces modèles sur une carte. Cela donne un indicateur de l'abondance de commerces relativement à la densité de population. Il apparaît que les aménités sont plus concentrées spatialement que la population. Les zones à "excès" d'aménité sont aussi les zones de densité élevée. Cependant, quelques zones font exception, comme le centre commercial "Plan de Campagne", entre Marseille et Aix en Provence.
@@ -486,10 +491,22 @@ On peut représenter les résidus de ces modèles sur une carte. Cela donne un i
 :::: {#fig-regsise}
 ::: panel-tabset
 ## Alimentaire
+```{r}
+thm_map_leg <- theme_ofce_void(
+    legend.position = "bottom",
+    legend.title = marquee::element_marquee(vjust = 1, margin = margin(t=0, r=12)),
+    legend.text = element_text(hjust=0.5),
+    legend.key.width = unit(36, "pt"),
+    legend.key.height = unit(6, "pt"))
+```
 
 ```{r}
 #| fig-asp: 1
-data <- lien_se_si |> filter(t == "se_alim", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
+data <- lien_se_si |>
+  filter(t == "se_alim", m == 1) |>
+  pull(residus) |>
+  pluck(1) |>
+  r3035::sidINS2sf() |> drop_na(r)
 
 ggplot() +
   bd_read("decor_carte") +
@@ -497,11 +514,10 @@ ggplot() +
   scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
                          aesthetics = c("fill", "color"),
                          trans = pseudo_log_trans()) +
-  theme_ofce_void(legend.position = "bottom",
-             legend.key.width = unit(36, "pt"), legend.key.height = unit(6, "pt")) +
+  thm_map_leg +
   ofce_caption(
     source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (commerces alimentaires) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.", ofce = FALSE)
+    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (commerces alimentaires) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
 ```
 
 ## Non alim.
@@ -509,7 +525,12 @@ ggplot() +
 ```{r}
 #| fig-asp: 1
 
-data <- lien_se_si |> filter(t == "se_comm", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
+data <- lien_se_si |> 
+  filter(t == "se_comm", m == 1) |>
+  pull(residus) |>
+  pluck(1) |> 
+  r3035::sidINS2sf() |>
+  drop_na(r)
 
 ggplot() +
   bd_read("decor_carte") +
@@ -517,11 +538,10 @@ ggplot() +
   scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
                          aesthetics = c("fill", "color"),
                          trans = pseudo_log_trans()) +
-  theme_ofce_void(legend.position = "bottom",
-             legend.key.width = unit(36, "pt"), legend.key.height = unit(6, "pt")) +
+  thm_map_leg +
   ofce_caption(
     source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (commerces non alimentaires) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.", ofce = FALSE)
+    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (commerces non alimentaires) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
 ```
 
 ## Sorties
@@ -537,11 +557,10 @@ ggplot() +
   scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging",
                          aesthetics = c("fill", "color"),
                          trans = pseudo_log_trans()) +
-  theme_ofce_void(legend.position = "bottom",
-             legend.key.width = unit(36, "pt"), legend.key.height = unit(6, "pt")) +
+  thm_map_leg +
   ofce_caption(
     source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (bars, restaurants, cinémas) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.", ofce = FALSE)
+    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (bars, restaurants, cinémas) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
 ```
 
 ## Santé humaine
@@ -557,12 +576,10 @@ ggplot() +
   scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
                          aesthetics = c("fill", "color"),
                          trans = pseudo_log_trans())  +
-  theme_ofce_void(legend.position = "bottom",
-             legend.key.width = unit(36, "pt"), 
-             legend.key.height = unit(6, "pt")) +
+  thm_map_leg +
   ofce_caption(
     source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (santé humaine) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.", ofce = FALSE)
+    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (santé humaine) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
 ```
 
 ## Synth.
@@ -578,18 +595,16 @@ ggplot() +
   scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
                          aesthetics = c("fill", "color"),
                          trans = pseudo_log_trans(), name = NULL) +
-  theme_ofce_void(legend.position = "bottom",
-             legend.key.width = unit(36, "pt"), 
-             legend.key.height = unit(6, "pt")) +
+  thm_map_leg +
   ofce_caption(
     source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (synthétique) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.", ofce = FALSE)
+    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (synthétique) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
 ```
 :::
 ::::
 
-::: column-margin
 ```{r}
+#| column: margin
 data <- lien_se_si |> 
   filter( m == 1) |>
   select(type = t, residus) |> 
@@ -601,7 +616,6 @@ margin_link(
   data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
 
 ```
-:::
 
 Les graphiques suivants (@fig-resndv) permettent de représenter le territoire sous un angle combinant la proximité des commerces (purgée de la densité) et le niveau de vie. Ces grpahiques indiquent une corrélation négative entre l'excès de proximité par rapport à la densité (axe des Y) et le niveau de vie : là où le niveau de vie est plus élevé que la moyenne, la proximité est plutôt plus faible qu'attendue compte tenu de la densité. Cette corrélation est cependant assez faible, laissant de nombreuses situations émerger. Pour les commerces alimentaires ce phénomène est assez marqué : dans le cadran supérieur gauche, proche de l'orgine, (du graphique en haut à gauche du panneau du @fig-resndv) on trouve un nombre important d'individus (les hexagones sont colorés), indiquant une proximité plus élevée que la moyenne et des niveau de vie plutôt inférieurs à la moyenne
 
@@ -685,13 +699,13 @@ ggg <- ggplot(gdata)+
     legend.title.position = c("left"), 
     legend.title = marquee::element_marquee(vjust = 0.5, hjust = 0.5)
   ) +
-  xlab("Déciles de niveau de vie")+
-  ylab("Déciles d'excès ou déficit de proximité") +
-  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", comm = "yellow3"),
+  xlab("Quintiles de niveau de vie")+
+  ylab("Quintiles d'excès ou déficit de proximité") +
+  scale_color_manual(values = c(alim = "purple4", sortie = "orange2", sante = "seagreen", comm = "yellow2"),
                      labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")) +
   guides(color = "none") +
   ofce_caption(
-     source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs', ofce=FALSE,
+     source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs',
      note = 'On calcule des quintiles pondéré par la population les deux variables (niveau de vie et résidu de proximité). Le nombre d\u2019individus est indiqué par la couleur et l\u2019aire du cercle.')
 
 
@@ -718,7 +732,7 @@ ggplot(data_emc2$d |> filter(!is.na(q), n>10))+
   ylab("Distance parcourue moyenne pour les courses en voiture")+
   theme_ofce() +
   ofce_caption(
-    source = "EMC^2^, C200, Fichiers fonciers, calculs des auteurs", ofce = FALSE, 
+    source = "EMC^2^, C200, Fichiers fonciers, calculs des auteurs",
     note = "On définit les déciles de proximité par rapport à la population, classée par proximité. Le premier décile de proximité est donc celui pour lequel les 10% de la population le moins proches des commerces ou des services sont. Les boites à moustache représentent à l'intérieur d'un décile de proximité la diversité des distances parcourues.")
 
 ```
@@ -791,7 +805,7 @@ gg <- resemc2$res |>
   xlab("Déciles de population classée par proximité")+
   ylab("Effet relatif au d1") +
   ofce_caption(
-    source = "EMC^2^ AMP, C200, Fichiers Fonciers, calculs des auteurs", ofce = FALSE,
+    source = "EMC^2^ AMP, C200, Fichiers Fonciers, calculs des auteurs", 
     note = "Le graphique présente l'effet relatif au premier décile de proximité d'un autre décile de proximité sur les distances parcourues pour le motif courses. Ainsi, pour le dernier décile de proximité aux commerces aliementaires, le modèle estimé prévoit des distances parcourues 0,18 fois celles du décile d1. Le losange représente la valeur moyenne observée pour le décile de proximité d'après l'EMC^2^ AMP.") +
   theme_ofce()
 
@@ -898,7 +912,7 @@ ggplot() +
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
   ofce_caption(
-    source = "C200, Fichiers fonciers, OSM, cacluls des auteurs", ofce = FALSE,
+    source = "C200, Fichiers fonciers, OSM, cacluls des auteurs", 
     note = "La densité inversée consiste à évaluer le nombre d'habitants que l'on peut ateindre en partant d'un carrean en un temps et un mode donné. Le ratio moyen entre la marche à pied/TC 15 minute et la voiture 30 min est de 0.033.")
 
 ```
@@ -1010,13 +1024,13 @@ ggplot() +
         legend.text = element_text(hjust=0.5),
         legend.key.height = unit(6, "pt"),
         legend.margin = margin(b=6)) +
-  ofce_caption(source = "C200, Fichiers Foncier, EMC^2^. Calculs des auteurs, version 1.0", ofce = FALSE)
+  ofce_caption(
+    source = "C200, Fichiers Foncier, EMC^2^. Calculs des auteurs, version 1.0")
 
 ```
 
+::: {.column-margin}
 ```{r}
-#| column: margin
-
 data <- proj |> 
   select(idINS, ind, freq, dist) |> 
   mutate(idINS = r3035::expand_idINS(idINS),
@@ -1030,12 +1044,13 @@ margin_link(
   "données CO2 pour le motif courses")
 
 ```
+:::
 
 ## Emissions de CO~2~ et niveau de vie
 
 De la même façon que pour les mobilités professionnelles, l'analyse conduite ici permet d'analyser le lien entre niveau de vie[^5] et émissions de CO~2~ pour le motif commerce. La structure du territoire de la métrople d'Aix-Marseille-Provence influe ici aussi ce lien : Plus le niveau de vie est élevé, plus les émissions sont importante, un doublement du niveau de vie étant associé à un peu moins qu'un doublement des émissions (l'élasticité est de 0,78, donc un doublement du niveau de vie est associé à une mulitplication par 1,56 des émissions).
 
-[^5]: LKe niveau de vie est le revenu disponible net (intégrant les différents revenus, les prestations moins les impôts sur le revenu) divisé par les unités de consommation. Les unités de consommation tiennent compte des économies d'échelles réalisées par la vie à plusieurs mais également des charges liées à une structure familale plus importante. Deux apporteurs de revenus ont un niveau de vie supérieur en ménage plutôt que séparés. Un apporteur de revenu à un niveau de vie inférieur lorsqu'il ou elle a des enfants à charge.
+[^5]: Le niveau de vie est le revenu disponible net (intégrant les différents revenus, les prestations moins les impôts sur le revenu) divisé par les unités de consommation. Les unités de consommation tiennent compte des économies d'échelles réalisées par la vie à plusieurs mais également des charges liées à une structure familale plus importante. Deux apporteurs de revenus ont un niveau de vie supérieur en ménage plutôt que séparés. Un apporteur de revenu à un niveau de vie inférieur lorsqu'il ou elle a des enfants à charge.
 
 ```{r, include = FALSE}
 label_iris <- bd_read("iris22") |> 
@@ -1139,11 +1154,11 @@ pp <- patchwork::wrap_plots(
 girafy(pp)
 ```
 
+::: {.column-margin}
 ```{r}
-#| column: margin
- 
 margin_link(co2_iris |> select(-dens.alt, -shape, -tooltip2), "CO2_commerces_IRIS", "Données CO2 commerce à l'IRIS")
 ```
+:::
 
 ## Emissions de CO~2~ et densité
 
@@ -1218,11 +1233,11 @@ ppp <- patchwork::wrap_plots(
 girafy(ppp)
 ```
 
+::: {.column-margin}
 ```{r}
-#| column: margin
-
 margin_link(co2_iris |> select(-dens.alt, -shape, -tooltip2), "CO2_commerces_IRIS", "Données CO2 commerce à l'IRIS")
 ```
+:::
 
 ## Comparaison des émissions liées au commerce et à la mobilité professionnelle {#sec-compprocom}
 
@@ -1290,9 +1305,8 @@ ggg <- ggplot(comp) +
 girafy(ggg)
 ```
 
-
+::: {.column-margin}
 ```{r}
-#| column: margin
-
 margin_link(co2_iris |> select(-dens.alt, -shape, -tooltip2, -co2_p), "CO2_commerces_IRIS", "Données CO2 commerce à l'IRIS")
 ```
+:::
