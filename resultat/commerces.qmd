@@ -112,11 +112,11 @@ $$
 \mathcal{P}_c  = \left( \sum_{j \in V_{15 \space min}(i), j\in J} {s_j^\alpha \times w_J^{1-\alpha}}\right)^\beta \times  \sum_{j \in V_{15 \space min}(i), j \in J} {\frac {1}{w_J \times p_J^2}} 
 $$
 
-La première partie de l'indicateur $\mathcal{P}_c$ est la somme des surfaces dans le vosinage de chaque carreau de résidents à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie de l'indicateur permet de prendre en compte la diversité des commerces accessibles dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (par exemple, parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifiques). Le paramètre $w_J$ accorde aux catégories un poids en diversité, permettant de compter les grandes surfaces alimentaires comme contribuant plus à la diversité qu'une surface commerciale spécialisée.
+La première partie de l'indicateur $\mathcal{P}_c$ est la somme des surfaces dans le vosinage de chaque carreau de résidents à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie de l'indicateur permet de prendre en compte la diversité des commerces accessibles dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (par exemple, parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifique). Le paramètre $w_J$ accorde aux catégories un poids en diversité, permettant de compter les grandes surfaces alimentaires comme contribuant plus à la diversité qu'une surface commerciale spécialisée.
 
 Le rôle des paramètres $\alpha$ et $\beta$ est de moduler l'expression $\mathcal{P}_c$. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont comptabilisés, indépendament de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet multiplicatif de la surface.
 
-A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers paramètres ($w_i$, $\alpha$, $\beta$). Nous avons fixé des valeurs a priori, afin de pouvoir étudier des variantes et évaluer la différence d'analyse produite. Nous verrons que l'indicateur est utilisé non pas en tant que tel, mais principalement par quantile, ce qui le rend insensible à des transformations monotones. L'heuristique consiste à choisir $\alpha$ et $w_i$ de façon à ce que les surfaces ne comptent pas trop. Si on considère un groupe de 6 commerces spécialisés de 100m², on souhaite que ces commerces soient comparables à un supermarché de 2500m². En choisissant $w_i = 6$ pour le supermarché et $\alpha = 0.25$ la surface ajustée vaut 3,4 pour les 6 commerces et 4,2 pour le supermarché. Pour des commerces spécialisés de 50m², la surface ajustée serait de 3,1 et de 4,7 pour un hypermarché de 5000 m². Ce choix donne donc une importance modérée aux surfaces.
+A ce stade, nous n'avons pas beaucoup d'éléments pour choisir les divers paramètres ($w_i$, $\alpha$, $\beta$). Nous avons fixé des valeurs a priori, afin de pouvoir étudier des variantes et évaluer la différence d'analyse produite. Nous verrons que l'indicateur est utilisé non pas en tant que tel, mais principalement par quantile, ce qui le rend insensible à des transformations monotones. L'heuristique consiste à choisir $\alpha$ et $w_i$ de façon à ce que les surfaces ne comptent pas trop. Si on considère un groupe de 6 commerces spécialisés de 100m², on souhaite que ces commerces soient comparables à un supermarché de 2 500m². En choisissant $w_i = 6$ pour le supermarché et $\alpha = 0.25$ la surface ajustée vaut 3,4 pour les 6 commerces et 4,2 pour le supermarché. Pour des commerces spécialisés de 50m², la surface ajustée serait de 3,1 et de 4,7 pour un hypermarché de 5 000 m². Ce choix donne donc une importance modérée aux surfaces.
 
 Le paramètre $\beta$ est choisi de façon à égaliser les rapports inter-quantiles de la surface ajustée. Ceci conduit à donner un poids égal à la diversité et à la surface ajustée pour le calcul de la surface équivalente. En changeant le paramètre $\beta$ on peut modifier ce ratio.
 
@@ -388,6 +388,8 @@ Le graphique suivant est construit en classant la population par proximité croi
 #| fig-cap: "Courbe de Lorenz, accessibilité aux aménités"
 #| fig-asp: 0.8
 
+library(marquee)
+
 vqh <- bd_read("vqh") |>
   r3035::sidINS2sf(idINS = "fromidINS") |> 
   mutate(wqse = factor(wqse))
@@ -434,14 +436,16 @@ gg <- ggplot(lorenz) +
     data = lorenz_redux,
     aes(tooltip = tooltip, data_id = cumind))+
   theme_ofce(
+    legend.title = element_marquee(),
+    legend.text = element_marquee(),
     legend.position = c(0.05, 0.95),
     legend.justification = c(0,1),
     legend.direction = "vertical" ) + 
   xlab("% de la population de la métropole AMP") +
   ylab("Proximité moyenne des aménités") +
   scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", comm = "yellow3"),
-                     labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties"),
-                     name = "") +
+                     labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")) +
+  guides(color = guide_marquee(title = "Proximité aux !!1, !!2, !!3 ou !!4")) +
   scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
   scale_y_log10() +
   ofce_caption(
