@@ -14,8 +14,8 @@ book:
   cover-image: images/Marseille_vieille_carte.jpg
   favicon: images/meaps-favicon.png
   author:
-    - name: Xavier Timbeau
     - name: Maxime Parodi
+    - name: Xavier Timbeau
   reader-mode: false
   search: true
   page-navigation: true
@@ -59,8 +59,8 @@ lang: fr
 
 format:
   ofce-html:
-    toc-location: right
+    toc-location: left
     toc-depth: 3
-    toc-expand: true
+    toc-expand: false
 
 editor: visual
