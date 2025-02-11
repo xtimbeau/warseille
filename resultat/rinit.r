@@ -35,6 +35,7 @@ library(conflicted, quietly = TRUE)
 library(sf, quietly = TRUE)
 library(tmap, quietly = TRUE)
 library(mapdeck, quietly = TRUE)
+library(marquee, quietly = TRUE)
 
 options(
   ofce.base_size = 12,
