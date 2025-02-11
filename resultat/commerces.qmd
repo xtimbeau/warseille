@@ -210,21 +210,29 @@ margin_link(
 #| fig-asp: 1
 library(sf)
 library(paletteer)
+
+legend_h <- list(
+  theme_ofce_void(), 
+  theme(
+    legend.position = "bottom",
+    legend.box.spacing = unit(3, "pt"),
+    legend.title = marquee::element_marquee(vjust=1.2, margin = margin(t=0, b=0, r=6)),
+    legend.text = marquee::element_marquee(size = rel(0.6), margin = margin(t=1, b=1), width = NULL, hjust=0.5),
+    legend.text.position = "bottom", 
+    legend.key.spacing.x = unit(1, "pt"),
+    legend.key.height = unit(6, "pt") ) )
+
 ggplot() +
   bd_read("decor_carte") +
   geom_sf(
     data = vqh |> filter(type == "alim") ,
     mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
   scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
-                         name = "Accessibilité alimentaire : ", label = c("très faible", "", "", "", "très élevée"))+
-  theme_ofce_void() +
-  theme(legend.position = "bottom",
-        legend.title = marquee::element_marquee(vjust=1, margin = margin(t=0, r=6)),
-        legend.text.position = "bottom", 
-        legend.key.height = unit(6, "pt")) +
+                         name = "Proximité alimentaire : ", label = c("faible", "", "", "", "élevée"))+
+  legend_h +
   ofce::ofce_caption(
     source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).")
+    note ="L'indicateur de proximité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).")
 ```
 
 ## Autres commerces
@@ -238,16 +246,12 @@ ggplot() +
     data= vqh |> filter(type == "comm"),
     mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
   scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
-                         name = "Accessibilité autres commerces : ", label = c("très faible", "", "", "", "très élevée"))+
-  theme_ofce_void() +
-  theme(legend.position = "bottom",
-        legend.title = marquee::element_marquee(vjust=1, margin = margin(t=0, r=6)),
-        legend.text.position = "bottom", 
-        legend.key.height = unit(6, "pt")) +
+                         name = "Proximité autres commerces : ", label = c("faible", "", "", "", "élevée"))+
+  legend_h + 
   guides(fill = guide_legend(nrow=1))+
   ofce::ofce_caption(
     source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces autres qu'alimentaires).")
+    note ="L'indicateur de proximité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces autres qu'alimentaires).")
 ```
 
 ## Sorties
@@ -261,15 +265,11 @@ ggplot() +
     data= vqh |> filter(type == "sortie"),
     mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
   scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
-                         name = "Accessibilité sorties : ", label = c("très faible", "", "", "", "très élevée"))+
-  theme_ofce_void() +
-  theme(legend.position = "bottom",
-        legend.title = marquee::element_marquee(vjust=1, margin = margin(t=0, r=6)),
-        legend.text.position = "bottom", 
-        legend.key.height = unit(6, "pt")) +
+                         name = "Proximité sorties : ", label = c("faible", "", "", "", "élevée"))+
+  legend_h +
   ofce::ofce_caption(
     source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici restaurants, bars et cinéma).")
+    note ="L'indicateur de proximité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici restaurants, bars et cinéma).")
 ```
 
 ## Santé humaine
@@ -283,15 +283,11 @@ ggplot() +
     data= vqh |> filter(type == "sante"),
     mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
   scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
-                         name = "Accessibilité santé humaine : ", label = c("très faible", "", "", "", "très élevée"))+
-  theme_ofce_void() +
-  theme(legend.position = "bottom",
-        legend.title = marquee::element_marquee(vjust=1, margin = margin(t=0, r=6)),
-        legend.text.position = "bottom", 
-        legend.key.height = unit(6, "pt")) +
+                         name = "Proximité santé humaine : ", label = c("faible", "", "", "", "élevée"))+
+  legend_h +
   ofce::ofce_caption(
     source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur d'accessibilité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).")
+    note ="L'indicateur de proximité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).")
 
 ```
 :::
@@ -436,16 +432,18 @@ gg <- ggplot(lorenz) +
     data = lorenz_redux,
     aes(tooltip = tooltip, data_id = cumind))+
   theme_ofce(
+    marquee=TRUE,
+    plot.title.position = "plot",
     legend.title = element_marquee(),
     legend.text = element_marquee(),
     legend.position = c(0.05, 0.95),
     legend.justification = c(0,1),
     legend.direction = "vertical" ) + 
+  guides(color = guide_marquee(title = "Proximité aux !!1, !!2, !!3 ou !!4")) +
   xlab("% de la population de la métropole AMP") +
   ylab("Proximité moyenne des aménités") +
-  scale_color_manual(values = c(alim = "purple4", sortie = "orange4", sante = "seagreen", comm = "yellow3"),
+  scale_color_manual(values = c(alim = "purple4", sortie = "orange2", sante = "seagreen", comm = "yellow2"),
                      labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")) +
-  guides(color = guide_marquee(title = "Proximité aux !!1, !!2, !!3 ou !!4")) +
   scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
   scale_y_log10() +
   ofce_caption(
@@ -496,12 +494,17 @@ On peut représenter les résidus de ces modèles sur une carte. Cela donne un i
 ::: panel-tabset
 ## Alimentaire
 ```{r}
-thm_map_leg <- theme_ofce_void(
-    legend.position = "bottom",
-    legend.title = marquee::element_marquee(vjust = 1, margin = margin(t=0, r=12)),
-    legend.text = element_text(hjust=0.5),
-    legend.key.width = unit(36, "pt"),
-    legend.key.height = unit(6, "pt"))
+thm_map_leg <- list(
+  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
+                         aesthetics = c("fill", "color"),
+                         labels = c("En déficit","","","", "En excès"),
+                         breaks = c(-5,-2.5,0, 2.5, 5),
+                         trans = pseudo_log_trans(), 
+                         name = "Aménités par rapport à la densité de population :"),
+  legend_h, 
+  theme(legend.key.width = unit(1, "cm"),
+        legend.text = element_blank()),
+  theme(legend.text = element_text(size = rel(0.4))))
 ```
 
 ```{r}
@@ -515,9 +518,6 @@ data <- lien_se_si |>
 ggplot() +
   bd_read("decor_carte") +
   geom_sf( data = data, aes(fill = r, col = r)) +
-  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
-                         aesthetics = c("fill", "color"),
-                         trans = pseudo_log_trans()) +
   thm_map_leg +
   ofce_caption(
     source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
@@ -539,9 +539,6 @@ data <- lien_se_si |>
 ggplot() +
   bd_read("decor_carte") +
   geom_sf( data = data, aes(fill = r, col = r)) +
-  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
-                         aesthetics = c("fill", "color"),
-                         trans = pseudo_log_trans()) +
   thm_map_leg +
   ofce_caption(
     source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
@@ -558,9 +555,6 @@ data <- lien_se_si |> filter(t == "se_sortie", m == 1) |> pull(residus) |> pluck
 ggplot() +
   bd_read("decor_carte") +
   geom_sf( data = data, aes(fill = r, col=r)) +
-  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging",
-                         aesthetics = c("fill", "color"),
-                         trans = pseudo_log_trans()) +
   thm_map_leg +
   ofce_caption(
     source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
@@ -577,9 +571,6 @@ data <- lien_se_si |> filter(t == "se_sante", m == 1) |> pull(residus) |> pluck(
 ggplot() +
   bd_read("decor_carte") +
   geom_sf( data = data, aes(fill = r, col = r)) +
-  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
-                         aesthetics = c("fill", "color"),
-                         trans = pseudo_log_trans())  +
   thm_map_leg +
   ofce_caption(
     source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
@@ -596,9 +587,6 @@ data <- lien_se_si |> filter(t == "se_agg", m == 1) |> pull(residus) |> pluck(1)
 ggplot() +
   bd_read("decor_carte") +
   geom_sf( data = data, aes(fill = r, col = r)) +
-  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
-                         aesthetics = c("fill", "color"),
-                         trans = pseudo_log_trans(), name = NULL) +
   thm_map_leg +
   ofce_caption(
     source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
@@ -690,14 +678,15 @@ ggg <- ggplot(gdata)+
   geom_point_interactive(
     aes(x=qndv, y=qr, size = ind, col = type, tooltip = tooltip),
     alpha = 0.75)+
-  scale_size(range = c(1,10),
+  scale_size_area(max_size = 10,
              labels = scales::label_number(scale = 1/1000, suffix="k"), 
-             breaks = c(50000, 100000),
+             breaks = c(30000, 100000),
              name = "Nombre d'individus par cercle",
-             guide = guide_circles( theme = theme(legend.text = element_text(size=6),
+             guide = guide_circles( theme = theme(legend.text = element_marquee(size=rel(0.5)),
                                                   legend.axis.line = element_line(linewidth = 0.1)) )) + 
   facet_wrap(vars(type), labeller = as_labeller(labels)) +
   theme_ofce(
+    legend.position = "bottom",
     axis.line = element_blank(), 
     legend.justification = c(1,0.5), 
     legend.title.position = c("left"), 
@@ -904,20 +893,17 @@ ggplot() +
     mapping = aes(fill = value, color = value), linewidth = 0.1) + 
   scale_fill_paletteer_d("fishualize::Bodianus_rufus", 
                          direction=1, 
-                         label = c("très faible", "", "", "", "très élevée"), name = "Densité inversée")+
+                         label = c("faible", "", "", "", "élevée"), name = "Densité inversée :")+
   scale_color_paletteer_d("fishualize::Bodianus_rufus", 
                          direction=1, 
-                         label = c("très faible", "", "", "", "très élevée"), name = "Densité inversée")+
-  theme_ofce_void() +
+                         label = c("faible", "", "", "", "élevée"), name = "Densité inversée :")+
   facet_wrap(vars(name)) +
   coord_sf(xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax), crs = st_crs(3035)) +
-  theme(legend.position = "bottom", 
-        legend.text = element_text(hjust=0.5),
-        legend.key.height = unit(6, "pt"),
-        legend.margin = margin(b=6)) +
+  legend_h +
+  theme(plot.caption = element_marquee(margin = margin(t=0,b=0))) +
   ofce_caption(
     source = "C200, Fichiers fonciers, OSM, cacluls des auteurs", 
-    note = "La densité inversée consiste à évaluer le nombre d'habitants que l'on peut ateindre en partant d'un carrean en un temps et un mode donné. Le ratio moyen entre la marche à pied/TC 15 minute et la voiture 30 min est de 0.033.")
+    note = "La densité inversée consiste à évaluer le nombre d'habitants que l'on peut ateindre en partant d'un carrean en un temps et un mode donné. Le ratio moyen entre la marche à pied/TC 15 minute et la voiture 30 min est de 0,033.")
 
 ```
 
@@ -1007,7 +993,7 @@ labels_co2 <- proj |>
   pull(co2) |> 
   round(2) |> 
   str_replace("\\.", ",") |> 
-  str_c(" tCO2")
+  str_c(" tCO{.sub 2}")
 
 ggplot() +
   bd_read("decor_carte") +
@@ -1017,17 +1003,12 @@ ggplot() +
   scale_fill_paletteer_d(palette = "fishualize::Bodianus_rufus", 
                          direction=1, 
                          label = labels_co2, 
-                         name = NULL)+
+                         name = "Emissions commerce par individu par an :")+
   scale_color_paletteer_d(palette = "fishualize::Bodianus_rufus", 
                          direction=1, 
                          label = labels_co2, 
-                         name = NULL)+
-  theme_ofce_void() +
-  # coord_sf(xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax), crs = st_crs(3035)) +
-  theme(legend.position = "bottom", 
-        legend.text = element_text(hjust=0.5),
-        legend.key.height = unit(6, "pt"),
-        legend.margin = margin(b=6)) +
+                         name = "Emissions commerce par individu par an :")+
+  legend_h +
   ofce_caption(
     source = "C200, Fichiers Foncier, EMC^2^. Calculs des auteurs, version 1.0")
 
@@ -1129,8 +1110,8 @@ base <- ggplot(co2_iris) +
   guides(size=guide_legend(title = "Individus/ha", override.aes = list(color="grey25")),
          fill=guide_colorbar(
            theme=theme(legend.key.width = unit(96,"pt"),
-                       legend.text = element_text(hjust=0.5),
-                       legend.title = marquee::element_marquee(hjust=1))),
+                       legend.text = element_marquee(hjust=0.5),
+                       legend.title = element_marquee(hjust=1))),
          shape = "none") + 
   theme(plot.margin = margin()) +
   ofce_caption(
@@ -1194,8 +1175,8 @@ base <- ggplot(co2_iris) +
     size=guide_legend(title = "Actifs/ha", override.aes = list(color="grey25")),
     fill=guide_colorbar(
       theme=theme(legend.key.width = unit(96,"pt"),
-                  legend.text = element_text(hjust=0.5),
-                  legend.title = marquee::element_marquee(hjust=1))),
+                  legend.text = element_marquee(hjust=0.5),
+                  legend.title = element_marquee(hjust=1))),
     shape = "none") + 
   scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
   scale_x_continuous("Individus/ha", 
@@ -1296,9 +1277,9 @@ ggg <- ggplot(comp) +
   geom_vline(xintercept = moy$co2_pi_p, linetype = "dotted", color = "darkblue") +
   guides(
     fill=guide_colorbar(
-      theme=theme(legend.key.width = unit(96,"pt"),
-                  legend.text = element_text(hjust=0.5),
-                  legend.title = marquee::element_marquee(hjust=1)))) + 
+      theme=theme(legend.key.width = unit(24,"pt"),
+                  legend.text = element_marquee(hjust=0.5, width=NULL),
+                  legend.title = element_marquee(hjust=1)))) + 
   theme_ofce(
     legend.position = c(0.95, 0.95),
     legend.justification = c(1,1),
