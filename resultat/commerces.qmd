@@ -25,7 +25,28 @@ En particulier, les déplacements effectués pour un motif d'achat sont plus com
 #| label: tbl-emp
 #| tbl-cap: Enquête mobilité des personnes 2019, déplacement en voiture
 
-bd_read("EMP2019_AA3") |> pluck(1)
+bd_read("EMP2019_AA4") |>
+  pluck(1) |> 
+      gt::gt(groupname_col = "grp") |> 
+      gt::tab_header(title = "Aire d'attraction de plus de 700k habitants, hors Paris" ,
+                     subtitle = "km annuels en voiture") |> 
+      gt::cols_label(travail_ac = "travail",
+                     vv = "") |>
+      gt::tab_spanner(label = "par actif",
+                      columns = c(travail_ac)) |>
+      gt::tab_spanner(label = "par adulte",
+                      columns = c(travail,
+                                  etudes,
+                                  courses, 
+                                  autres, 
+                                  total)) |> 
+      gt::fmt_markdown() |> 
+      gt::cols_label(ends_with("_r") ~ "") |> 
+      gt::cols_align(vv, align="left") |> 
+      gt::cols_align(-vv, align="center") |>
+      gt::tab_source_note(gt::md(
+        "*Source* : EMP 2019, calcul des auteurs.<br>
+         *Note* : km parcourus par an en voiture, entre crochets : intervalle de confiance à 95%" |> glue::glue()))
 
 ```
 
