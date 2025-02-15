@@ -79,9 +79,7 @@ ggplot(aa41 |> filter(grp == "km", name != "total", vv != "total")) +
   ofce_caption(
     source = "EMP 2019, calcul des auteurs") +
   theme_ofce()
-
 ```
-
 
 Nous proposons une méthode qui exploite plusieurs sources et s'efforce de les rapprocher :
 
