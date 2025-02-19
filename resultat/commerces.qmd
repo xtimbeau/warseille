@@ -1125,6 +1125,35 @@ co2_iris <-  densite |>
       Densité : {round(dens)} hab/ha
       Prix de l'immobilier (achat ancien) en 2022 : {euro(prix)}/m²
       Niveau de vie moyen : {euro(snv)}/an/uc" ) )
+
+legend_c <- list(
+  theme(
+    plot.margin = margin(),
+    legend.position = "bottom", 
+    legend.text = element_blank(),
+    legend.spacing = unit(3, "cm"),
+    legend.justification = c(1,0.5)),
+  theme(
+    legend.direction = "horizontal",
+    legend.key.width = unit(24,"pt"),
+    legend.text = element_text(hjust=0.5, size = rel(0.5)),
+    legend.title = element_marquee(hjust=1),
+    legend.axis.line = element_line(linewidth = 0.1)),
+  guides(
+    shape = "none", 
+    size = guide_circles(
+      override.aes = list(colour = "black", shape=21, stroke = 0.25),
+      theme = theme(
+        legend.text = element_text(hjust=0.5, size = rel(0.5)),
+        legend.justification.bottom = "right")),
+    fill = guide_colorbar(
+      theme = theme(
+        legend.title = element_marquee(vjust = -0.25),
+        legend.ticks.length = unit(12, 'pt'),
+        legend.ticks = element_line(linewidth = .25, colour = "white"),
+        legend.justification.bottom = "left"
+      ))))
+
 ```
 
 ```{r}
@@ -1139,12 +1168,12 @@ base <- ggplot(co2_iris) +
                        oob = scales::squish,
                        limits = c(1000, 8000),
                        aesthetics = c( "fill"),
-                       breaks = c(1000, 3000, 8000),
+                       breaks = c(1000, 2000, 4000, 8000),
                        name="prix immobilier\n€/m² 2022")+
   geom_point_interactive(
     aes(size = dens, shape = shape, tooltip = tooltip2),
     hover_nearest = TRUE,
-    alpha=0.95, stroke=.1, color = "transparent") +
+    alpha=0.95, stroke=0, color = "transparent") +
   scale_shape_manual(
     values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
   scale_x_continuous(
@@ -1154,22 +1183,17 @@ base <- ggplot(co2_iris) +
   scale_y_continuous(
     "tCO{.sub 2}, motif commerce (moyenne de l'IRIS)",
     labels = scales::label_number(big.mark = " ")) +
+  scale_size(
+    name = "Individus/ha", 
+    breaks = c(100, 500), 
+    guide = "circles", 
+    range = c(.5, 8)) +
   geom_smooth(col="lightblue", fill = "lightblue1", aes(weight = ind)) +
-  theme_ofce(
-    base_size = 10, 
-    legend.position = "bottom", 
-    marquee = TRUE) +
-  guides(size=guide_legend(title = "Individus/ha", override.aes = list(color="grey25")),
-         fill=guide_colorbar(
-           theme=theme(legend.key.width = unit(96,"pt"),
-                       legend.text = element_marquee(hjust=0.5),
-                       legend.title = element_marquee(hjust=1))),
-         shape = "none") + 
-  theme(plot.margin = margin()) +
+  theme_ofce(base_size = 10) +
+  legend_c +
   ofce_caption(
     source = "C200, Fichiers Foncier, EMC^2^. Calculs des auteurs, version 1.0",
-    note = "Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille, les losanges pour la commune d'Aix-en-Provence, les ronds pour les autres communes."
-  )
+    note = "Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille, les losanges pour la commune d'Aix-en-Provence, les ronds pour les autres communes.")
 
 top_dens <- ggplot(co2_iris)+
   geom_density(aes(x=snv, y=after_stat(density), weight=ind), 
@@ -1222,25 +1246,24 @@ base <- ggplot(co2_iris) +
   geom_point_interactive(
     aes(size = dens, fill = prix, shape = shape, tooltip = tooltip2),
     hover_nearest = TRUE,
-    alpha=0.95, color="transparent", stroke=0.1) +
-  guides(
-    size=guide_legend(title = "Actifs/ha", override.aes = list(color="grey25")),
-    fill=guide_colorbar(
-      theme=theme(legend.key.width = unit(96,"pt"),
-                  legend.text = element_marquee(hjust=0.5),
-                  legend.title = element_marquee(hjust=1))),
-    shape = "none") + 
-  scale_shape_manual(values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
-  scale_x_continuous("Individus/ha", 
-                     labels = scales::label_number(big.mark = " "),
-                     limits = c(0,400)) + 
-  scale_y_continuous("tCO{.sub 2}, motif commerce (moyenne de l'IRIS)", 
-                     labels = scales::label_number(big.mark = " ")) +
+    alpha=0.95, color="transparent", stroke=0) +
+  scale_shape_manual(
+    values=c("Marseille"=22, "Aix-en-Provence"=23, "autre"=21)) +
+  scale_x_continuous(
+    "Individus/ha", 
+    labels = scales::label_number(big.mark = " "),
+    limits = c(0,400)) + 
+  scale_y_continuous(
+    "tCO{.sub 2}, motif commerce (moyenne de l'IRIS)", 
+    labels = scales::label_number(big.mark = " ")) +
+  scale_size(
+    name = "Individus/ha", 
+    breaks = c(100, 500), 
+    guide = "circles", 
+    range = c(.5, 8)) +
   geom_smooth(col="gold3", fill = "gold", aes(weight = ind), alpha=0.1) +
-  theme_ofce(base_size = 10, 
-             legend.position = "bottom", 
-             marquee = TRUE )+
-  theme(plot.margin = margin()) +
+  theme_ofce(base_size = 10)+
+  legend_c + 
   ofce_caption(
     source = "C200, Fichiers Foncier, EMC^2^. Calculs des auteurs, version 1.0",
     note = "Chacun des points représente un IRIS. Les carrés sont pour la commune de Marseille, les losanges pour la commune d'Aix-en-Provence, les ronds pour les autres communes."
@@ -1262,10 +1285,7 @@ right_dens <- ggplot(co2_iris)+
 ppp <- patchwork::wrap_plots(
   top_dens, patchwork::plot_spacer(), base,  right_dens,
   ncol=2, nrow=2, widths = c(1, 0.1), heights = c(0.1, 1)) &
-  theme(panel.spacing = unit(0, "pt"), 
-        legend.key.height = unit(6, "pt"),
-        legend.key.width = unit(12, 'pt'),
-        legend.key.spacing = unit(12, 'pt'))
+  theme(panel.spacing = unit(0, "pt"))
 
 girafy(ppp)
 ```
@@ -1320,23 +1340,28 @@ ggg <- ggplot(comp) +
     hover_nearest = TRUE, binwidth = c(.025, .025)) +
   coord_equal(xlim = c(0,1.5), ylim=c(0,.75)) +
   scale_fill_gradient(
-    name = "Individus",
+    name = "Individus:",
     low = "gray95", high = "steelblue", transform = "sqrt",
-    breaks = c(1, 1000, 10000, 25000)) + 
+    breaks = c(1000, 10000, 30000), labels = c("1k", "10k", "30k")) + 
   xlab("Emissions par individu pour le motif professionnel (tCO2/individu/an)") +
   ylab("Emissions par individu pour le motif commerces (tCO2/individu/an)") +
   geom_hline(yintercept = moy$co2_pi_c, linetype = "dotted", color = "darkblue") +
   geom_vline(xintercept = moy$co2_pi_p, linetype = "dotted", color = "darkblue") +
   guides(
     fill=guide_colorbar(
-      theme=theme(legend.key.width = unit(24,"pt"),
-                  legend.text = element_marquee(hjust=0.5, width=NULL),
+      theme=theme(legend.key.width = unit(4,"cm"),
+                  legend.text = element_text(hjust=0.5),
                   legend.title = element_marquee(hjust=1)))) + 
   theme_ofce(
+    legend.text = element_blank(),
+    legend.direction = "horizontal",
     legend.position = c(0.95, 0.95),
     legend.justification = c(1,1),
-    legend.key.width = unit(24, "pt")
-  ) +
+    legend.key.width = unit(24, "pt"), 
+    legend.ticks.length = unit(9, "pt"),
+    legend.title = element_marquee(vjust=-0.5)) +
+  theme(
+    legend.text = element_text(size = rel(0.5)) ) +
   ofce_caption(source = "C200, Fichiers Foncier, EMC^2^, MEAPS. Calculs des auteurs, version 1.0", ofce = FALSE)
 
 girafy(ggg)
