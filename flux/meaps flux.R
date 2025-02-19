@@ -13,7 +13,7 @@ library(tidyverse)
 library(Matrix)
 library(ofce)
 source("secrets/azure.R")
-calc <- TRUE
+calc <- FALSE
 check <- FALSE
 conflict_prefer("filter", "dplyr", quiet=TRUE)
 conflict_prefer("select", "dplyr", quiet=TRUE)
@@ -22,7 +22,7 @@ conflict_prefer("between", "dplyr", quiet=TRUE)
 conflict_prefer("first", "dplyr", quiet=TRUE)
 
 # ---- Definition des zones ----
-load("baselayer.rda")
+source("mglobals.r")
 
 cli::cli_alert_info("Flux")
 
@@ -30,9 +30,12 @@ c200ze <- qs::qread(c200ze_file) |> arrange(com, idINS)
 com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com) |> as.integer()
 com_geo21_ze <- c200ze |> filter(emp>0) |> distinct(com) |> pull(com) |> as.integer()
 
-time <- open_dataset(time_dts) |> to_duckdb() |> select(fromidINS, toidINS, t) |> collect()
-froms <- distinct(time, fromidINS) |> pull() |> as.character()
-tos <- distinct(time, toidINS) |> pull() |> as.character()
+froms <- open_dataset(time_dts) |> to_duckdb() |> 
+  filter(COMMUNE %in% com_geo21_scot, DCLT %in% com_geo21_ze) |> 
+  distinct(fromidINS) |> pull() |> as.character()
+tos <- open_dataset(time_dts) |> to_duckdb() |> 
+  filter(COMMUNE %in% com_geo21_scot, DCLT %in% com_geo21_ze) |> 
+  distinct(toidINS) |> pull() |> as.character()
 
 communes <- c200ze |> filter(scot) |> mutate(com = as.integer(com)) |> pull(com, name = idINS) 
 communes <- communes[froms]
@@ -52,26 +55,27 @@ COMs <- tibble(actifs = actifs,
 DCLTs <- tibble(emplois = emplois, 
                 to = tos, DCLT = dclts)
 
-N <- length(actifs)
-K <- length(emplois)
-
-nshuf <- 256
-
-shufs <- emiette(les_actifs = actifs, nshuf = nshuf, seuil = 500)
+# N <- length(actifs)
+# K <- length(emplois)
+# 
+# nshuf <- 256
+# 
+# shufs <- emiette(les_actifs = actifs, nshuf = nshuf, seuil = 500)
 
 if(calc) {
-  estimation <- bd_read("estimation")
+  tranked <- qs::qread(trg_file)
   tic()
-  meaps <- meaps_continu(dist = time, 
-                         emplois = emplois, 
-                         actifs = actifs, 
-                         f = fuite, 
-                         shuf = shufs,
-                         attraction = estimation |> slice(2) |> pull(method),
-                         param = estimation |> slice(2) |> pull(param) |> pluck(1),
-                         nthreads = 16L)
+  meaps <- multishuf_oc(
+    tranked, attraction="marche", parametres=c(13, 11.0455), nthreads = 8L)$flux
+  meaps <- meaps |> 
+    mutate(
+      fromidINS = as.integer(fromidINS),
+      toidINS = as.integer(toidINS)
+      )
   toc()
   arrow::write_parquet(meaps, "{mdir}/meaps/meaps.parquet" |> glue())
+  rm(tranked, meaps)
+  gc()
 } 
 
 meaps <- arrow::open_dataset("{mdir}/meaps/meaps.parquet" |> glue()) |> 
@@ -107,15 +111,24 @@ meaps.joined <- meaps.joined |>
          km_ij = f_ij * all) |> 
   mutate(co2_ij = km_car_ij * 218/1000000)
 
+c200mze <- c200ze |> 
+  filter(scot) |> 
+  st_drop_geometry() |> 
+  select(fromidINS = idINS, ind, adultes) |> 
+  to_duckdb()
+
 meaps_from <- meaps.joined |> 
   group_by(fromidINS) |> 
   summarize(
     km_i = sum(km_ij, na.rm=TRUE),
     co2_i = sum(co2_ij, na.rm=TRUE),
     f_i = sum(f_ij, na.rm=TRUE)) |> 
+  left_join(c200mze, by = "fromidINS") |> 
   mutate(
     km_pa = km_i/f_i,
-    co2_pa = co2_i/f_i) |> 
+    km_pi = km_i/ind,
+    co2_pa = co2_i/f_i,
+    co2_pi = co2_i/ind) |> 
   collect()
 
 meaps_from <- meaps_from |> 
@@ -141,7 +154,7 @@ meaps_to <- meaps_to |>
 
 decor_carte <- bd_read("decor_carte")
 decor_carte_large <- bd_read("decor_carte_large")
-version <- "5.524"
+version <- "6.225"
 
 carte_co2_to <- ggplot() +
   decor_carte +

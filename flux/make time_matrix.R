@@ -1,4 +1,3 @@
-setwd("~/marseille")
 library(tidyverse)
 library(glue)
 library(conflicted)
@@ -13,7 +12,9 @@ conflict_prefer("between", "dplyr", quiet=TRUE)
 conflict_prefer("first", "dplyr", quiet=TRUE)
 
 # ---- Definition des zones ----
-load("baselayer.rda")
+# load("baselayer.rda")
+
+source("mglobals.r")
 copy_files(dist_dts, "/tmp/dist_dts")
 dist_dts <- "/tmp/dist_dts"
 cli::cli_alert_info("Time matrix")
