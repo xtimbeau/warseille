@@ -44,6 +44,8 @@ com_geo21_ze <- c200ze |>
   pull(com) |> 
   as.integer()
 
+# possible de passer direct à /tmp/time2
+
 open_dataset(dist_dts) |> 
   filter(mode=="car_dgr") |> 
   select(fromidINS, toidINS, d = distance) |> 
@@ -64,9 +66,9 @@ open_dataset(time_dts) |>
 
 time_d <- open_dataset("/tmp/time1")
 
-fs::dir_delete("/tmp/time2")
+if(fs::dir_exists("/tmp/time2")) fs::dir_delete("/tmp/time2")
 fs::dir_create("/tmp/time2")
-both_d <- map_dfr(cc, ~{
+both_d <- walk(cc, ~{
   com <- as.integer(.x)
   fs::dir_create(glue::glue("/tmp/time2/COMMUNE={com}"))
   time_d |>
@@ -79,17 +81,14 @@ both_d <- map_dfr(cc, ~{
     write_parquet(sink = glue::glue("/tmp/time2/COMMUNE={com}/part.parquet"))
 }, .progress=TRUE) 
 
-# both_d <- open_dataset("/tmp/time2") |> collect() 
-
-both_d <- both_d |>
-  arrange(fromidINS, metric, toidINS)
+both_d <- open_dataset("/tmp/time2") |> to_duckdb() 
 gc()
-
 froms <- distinct(both_d, fromidINS) |> pull() |> as.character() |> sort()
 tos <- distinct(both_d, toidINS) |> pull() |> as.character() |> sort()
 
 communes <- communes[froms]
-dclts <- c200ze |> filter(emp_resident>0) |> pull(com, name = idINS) 
+dclts <- c200ze |> filter(emp_resident>0) |> pull(com, name = idINS)
+tos <- base::intersect(tos, names(dclts))
 dclts <- dclts[tos]
 
 mobpro <- qs::qread(mobpro_file) |>
@@ -113,8 +112,14 @@ actifs <- actifs*sum(emplois)/sum(actifs*(1-fuites))
 # fuites_mv[fuites_mv==0] <- 0.0001
 # actifs_mv <- actifs_mv*sum(emplois_mv)/sum(actifs_mv*(1-fuites_mv))
 
+triplet <- both_d |>
+  select(fromidINS, toidINS, metric) |> 
+  filter(fromidINS%in%froms, toidINS%in%tos) |> 
+  collect() |> 
+  arrange(fromidINS, metric, toidINS)
+
 time_ranked <- meapsdata(
-  triplet = both_d,
+  triplet = triplet,
   actifs = actifs, emplois = emplois, fuites = fuites, nshuf = 64, seuil = 500)
 
 time_ranked_group <- meapsdatagroup(
@@ -125,8 +130,8 @@ time_ranked_group <- meapsdatagroup(
 
 qs::qsave(time_ranked_group, trg_file)
 
-rm(time_ranked, time_ranked_group)
-
+rm(time_ranked, time_ranked_group, triplet)
+gc()
 # time_ranked_mv <- meapsdata(
 #   triplet = time_d,
 #   actifs = actifs_mv, emplois = emplois_mv, fuites = fuites_mv, nshuf = 64, seuil = 500)
@@ -139,15 +144,15 @@ rm(time_ranked, time_ranked_group)
 # 
 # qs::qsave(time_ranked_mv_group, trgmv_file)
 
-both_d <- both_d |> 
+triplet <- both_d |> 
   filter(!is.na(d)) |> 
-  rename(t = metric, metric = d) |> 
-  arrange(fromidINS, metric, toidINS) 
-
-gc()
+  select(fromidINS, toidINS, metric = d) |> 
+  filter(fromidINS%in%froms, toidINS%in%tos) |> 
+  collect() |> 
+  arrange(fromidINS, metric, toidINS)
 
 dist_ranked <- meapsdata(
-  triplet = both_d,
+  triplet = triplet,
   actifs = actifs, emplois = emplois, fuites = fuites, nshuf = 64, seuil = 500)
 
 dist_ranked_group <- meapsdatagroup(
@@ -157,13 +162,10 @@ dist_ranked_group <- meapsdatagroup(
   cible = mobpro)
 
 qs::qsave(dist_ranked_group, drg_file)
-rm(dist_ranked_group, dist_ranked)
+rm(dist_ranked_group, dist_ranked, triplet)
+gc()
 
 ## ranked au niveau communal
-
-both_d <- arrow::open_dataset("/tmp/time2") |> 
-  to_duckdb() 
-gc()
 
 enframe(actifs, name = "fromidINS", value = "actif") |> 
   arrow::write_dataset("/tmp/dact")
@@ -189,6 +191,7 @@ dcl <- ddclts |> distinct(DCLT) |> collect() |> pull() |> sort()
 time_c <- map_dfr( les_coms, ~{ 
   both_d |>
     filter(COMMUNE == .x) |> 
+    filter(fromidINS %in% froms, toidINS %in% tos) |> 
     left_join(dactifs, by = "fromidINS") |> 
     left_join(demplois, by = "toidINS") |> 
     left_join(ddclts, by = "toidINS") |> 

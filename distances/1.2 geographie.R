@@ -40,7 +40,9 @@ if(download|!file.exists(iris_file)) {
     st_as_sf() |> st_transform(3035)
   
   qs::qsave(iris22, iris_file)
-}
+  bd_write(iris22)
+
+  }
 
 # zz <- archive_extract("https://www.insee.fr/fr/statistiques/fichier/7233950/BASE_TD_FILO_DISP_IRIS_2020_CSV.zip", dir ="/tmp")
 # revIRIS <- vroom::vroom(str_c("/tmp/", zz[1]))
@@ -277,7 +279,6 @@ decor_carte <- list(
     "label", x=Inf, y=-Inf, label = "\U00A9 Mapbox, \U00A9 OpenStreetMap",
     hjust=1, vjust=0, size=2, label.padding = unit(4, "pt"),
     label.size = 0, fill="gray98", alpha=0.5),
-  theme_ofce_void(),
   ggspatial::annotation_scale(
     line_width = 0.2, height = unit(0.1, "cm"), 
     text_cex = 0.4, pad_y = unit(0.1, "cm")),
@@ -301,7 +302,6 @@ decor_carte_large <- list(
     "label", x=Inf, y=-Inf, label = "\U00A9 Mapbox, \U00A9 OpenStreetMap",
     hjust=1, vjust=0, size=2, label.padding = unit(4, "pt"),
     label.size = 0, fill="gray98", alpha=0.5),
-  theme_ofce_void(),
   ggspatial::annotation_scale(
     line_width = 0.2, height = unit(0.1, "cm"), 
     text_cex = 0.4, pad_y = unit(0.1, "cm")),

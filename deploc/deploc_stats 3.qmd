@@ -1,0 +1,127 @@
+```{r, include=FALSE}
+# quelques stats descriptives sur emp2019
+
+# on essaye de reproduire les tableaux du SDES
+library(tidyverse)
+library(ofce)
+library(conflicted)
+library(here)
+library(knitr)
+opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.pos="h", 
+  out.extra="",
+  dev="ragg_png",
+  out.width="100%",
+  fig.showtext=TRUE,
+  fig.asp =0.7,
+  cache=FALSE)
+source("mglobals.r")
+conflict_prefer_all("dplyr", quiet=TRUE)
+future::plan("multisession", workers = 8)
+stat_bouc <- qs::qread(here::here("mod/data/stat_bouc.qs"))
+deploc_individu <- qs::qread(deploc_individu_file)
+source(here("mod/f.deploc_stat.r"))
+source(here("secrets/azure.R"))
+
+```
+
+## France Aire attraction 3 (200-700k)
+
+Le résultat Enquête mobilité des personnes 2019, (voiture) donne le tableau suivant :
+
+
+```{r}
+
+aa3 <- deploc_densite_2(
+  deploc_individu |> filter(TAA2017_RES==3), label_reg="Aire attraction 200-700k",
+  var = "DENSITECOM_RES",
+  labels = c("très dense", "densité intermédiaire", "peu dense", "très peu dense"))
+
+aa3$table[[1]]
+
+# aa3$table[[3]]
+ 
+bd_write(aa3$data, name = "EMP2019_AA3")
+```
+
+Le tableau suivant présente les résultats de simulations sur l'aire de La Rochelle. Les différents algorithmes sont présentés.
+
+MEAPS 2p est l'algorithme utilisant 2 paramètres et donc le plus adapté pour les projections. Il est meilleur que gravitaire sur le fit avec MOBPRO, bien qu'il donne des distances un peu trop courtes, ce qui devrai tpouvoir s'arranger avec un troisième paramètre.
+
+La reproduction des ratios par densité est pas parfaite (MEAPS 2p colle bien avec intermédiaire, pêche sur peu dense). Les autres sont bons sur "peu dense", mais moins bons sur intermédiaire.
+
+
+Pour des analyses sans variantes (stats descriptives) le mieux est de prendre meaps 99%.
+
+```{r}
+bd_read("comp_kmpa")
+
+```
+
+# Autres tableaux
+
+## France hors IdF
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, results='asis'}
+
+co2_emp_horsidf <- deploc_densite_2(
+  deploc_individu |> filter(TAA2017_RES!=5), label_reg="France hors IdF",
+  var = "DENSITECOM_RES",
+  labels = c("très dense", "densité intermédiaire", "peu dense", "très peu dense"))
+
+res <- bd_write(co2_emp_horsidf)
+
+co2_emp_horsidf$table[[1]]
+co2_emp_horsidf$table[[3]]
+
+bd_write(co2_emp_horsidf$data, name = "EMP2019_hIdF")
+
+```
+
+## France hors IdF
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, results='asis'}
+
+voiture <- deploc_densite_2(
+  deploc_individu |> filter(TAA2017_RES!=5), 
+  label_reg="France, hors IdF",
+  var = "DENSITECOM_RES",
+  labels = c("très dense", "densité intermédiaire", "peu dense", "très peu dense"))
+
+voiture$table[[1]]
+voiture$table[[3]]
+```
+
+## France Aire attraction 4 (plus de 700k)
+
+Le résultat Enquête mobilité des personnes 2019, tous modes de transport donne le tableau suivant :
+
+```{r}
+
+aa3 <- deploc_densite_2(
+  deploc_individu |> filter(TAA2017_RES==4), label_reg="Aire attraction plus de 700k",
+  var = "DENSITECOM_RES", 
+  labels = c("très dense", "densité intermédiaire", "peu dense", "très peu dense"))
+
+bd_write()
+aa3$table[[1]]
+
+```
+
+## France Aire attraction 2 (50-200k)
+
+Le résultat Enquête mobilité des personnes 2019, tous modes de transport donne le tableau suivant :
+
+```{r}
+
+aa3 <- deploc_densite_2(
+  deploc_individu |> filter(TAA2017_RES==2), label_reg="Aire attraction 50-200k",
+  var = "DENSITECOM_RES", 
+  labels = c("très dense", "densité intermédiaire", "peu dense", "très peu dense"))
+
+aa3$table[[1]]
+
+```
