@@ -104,7 +104,7 @@ walk(coms, ~{
     "{mdir}/distances/src/transit/{.x}/transit.parquet" |> glue())
 }, .progress=TRUE)
 
-  ## transit 95 --------------
+## transit 95 --------------
 future::plan("multisession", workers=4)
 
 r5_transit5 <- routing_setup_r5(
@@ -113,7 +113,7 @@ r5_transit5 <- routing_setup_r5(
   percentiles = .05,
   time_window = 60L,
   montecarlo = 1L, 
-  n_threads = 16,
+  n_threads = 16L,
   extended = TRUE)
 
 iso_transit_dt <- iso_accessibilite(quoi = destinations, 

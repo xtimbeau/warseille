@@ -1,5 +1,8 @@
 Version: 1.0
+<<<<<<< HEAD
 ProjectId: 41227479-f016-4a81-82ae-87341a9e50e9
+=======
+>>>>>>> b127e59 (deploc)
 
 RestoreWorkspace: Default
 SaveWorkspace: Default

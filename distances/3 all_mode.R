@@ -66,7 +66,7 @@ distances <- future_walk(communes, \(commune) {
       arrow::write_parquet(str_c(dirn, "/", mode, ".parquet"))
   })
   # transit
-  arrow::open_dataset(str_c(dir_dist, "/src/transit")) |>
+  arrow::open_dataset(str_c(dir_dist, "/src/transit5")) |>
     to_duckdb() |> 
     mutate(COMMUNE = as.character(COMMUNE)) |> 
     filter(COMMUNE == commune) |> 

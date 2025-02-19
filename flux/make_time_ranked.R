@@ -21,7 +21,7 @@ conflict_prefer("between", "dplyr", quiet=TRUE)
 conflict_prefer("first", "dplyr", quiet=TRUE)
 
 # ---- Definition des zones ----
-load("baselayer.rda")
+source("mglobals.r")
 
 c200ze <- qs::qread(c200ze_file) |> arrange(com, idINS)
 com_geo21_scot <- c200ze |> filter(scot) |> distinct(com) |> pull(com) |> as.integer()
