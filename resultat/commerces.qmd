@@ -1148,7 +1148,7 @@ legend_c <- list(
         legend.justification.bottom = "right")),
     fill = guide_colorbar(
       theme = theme(
-        legend.title = element_marquee(vjust = -0.25),
+        legend.title = element_marquee(vjust = -0.5),
         legend.ticks.length = unit(12, 'pt'),
         legend.ticks = element_line(linewidth = .25, colour = "white"),
         legend.justification.bottom = "left"
