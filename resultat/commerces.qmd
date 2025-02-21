@@ -21,66 +21,6 @@ L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose
 
 En particulier, les déplacements effectués pour un motif d'achat sont plus complexes à appréhender, en raison de la diversité des type d'achats et de la dispersion des lieux de commerces. Les destinations visées par chaque résident sont ainsi bien plus nombreuses et diversifiés pour ce motif que pour le motif étude ou travail. Or ce motif "courses" est une composante non négligeable des mobilités quotidiennes. Le @tbl-emp19 et la @fig-emp19 donne les valeurs agrégées des distances parcourues en voiture pour un adulte en France hors Ile de France à partir de l'enquête mobilité des personnes certifiée CEREMA de 2019. Le motif "courses" représente 15% des kilomètres parcourus en voiture.
 
-```{r}
-#| label: tbl-emp19
-#| tbl-cap: Enquête mobilité des personnes 2019, déplacement en voiture
-
-aa4 <- bd_read("EMP2019_AA4") |>
-  pluck(1) |> 
-  filter(vv != "très peu dense") 
-
-aa4 |> 
-  gt::gt(groupname_col = "grp") |> 
-  gt::tab_header(title = "Aire d'attraction de plus de 700k habitants, hors Paris" ,
-                 subtitle = "km annuels en voiture") |> 
-  gt::cols_label(travail_ac = "travail",
-                 vv = "") |>
-  gt::tab_spanner(label = "par actif",
-                  columns = c(travail_ac)) |>
-  gt::tab_spanner(label = "par adulte",
-                  columns = c(travail,
-                              etudes,
-                              courses, 
-                              autres, 
-                              total)) |> 
-  gt::fmt_markdown() |> 
-  gt::cols_label(ends_with("_r") ~ "") |> 
-  gt::cols_align(vv, align="left") |> 
-  gt::cols_align(-vv, align="center") |>
-  gt::tab_source_note(gt::md(
-    "*Source* : EMP 2019, calcul des auteurs.<br>
-         *Note* : km parcourus par an en voiture, entre crochets : intervalle de confiance à 95%" |> glue::glue()))
-
-```
-
-```{r}
-#| label: fig-emp19
-#| fig-cap: Kilomètres parcourus en voiture selon la densité
-
-aa41 <- aa4 |> 
-  pivot_longer(cols = c(travail, etudes, courses, autres, total)) |> 
-  mutate(value = value |> 
-           str_remove("<br>.+</small>") |>
-           str_remove(" ") |>
-           as.numeric(),
-         travail_ac = travail_ac |> 
-           str_remove( "<br>.+</small>") |> 
-           str_remove(" ") |> 
-           as.numeric()) 
-
-ggplot(aa41 |> filter(grp == "km", name != "total", vv != "total")) +
-  aes(x=vv, y = value, fill = name, alluvium = name) +
-  geom_col(alpha = 0.8, width = 0.25, col = "white") +
-  ggalluvial::geom_flow(alpha = 0.25)+
-  paletteer::scale_fill_paletteer_d("rockthemes::harvey", name = "") +
-  scale_y_continuous(labels = scales::label_number(scale = 1/1000, suffix = "k")) + 
-  ylab("km parcourus par an par adulte") +
-  xlab(NULL)+
-  ofce_caption(
-    source = "EMP 2019, calcul des auteurs") +
-  theme_ofce()
-```
-
 Nous proposons une méthode qui exploite plusieurs sources et s'efforce de les rapprocher :
 
 1.  Tout d'abord, nous construisons un indicateur de proximité des commerces pour chaque carreau de résidence. Cet indicateur est construit en comptant dans le voisinage de chacun de ces carreaux le nombre de commerces, leur diversité et leur taille. La définition du voisinage consiste ici en un seuil de temps de trajets, que nous avons fixé pour l'instant à 15 minutes de marche pour coller à l'idée de ville du quart d'heure[^2]. Mais d'autres seuils peuvent être retenus sans difficulté technique. Nous calculons ensuite un indicateur synthétisant la quantité, la diversité et la taille des commerces, de manière à associer à chaque carreau un nombre qui résume la proximité des commerces. Les aménités (ici principalement des commerces ou des services aux ménages) sont connues à partir des fichiers fonciers et des codes utilisateurs NAF qui y sont renseignés. Ceci permet de décliner l'indicateur de proximité selon 4 grands types d'aménités (commerces alimentaires, commerces non alimentaires, sorties, santé humaine). Cet indicateur de proximité synthétise beaucoup d'informations géographiques, mais il n'est pas interprétable directement.
