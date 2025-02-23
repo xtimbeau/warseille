@@ -36,6 +36,7 @@ book:
     - index.qmd
     - localisations.qmd
     - accessibilites.qmd
+    - enquetes.qmd
     - trajets.qmd
     - commerces.qmd
     - next.qmd
