@@ -209,8 +209,6 @@ conflicted::conflicts_prefer(lubridate::quarter, .quiet = TRUE)
 
 trim <- function(x, xm, xp) ifelse( x<= xm, xm, ifelse(x>= xp, xp, x))
 
-source("secrets/azure.r")
-
 communes <- bd_read("communes")
 centre <- communes |> 
   filter(INSEE_COM=="13215") |> 

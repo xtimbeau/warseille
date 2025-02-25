@@ -33,40 +33,6 @@ Nous proposons une méthode qui exploite plusieurs sources et s'efforce de les r
 
 3.  On peut alors estimer des modèles économétriques reliant les distances parcourues et les fréquences aux différentes informations sur l'individu et sur la géographie de son lieu de résidence. Ce modèle peut alors être utilisé pour projeter ces comportements augmentés de la géographie au carreau 200m.
 
-Le périmètre de l'EMC^2^ est plus large que celui de l'EPCI AMP. Nous limitons notre analyse de l'accès aux zones commerciales au périmètre de l'EPCI (AMP) et donc "oublions" les observations de l'EMC^2^ qui sont en dehors.
-
-```{r}
-#| label: fig-subemc2
-#| fig-cap: "Subdivisions de l'EMC^2^"
-
-library(ggpattern)
-zones_res <- bd_read("zones_res") |> 
-  mutate(tooltip = glue("<b>{NOM_ZF}</b><br>Commune : {CODE_COM}")) |> 
-  st_transform(4326) |> 
-  st_simplify(dTolerance = 100, preserveTopology = FALSE)
-bb <- st_bbox(zones_res)
-coms <- bd_read("communes") |> filter(SIREN_EPCI == SIREN_EPCI[INSEE_COM=="13101"]) |> st_union()
-ggplot() +
-  bd_read("decor_carte_large") +
-  geom_sf(
-    data = zones_res,
-    mapping= aes(fill = CODE_COM, tooltip = tooltip), 
-    col="white", linewidth = 0.1, alpha = .5, show.legend=FALSE) + 
-  geom_sf_pattern(data=coms, color = "black", linewidth = 0.2, 
-                  fill = "transparent",
-                  pattern_fill = "black",
-                  pattern_color = "transparent",
-                  pattern_density = 0.01,
-                  pattern_spacing = 0.025, 
-                  pattern_angle = 45) +
-  
-  coord_sf(crs = st_crs(4326), xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax)) +
-  theme_ofce_void() +
-  ofce::ofce_caption(
-    source="EMC^2^, Enquête Mobilité Certifiée CEREMA")
-
-```
-
 ## Construction d'un indicateur de proximité des aménités
 
 ### Sources de données

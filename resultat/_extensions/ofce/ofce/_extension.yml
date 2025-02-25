@@ -25,7 +25,6 @@ contributes:
           launch-dev-container-title: "OFCE working paper"
           callout-tip-title: "Box"
           toc-title: "On this page"
-      fig-asp: 0.61
       cap-location: top
       crossref:
         fig-prefix: graphique
