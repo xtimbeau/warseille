@@ -155,7 +155,7 @@ window.Quarto = {
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
         <a class="flex-grow-1 no-decor" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-          <h1 class="quarto-secondary-nav-title">Annexe <span style="white-space:nowrap">B —</span> Données téléchargeables, codebook</h1>
+          <h1 class="quarto-secondary-nav-title">Annexe <span style="white-space:nowrap">C —</span> Données téléchargeables, codebook</h1>
         </a>     
       <button type="button" class="btn quarto-search-button" aria-label="Recherche" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -199,26 +199,20 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./enquetes/enquetes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Enquêtes sur la mobilité</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="./trajets.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Du potentiel de l’accessibilité aux trajets effectifs</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Du potentiel de l’accessibilité aux trajets effectifs</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./commerces.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Déplacements pour le motif commerce</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Déplacements pour le motif commerce</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./next.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Prochaines étapes</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Prochaines étapes</span></span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -232,14 +226,20 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./enquetes/enquetes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Enquêtes sur la mobilité</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./annexe_commerces.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Motif commerce, détail des données</span></span></a>
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Motif commerce, détail des données</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./codebook.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Données téléchargeables, codebook</span></span></a>
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Données téléchargeables, codebook</span></span></a>
   </div>
 </li>
       </ul>
@@ -250,21 +250,21 @@ window.Quarto = {
     <h2 id="toc-title">Sur cette page</h2>
    
   <ul>
-  <li><a href="#c200-résidents" id="toc-c200-résidents" class="nav-link active" data-scroll-target="#c200-résidents"><span class="header-section-number">B.1</span> C200 résidents</a></li>
-  <li><a href="#sec-c200emp" id="toc-sec-c200emp" class="nav-link" data-scroll-target="#sec-c200emp"><span class="header-section-number">B.2</span> C200 emploi</a></li>
-  <li><a href="#sec-access" id="toc-sec-access" class="nav-link" data-scroll-target="#sec-access"><span class="header-section-number">B.3</span> Accessibilité</a></li>
-  <li><a href="#accessibilité-par-commune" id="toc-accessibilité-par-commune" class="nav-link" data-scroll-target="#accessibilité-par-commune"><span class="header-section-number">B.4</span> Accessibilité par commune</a></li>
-  <li><a href="#sec-deciles" id="toc-sec-deciles" class="nav-link" data-scroll-target="#sec-deciles"><span class="header-section-number">B.5</span> Déciles de niveau de vie</a></li>
-  <li><a href="#accessibilité-par-déciles-de-niveau-de-vie" id="toc-accessibilité-par-déciles-de-niveau-de-vie" class="nav-link" data-scroll-target="#accessibilité-par-déciles-de-niveau-de-vie"><span class="header-section-number">B.6</span> Accessibilité par déciles de niveau de vie</a></li>
-  <li><a href="#co2-au-carreau-point-de-vue-résident" id="toc-co2-au-carreau-point-de-vue-résident" class="nav-link" data-scroll-target="#co2-au-carreau-point-de-vue-résident"><span class="header-section-number">B.7</span> CO<sub>2</sub> au carreau, point de vue résident</a></li>
-  <li><a href="#co2-au-carreau-point-de-vue-emploi" id="toc-co2-au-carreau-point-de-vue-emploi" class="nav-link" data-scroll-target="#co2-au-carreau-point-de-vue-emploi"><span class="header-section-number">B.8</span> CO<sub>2</sub> au carreau, point de vue emploi</a></li>
-  <li><a href="#revenu-et-co2" id="toc-revenu-et-co2" class="nav-link" data-scroll-target="#revenu-et-co2"><span class="header-section-number">B.9</span> Revenu et CO<sub>2</sub></a></li>
-  <li><a href="#pollution-subie-co2-émis" id="toc-pollution-subie-co2-émis" class="nav-link" data-scroll-target="#pollution-subie-co2-émis"><span class="header-section-number">B.10</span> Pollution subie CO<sub>2</sub> émis</a></li>
-  <li><a href="#proximité-aux-aménités" id="toc-proximité-aux-aménités" class="nav-link" data-scroll-target="#proximité-aux-aménités"><span class="header-section-number">B.11</span> Proximité aux aménités</a></li>
-  <li><a href="#lien-densité-proximité-résidu" id="toc-lien-densité-proximité-résidu" class="nav-link" data-scroll-target="#lien-densité-proximité-résidu"><span class="header-section-number">B.12</span> Lien densité proximité, résidu</a></li>
-  <li><a href="#modèles-de-régressions-emc2" id="toc-modèles-de-régressions-emc2" class="nav-link" data-scroll-target="#modèles-de-régressions-emc2"><span class="header-section-number">B.13</span> Modèles de régressions EMC<sup>2</sup></a></li>
-  <li><a href="#co2-pour-le-motif-commerce" id="toc-co2-pour-le-motif-commerce" class="nav-link" data-scroll-target="#co2-pour-le-motif-commerce"><span class="header-section-number">B.14</span> CO<sub>2</sub> pour le motif commerce</a></li>
-  <li><a href="#co2-pour-le-motif-commerce-données-à-liris" id="toc-co2-pour-le-motif-commerce-données-à-liris" class="nav-link" data-scroll-target="#co2-pour-le-motif-commerce-données-à-liris"><span class="header-section-number">B.15</span> CO<sub>2</sub> pour le motif commerce, données à l’IRIS</a></li>
+  <li><a href="#c200-résidents" id="toc-c200-résidents" class="nav-link active" data-scroll-target="#c200-résidents"><span class="header-section-number">C.1</span> C200 résidents</a></li>
+  <li><a href="#sec-c200emp" id="toc-sec-c200emp" class="nav-link" data-scroll-target="#sec-c200emp"><span class="header-section-number">C.2</span> C200 emploi</a></li>
+  <li><a href="#sec-access" id="toc-sec-access" class="nav-link" data-scroll-target="#sec-access"><span class="header-section-number">C.3</span> Accessibilité</a></li>
+  <li><a href="#accessibilité-par-commune" id="toc-accessibilité-par-commune" class="nav-link" data-scroll-target="#accessibilité-par-commune"><span class="header-section-number">C.4</span> Accessibilité par commune</a></li>
+  <li><a href="#sec-deciles" id="toc-sec-deciles" class="nav-link" data-scroll-target="#sec-deciles"><span class="header-section-number">C.5</span> Déciles de niveau de vie</a></li>
+  <li><a href="#accessibilité-par-déciles-de-niveau-de-vie" id="toc-accessibilité-par-déciles-de-niveau-de-vie" class="nav-link" data-scroll-target="#accessibilité-par-déciles-de-niveau-de-vie"><span class="header-section-number">C.6</span> Accessibilité par déciles de niveau de vie</a></li>
+  <li><a href="#co2-au-carreau-point-de-vue-résident" id="toc-co2-au-carreau-point-de-vue-résident" class="nav-link" data-scroll-target="#co2-au-carreau-point-de-vue-résident"><span class="header-section-number">C.7</span> CO<sub>2</sub> au carreau, point de vue résident</a></li>
+  <li><a href="#co2-au-carreau-point-de-vue-emploi" id="toc-co2-au-carreau-point-de-vue-emploi" class="nav-link" data-scroll-target="#co2-au-carreau-point-de-vue-emploi"><span class="header-section-number">C.8</span> CO<sub>2</sub> au carreau, point de vue emploi</a></li>
+  <li><a href="#revenu-et-co2" id="toc-revenu-et-co2" class="nav-link" data-scroll-target="#revenu-et-co2"><span class="header-section-number">C.9</span> Revenu et CO<sub>2</sub></a></li>
+  <li><a href="#pollution-subie-co2-émis" id="toc-pollution-subie-co2-émis" class="nav-link" data-scroll-target="#pollution-subie-co2-émis"><span class="header-section-number">C.10</span> Pollution subie CO<sub>2</sub> émis</a></li>
+  <li><a href="#proximité-aux-aménités" id="toc-proximité-aux-aménités" class="nav-link" data-scroll-target="#proximité-aux-aménités"><span class="header-section-number">C.11</span> Proximité aux aménités</a></li>
+  <li><a href="#lien-densité-proximité-résidu" id="toc-lien-densité-proximité-résidu" class="nav-link" data-scroll-target="#lien-densité-proximité-résidu"><span class="header-section-number">C.12</span> Lien densité proximité, résidu</a></li>
+  <li><a href="#modèles-de-régressions-emc2" id="toc-modèles-de-régressions-emc2" class="nav-link" data-scroll-target="#modèles-de-régressions-emc2"><span class="header-section-number">C.13</span> Modèles de régressions EMC<sup>2</sup></a></li>
+  <li><a href="#co2-pour-le-motif-commerce" id="toc-co2-pour-le-motif-commerce" class="nav-link" data-scroll-target="#co2-pour-le-motif-commerce"><span class="header-section-number">C.14</span> CO<sub>2</sub> pour le motif commerce</a></li>
+  <li><a href="#co2-pour-le-motif-commerce-données-à-liris" id="toc-co2-pour-le-motif-commerce-données-à-liris" class="nav-link" data-scroll-target="#co2-pour-le-motif-commerce-données-à-liris"><span class="header-section-number">C.15</span> CO<sub>2</sub> pour le motif commerce, données à l’IRIS</a></li>
   </ul>
 </nav>
 </nav>
@@ -277,7 +277,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title d-none d-lg-block">Annexe <span style="white-space:nowrap">B —</span> Données téléchargeables, codebook</h1>
+<h1 class="title d-none d-lg-block">Annexe <span style="white-space:nowrap">C —</span> Données téléchargeables, codebook</h1>
 </div>
 
 
@@ -295,7 +295,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Modifié le</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">24 février 2025</p>
+      <p class="date-modified">25 février 2025</p>
     </div>
   </div>
     
@@ -308,7 +308,7 @@ window.Quarto = {
 
 <p>Lorsque c’est pertinent, les données des graphiques ou des tableaux sont proposées au téléchargement. Ces données téléchargeables sont rassemblées dans cette annexe avec le détail des colonnes, des noms et des méthodes de construction.</p>
 <section id="c200-résidents" class="level2">
-<h2 class="anchored" data-anchor-id="c200-résidents"><span class="header-section-number">B.1</span> C200 résidents</h2>
+<h2 class="anchored" data-anchor-id="c200-résidents"><span class="header-section-number">C.1</span> C200 résidents</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/ind_act_idINS_MetAMP.csv">
@@ -327,7 +327,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="sec-c200emp" class="level2">
-<h2 class="anchored" data-anchor-id="sec-c200emp"><span class="header-section-number">B.2</span> C200 emploi</h2>
+<h2 class="anchored" data-anchor-id="sec-c200emp"><span class="header-section-number">C.2</span> C200 emploi</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/emp_empres_idINS_MetAMP.csv">
@@ -346,7 +346,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="sec-access" class="level2">
-<h2 class="anchored" data-anchor-id="sec-access"><span class="header-section-number">B.3</span> Accessibilité</h2>
+<h2 class="anchored" data-anchor-id="sec-access"><span class="header-section-number">C.3</span> Accessibilité</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/temps_accessibilite_idINS_MetAMP.csv">
@@ -366,7 +366,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="accessibilité-par-commune" class="level2">
-<h2 class="anchored" data-anchor-id="accessibilité-par-commune"><span class="header-section-number">B.4</span> Accessibilité par commune</h2>
+<h2 class="anchored" data-anchor-id="accessibilité-par-commune"><span class="header-section-number">C.4</span> Accessibilité par commune</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/access_par_com_MetAMP.csv">
@@ -384,7 +384,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="sec-deciles" class="level2">
-<h2 class="anchored" data-anchor-id="sec-deciles"><span class="header-section-number">B.5</span> Déciles de niveau de vie</h2>
+<h2 class="anchored" data-anchor-id="sec-deciles"><span class="header-section-number">C.5</span> Déciles de niveau de vie</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/deciles_MetAMP.csv">
@@ -400,7 +400,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="accessibilité-par-déciles-de-niveau-de-vie" class="level2">
-<h2 class="anchored" data-anchor-id="accessibilité-par-déciles-de-niveau-de-vie"><span class="header-section-number">B.6</span> Accessibilité par déciles de niveau de vie</h2>
+<h2 class="anchored" data-anchor-id="accessibilité-par-déciles-de-niveau-de-vie"><span class="header-section-number">C.6</span> Accessibilité par déciles de niveau de vie</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/access_revenu_MetAMP.csv">
@@ -422,7 +422,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="co2-au-carreau-point-de-vue-résident" class="level2">
-<h2 class="anchored" data-anchor-id="co2-au-carreau-point-de-vue-résident"><span class="header-section-number">B.7</span> CO<sub>2</sub> au carreau, point de vue résident</h2>
+<h2 class="anchored" data-anchor-id="co2-au-carreau-point-de-vue-résident"><span class="header-section-number">C.7</span> CO<sub>2</sub> au carreau, point de vue résident</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/co2_idINS_pdvR_MetAMP.csv">
@@ -442,7 +442,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="co2-au-carreau-point-de-vue-emploi" class="level2">
-<h2 class="anchored" data-anchor-id="co2-au-carreau-point-de-vue-emploi"><span class="header-section-number">B.8</span> CO<sub>2</sub> au carreau, point de vue emploi</h2>
+<h2 class="anchored" data-anchor-id="co2-au-carreau-point-de-vue-emploi"><span class="header-section-number">C.8</span> CO<sub>2</sub> au carreau, point de vue emploi</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/co2_idINS_pdvE_MetAMP.csv">
@@ -463,7 +463,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="revenu-et-co2" class="level2">
-<h2 class="anchored" data-anchor-id="revenu-et-co2"><span class="header-section-number">B.9</span> Revenu et CO<sub>2</sub></h2>
+<h2 class="anchored" data-anchor-id="revenu-et-co2"><span class="header-section-number">C.9</span> Revenu et CO<sub>2</sub></h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/co2_ndv_IRIS_MetAMP.csv">
@@ -486,7 +486,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="pollution-subie-co2-émis" class="level2">
-<h2 class="anchored" data-anchor-id="pollution-subie-co2-émis"><span class="header-section-number">B.10</span> Pollution subie CO<sub>2</sub> émis</h2>
+<h2 class="anchored" data-anchor-id="pollution-subie-co2-émis"><span class="header-section-number">C.10</span> Pollution subie CO<sub>2</sub> émis</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/co2_IRIS_pol_MetAMP.csv">
@@ -510,7 +510,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="proximité-aux-aménités" class="level2">
-<h2 class="anchored" data-anchor-id="proximité-aux-aménités"><span class="header-section-number">B.11</span> Proximité aux aménités</h2>
+<h2 class="anchored" data-anchor-id="proximité-aux-aménités"><span class="header-section-number">C.11</span> Proximité aux aménités</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/amenites_idINS_pdvR_MetAMP.csv">
@@ -532,7 +532,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="lien-densité-proximité-résidu" class="level2">
-<h2 class="anchored" data-anchor-id="lien-densité-proximité-résidu"><span class="header-section-number">B.12</span> Lien densité proximité, résidu</h2>
+<h2 class="anchored" data-anchor-id="lien-densité-proximité-résidu"><span class="header-section-number">C.12</span> Lien densité proximité, résidu</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/residus_prox-dens_MetAMP.csv">
@@ -548,7 +548,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="modèles-de-régressions-emc2" class="level2">
-<h2 class="anchored" data-anchor-id="modèles-de-régressions-emc2"><span class="header-section-number">B.13</span> Modèles de régressions EMC<sup>2</sup></h2>
+<h2 class="anchored" data-anchor-id="modèles-de-régressions-emc2"><span class="header-section-number">C.13</span> Modèles de régressions EMC<sup>2</sup></h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/residus_emc2_MetAMP.csv">
@@ -567,7 +567,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="co2-pour-le-motif-commerce" class="level2">
-<h2 class="anchored" data-anchor-id="co2-pour-le-motif-commerce"><span class="header-section-number">B.14</span> CO<sub>2</sub> pour le motif commerce</h2>
+<h2 class="anchored" data-anchor-id="co2-pour-le-motif-commerce"><span class="header-section-number">C.14</span> CO<sub>2</sub> pour le motif commerce</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/co2_motif_commerce_MetAMP.csv">
@@ -577,7 +577,7 @@ window.Quarto = {
 </div>
 </section>
 <section id="co2-pour-le-motif-commerce-données-à-liris" class="level2">
-<h2 class="anchored" data-anchor-id="co2-pour-le-motif-commerce-données-à-liris"><span class="header-section-number">B.15</span> CO<sub>2</sub> pour le motif commerce, données à l’IRIS</h2>
+<h2 class="anchored" data-anchor-id="co2-pour-le-motif-commerce-données-à-liris"><span class="header-section-number">C.15</span> CO<sub>2</sub> pour le motif commerce, données à l’IRIS</h2>
 <div class="cell">
 <div class="cell-output-display">
 <a href="dnwld/CO2_commerces_IRIS.csv">
@@ -1028,7 +1028,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./annexe_commerces.html" class="pagination-link" aria-label="Motif commerce, détail des données">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Motif commerce, détail des données</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Motif commerce, détail des données</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
