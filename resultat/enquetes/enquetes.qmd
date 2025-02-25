@@ -1,0 +1,243 @@
+---
+title: "Enquêtes sur la mobilité"
+author:
+  - name: Maxime Parodi
+  - name: Xavier Timbeau 
+---
+
+```{r init, include=FALSE}
+ofce::init_qmd()
+```
+
+Nous disposons de deux sources principales d'enquêtes sur les mobilités. La première est l'[enquête nationale sur la mobilité des personnes de 2019 (EMP 2019)](https://www.statistiques.developpement-durable.gouv.fr/resultats-detailles-de-lenquete-mobilite-des-personnes-de-2019). Publiée par le ministère de l'environnement, elle donne une information détaillée sur les déplacements d'un peu moins de 14 000 individus. On ne dispose pas d'information de localisation précises, puisque la représentativité spatiale est insuffisante. L'enquête a été réalisée entre 2018 et 2019. Une [enquête mobilité certifiée CEREMA (EMC^2^ AMP 2020) a été conduite sur le périmètre étendu de la métropole d'Aix-Marseille-Provence](https://www.agam.org/publication-des-chiffres-cles-de-lenquete-mobilite-emc%C2%B2/) en 2019 et 2020. et fournit un contrepoint intéressant à l'EMP. En effet, la représentativité spatiale est bien meilleure par construction et les 25 000 personnes interrogées permettent d'identifier les motifs de déplacement à une échelle fine, pratiquement jusqu'à l'IRIS. Par une coïncidence heureuse, les enquêtes ont été conduite sur deux périodes très proches , ce qui autorise les comparaisons.
+
+Nous utilisons les deux enquêtes dans notre analyse des déplacements :
+
+-   L'EMP 2019 nous sert à caler les comportements de mobilité (comme la fréquence des déplacements, les boucles complexes, les choix modaux en fonction, entre autres, de la distance) qui sont ensuite adjoint de l'information du recensement (MOBPRO) pour construire les distances parcourues pour le motif professionnel.
+
+-   L'EMC^2^ AMP 2020 nous sert à caler les déplacements pour le motif commerce à partir d'une méthode palliant à l'absence d'une information comparable pour le motif "achats" de celle dont on dispose pour les déplacements domicile travail. Nous utilisons la dimension spatiale de l'enquête (les zones fines de départ ou d'arrivée) pour les relier aux indicateurs de proximité des commerces.
+
+-   L'EMC^2^ AMP 2020 nous sert également pour valider les déplacements pour le motif travail en suivant la méthode du motif commerce.
+
+## Périmètres
+
+L'EMC^2^ est opérée sur un périmètre spécifique, indiqué sur la carte de la \[-@fig-sub-emc2\]
+
+Le périmètre de l'EMC^2^ AMP 2020 est plus large que celui de la métropole AMP. Nous limitons notre analyse de l'accès aux zones commerciales au périmètre de l'EPCI (AMP) et donc "oublions" les observations de l'EMC^2^ qui sont en dehors.
+
+La densité 4 niveaux (définie par l'INSEE, voir la \[méthode de la grille communale\](<https://www.insee.fr/fr/information/2114627>)) est représentée sur la carte. Dans le périmètre considéré, il y a peu de commune de densité 4, (communes très peu denses). Nous retennons l'échelle à 4 niveaux parce que cette information est renseignée dans l'EMP et elle permet donc la comparaison entre les deux enquêtes.
+
+```{r}
+#| label: fig-subemc2
+#| fig-cap: "Subdivisions de l'EMC^2^"
+
+library(ggpattern)
+
+zz <- source_data("densite_com.R")
+  
+bb <- st_bbox(zz$communes)
+
+ggplot() +
+  bd_read("decor_carte_large") +
+  geom_sf(
+    data = zz$communes,
+    mapping= aes(fill = dens, tooltip = tooltip), 
+    col="white", linewidth = 0.1, alpha = .5) + 
+  geom_sf_pattern(data=zz$coms, color = "black", linewidth = 0.2, 
+                  fill = "transparent",
+                  pattern_fill = "black",
+                  pattern_color = "transparent",
+                  pattern_density = 0.01,
+                  pattern_spacing = 0.025, 
+                  pattern_angle = 45) +
+  
+  coord_sf(crs = st_crs(4326), xlim = c(bb$xmin, bb$xmax), ylim = c(bb$ymin, bb$ymax)) +
+  theme(legend.text = element_blank()) +
+  theme_ofce_void(
+    legend.position = "bottom",
+    legend.text.position = "bottom",
+    legend.key.width = unit(12, 'pt'),
+    legend.title = marquee::element_marquee(vjust=1, margin = margin(t=0, b=0, r=6)),
+    legend.text = element_marquee(hjust = 0.5)
+  ) +
+  PrettyCols::scale_fill_pretty_d(name = "Densité (grille communale) 4 niveaux : ", palette = "Lucent", direction = +1) +
+  ofce::ofce_caption(
+    note = "La population de la métropole d'AMP est de 1,9 millions, la zone enquêtée hors métropole concerne 340k habitants. L'EMC^2^ enquête 24 400 individus dont 20 100 dans la métropole.",
+    source="EMC^2^ AMP 2020.")
+
+```
+
+```{r}
+#| label: tbl-effectifs
+#| tbl-cap: Effectifs dans les enquêtes
+
+source_data("effectifs.r") |> 
+  gt(groupname_col = "src", process_md = TRUE) |> 
+  fmt_number(c(obs, ind, adulte), suffixing= TRUE, n_sigfig = 3) |> 
+  tab_style(style = cell_text(weight = "bold"),
+            locations = cells_row_groups()) |> 
+  cols_label(ligne = "", obs = "Observations", ind = "Individus", adulte = "Adultes") |> 
+  tab_source_note(md("*Sources* : EMP 2019, EMC^2^ AMP 2020"))
+
+```
+
+## Boucles et motifs
+
+Nous utilisons une définition spécifique de la notion de trajet, la boucle, et de motif, le motif principal. Nous regroupons les trajets dans une boucle lorsque ces trajets s'enchaînent. Généralement un trajet débuit au domicile et suit ensuite un itinéraire plus ou moins simple jsuqu'au retour au domicile. Beaucoup de trajets sont des boucles simples avec le domicile comme origine, une destination et un retour au domicile. D'autres boucles sont plus complexes avec une séquence de destinations. Parfois, une boucle peut commencer au lieu de travail, lorsque l'enquêté, par exemple, termine un travail de nuit le jour de l'enquête.
+
+Le motif principal est le motif que nous considérons comme principal pour une boucle donnée. Lorsqu'il y a une seule destination, le motif principal est simplement la destination qui n'est pas le domicile. Nous avons regroupé ces destinations ou motif en 4 catégories : travail, achats (ou courses), études et autres. La catégorie autre regroupe de nombreux motifs comme la santé humaine, les démarches administratives ou le motif "accompagner". Lorsqu'une boucle comprend plusieurs destinations, nous déterminons le motif principal par un classement hiérarchique des différents motifs. Si la boucle comprend une destination "travail", alors le motif principal est le travail. S'il n'y a aucune destination "travail", mais une destination "études", alors la destination étude sera le motif principal. Le troisième motif est "achats" et le quatrième "autres". Le tableau [-@tbl-boucles] indique le nombre d'observations disponibles dans les deux enquêtes sur les boucles (donc non pondérées) suivant la complexité des boucles et indique les distances associées.
+
+```{r}
+#| label: tbl-boucles
+#| tbl-cap: Boucles et trajets dans l'EMC^2^ AMP 2020 et dans l'EMP 2019
+
+emc2_bcl <- bd_read("emc2_bcl") |> 
+  mutate(
+    motif_principal = factor(tolower(motif_principal),
+                             c("travail", "etudes", "achats", "autres", "aucun"),
+                             c("travail", "études", "courses", "autres", "aucun")) ) |> 
+  arrange(motif_principal) |> 
+  filter(motif_principal!= "aucun") |> 
+  group_by(motif_principal) |> 
+  summarize(
+    bcl = n(), 
+    bcl_2 = sum(nb_trajets<=2), 
+    bcl_3 = sum(nb_trajets==3),
+    bcl_4 = sum(nb_trajets==4),
+    bcl_5 = sum(nb_trajets>=5),
+    dist_2 = median(distance),
+    dist_3 = median(distance[nb_trajets==3]),
+    dist_4 = median(distance[nb_trajets==4]),
+    dist_5 = median(distance[nb_trajets>=5])) |> 
+  mutate(across(c(bcl_2, bcl_3, bcl_4, bcl_5), ~.x/bcl),
+         src = "EMC^2^ AMP 2020") 
+  
+
+emp_bcl <- bd_read("deploc_bcl") |> 
+  filter(TAA2017_RES==4) |> 
+  mutate(
+    motif_principal = factor(tolower(motif_principal),
+                             c("travail", "etudes", "courses", "autres", "aucun"),
+                             c("travail", "études", "courses", "autres", "aucun")) ) |> 
+  arrange(motif_principal) |> 
+  filter(motif_principal!= "aucun") |> 
+  group_by(motif_principal) |> 
+  summarize(
+    bcl = n(), 
+    bcl_2 = sum(nb_trajets<=2), 
+    bcl_3 = sum(nb_trajets==3),
+    bcl_4 = sum(nb_trajets==4),
+    bcl_5 = sum(nb_trajets>=5),
+    dist_2 = median(distance),
+    dist_3 = median(distance[nb_trajets==3]),
+    dist_4 = median(distance[nb_trajets==4]),
+    dist_5 = median(distance[nb_trajets>=5])) |> 
+  mutate(across(c(bcl_2, bcl_3, bcl_4, bcl_5), ~.x/bcl),
+         src = "EMP 2019") 
+
+bind_rows(emp_bcl, emc2_bcl) |> 
+  gt(groupname_col = "src", process_md = TRUE) |> 
+  cols_label(bcl = "N boucles", 
+             bcl_2 = "simple", bcl_3 ="2 dest.", bcl_4 ="3 dest.", bcl_5 ="4+ dest.",
+             dist_2 = "simple", dist_3 ="2 dest.", dist_4 ="3 dest.", dist_5 ="4+ dest.",
+             motif_principal = "") |> 
+  tab_spanner("%  de boucles", columns = starts_with("bcl_")) |> 
+  tab_spanner("distance médianne (km)", columns = starts_with("dist_")) |> 
+  fmt_percent(columns = starts_with("bcl_"), decimals = 0) |> 
+  fmt_number(bcl, sep_mark = " ", dec_mark = ",", decimals = 0) |> 
+  tab_style(cell_text(weight = "bold"),
+            locations = cells_row_groups()) |> 
+  fmt_number(starts_with("dist_"), dec_mark = ",", sep_mark = " ", decimals=1) |> 
+  tab_footnote(
+    "On sélectionne dans l'EMP 2019 les agglomérations de résidence de plus de 700k habitants, hors Ile de France (TAA2017_RES=4).",
+               locations = cells_row_groups(groups = starts_with("EMP"))) |> 
+  tab_source_note(md("*Source* : EMP 2019 et EMC^2^ AMP 2020, calcul des auteurs."))
+
+```
+
+## Kilomètres parcourus dans les deux enquêtes
+
+Le @tbl-dens et la @fig-emp19 indiquent les kilomètres parcourus dans les deux enquêtes. Par ré-échantillonage, on estime les intervalles de confiance. Le @tbl-dens retranscrit pour les deux enquêtes ces éléments.
+
+L'EMP, sur un champ plus large,  donne 30% de kilomètres totaux parcourus de moins que l'EMC^2^. Cette différence ne peut s'expliquer complètement par un biais d'échantillonage, les intervalles de confiance à 95% n'ayant pas d'intersection. L'EMP 2019 couvre plusieurs grandes agglomérations (pour les aires d'attractivité de plus de 700k habitants : Lyon, Toulouse, Bordeaux, Lille, ...) dont la géographie, la démographie et les comportements sont différents. Concernant les déplacements pour le trajet domicile travail, l'écart suivant les sources est inverse (30% de kilomètres en plus pour la métropole AMP).
+
+Dans les deux enquêtes, la densité apparait comme plutôt négativement correllée aux distances parcourues. Dans l'EMC^2^, cependant, la mesure en 4 niveaux de densité n'est pas très précise. Dans le périmètre de la métropole, on observe en effet très peu d'individus dans les zones "peu denses" (27 observations) et "très peu denses" (aucune). Seule la différence entre "très dense" et "densité intermédiaire" a donc un sens, comme l'indiquent les intervalles de confiance à 95% du @tbl-dens. Pour l'EMP, en revanche, on dispose d'un peu plus d'observations sur ces zones peu denses, ce qui confirme la différence géographique entre les métropoles considérées.
+
+Dans le lien entre densité et ratio de kilomètres, quelques divergences apparaîssent : comme déjà signalé, le nombre de kilomètres pour le travail est légèrement supérieur dans l'EMP que dans l'EMC^2^, alors que les kilomètres parcourus pour le motif "courses" sont significativement plus élevés, pratiquement le double, dans l'EMC^2^ que dans l'enquête nationale (pour les agglomérations non parisiennes de plus de 700k habitants). Cette différence importante se retrouve pour les motifs "études" et la catégorie couvrant tous les autres motifs.
+
+```{r}
+#| label: tbl-dens
+#| tbl-cap: Enquêtes mobilité, déplacement en voiture
+
+enq <- source_data("enquetes.r")
+
+enq$tab |> 
+  relocate(obs, .before = adultes) |> 
+  gt(groupname_col = "src", process_md = TRUE) |>  
+  cols_label(travail_ac = "travail",
+             vv = "",
+             adultes = "N pop.",
+             obs = "N obs.") |>
+  cols_hide(c(grp, adultes)) |> 
+  tab_spanner(label = "par actif",
+                  columns = c(travail_ac)) |>
+  tab_spanner(label = "par adulte",
+                  columns = c(travail,
+                              etudes,
+                              courses, 
+                              autres, 
+                              total)) |> 
+  fmt_number(columns = c(adultes, obs), n_sigfig = 2, decimals = 0, suffixing = TRUE) |> 
+  fmt_markdown(-c(adultes, obs)) |> 
+  fmt_markdown(columns = src) |> 
+  tab_style(cell_text(weight = "bold"),
+            locations = cells_row_groups()) |> 
+  cols_label(ends_with("_r") ~ "", etudes = "études") |> 
+  cols_align(vv, align="left") |> 
+  cols_align(-vv, align="center") |>
+  tab_footnote(
+    "Le nombre d'observations indique pour chaque groupe considéré combien de lignes sont utilisées dans l'un ou l'autre des enquêtes. Un nombre élevé d'observations accroît la significativité du chiffre.", 
+      locations = cells_column_labels(c(adultes, obs)) ) |> 
+  tab_footnote(
+    "Sont sélectionnés les individus dont les trajets ont pour origine une Tranche d'Aire d'Attraction 2017 de plus de 700k habitants, hors Paris (TAA2017_RES=4)", 
+    locations =  cells_row_groups(groups = starts_with("EMP")))  |> 
+  tab_footnote(
+    "Sont sélectionnés les individus dont les trajets ont pour origine la métropole d'AMP.", 
+    locations =  cells_row_groups(groups = starts_with("EMC")))  |> 
+  tab_source_note(md(
+    "*Note* : km parcourus par an en voiture, entre crochets : intervalle de confiance à 95%<br>
+    *Source* : EMP 2019 et EMC^2^ AMP 2020, calcul des auteurs." ))
+```
+
+```{r}
+#| label: fig-emp19
+#| fig-cap: Kilomètres parcourus en voiture selon la densité
+
+empg <- enq$emp |> 
+  filter( p == 0.5, vv != "très peu dense", variable == "kmad", vv != "total" ) |> 
+  pivot_longer(cols = c(travail, etudes, courses, autres)) |> 
+  select(vv, name, value) |> 
+  mutate(src = "emp") 
+
+emc2g <- enq$emc2 |> 
+  filter( p == 0.5, vv != "très peu dense", variable == "kmad", vv != "total" ) |> 
+  pivot_longer(cols = c(travail, etudes, courses, autres)) |> 
+  select(vv, name, value) |> 
+  mutate(src = "emc2")
+
+datag <- bind_rows(empg, emc2g) |> 
+  mutate(src = factor(src, c("emp", "emc2"), c("EMP 2019", "EMC{.sup 2} AMP 2020") ))
+
+ggplot(datag) +
+  facet_wrap(vars(src)) +
+  aes(x=vv, y = value, fill = name, alluvium = name) +
+  geom_col(alpha = 0.8, width = 0.25, col = "white") +
+  ggalluvial::geom_flow(alpha = 0.25)+
+  paletteer::scale_fill_paletteer_d("rockthemes::harvey", name = "") +
+  scale_y_continuous(labels = scales::label_number(scale = 1/1000, suffix = "k")) + 
+  ylab("km parcourus par an par adulte") +
+  xlab(NULL)+
+  ofce_caption(
+    source = "EMP 2019, calcul des auteurs.") +
+  theme_ofce(marquee=TRUE)
+```
