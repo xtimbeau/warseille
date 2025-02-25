@@ -2,10 +2,9 @@ library(tidyverse)
 library(glue)
 library(qs)
 library(conflicted)
-
 conflict_prefer_all("dplyr", quiet=TRUE)
 
-source("starter mobilite.r")
+deploc <- bd_read("deploc")
 
 les_descripteurs <- c(
   "IDENT_MEN", "MDATE_jour", "MDATE_mois", "TYPEJOUR", "VAC_SCOL",

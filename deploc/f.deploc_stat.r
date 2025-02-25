@@ -1,7 +1,8 @@
 deploc_densite <- function(data, reg="all", K=512, label_reg = NULL,
                            mode = c("car", "walk", "transit", "bike"),
                            var = "DENSITECOM_RES", out = c("km", "tr", "dtrj"),
-                           label = "", labels = NULL) {
+                           label = "", labels = NULL,
+                           source = "EMP 2019") {
   vstat <- "kmind"
   scale <- 1
   title <- "Km par adultes par an"
@@ -153,6 +154,7 @@ deploc_densite <- function(data, reg="all", K=512, label_reg = NULL,
       "tr" ~ "trajets par personne par an",
       "dtrj" ~ "distance par trajet")
     data <- calc |> 
+      select(-adultes, -obs) |> 
       filter(var%in%vars) |>
       mutate(var = str_remove(var, .x),
              grp = ifelse(str_detect(var, "_r$"), "relatif", "km"),
@@ -214,13 +216,16 @@ deploc_densite <- function(data, reg="all", K=512, label_reg = NULL,
 deploc_densite_2 <- function(data, reg="all", K=512, label_reg = NULL,
                              mode = c("car", "walk", "transit", "bike"),
                              var = "DENSITECOM_RES", out = c("km", "tr", "dtrj"),
-                             label = "", labels = NULL) {
+                             label = "", labels = NULL,
+                             source = "EMP 2019",
+                             titre = "France entière",
+                             soustitre = NULL) {
   vstat <- "kmind"
   scale <- 1
   title <- "Km par adultes par an"
   
   if("all"%in%reg) {
-    region <- label_reg %||% "France entière"
+    region <- label_reg %||% titre
     data <- data
   }
   else {
@@ -247,7 +252,6 @@ deploc_densite_2 <- function(data, reg="all", K=512, label_reg = NULL,
     filter(AGE>=18, ACTOCCUP==1) |> 
     summarize(ind = sum(pond_indC)) |>
     pull(ind)
-  browser()
   calc <- furrr::future_map_dfr(1:K, ~{
     smp <- sample(1:nrow(data), size = nrow(data), replace = TRUE, prob = data$pond_indC)
     data.l <- data |> 
@@ -259,13 +263,18 @@ deploc_densite_2 <- function(data, reg="all", K=512, label_reg = NULL,
     
     adultes_dens <- data.l |> 
       group_by(across(all_of(var))) |> 
-      summarize(ind = sum(pond_indC)) |> 
-      pivot_wider(names_from = all_of(var), values_from = ind) |> 
+      summarize(ind = sum(pond_indC),
+                obs = n()) |> 
+      pivot_wider(names_from = all_of(var), values_from = c(ind, obs)) |> 
       rowwise() |> 
-      mutate(total = sum(c_across(everything()))) |> 
+      mutate(ind_total = sum(c_across(starts_with("ind"))),
+             obs_total = sum(c_across(starts_with("obs")))) |> 
       pivot_longer(cols = everything(), 
-                   names_to = "vv", 
-                   values_to = "adultes")
+                   names_to = "vvv", 
+                   values_to = "values") |> 
+      separate(vvv, into = c("type","vv"), sep = "_") |> 
+      pivot_wider(names_from = type, values_from = values) |> 
+      rename(adultes = ind)
     
     acto_dens <- data.l |> 
       filter(AGE>=18, ACTOCCUP==1) |> 
@@ -338,6 +347,7 @@ deploc_densite_2 <- function(data, reg="all", K=512, label_reg = NULL,
       mutate(variable = "dtrjac")
     
     bind_rows(km_ad, km_acto, trajets_ad, trajets_acto, distrj_ad, distrj_acto) |> 
+      left_join(adultes_dens, by  ="vv") |> 
       mutate(s = .x)
   }, .options = furrr::furrr_options(seed = TRUE))
   
@@ -346,20 +356,20 @@ deploc_densite_2 <- function(data, reg="all", K=512, label_reg = NULL,
   calc_r <- calc |> 
     group_by(variable, s) |> 
     mutate(across(
-      c(travail, autres, courses, etudes, total), ~.x/.x[vv==d1])) |> 
+      c(travail, autres, courses, etudes, total), ~.x/.x[vv=="total"])) |> 
     ungroup() |> 
     mutate(variable = str_c(variable, "_r"))
   
-  calc <- calc |>
+  calc_q <- calc |>
     bind_rows(calc_r) |> 
     group_by(vv, variable) |> 
     reframe(
       across(
-        c(travail, total, autres, courses, etudes),
+        c(travail, total, autres, courses, etudes, adultes, obs),
         ~quantile(.x, probs = c(0.025, .5, 0.975), na.rm=TRUE)),
       p = c(0.025, .5, 0.975)) 
   
-  if(!is.null(labels)) calc <- calc |> 
+  if(!is.null(labels)) calc_q <- calc_q |> 
     mutate(vv = factor(vv, unique(vv), c(labels, "total")))
   
   
@@ -372,7 +382,10 @@ deploc_densite_2 <- function(data, reg="all", K=512, label_reg = NULL,
       "km" ~ "km par personne par an",
       "tr" ~ "trajets par personne par an",
       "dtrj" ~ "distance par trajet")
-    data <- calc |> 
+    if(!is.null(soustitre))
+      subtitle <- str_c(subtitle, soustitre)
+    data <- calc_q |> 
+      select(-adultes, -obs) |> 
       filter(variable%in%vars) |>
       mutate(variable = str_remove(variable, .x),
              grp = ifelse(str_detect(variable, "_r$"), "relatif", "km"),
@@ -416,15 +429,22 @@ deploc_densite_2 <- function(data, reg="all", K=512, label_reg = NULL,
       gt::cols_label(ends_with("_r") ~ "") |> 
       gt::cols_align(vv, align="left") |> 
       gt::cols_align(-vv, align="center") |>
+      gt::tab_options(
+        data_row.padding = gt::px(2) ) |>
+      gt::opt_css("br { line-height: 50%;} small {line-height: 50%;}") |> 
       gt::tab_source_note(gt::md(
-        "Source : EMP 2019,<br>
-      {f2si2(adultes)} adultes (AGE>=18) dans la zone<br>
-      {f2si2(nobs)} observations dans EMP19<br>
-      {K} répétitions de rééchantillonage<br>
-      entre crochets : intervalle de confiance à 95%" |> glue::glue()))
-    list(table = table, data = data)
+        "*Source* : {source},<br>
+        *Note* : {f2si2(adultes)} adultes (AGE>=18) dans la zone ; 
+        {f2si2(nobs)} observations dans {source} ;
+        {K} répétitions de rééchantillonage ;
+        entre crochets : intervalle de confiance à 95%" |> glue::glue()))
+    list(table = table, cells = data, raw = calc_q)
   })
   
-  # walk(ts, ~print(gt::as_raw_html(.x)))
-  invisible(purrr::transpose(ts))
+  ts <- purrr::transpose(ts)
+  names(ts$cells) <- out
+  names(ts$raw) <- out
+  names(ts$table) <- out
+  
+  invisible(ts)
 }
