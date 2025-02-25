@@ -369,7 +369,7 @@ deploc_individu <- deploc |>
   mutate(NUTS_ORI = first(NUTS_ORI), 
          REG_ORI = first(REG_ORI)) |> 
   ungroup() |> 
-  filter(mobloc == 1|is.na(mobloc), AGE >= 18) |> 
+  filter(mobloc == 1|is.na(mobloc)) |> 
   select(IDENT_IND, all_of(les_descripteurs), motif_principal, boucle, distance = MDISTTOT_fin, duree = DUREE, mode) |> 
   group_by(IDENT_IND, motif_principal) |> 
   nest(data = c(boucle, distance, duree, mode)) |> 
@@ -459,8 +459,9 @@ deploc_bcl <- deploc_bcl |>
     TRUE ~ "walk"
   ))
 
-bd_write(deploc)
-bd_write(deploc_individu)
-bd_write(deploc_bcl)
+ofce::bd_write(deploc)
+ofce::bd_write(deploc_individu)
+ofce::bd_write(deploc_bcl)
 
+return(list(deploc=deploc, individu = deploc_individu, bcl = deploc_bcl))
 
