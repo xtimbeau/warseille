@@ -3,10 +3,20 @@
 library(tidyverse)
 library(ofce)
 
-emp <- ofce::bd_read("EMP2019_AA4") |>
-  pluck("km") 
-emc2 <- ofce::bd_read("EMC2_AMP") |>
-  pluck("km") 
+# curl::curl_download(
+#   "https://www.insee.fr/fr/statistiques/fichier/6439600/grille_densite_7_niveaux_2024.xlsx",
+#   destfile = "/tmp/grille7.xlsx")
+# 
+# grille7 <- readxl::read_xlsx("/tmp/grille7.xlsx", skip = 4) |>
+#   distinct(DENS, LIBDENS) |>
+#   arrange(DENS) |> 
+#   pull(LIBDENS)
+
+enq <- source_data("resample mobilite.r")
+
+emp <- enq$emp_4$raw
+emc2 <- enq$emc2_4_car$raw
+emc2_7 <- enq$emc2_7$raw
 
 ff <- function(x, n) {
   map_chr(x, ~{
@@ -60,6 +70,17 @@ tab_emc2 <- collapse_cells(emc2) |>
 
 tab <- bind_rows(tab_emp, tab_emc2) |> 
   mutate(
+    src = factor(src, c("emp", "emc2"), c("EMP 2019 +700k", "EMC^2^ AMP 2020") ) )
+
+vv7 <- c("Grands centres urbains", "Centres urbains intermédiaires", "Petites villes",
+        "Ceintures urbaines", "Bourgs ruraux", "Rural à habitat dispersé", "Rural à habitat très dispersé") 
+
+tab_emc2_7 <- collapse_cells(emc2_7) |> 
+  filter((grp == "km" & vv== "total") | (grp == "relatif" & vv != "total" ), vv != "très peu dense") |> 
+  left_join(emc2_7 |> filter(variable=="dtrjac", p==0.5) |> select(vv, adultes, obs), by="vv") |> 
+  mutate(src = "emc2", 
+         vv = vv7[as.numeric(vv)] |> replace_na("total")) |> 
+  mutate(
     src = factor(src, c("emp", "emc2"), c("EMP 2019", "EMC^2^ AMP 2020") ) )
 
-return(list(emp = emp, emc2 = emc2, tab = tab))
+return(list(emp = emp, emc2 = emc2, tab_emc2_7 = tab_emc2_7, emc2_7 = emc2_7, tab = tab))

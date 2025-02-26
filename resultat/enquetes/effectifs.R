@@ -43,7 +43,7 @@ emp_eff <- bd_read("deploc_individu") |>
             ind = sum(pond_indC),
             adulte = sum(pond_indC[AGE>=18])) |> 
   mutate(across(where(is.numeric), ~.x + lag(.x, default = 0))) |> 
-  mutate(src = "EMP 2019",
+  mutate(src = "EMP 2019 +700k",
          ligne = c("Agglo. de plus de 700k hors IdF", "France entière"))
 
 effectifs <- bind_rows(
