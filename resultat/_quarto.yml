@@ -36,11 +36,11 @@ book:
     - index.qmd
     - localisations.qmd
     - accessibilites.qmd
-    - enquetes/enquetes.qmd
     - trajets.qmd
     - commerces.qmd
     - next.qmd
   appendices:
+    - enquetes/enquetes.qmd
     - annexe_commerces.qmd
     - codebook.qmd
     
