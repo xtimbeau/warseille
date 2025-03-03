@@ -298,18 +298,22 @@ gg_cmd <- list(
     values = colors ),
   scale_y_continuous(oob=scales::squish, limits = c(0,1500), name = "population"),
   scale_x_continuous(breaks = c(0:6)*20, limits=c(0,120)),
-  theme_ofce(base_size = 9),
+  theme_ofce(base_size = 9, 
+             marquee = FALSE, 
+             legend.position = c(1,1),
+             legend.justification = c(1,1),
+             legend.key.spacing.y = unit(3, "pt")),
   labs(caption = "Source : INSEE, Fichiers fonciers ; Calcul : OFCE"),
   guides(
     color = guide_legend(keywidth = 1, keyheight = .5),
     alpha="none"),
-  theme(legend.text = element_text(margin=margin(t=2, unit="pt"))))
+  theme(legend.text = element_blank()) +
+  theme(legend.text = element_text(margin=margin(t=2, l = 4, unit="pt"))))
 ```
 
 ## 10k
 
 ```{r}
-
 ggplot(t_access)+
   aes(x=to10k, weight=ind , fill = zone, col= zone, y = after_stat(count))+
   gg_cmd

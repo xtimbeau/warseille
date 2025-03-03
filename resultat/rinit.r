@@ -40,7 +40,7 @@ library(marquee, quietly = TRUE)
 options(
   ofce.base_size = 12,
   ofce.background_color = "transparent",
-  ofce.source_data.src_in = "project",
+  sourcoise.src_in = "project",
   ofce.caption.ofce = FALSE,
   ofce.marquee = TRUE,
   ofce.caption.wrap = 0)

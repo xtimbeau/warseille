@@ -62,12 +62,18 @@ vqh |>
   coord_equal() +
   scale_x_log10(name = "indicateur de proximité commerces alimentaires", limits = c(1, 1000)) +
   scale_y_log10(name = "indicateur de proximité (autres que alimentaire)", limits = c(1, 1000)) +
-  scale_fill_gradient(low = "white", high = "steelblue4", name = "individus")+
+  scale_fill_gradient(low = "white", high = "steelblue4", name = "individus",
+                      breaks = c(10000, 30000, 50000),
+                      labels = scales::number_format(scale = 1/1000, suffix = "k"))+
   facet_wrap(vars(ny), ncol = 2) +
-  theme_ofce(legend.position = c(1, 0.0),
+  theme_ofce(legend.position = "bottom",
              legend.justification = c(1,0),
-             legend.title = element_text(vjust = 1),
-             legend.key.width = unit(36, "pt")) +
+             legend.direction = "horizontal",
+             legend.title = element_blank(),
+             legend.text = element_blank(),
+             legend.key.width = unit(12, "pt")) +
+  theme(legend.title = element_text(vjust = 1, size = rel(0.7)),
+        legend.text = element_text(size = rel(0.6))) +
   ofce_caption(
     source = "C200, Fichiers fonciers, OSM, calculs des auteurs", ofce = FALSE,
     note = "On découpe le plan composé de l'indicateur de proximité des commerces alimentaires (axe des X) et l'indicateur de proximité des autres commerces (axe des Y) avec des hexagones. On compte à l'intérieur de ces hexagones la population résidente et la couleur est d'autant plus foncée que le nombre d'habitants est élevé. Chaque graphique représente la corrélation entre les indicateurs, ainsi les hexagones en diagonale dans le graphique le plus à cause sont ceux où se trouve la population. On observe 2 pôles (proximité très élevée, le centre de Marseile) et proximité élevée (autres centre-villes).")
@@ -93,11 +99,18 @@ vqh |>
   scale_y_log10(name = "indicateur de proximité", limits = c(1, 1000))+
   coord_equal() +
   facet_wrap(vars(ltype)) +
-  scale_fill_gradient(low = "white", high = "purple4")+
-  theme_ofce(legend.position = c(0.5, 1),
-             legend.justification = c(0,1),
-             legend.title = element_text(vjust = 1),
-             legend.key.width = unit(36, "pt")) +
+  scale_fill_gradient(low = "white", high = "purple4",
+                      name = "individus",
+                      breaks = c(10000, 20000, 50000),
+                      labels = scales::number_format(scale = 1/1000, suffix = "k"))+
+  theme_ofce(legend.position = "bottom",
+             legend.justification = c(1,0),
+             legend.direction = "horizontal",
+             legend.title = element_blank(),
+             legend.text = element_blank(),
+             legend.key.width = unit(12, "pt")) +
+  theme(legend.title = element_text(vjust = 1, size = rel(0.7)),
+        legend.text = element_text(size = rel(0.6))) +
   ofce_caption(
     source = "C200, Fichiers fonciers, OSM, calculs des auteurs", ofce = FALSE, 
     note = "On découpe le plan composé de la densité (axe des X) et l'indicateur de proximité des aménités (axe des Y) avec des hexagones. On compte à l'intérieur de ces hexagones la population résidente et la couleur est d'autant plus foncée que le nombre d'habitants est élevé. Chaque graphique représente la corrélation entre les indicateurs de proximité et la densité.") 
