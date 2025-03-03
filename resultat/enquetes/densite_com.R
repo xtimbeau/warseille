@@ -5,7 +5,7 @@ curl::curl_download(
 
 dens <- readxl::read_xlsx("/tmp/zones_dens.xlsx") |> 
   rename(code = 1, dens = 3) |> 
-  select(code, dens)
+  select(code, dens)   
 
 communes <- bd_read("zones_res") |> 
   mutate(code = ifelse(str_detect(CODE_COM, "^132"), 13056, CODE_COM)) |> 
@@ -15,5 +15,5 @@ communes <- bd_read("zones_res") |>
   st_simplify(dTolerance = 100, preserveTopology = FALSE)
 
 coms <- bd_read("communes") |> filter(SIREN_EPCI == SIREN_EPCI[INSEE_COM=="13101"]) |> st_union()
-
+# un commentaire ici encore et encore et encore
 return(list(communes=communes, coms = coms))
