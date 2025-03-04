@@ -5,8 +5,15 @@ author:
 ---
 
 ```{r init, include=FALSE}
-ofce::init_qmd()
+uuu <- ofce::init_qmd()
 version <- bd_read("version")
+communes <- bd_read("communes")
+centre <- communes |> 
+  filter(INSEE_COM=="13215") |> 
+  st_transform(4326) |> 
+  st_centroid() |> 
+  st_coordinates()
+centre <- as.vector(centre)
 ```
 
 # Du potentiel de l'accessibilité aux trajets effectifs
@@ -75,16 +82,11 @@ ggplot() +
 
 ::: column-margin
 ```{r dnwstat}
-bd_read("meaps_from") |> 
+dd <- bd_read("meaps_from") |> 
     st_drop_geometry() |> 
-    mutate(fromidINS = r3035::expand_idINS(fromidINS)) |> 
-    vroom::vroom_write("dnwld/co2_idINS_pdvR_MetAMP.csv", delim = ";")
+    mutate(fromidINS = r3035::expand_idINS(fromidINS)) 
 
-download_link(
-  link = "dnwld/co2_idINS_pdvR_MetAMP.csv",
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données CO2 au carreau, résidents")
+margin_link(dd, "co2_idINS_pdvR_MetAMP", "données CO2 au carreau, résidents")
 ```
 :::
 
@@ -186,16 +188,11 @@ ggplot() +
 
 ::: column-margin
 ```{r}
-bd_read("meaps_to") |> 
+dd <- bd_read("meaps_to") |> 
   st_drop_geometry() |> 
-  mutate(toidINS = r3035::expand_idINS(toidINS)) |> 
-  vroom::vroom_write("dnwld/co2_idINS_pdvE_MetAMP.csv", delim = ";")
+  mutate(toidINS = r3035::expand_idINS(toidINS)) 
 
-download_link(
-  link = "dnwld/co2_idINS_pdvE_MetAMP.csv",
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données CO2 au carreau, emploi")
+margin_link(dd, "co2_idINS_pdvE_MetAMP", "données CO2 au carreau, emploi")
 ```
 :::
 
@@ -254,16 +251,11 @@ bd_read("distrev") +
 ::: column-margin
 ```{r}
 
-bd_read("km_iris") |> 
+dd <- bd_read("km_iris") |> 
     st_drop_geometry() |> 
-  select(-shape) |> 
-  vroom::vroom_write("dnwld/co2_ndv_IRIS_MetAMP.csv", delim = ";")
+  select(-shape) 
 
-download_link(
-  "dnwld/CO2_ndv_IRIS_MetAMP.csv",
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label = "données CO2-niveau de vie à l'IRIS")
+margin_link(dd, "CO2_ndv_IRIS_MetAMP", "données CO2-niveau de vie à l'IRIS")
 ```
 :::
 
@@ -344,15 +336,11 @@ patchwork::wrap_plots(
 ::: column-margin
 ```{r}
 
-bd_read("km_iris_pol") |> 
+dd <- bd_read("km_iris_pol") |> 
   sf::st_drop_geometry() |> 
-  select(-shape) |> 
-  vroom::vroom_write("dnwld/co2_IRIS_pol_MetAMP.csv", delim = ";")
+  select(-shape)
 
-download_link(
-  link = "dnwld/co2_IRIS_pol_MetAMP.csv",
-  icon = "fa fa-download", class = "dbtn",
-  button_label = "données CO2-pollution à l'IRIS")
+margin_link(dd, "co2_IRIS_pol_MetAMP", "données CO2-pollution à l'IRIS")
 ```
 :::
 

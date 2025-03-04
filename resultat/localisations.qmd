@@ -7,7 +7,15 @@
 
 ```{r init, include=FALSE}
 ofce::init_qmd()
+communes <- bd_read("communes")
+centre <- communes |> 
+  filter(INSEE_COM=="13215") |> 
+  st_transform(4326) |> 
+  st_centroid() |> 
+  st_coordinates()
+centre <- as.vector(centre)
 
+c200ze <- bd_read("c200ze") |> st_transform(4326)
 ```
 
 # Localisation des résidents, des actifs et des emplois
@@ -78,24 +86,21 @@ c200ze |>
 
 ```
 ```{r}
-bd_read("c200ze") |> 
+dd <- bd_read("c200ze") |> 
     st_drop_geometry() |> 
   filter(ind > 0, scot) |> 
   transmute(
     idINS = r3035::expand_idINS(idINS), ind, dep, idcom=com22, IRIS,
-    act_mobpro) |> 
-  vroom::vroom_write("dnwld/ind_act_idINS_MetAMP.csv", delim = ";")
+    act_mobpro) 
 
-download_link(
-  link = "dnwld/ind_act_idINS_MetAMP.csv",
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label  = "données ind&actifs au carreau")
+margin_link(dd, "ind_act_idINS_MetAMP", "données ind&actifs au carreau")
 ```
 
 ## actifs MOBPRO (2020)
 
 ```{r}
+
+
 c200ze |> 
   filter(act_mobpro > 0, scot) |> 
   left_join(communes |>
@@ -124,19 +129,14 @@ c200ze |>
 ```
 
 ```{r}
-bd_read("c200ze") |> 
+dd <- bd_read("c200ze") |> 
     st_drop_geometry() |> 
   filter(emp > 0) |> 
   transmute(
     idINS = r3035::expand_idINS(idINS), emp, emp_resident, idcom=com22, IRIS,
-    act = tactocc1564 * ind_18_64) |> 
-  vroom::vroom_write("dnwld/emp_empres_idINS_MetAMP.csv", delim = ";")
+    act = tactocc1564 * ind_18_64)
 
-download_link(
-  link = "dnwld/emp_empres_idINS_MetAMP.csv",
-  icon = "fa fa-download",
-  class = "dbtn",
-  button_label  = "données emploi&emploi résident au carreau"
+margin_link(dd, "emp_empres_idINS_MetAMP", "données emploi&emploi résident au carreau"
 )
 ```
 

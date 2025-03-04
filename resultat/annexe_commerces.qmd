@@ -1,6 +1,4 @@
----
-title: "Motif commerce, détail des données"
----
+# Motif commerce, détail des données  {#sec-enquetes}
 
 ```{r}
 ofce::init_qmd()

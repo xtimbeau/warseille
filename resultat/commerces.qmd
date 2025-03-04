@@ -5,10 +5,11 @@ author:
   - name: Scotia Hille
 ---
 
-```{r init, include=FALSE, cache=FALSE}
+```{r init, include=FALSE, cache=FALSE, eval=TRUE}
 uu <- ofce::init_qmd()
 version <- bd_read("version_aa")
 library(paletteer)
+
 ```
 
 # Déplacements pour le motif commerce
@@ -19,7 +20,7 @@ L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose
 
 [^1]: Mais sans information de fréquences.
 
-En particulier, les déplacements effectués pour un motif d'achat sont plus complexes à appréhender, en raison de la diversité des type d'achats et de la dispersion des lieux de commerces. Les destinations visées par chaque résident sont ainsi bien plus nombreuses et diversifiés pour ce motif que pour le motif étude ou travail. Or ce motif "courses" est une composante non négligeable des mobilités quotidiennes. Le @tbl-emp19 et la @fig-emp19 donne les valeurs agrégées des distances parcourues en voiture pour un adulte en France hors Ile de France à partir de l'enquête mobilité des personnes certifiée CEREMA de 2019. Le motif "courses" représente 15% des kilomètres parcourus en voiture.
+En particulier, les déplacements effectués pour un motif d'achat sont plus complexes à appréhender, en raison de la diversité des type d'achats et de la dispersion des lieux de commerces. Les destinations visées par chaque résident sont ainsi bien plus nombreuses et diversifiés pour ce motif que pour le motif étude ou travail. Or ce motif "courses" est une composante non négligeable des mobilités quotidiennes (voir l'annexe @sec-enquetes pour l'analyse des enquêtes).
 
 Nous proposons une méthode qui exploite plusieurs sources et s'efforce de les rapprocher :
 
@@ -86,6 +87,7 @@ Pour nos 4 grands types de commerces, le tableau suivant résume le nombre d'esp
 #| column: body-outset-right
 
 stat <- source_data("commerces/stat.R")
+
 tbl1 <- stat |> 
   select(type, n_w, n_cconac, n, 
          s_q10, s_q50, s_q90) |> 
@@ -150,10 +152,7 @@ data <- vqh |>
   mutate(fromidINS = r3035::expand_idINS(fromidINS)) |> 
   select(-id_s, -id_d, -beta, -s, -wqse, -qse) 
 
-margin_link(
-  data,
-  "amenites_idINS_pdvR_MetAMP",
-  "données accessibilité aux aménités au carreau, résidents")
+margin_link(data, "amenites_idINS_pdvR_MetAMP", "données accessibilité aux aménités au carreau, résidents")
 
 ```
 
@@ -167,6 +166,7 @@ margin_link(
 ```{r}
 #| fig-asp: 1
 library(sf)
+library(stars)
 library(paletteer)
 
 legend_h <- list(
@@ -249,6 +249,20 @@ ggplot() +
 
 ```
 :::
+
+```{r, include=FALSE}
+communes <- bd_read("communes")
+centre <- communes |> 
+   filter(INSEE_COM=="13215") |> 
+   st_transform(4326) |> 
+   st_centroid() |> 
+   st_coordinates()
+
+centre <- as.vector(centre)
+ 
+c200ze <- bd_read("c200ze") |> st_transform(4326)
+```
+
 
 </details>
 
@@ -562,8 +576,7 @@ data <- lien_se_si |>
   unnest(residus) |> 
   mutate(idINS = r3035::expand_idINS(idINS))
 
-margin_link(
-  data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
+margin_link(data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
 
 ```
 
@@ -755,6 +768,7 @@ gg <- resemc2$res |>
   scale_color_manual(values = c("skyblue2", "skyblue3", "skyblue4", "skyblue1", "orange2", "orange3"), name = NULL) + 
   xlab("Déciles de population classée par proximité")+
   ylab("Effet relatif au d1") +
+  guides(color = "none") +
   ofce_caption(
     source = "EMC^2^ AMP, C200, Fichiers Fonciers, calculs des auteurs", 
     note = "Le graphique présente l'effet relatif au premier décile de proximité d'un autre décile de proximité sur les distances parcourues pour le motif courses. Ainsi, pour le dernier décile de proximité aux commerces aliementaires, le modèle estimé prévoit des distances parcourues 0,18 fois celles du décile d1. Le losange représente la valeur moyenne observée pour le décile de proximité d'après l'EMC^2^ AMP.") +

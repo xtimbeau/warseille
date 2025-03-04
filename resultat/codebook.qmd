@@ -11,7 +11,7 @@ Lorsque c'est pertinent, les données des graphiques ou des tableaux sont propos
 ## C200 résidents
 
 ```{r}
-download_link(
+downloadthis::download_link(
   link = "dnwld/ind_act_idINS_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg",
@@ -36,7 +36,7 @@ download_link(
 ## C200 emploi {#sec-c200emp}
 
 ```{r}
-download_link(
+downloadthis::download_link(
   link = "dnwld/emp_empres_idINS_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg",
@@ -61,7 +61,7 @@ download_link(
 ## Accessibilité {#sec-access}
 
 ```{r}
-download_link(
+downloadthis::download_link(
   link = "dnwld/temps_accessibilite_idINS_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg",
@@ -88,7 +88,7 @@ download_link(
 ## Accessibilité par commune
 
 ```{r}
-download_link(
+downloadthis::download_link(
   "dnwld/access_par_com_MetAMP.csv",
   class  = "dbtnlg",
   icon = "fa fa-download",
@@ -111,7 +111,7 @@ download_link(
 ## Déciles de niveau de vie {#sec-deciles}
 
 ```{r}
-download_link(
+downloadthis::download_link(
   "dnwld/deciles_MetAMP.csv",
   class  = "dbtnlg",
   icon = "fa fa-download",
@@ -131,7 +131,7 @@ download_link(
 ## Accessibilité par déciles de niveau de vie
 
 ```{r}
-download_link(
+downloadthis::
   link = "dnwld/access_revenu_MetAMP.csv",
   class  = "dbtnlg",
   icon = "fa fa-download",
@@ -162,7 +162,7 @@ download_link(
 ## CO~2~ au carreau, point de vue résident
 
 ```{r}
-download_link(
+downloadthis::download_link(
   link = "dnwld/co2_idINS_pdvR_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg",
@@ -188,7 +188,7 @@ download_link(
 ## CO~2~ au carreau, point de vue emploi
 
 ```{r}
-download_link(
+downloadthis::download_link(
   link = "dnwld/co2_idINS_pdvE_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg",
@@ -216,7 +216,7 @@ download_link(
 ## Revenu et CO~2~
 
 ```{r}
-download_link(
+downloadthis::download_link(
   link = "dnwld/co2_ndv_IRIS_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg",
@@ -248,7 +248,7 @@ download_link(
 ## Pollution subie CO~2~ émis
 
 ```{r}
-download_link(
+downloadthis::download_link(
   link = "dnwld/co2_IRIS_pol_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg",
@@ -282,7 +282,7 @@ download_link(
 ## Proximité aux aménités
 
 ```{r}
-download_link(
+downloadthis::download_link(
   "dnwld/amenites_idINS_pdvR_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg", 
@@ -313,7 +313,7 @@ download_link(
 
 ```{r}
 
-download_link(
+downloadthis::download_link(
   "dnwld/residus_prox-dens_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg", 
@@ -352,8 +352,7 @@ inline_link("residus_emc2_MetAMP", "résidus des régressions de distance")
 ## CO~2~ pour le motif commerce
 
 ```{r}
-
-download_link(
+downloadthis::download_link(
   "dnwld/co2_motif_commerce_MetAMP.csv",
   icon = "fa fa-download",
   class = "dbtnlg", 
@@ -364,7 +363,7 @@ download_link(
 
 ```{r}
 
-download_link(
+downloadthis::download_link(
   "dnwld/CO2_commerces_IRIS.csv",
   icon = "fa fa-download",
   class = "dbtnlg", 
