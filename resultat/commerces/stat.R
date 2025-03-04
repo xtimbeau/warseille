@@ -1,4 +1,7 @@
 library(MetricsWeighted)
+library(ofce)
+library(tidyverse)
+
 stat1  <- bd_read("commerces") |> 
   group_by(type, cconac) |>
   summarize(

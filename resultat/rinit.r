@@ -9,44 +9,36 @@ opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   echo = FALSE)
-
+options(conflicts.policy = list(depends.ok=TRUE, error=FALSE, warn=FALSE, can.mask=TRUE))
 library(tidyverse, quietly = TRUE)
+library(scales, quietly = TRUE)
 library(ofce, quietly = TRUE)
-library(showtext, quietly = TRUE)
 library(gt, quietly = TRUE)
-library(readxl, quietly = TRUE)
 library(ggiraph, quietly = TRUE)
-library(curl, quietly = TRUE)
 library(ggrepel, quietly = TRUE)
 library(gt, quietly = TRUE)
-library(scales, quietly = TRUE)
 library(glue, quietly = TRUE)
 library(patchwork, quietly = TRUE)
-library(downloadthis, quietly = TRUE)
 library(lubridate, quietly = TRUE)
 library(insee, quietly = TRUE)
-library(ggh4x, quietly = TRUE)
 library(PrettyCols, quietly = TRUE)
-library(cli, quietly = TRUE)
-library(quarto, quietly = TRUE)
-library(qs, quietly = TRUE)
-library(devtools, quietly = TRUE)
 library(conflicted, quietly = TRUE)
 library(sf, quietly = TRUE)
-library(tmap, quietly = TRUE)
+library(stars)
 library(mapdeck, quietly = TRUE)
 library(marquee, quietly = TRUE)
 
 options(
   ofce.base_size = 12,
   ofce.background_color = "transparent",
-  sourcoise.src_in = "project",
+  sourcoise.src_in = "file",
+  sourcoise.init_fn = ofce::init_qmd,
   ofce.caption.ofce = FALSE,
   ofce.marquee = TRUE,
   ofce.caption.wrap = 0)
 
-showtext_opts(dpi = 192)
-showtext_auto()
+showtext::showtext_opts(dpi = 192)
+showtext::showtext_auto()
 options(cli.ignore_unknown_rstudio_theme = TRUE)
 tooltip_css  <-  
   "font-family:Open Sans;
@@ -188,36 +180,10 @@ euro <- function(x, digits = 4) {
   str_c(formatC(x, digits = digits, big.mark = " ", decimal.mark = ",", format = "fg"), " €")
 }
 
-if(Sys.getenv("QUARTO_PROJECT_DIR") == "") {
-  safe_find_root <- purrr::safely(rprojroot::find_root)
-  root <- safe_find_root(rprojroot::is_quarto_project | rprojroot::is_r_package | rprojroot::is_rstudio_project)
-  if(is.null(root$error))
-    ofce.project.root <- root$result
-} else {
-  ofce.project.root <- Sys.getenv("QUARTO_PROJECT_DIR")
-}
-
-conflicted::conflicts_prefer(dplyr::filter, .quiet = TRUE)
-conflicted::conflicts_prefer(dplyr::select, .quiet = TRUE)
-conflicted::conflicts_prefer(dplyr::lag, .quiet = TRUE)
-conflicted::conflicts_prefer(lubridate::year, .quiet = TRUE)
-conflicted::conflicts_prefer(lubridate::month, .quiet = TRUE)
-conflicted::conflicts_prefer(dplyr::first, .quiet = TRUE)
-conflicted::conflicts_prefer(dplyr::last, .quiet = TRUE)
-conflicted::conflicts_prefer(dplyr::between, .quiet = TRUE)
-conflicted::conflicts_prefer(lubridate::quarter, .quiet = TRUE)
+conflicted::conflict_prefer_all("dplyr", quiet = TRUE)
+conflicted::conflict_prefer_all("lubridate", quiet = TRUE)
 
 trim <- function(x, xm, xp) ifelse( x<= xm, xm, ifelse(x>= xp, xp, x))
-
-communes <- bd_read("communes")
-centre <- communes |> 
-  filter(INSEE_COM=="13215") |> 
-  st_transform(4326) |> 
-  st_centroid() |> 
-  st_coordinates()
-centre <- as.vector(centre)
-
-c200ze <- bd_read("c200ze") |> st_transform(4326)
 
 tkn <- Sys.getenv("mapbox_token")
 mapdeck::set_token(tkn)

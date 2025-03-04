@@ -183,17 +183,13 @@ vqh <- bd_read("vqh") |>
   r3035::sidINS2sf(idINS = "fromidINS") |> 
   mutate(wqse = factor(wqse))
 
-vqh |>
+dd <- vqh |>
   st_drop_geometry() |>
   mutate(fromidINS = r3035::expand_idINS(fromidINS)) |> 
-  select(-id_s, -id_d, -beta, -s, -wqse, -qse) |> 
-  vroom::vroom_write("dnwld/amenites_idINS_pdvR_MetAMP.csv", delim = ";")
+  select(-id_s, -id_d, -beta, -s, -wqse, -qse) 
 
-download_link(
-  "dnwld/amenites_idINS_pdvR_MetAMP.csv",
-  icon = "fa fa-download",
-  class = "dbtn", 
-  button_label = "données accessibilité aux aménités au carreau, résidents")
+
+margin_link( dd, "amenites_idINS_pdvR_MetAMP", "données accessibilité aux aménités au carreau, résidents")
 ```
 :::
 
@@ -598,8 +594,7 @@ data <- lien_se_si |>
   unnest(residus) |> 
   mutate(idINS = r3035::expand_idINS(idINS))
 
-margin_link(
-  data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
+margin_link(data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
 
 ```
 :::
@@ -920,14 +915,9 @@ data <- proj |>
   mutate(idINS = r3035::expand_idINS(idINS),
          co2_pi =  dist * 365 * 218/1000000 ) |> 
   select(idINS, ind, co2_pi) |> 
-  st_drop_geometry() |> 
-  vroom::vroom_write("dnwld/co2_motif_commerce_MetAMP.csv", delim = ";")
+  st_drop_geometry() 
 
-download_link(
-  "dnwld/co2_motif_commerce_MetAMP.csv",
-  icon = "fa fa-download",
-  class = "dbtn", 
-  button_label = "données CO2 pour le motif courses")
+margin_link(data, "dnwld/co2_motif_commerce_MetAMP", "données CO2 pour le motif courses")
 
 ```
 :::

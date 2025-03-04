@@ -1,3 +1,7 @@
+library(tidyverse)
+library(sf)
+library(ofce)
+
 data_emc2 <- source_data("commerces/data_emc2.R")
 
 labels <- data_emc2$l

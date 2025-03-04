@@ -1,3 +1,6 @@
+library(ofce)
+library(tidyverse)
+
 ind_emc2 <- bd_read("ind_emc2")
 
 labels <- set_names(c("Alimentaire", "Com. non alim.", "Bars, ...", "Santé humaine", 
