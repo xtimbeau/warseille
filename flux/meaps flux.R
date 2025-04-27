@@ -77,7 +77,7 @@ if(calc) {
   rm(tranked, meaps)
   gc()
 } 
-
+db1 <-dbConnect( duckdb::duckdb(dbdir="/tmp/duck_meaps.db") )
 meaps <- arrow::open_dataset("{mdir}/meaps/meaps.parquet" |> glue()) |> 
   to_duckdb() |> 
   rename(f_ij = flux)
@@ -85,8 +85,8 @@ meaps <- arrow::open_dataset("{mdir}/meaps/meaps.parquet" |> glue()) |>
 # meaps.c <- communaliser(meaps, communes, dclts)
 
 # joining ----
-
-delta <- open_dataset("/space_mounts/data/marseille/delta_iris") |> 
+db2 <-dbConnect( duckdb::duckdb(dbdir="/tmp/duck_delta.db") )
+delta <- arrow::open_dataset("/space_mounts/data/marseille/delta_iris") |> 
   to_duckdb() |> 
   mutate(all = bike+walk+transit+car) |> 
   select(fromidINS, toidINS, car, all)
@@ -102,13 +102,21 @@ delta <- open_dataset("/space_mounts/data/marseille/delta_iris") |>
 #   anti_join(distances.car, by=c("fromidINS", "toidINS")) |> 
 #   select(fromidINS, toidINS, travel_time, distance)
 
+db3 <- dbConnect( duckdb::duckdb(dbdir="/tmp/duck_dist.db") )
+dists <- open_dataset(dist_dts) |> 
+  to_duckdb() |> 
+  filter(mode == "car_dgr") |> 
+  select(fromidINS, toidINS, distance) 
+
 meaps.joined <- meaps |> 
-  left_join(delta, by = c("fromidINS", "toidINS"))
+  left_join(dists , by = c("fromidINS", "toidINS"))  |> 
+  left_join(delta, by = c("fromidINS", "toidINS")) 
 
 meaps.joined <- meaps.joined |> 
   filter(car>0, all>0) |> 
   mutate(km_car_ij= f_ij * car, 
-         km_ij = f_ij * all) |> 
+         km_ij = f_ij * all,
+         fd_ij = f_ij * distance/1000) |> 
   mutate(co2_ij = km_car_ij * 218/1000000)
 
 c200mze <- c200ze |> 
@@ -118,15 +126,17 @@ c200mze <- c200ze |>
   to_duckdb()
 
 meaps_from <- meaps.joined |> 
-  group_by(fromidINS) |> 
   summarize(
     km_i = sum(km_ij, na.rm=TRUE),
+    fd_i = sum(fd_ij, na.rm=TRUE),
     co2_i = sum(co2_ij, na.rm=TRUE),
-    f_i = sum(f_ij, na.rm=TRUE)) |> 
+    f_i = sum(f_ij, na.rm=TRUE),
+    .by = fromidINS) |> 
   left_join(c200mze, by = "fromidINS") |> 
   mutate(
     km_pa = km_i/f_i,
     km_pi = km_i/ind,
+    d_i = fd_i/f_i,
     co2_pa = co2_i/f_i,
     co2_pi = co2_i/ind) |> 
   collect()
@@ -137,12 +147,14 @@ meaps_from <- meaps_from |>
   st_as_sf()
 
 meaps_to <- meaps.joined |> 
-  group_by(toidINS) |> 
   summarize(
     km_j = sum(km_ij, na.rm=TRUE),
     co2_j = sum(co2_ij, na.rm=TRUE),
-    f_j = sum(f_ij, na.rm=TRUE)) |> 
+    fd_j = sum(fd_ij, na.rm=TRUE),
+    f_j = sum(f_ij, na.rm=TRUE),
+    .by = "toidINS") |> 
   mutate(
+    d_j = fd_j/f_j,
     km_pe = km_j/f_j,
     co2_pe = co2_j/f_j) |> 
   collect()
@@ -154,7 +166,7 @@ meaps_to <- meaps_to |>
 
 decor_carte <- bd_read("decor_carte")
 decor_carte_large <- bd_read("decor_carte_large")
-version <- "6.225"
+version <- "7.275"
 
 carte_co2_to <- ggplot() +
   decor_carte +
