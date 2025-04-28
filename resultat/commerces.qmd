@@ -9,24 +9,23 @@ author:
 uu <- ofce::init_qmd()
 version <- bd_read("version_aa")
 library(paletteer)
-
 ```
 
 # Déplacements pour le motif commerce
 
 ## Proposition de méthode
 
-L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose sur la disponibilité d'une matrice origine destination très riche, disponible pour chaque année de recensement au niveau intercommunal, décrivant donc les flux de mobilité professionnelle quotidienne usuelle[^1] pour toute la France. Cette information est également disponible pour les mobilités scolaires. En revanche, pour les autres motifs de déplacement, on ne dispose pas d'un équivalent.
+L'évaluation des flux effectifs de mobilité professionnelle quotidienne repose sur la disponibilité d'une matrice origine destination très riche, disponible pour chaque année de recensement au niveau intercommunal, décrivant donc les flux de mobilité professionnelle quotidienne usuelle[^commerces-1] pour toute la France. Cette information est également disponible pour les mobilités scolaires. En revanche, pour les autres motifs de déplacement, on ne dispose pas d'un équivalent.
 
-[^1]: Mais sans information de fréquences.
+[^commerces-1]: Mais sans information de fréquences.
 
 En particulier, les déplacements effectués pour un motif d'achat sont plus complexes à appréhender, en raison de la diversité des type d'achats et de la dispersion des lieux de commerces. Les destinations visées par chaque résident sont ainsi bien plus nombreuses et diversifiés pour ce motif que pour le motif étude ou travail. Or ce motif "courses" est une composante non négligeable des mobilités quotidiennes (voir l'annexe @sec-enquetes pour l'analyse des enquêtes).
 
 Nous proposons une méthode qui exploite plusieurs sources et s'efforce de les rapprocher :
 
-1.  Tout d'abord, nous construisons un indicateur de proximité des commerces pour chaque carreau de résidence. Cet indicateur est construit en comptant dans le voisinage de chacun de ces carreaux le nombre de commerces, leur diversité et leur taille. La définition du voisinage consiste ici en un seuil de temps de trajets, que nous avons fixé pour l'instant à 15 minutes de marche pour coller à l'idée de ville du quart d'heure[^2]. Mais d'autres seuils peuvent être retenus sans difficulté technique. Nous calculons ensuite un indicateur synthétisant la quantité, la diversité et la taille des commerces, de manière à associer à chaque carreau un nombre qui résume la proximité des commerces. Les aménités (ici principalement des commerces ou des services aux ménages) sont connues à partir des fichiers fonciers et des codes utilisateurs NAF qui y sont renseignés. Ceci permet de décliner l'indicateur de proximité selon 4 grands types d'aménités (commerces alimentaires, commerces non alimentaires, sorties, santé humaine). Cet indicateur de proximité synthétise beaucoup d'informations géographiques, mais il n'est pas interprétable directement.
+1.  Tout d'abord, nous construisons un indicateur de proximité des commerces pour chaque carreau de résidence. Cet indicateur est construit en comptant dans le voisinage de chacun de ces carreaux le nombre de commerces, leur diversité et leur taille. La définition du voisinage consiste ici en un seuil de temps de trajets, que nous avons fixé pour l'instant à 15 minutes de marche pour coller à l'idée de ville du quart d'heure[^commerces-2]. Mais d'autres seuils peuvent être retenus sans difficulté technique. Nous calculons ensuite un indicateur synthétisant la quantité, la diversité et la taille des commerces, de manière à associer à chaque carreau un nombre qui résume la proximité des commerces. Les aménités (ici principalement des commerces ou des services aux ménages) sont connues à partir des fichiers fonciers et des codes utilisateurs NAF qui y sont renseignés. Ceci permet de décliner l'indicateur de proximité selon 4 grands types d'aménités (commerces alimentaires, commerces non alimentaires, sorties, santé humaine). Cet indicateur de proximité synthétise beaucoup d'informations géographiques, mais il n'est pas interprétable directement.
 
-[^2]: Il n'existe pas de définition homogène de la ville du quart d'heure et certains auteurs retiennent un temps de parcours à pied aller retour de 15 minutes, bien plus court que la définition nous utilisons.
+[^commerces-2]: Il n'existe pas de définition homogène de la ville du quart d'heure et certains auteurs retiennent un temps de parcours à pied aller retour de 15 minutes, bien plus court que la définition nous utilisons.
 
 <!-- -->
 
@@ -38,10 +37,10 @@ Nous proposons une méthode qui exploite plusieurs sources et s'efforce de les r
 
 ### Sources de données
 
-La première étape est d'identifier les opportunités. Une des difficultés est la versatilité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. Nous proposons ici d’agréger les surfaces commerciales pour chaque carreau en distinguant 4 grandes catégories de commerce. Ces catégories reprennent, avec réinterprétation, le travail réalisé par l'AUPA[^3].\
+La première étape est d'identifier les opportunités. Une des difficultés est la versatilité des motifs commerciaux associés à la grande quantité de commerces disponibles sur le territoire. Nous proposons ici d’agréger les surfaces commerciales pour chaque carreau en distinguant 4 grandes catégories de commerce. Ces catégories reprennent, avec réinterprétation, le travail réalisé par l'AUPA[^commerces-3].\
 Notre source principale est celle des fichiers fonciers. Elle donne une information fine sur les secteurs utilisateur du local (code NAF à 5 caractères pour l'entreprise utilisatrice) dans lequel on peut distinguer un commerce de chaussure d'une pharmacie, une supérette d'une grande surface alimentaire. Ce sont des couches agrégées de commerces pour des types de ménages identifiés. Elle permet d'associer au commerce une surface (variable `sprincp` des fichiers fonciers).
 
-[^3]: Merci à Théo Shayer, Ludovic Verre et Luc Garnier pour nous avoir partagé leur méthodologie.
+[^commerces-3]: Merci à Théo Shayer, Ludovic Verre et Luc Garnier pour nous avoir partagé leur méthodologie.
 
 Nous classons les commerces en 4 catégories : alimentaire, commerces (non alimentaires), sorties, santé humaine.
 
@@ -131,6 +130,13 @@ tbl2 |>
   tab_source_note(md("*Source* : Fichiers fonciers, CEREMA, 2022"))
 ```
 
+```{r, results="asis"}
+download_margin(
+  bd_read("commerces") |> mutate(idINS = r3035::expand_idINS(toidINS)),
+  "detail_commerces_idINS_MetAMP", "données commerces à l'échelle du carreau INS")
+```
+
+
 ### Indicateur de proximité des aménités pour AMP
 
 L'application de la méthode décrite au dessus à partir des données décrites dans la première section permet de calculer l'indicateur de proximité pour les 4 types d'aménités. Sur les cartes, la coloration est établie après une découpage en quintile, pondéré par la population. Ainsi, la couleur bleu foncée est attribuée aux carreaux dasn lesquels résident les 20% de la population qui a le plus haut niveau de proximité. Comme ce découpage est identique pour les 4 types d'aménité, il n'est pas possible de les comparer entre elles. La @fig-lorenz repose sur la même notion (les quantiles), sans normaliser l'indicateur de proximité.
@@ -139,8 +145,7 @@ On observe que de façon commune aux quatre aménités la proximité élevée es
 
 D'une aménité à l'autre, le schéma global est conservé. Les aménités "sortie" (bars, restaurants et cinémas) ou "santé humaine" sont plus concentrées spatialement, ce qui est amplifié par le @fig-regsise. La ressemblance n'est toutefois qu'apparente puisque le découpage en quintile écrase les différences. Le lien entre les indicateurs de proxiumité pour les différentes aménités est détaillé en annexe (@fig-corrcomm) ainsi que le lien avec la densité (@fig-denscom).
 
-:::::: {#fig-surfeq_map}
-
+::::: {#fig-surfeq_map}
 ```{r dnwstat}
 #| column: margin
 vqh <- bd_read("vqh") |>
@@ -263,7 +268,6 @@ centre <- as.vector(centre)
 c200ze <- bd_read("c200ze") |> st_transform(4326)
 ```
 
-
 </details>
 
 <details name="cac">
@@ -345,7 +349,7 @@ vqh |>
 </details>
 
 Cartes de l'accessibilité aux aménités
-::::::
+:::::
 
 ### Répartition de la population en fonction de la proximité
 
@@ -465,6 +469,7 @@ On peut représenter les résidus de ces modèles sur une carte. Cela donne un i
 :::: {#fig-regsise}
 ::: panel-tabset
 ## Alimentaire
+
 ```{r}
 thm_map_leg <- list(
   scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
@@ -705,11 +710,11 @@ On confirme cette analyse en effectuant des régressions (log)linéaires en util
 
 1.  les indicateurs des différentes aménités (regroupées en 4 grandes catégories) sont très proches en termes d'explication de la distance parcourue en voiture. La densité ou la densité pondérée expliquent également les distances parcourues en voiture, avec quelques nuances (par exemple, le revenu ne joue plus). Les variables de contrôle (part des individus avec enfants, part des actifs occupés) sont significatifs, d'un signe interprétable et assez constants parmi les variables expliquées.
 
-2.  La distance parcourue décroît nettement avec l'accessibilité aux commerces ou la densité. Ce résultat important valide la construction de ces indicateurs et permet de les calibrer. Par ailleurs, l'effet trouvé est important, puisque entre le premier décile d'accès aux aménités (en gros pas d'aménités accessibles à pied en moins de 15 minutes) et le dernier (zones très denses et très dotées) est de l'ordre de 4 (entre ×4,3 et ×3,1 suivant les indicateurs)[^4].
+2.  La distance parcourue décroît nettement avec l'accessibilité aux commerces ou la densité. Ce résultat important valide la construction de ces indicateurs et permet de les calibrer. Par ailleurs, l'effet trouvé est important, puisque entre le premier décile d'accès aux aménités (en gros pas d'aménités accessibles à pied en moins de 15 minutes) et le dernier (zones très denses et très dotées) est de l'ordre de 4 (entre ×4,3 et ×3,1 suivant les indicateurs)[^commerces-4].
 
 3.  Les coefficients estimés permettent éventuellement de distinguer des catégories d'accessibilité, en regroupant les déciles quant ils ont des coefficients proches. En se basant sur l'indicateur pour les commerces alimentaires, les 3 premiers déciles peuvent être regroupés en une seule catégorie où l'accessibilité aux aménités n'est pas assez élevée pour empêcher l'utilisation de la voiture. D'après le @fig-lorenz, cela correspond à un niveau de proximité moyen aux commerces alimentaires d'environ 32 (surface équivalente) ce qui est relativement élevé : en moyenne la diversité y atteint 5,7, soit un peu plus de la moitié de la diversité maximale et la surface brute est de l'ordre de 500 m² de surface commerciale. C'est quelque chose qui correspond à 3 commerces alimentaires. On peut ensuite inclure les 3 déciles suivants, pour un effet de réduction de 1,5 des distances parcourues et les 4 derniers déciles, avec une distinction possible pour le dernier décile. Cette catégorisation illustre le calibrage que permet l'analyse de régression.
 
-[^4]: Cette valeur se lit sur le tableau en prenant le coefficient du dernier décile, moins celui du premier (égal à 0 par référence) et en élevant $e$ à la puissance de cette différence.
+[^commerces-4]: Cette valeur se lit sur le tableau en prenant le coefficient du dernier décile, moins celui du premier (égal à 0 par référence) et en élevant $e$ à la puissance de cette différence.
 
 Les observation du modèle estimé sont les zones EMC^2^, indexées par $i$, où le nombre d'individus sondés (présent dans l'EMC^2^) est supérieur à 10. L'équation du modèle est :
 
@@ -986,7 +991,7 @@ ggplot() +
 
 ```
 
-::: {.column-margin}
+::: column-margin
 ```{r}
 data <- proj |> 
   select(idINS, ind, freq, dist) |> 
@@ -1005,9 +1010,9 @@ margin_link(
 
 ## Emissions de CO~2~ et niveau de vie
 
-De la même façon que pour les mobilités professionnelles, l'analyse conduite ici permet d'analyser le lien entre niveau de vie[^5] et émissions de CO~2~ pour le motif commerce. La structure du territoire de la métrople d'Aix-Marseille-Provence influe ici aussi ce lien : Plus le niveau de vie est élevé, plus les émissions sont importante, un doublement du niveau de vie étant associé à un peu moins qu'un doublement des émissions (l'élasticité est de 0,78, donc un doublement du niveau de vie est associé à une mulitplication par 1,56 des émissions).
+De la même façon que pour les mobilités professionnelles, l'analyse conduite ici permet d'analyser le lien entre niveau de vie[^commerces-5] et émissions de CO~2~ pour le motif commerce. La structure du territoire de la métrople d'Aix-Marseille-Provence influe ici aussi ce lien : Plus le niveau de vie est élevé, plus les émissions sont importante, un doublement du niveau de vie étant associé à un peu moins qu'un doublement des émissions (l'élasticité est de 0,78, donc un doublement du niveau de vie est associé à une mulitplication par 1,56 des émissions).
 
-[^5]: Le niveau de vie est le revenu disponible net (intégrant les différents revenus, les prestations moins les impôts sur le revenu) divisé par les unités de consommation. Les unités de consommation tiennent compte des économies d'échelles réalisées par la vie à plusieurs mais également des charges liées à une structure familale plus importante. Deux apporteurs de revenus ont un niveau de vie supérieur en ménage plutôt que séparés. Un apporteur de revenu à un niveau de vie inférieur lorsqu'il ou elle a des enfants à charge.
+[^commerces-5]: Le niveau de vie est le revenu disponible net (intégrant les différents revenus, les prestations moins les impôts sur le revenu) divisé par les unités de consommation. Les unités de consommation tiennent compte des économies d'échelles réalisées par la vie à plusieurs mais également des charges liées à une structure familale plus importante. Deux apporteurs de revenus ont un niveau de vie supérieur en ménage plutôt que séparés. Un apporteur de revenu à un niveau de vie inférieur lorsqu'il ou elle a des enfants à charge.
 
 ```{r, include = FALSE}
 label_iris <- bd_read("iris22") |> 
@@ -1135,7 +1140,7 @@ pp <- patchwork::wrap_plots(
 girafy(pp)
 ```
 
-::: {.column-margin}
+::: column-margin
 ```{r}
 margin_link(co2_iris |> select(-dens.alt, -shape, -tooltip2), "CO2_commerces_IRIS", "Données CO2 commerce à l'IRIS")
 ```
@@ -1210,7 +1215,7 @@ ppp <- patchwork::wrap_plots(
 girafy(ppp)
 ```
 
-::: {.column-margin}
+::: column-margin
 ```{r}
 margin_link(co2_iris |> select(-dens.alt, -shape, -tooltip2), "CO2_commerces_IRIS", "Données CO2 commerce à l'IRIS")
 ```
@@ -1287,7 +1292,7 @@ ggg <- ggplot(comp) +
 girafy(ggg)
 ```
 
-::: {.column-margin}
+::: column-margin
 ```{r}
 margin_link(co2_iris |> select(-dens.alt, -shape, -tooltip2, -co2_p), "CO2_commerces_IRIS", "Données CO2 commerce à l'IRIS")
 ```

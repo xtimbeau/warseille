@@ -131,7 +131,7 @@ downloadthis::download_link(
 ## Accessibilité par déciles de niveau de vie
 
 ```{r}
-downloadthis::
+downloadthis::download_link(
   link = "dnwld/access_revenu_MetAMP.csv",
   class  = "dbtnlg",
   icon = "fa fa-download",
