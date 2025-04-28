@@ -175,14 +175,17 @@ mapdeck::set_token(tkn)
 
 style <- "mapbox://styles/xtimbeau/ckyx5exex000r15n0rljbh8od"
 
-tabsetize <- function(list, facety = TRUE) {
+tabsetize <- function(list, facety = TRUE, cap = TRUE) {
   if(knitr::is_html_output()) {
     chunk <- knitr::opts_current$get()
     label <- knitr::opts_current$get()$label
-    if(is.null(label))
-      return(list)
     
-    cat(str_c(":::: {#", label, "} \n\n" ))
+    if(cap) {
+      if(is.null(label))
+        return(list)
+      cat(str_c(":::: {#", label, "} \n\n" ))
+    }
+    
     cat("::: {.panel-tabset} \n\n")
     purrr::iwalk(list, ~{
       p <- girafy(.x)
@@ -190,11 +193,38 @@ tabsetize <- function(list, facety = TRUE) {
       p  |> htmltools::tagList() |> print()
       cat("\n\n") })
     cat(":::\n\n")
-    cat(chunk$fig.cap)
-    cat("\n\n")
-    cat("::::")
-    
+    if(cap) {
+      cat(chunk$fig.cap)
+      cat("\n\n")
+      cat("::::")
+    }
   } else {
+    if(facety)
+      patchwork::wrap_plots(list, ncol = 2) & theme_ofce(base.size=6)
+    else
+      list[[1]] |> print()
+  }
+}
+
+tabsetize2 <- function(list, facety = TRUE, cap = TRUE) {
+  if(knitr::is_html_output()) {
+    chunk <- knitr::opts_current$get()
+    label <- knitr::opts_current$get()$label
+    
+    if(cap) {
+      if(is.null(label))
+        return(list)
+      cat(str_c(":::: {#", label, "} \n\n" ))
+    }
+    
+    cat(":::: {.panel-tabset} \n\n")
+    purrr::iwalk(list, ~{
+      cat(paste0("### ", .y," {.tabset} \n\n"))
+      tabsetize(.x, facety=FALSE, cap = FALSE)
+      cat("\n")
+    })
+    cat(":::: ")
+    } else {
     if(facety)
       patchwork::wrap_plots(list, ncol = 2) & theme_ofce(base.size=6)
     else
