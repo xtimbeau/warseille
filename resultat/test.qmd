@@ -37,7 +37,7 @@ plots <- map(commerces, \(.type) {
   map(temps_tc, \(.temps){
     data <- vqh |> 
       filter(type == .type) |> 
-      filter(temps==.temps) |> 
+      filter(temps == .temps) |> 
       select(idINS = fromidINS, wqse) |> 
       r3035::sidINS2sf() 
     ggplot(data)+
