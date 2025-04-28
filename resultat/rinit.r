@@ -175,7 +175,7 @@ mapdeck::set_token(tkn)
 
 style <- "mapbox://styles/xtimbeau/ckyx5exex000r15n0rljbh8od"
 
-tabsetize <- function(list, facety = TRUE, cap = TRUE) {
+tabsetize <- function(list, facety = TRUE, cap = TRUE, girafy = TRUE) {
   if(knitr::is_html_output()) {
     chunk <- knitr::opts_current$get()
     label <- knitr::opts_current$get()$label
@@ -188,9 +188,12 @@ tabsetize <- function(list, facety = TRUE, cap = TRUE) {
     
     cat("::: {.panel-tabset} \n\n")
     purrr::iwalk(list, ~{
-      p <- girafy(.x)
       cat(paste0("### ", .y," {.tabset} \n\n"))
-      p  |> htmltools::tagList() |> print()
+      if(girafy)
+        girafy(.x) |> htmltools::tagList() |> print()
+      else
+        .x |> print()
+      
       cat("\n\n") })
     cat(":::\n\n")
     if(cap) {
@@ -220,10 +223,10 @@ tabsetize2 <- function(list, facety = TRUE, cap = TRUE) {
     cat(":::: {.panel-tabset} \n\n")
     purrr::iwalk(list, ~{
       cat(paste0("### ", .y," {.tabset} \n\n"))
-      tabsetize(.x, facety=FALSE, cap = FALSE)
+      tabsetize(.x, facety=FALSE, cap = FALSE, girafy=FALSE)
       cat("\n")
     })
-    cat(":::: ")
+    cat("::::")
     } else {
     if(facety)
       patchwork::wrap_plots(list, ncol = 2) & theme_ofce(base.size=6)
