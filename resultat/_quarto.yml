@@ -43,6 +43,7 @@ book:
     - enquetes/enquetes.qmd
     - annexe_commerces.qmd
     - codebook.qmd
+    - test.qmd
     
 execute: 
   freeze: auto
