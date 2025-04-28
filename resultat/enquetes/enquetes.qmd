@@ -2,22 +2,13 @@
 author:
   - name: Maxime Parodi
   - name: Xavier Timbeau
-  
-eval: false
 ---
 
 # Enquêtes sur la mobilité
 
-```{r init, include=FALSE, eval = TRUE}
+```{r init, include=FALSE}
 uu <- ofce::init_qmd()
-
 ```
-```{r, eval=TRUE}
-uu
-ofce.root
-source_data("densite_com.R")
-```
-
 Pour la métropole d'Aix Marseille-Provence, nous disposons de deux sources principales d'enquêtes sur les mobilités. La première est l'[enquête nationale sur la mobilité des personnes de 2019 (EMP 2019)](https://www.statistiques.developpement-durable.gouv.fr/resultats-detailles-de-lenquete-mobilite-des-personnes-de-2019). Publiée par le ministère de l'environnement, elle donne une information détaillée sur les déplacements d'un peu moins de 14 000 individus. On ne dispose pas d'information de localisation précises, puisque la représentativité spatiale est insuffisante. L'enquête a été réalisée entre 2018 et 2019. Une [enquête mobilité certifiée CEREMA (EMC^2^ AMP 2020)](https://www.agam.org/publication-des-chiffres-cles-de-lenquete-mobilite-emc%C2%B2/) a été conduite sur le périmètre étendu de la métropole d'Aix-Marseille-Provence en 2019 et 2020. et fournit un contrepoint intéressant à l'EMP. En effet, la représentativité spatiale est bien meilleure par construction et les 25 000 personnes interrogées permettent d'identifier les motifs de déplacement à une échelle fine, pratiquement jusqu'à l'IRIS. Par une coïncidence heureuse, les enquêtes ont été conduite sur deux périodes très proches, ce qui autorise les comparaisons.
 
 Nous utilisons les deux enquêtes dans notre analyse des déplacements :

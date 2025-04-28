@@ -115,21 +115,6 @@ margin_link <- function(data, output_name = "donnees", label = "données") {
     return(invisible(NULL))
 }
 
-margin_link2 <- function(data, output_name = "donnees", label = "données", force = FALSE) {
-  if(knitr::is_html_output()|force) {
-    link <- stringr::str_c("dnwld/", output_name, ".csv")
-    vroom::vroom_write(data, link, delim = ";")
-    htmltools::div(
-      downloadthis::download_link(
-        link,
-        icon = "fa fa-download",
-        class = "dbtn",
-        button_label  = label),
-      class = "column-margin")
-  } else
-    return(invisible(NULL))
-}
-
 inline_link <- function(link, label = "données") {
   if(knitr::is_html_output()) {
     le_link <- stringr::str_c("dnwld/", link, ".csv")
@@ -190,4 +175,54 @@ mapdeck::set_token(tkn)
 
 style <- "mapbox://styles/xtimbeau/ckyx5exex000r15n0rljbh8od"
 
+tabsetize <- function(list, facety = TRUE) {
+  if(knitr::is_html_output()) {
+    chunk <- knitr::opts_current$get()
+    label <- knitr::opts_current$get()$label
+    if(is.null(label))
+      return(list)
+    
+    cat(str_c(":::: {#", label, "} \n\n" ))
+    cat("::: {.panel-tabset} \n\n")
+    purrr::iwalk(list, ~{
+      p <- girafy(.x)
+      cat(paste0("### ", .y," {.tabset} \n\n"))
+      p  |> htmltools::tagList() |> print()
+      cat("\n\n") })
+    cat(":::\n\n")
+    cat(chunk$fig.cap)
+    cat("\n\n")
+    cat("::::")
+    
+  } else {
+    if(facety)
+      patchwork::wrap_plots(list, ncol = 2) & theme_ofce(base.size=6)
+    else
+      list[[1]] |> print()
+  }
+}
+
+download_margin <- function(data, output_name = "donnees", label = "donn\u00e9es", margin = TRUE) {
+  
+  if(knitr::is_html_output()) {
+    if(lobstr::obj_size(data)> 1e+5)
+      cli::cli_alert("la taille de l'objet est sup\u00e9rieure à 100kB")
+    fn <- tolower(output_name)
+    link <- stringr::str_c("dnwld/", output_name, ".csv")
+    vroom::vroom_write(data, link, delim = ";")
+    
+    dwn <- downloadthis::download_link(
+      link,
+      icon = "fa fa-download",
+      class = "dbtn",
+      button_label  = label)
+    
+    cat(str_c("::: {.column-margin} \n" ))
+    dwn |> htmltools::tagList() |> print()
+    cat("\n")
+    cat(":::\n")
+    
+  } else
+    return(invisible(NULL))
+}
 
