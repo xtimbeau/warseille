@@ -1,4 +1,5 @@
 library(knitr)
+
 opts_chunk$set(
   fig.pos="htb", 
   out.extra="",
@@ -9,6 +10,9 @@ opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   echo = FALSE)
+
+knitr::knit_hooks$set(optipng = knitr::hook_optipng)
+
 options(conflicts.policy = list(depends.ok=TRUE, error=FALSE, warn=FALSE, can.mask=TRUE))
 library(tidyverse, quietly = TRUE)
 library(scales, quietly = TRUE)
@@ -189,17 +193,21 @@ tabsetize <- function(list, facety = TRUE, cap = TRUE, girafy = TRUE) {
     cat("::: {.panel-tabset} \n\n")
     purrr::iwalk(list, ~{
       cat(paste0("### ", .y," {.tabset} \n\n"))
+      
       if(girafy)
         girafy(.x) |> htmltools::tagList() |> print()
       else
-        .x |> print()
-      
+      {
+        id <- str_c(digest::digest(.x), "-", .y)
+        rendu <- knitr::knit(text = str_c("```{r, label ='", id ,"'}\n .x \n```"), quiet=TRUE)
+        cat(rendu, sep="\n")
+      }
       cat("\n\n") })
     cat(":::\n\n")
     if(cap) {
       cat(chunk$fig.cap)
       cat("\n\n")
-      cat("::::")
+      cat("::::\n\n")
     }
   } else {
     if(facety)
@@ -209,7 +217,7 @@ tabsetize <- function(list, facety = TRUE, cap = TRUE, girafy = TRUE) {
   }
 }
 
-tabsetize2 <- function(list, facety = TRUE, cap = TRUE) {
+tabsetize2 <- function(list, facety = TRUE, cap = TRUE, girafy = FALSE) {
   if(knitr::is_html_output()) {
     chunk <- knitr::opts_current$get()
     label <- knitr::opts_current$get()$label
@@ -217,17 +225,23 @@ tabsetize2 <- function(list, facety = TRUE, cap = TRUE) {
     if(cap) {
       if(is.null(label))
         return(list)
-      cat(str_c(":::: {#", label, "} \n\n" ))
+      cat(str_c("::::: {#", label, "} \n\n" ))
     }
     
     cat(":::: {.panel-tabset} \n\n")
     purrr::iwalk(list, ~{
       cat(paste0("### ", .y," {.tabset} \n\n"))
-      tabsetize(.x, facety=FALSE, cap = FALSE, girafy=FALSE)
-      cat("\n")
+      tabsetize(.x, facety=FALSE, cap = FALSE, girafy = girafy)
+      cat("\n\n")
     })
-    cat("::::")
-    } else {
+    cat("::::\n\n")
+    
+    if(cap) {
+      cat(chunk$fig.cap)
+      cat("\n\n")
+      cat(":::::\n\n")
+    }
+  } else {
     if(facety)
       patchwork::wrap_plots(list, ncol = 2) & theme_ofce(base.size=6)
     else

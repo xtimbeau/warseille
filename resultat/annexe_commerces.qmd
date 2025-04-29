@@ -1,4 +1,4 @@
-# Motif commerce, détail des données  {#sec-enquetes}
+# Motif commerce, détail des données {#sec-enquetes}
 
 ```{r}
 ofce::init_qmd()
@@ -41,7 +41,7 @@ Les indicateurs de proximité pour chaque grande catégorie de commerces sont fo
 #| fig-asp: 1.3
 
 vqh <- bd_read("vqh") |>
-  r3035::sidINS2sf(idINS = "fromidINS") |> 
+  filter(temps == "15m tc/w") 
   mutate(wqse = factor(wqse))
 
 labels <- set_names(
@@ -87,7 +87,6 @@ Les graphiques suivants ([@fig-denscom]) explorent le lien entre densité et pro
 #| fig-asp: 1.2
 
 vqh |> 
-  st_drop_geometry() |> 
   select(ind, se, type, fromidINS) |> 
   mutate(type = factor(type)) |> 
   mutate(ltype = labels[type]) |> 

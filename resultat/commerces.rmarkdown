@@ -145,34 +145,10 @@ On observe que de façon commune aux quatre aménités la proximité élevée es
 
 D'une aménité à l'autre, le schéma global est conservé. Les aménités "sortie" (bars, restaurants et cinémas) ou "santé humaine" sont plus concentrées spatialement, ce qui est amplifié par le @fig-regsise. La ressemblance n'est toutefois qu'apparente puisque le découpage en quintile écrase les différences. Le lien entre les indicateurs de proxiumité pour les différentes aménités est détaillé en annexe (@fig-corrcomm) ainsi que le lien avec la densité (@fig-denscom).
 
-::::: {#fig-surfeq_map}
-```{r dnwstat}
-#| column: margin
-vqh <- bd_read("vqh") |>
-  r3035::sidINS2sf(idINS = "fromidINS") |> 
-  mutate(wqse = factor(wqse))
 
-data <- vqh |>
-  st_drop_geometry() |>
-  mutate(fromidINS = r3035::expand_idINS(fromidINS)) |> 
-  select(-id_s, -id_d, -beta, -s, -wqse, -qse) 
+```{r, include=FALSE}
 
-margin_link(data, "amenites_idINS_pdvR_MetAMP", "données accessibilité aux aménités au carreau, résidents")
-
-```
-
-<details name="cac" open>
-
-<summary>Cartes statiques</summary>
-
-::: panel-tabset
-## Alimentation
-
-```{r}
-#| fig-asp: 1
-library(sf)
-library(stars)
-library(paletteer)
+dc <- bd_read("decor_carte")
 
 legend_h <- list(
   theme_ofce_void(), 
@@ -185,199 +161,81 @@ legend_h <- list(
     legend.key.spacing.x = unit(1, "pt"),
     legend.key.height = unit(6, "pt") ) )
 
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf(
-    data = vqh |> filter(type == "alim") ,
-    mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
-  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
-                         name = "Proximité alimentaire : ", label = c("faible", "", "", "", "élevée"))+
-  legend_h +
-  ofce::ofce_caption(
-    source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur de proximité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces alimentaires).")
-```
+vqh <- bd_read("vqh")
 
-## Autres commerces
-
-```{r}
-#| fig-asp: 1
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf(
-    data= vqh |> filter(type == "comm"),
-    mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
-  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
-                         name = "Proximité autres commerces : ", label = c("faible", "", "", "", "élevée"))+
-  legend_h + 
-  guides(fill = guide_legend(nrow=1))+
-  ofce::ofce_caption(
-    source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur de proximité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici commerces autres qu'alimentaires).")
-```
-
-## Sorties
-
-```{r}
-#| fig-asp: 1
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf(
-    data= vqh |> filter(type == "sortie"),
-    mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
-  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
-                         name = "Proximité sorties : ", label = c("faible", "", "", "", "élevée"))+
-  legend_h +
-  ofce::ofce_caption(
-    source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur de proximité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici restaurants, bars et cinéma).")
-```
-
-## Santé humaine
-
-```{r}
-#| fig-asp: 1
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf(
-    data= vqh |> filter(type == "sante"),
-    mapping= aes(fill = factor(wqse)), col="white", linewidth = 0.01) + 
-  scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
-                         name = "Proximité santé humaine : ", label = c("faible", "", "", "", "élevée"))+
-  legend_h +
-  ofce::ofce_caption(
-    source=glue("C200, OSM, Fichiers fonciers, version {version}"),
-    note ="L'indicateur de proximité aux aménités combine les surfaces commerciales ou de services dans un rayon de 15 minutes de marche ou de transport en commun avec une mesure de la diversité des commerces ou services accessibles. Il est décliné selon 4 grandes catégories (ici santé humaine, i.e. médecins généralistes et spécialistes, dentistes).")
-
-```
-:::
-
-```{r, include=FALSE}
-communes <- bd_read("communes")
-centre <- communes |> 
-   filter(INSEE_COM=="13215") |> 
-   st_transform(4326) |> 
-   st_centroid() |> 
-   st_coordinates()
-
-centre <- as.vector(centre)
- 
-c200ze <- bd_read("c200ze") |> st_transform(4326)
-```
-
-</details>
-
-<details name="cac">
-
-<summary>Cartes interactives</summary>
-
-::: panel-tabset
-## Alimentation
-
-```{r }
-
-library(colourvalues)
-pal <- paletteer_d("fishualize::Bodianus_rufus", 5, direction=-1) |> col2rgb() |> t()
-color_txxk <- function(x, min = 1, max = 5, palette = pal, rev=FALSE) {
-  if(rev) {
-    color_values(c(min, max, trim(x, min, max)), palette=palette) |> tail(-2)
-  } else {
-    color_values(c(min, max, trim(max - x + min, min, max)), palette=palette) |> tail(-2)  
-  }
-}
-legend <- color_values(1:5, palette = pal, summary=TRUE, n_summaries=5)
-le <- legend_element(as.integer(legend$summary_values), rev(legend$summary_colours), "fill", "gradient", "se") |> 
-  mapdeck_legend()
-
-vqh |>
-  filter(type == "alim") |> 
-  transmute(
-    ind,
-    lidINS= r3035::expand_idINS(fromidINS),
-    tooltip=glue::glue(
-      "<b>{type}</b><br>
-    idINS:{lidINS} {ind} individus<br>
-     s: {round(s)}<br>
-     div: {round(div,2)}<br>
-     se: {round(se, 2)}"),
-    cse = color_txxk(as.numeric(wqse))) |>
-  st_transform(4326) |>
-  mapdeck(style = style,
-          height = "60vh",
-          width = "100%") |>
-  add_polygon(fill_colour = "cse",
-              elevation_scale = .5,
-              elevation = "ind",
-              legend = le,
-              tooltip = "tooltip") |>
-  mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
+temps_tc <- set_names(c("7m w", "7m tc/w", "15m tc/w", "7m b", "15m b", "10m c"), c("7m. m.", "7m. m./TC", "15m. m./TC", "7m. vélo", "15m. vélo", "10m. voit."))
+temps_clair <- set_names(c("7 minutes en marchant", "7 minutes en TC", "15 minutes en TC", "7 minutes en vélo", "15 minutes en vélo", "10 minutes en voiture"),
+                         temps_tc)
+commerces <- set_names(c("alim", "comm", "sante", "sortie"), c("Alimentaire", "Commerces", "Santé humaine", "Sorties"))
+inv_commerces <- set_names(names(commerces), commerces)
+plots <- map(commerces, \(.type) {
+  map(temps_tc, \(.temps){
+    data <- vqh |> 
+      filter(type == .type) |> 
+      filter(temps == .temps) |> 
+      select(idINS = fromidINS, wqse_tt) |> 
+      r3035::sidINS2sf() 
+    ggplot(data)+
+      dc +
+      geom_sf(
+        mapping= aes(fill = factor(wqse_tt)), col="white", linewidth = 0.01) + 
+      scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
+                             name = glue("Proximité {.type} : "), label = c("faible", "", "", "", "élevée"))+
+      legend_h + 
+      guides(fill = guide_legend(nrow=1))+
+      ofce::ofce_caption(
+        source=glue("C200, OSM, Fichiers fonciers 2023"),
+        note ="L'indicateur de proximité est calculé pour les aménités de type {inv_commerces[[.type]]} dans un rayon de {temps_clair[[.temps]]}. Les quintiles sont calculés pour la proximité en voiture, 10 minutes de rayon." |> glue())
+  })
+})
 
 ```
 
-## Autres commerces
 
-```{r }
+```{r, results="asis"}
+#| label: fig-proximite
+#| fig-cap: "Proximité aux aménités"
 
-vqh |>
-  filter(type == "comm") |> 
-  transmute(
-    ind,
-    lidINS= r3035::expand_idINS(fromidINS),
-    tooltip=glue::glue(
-      "<b>{type}</b><br>
-    idINS:{lidINS} {ind} individus<br>
-     s: {round(s)}<br>
-     div: {round(div,2)}<br>
-     se: {round(se, 2)}"),
-    cse = color_txxk(as.numeric(wqse))) |>
-  st_transform(4326) |>
-  mapdeck(style = style,
-          height = "60vh",
-          width = "100%") |>
-  add_polygon(fill_colour = "cse",
-              elevation_scale = .5,
-              elevation = "ind",
-              legend = le,
-              tooltip = "tooltip") |>
-  mapdeck_view(location = centre, zoom = 9, pitch = 0, bearing = 0)
+tabsetize2(plots, girafy=FALSE)
+
 ```
-:::
 
-</details>
+```{r dnwstat}
+#| column: margin
 
-Cartes de l'accessibilité aux aménités
-:::::
+data <- vqh |>
+  st_drop_geometry() |>
+  mutate(idINS = r3035::expand_idINS(fromidINS)) |> 
+  select(-fromidINS) 
+
+download_margin(data, "amenites_idINS_pdvR_MetAMP", "données accessibilité aux aménités au carreau, résidents")
+
+```
 
 ### Répartition de la population en fonction de la proximité
 
 Le graphique suivant est construit en classant la population par proximité croissante. On découpe ensuite en centile la population et on calcule pour chaque centile les valeurs moyennes qui composent l'indicateur de proximité (que l'on peut lire en survolant le graphique avec la souris).
 
 ```{r}
-#| label: fig-lorenz
-#| fig-cap: "Courbe de Lorenz, accessibilité aux aménités"
-#| fig-asp: 0.8
 
 library(marquee)
 
 vqh <- bd_read("vqh") |>
-  r3035::sidINS2sf(idINS = "fromidINS") |> 
   mutate(wqse = factor(wqse))
 
 lorenz <- vqh |> 
-  st_drop_geometry() |> 
-  group_by(type) |> 
+  group_by(type, temps) |> 
   arrange(se) |> 
-  mutate(cumind = cumsum(ind)/sum(ind))
+  mutate(cumind = cumsum(ind)/sum(ind)) |> 
+  ungroup()
 
 lorenz_redux <- lorenz|> 
   mutate(
-    cumind = round(cumind,2)) |> 
-  group_by(cumind, type) |> 
+    cumind = ceiling(cumind*100)/100) |> 
+  group_by(cumind, type, temps) |> 
   summarize(
-    se = mean(se),
+    se = last(se),
+    mse = mean(se),
     div = mean(div),
     sa = mean(sa),
     sb = mean(sb),
@@ -390,43 +248,67 @@ lorenz_redux <- lorenz|>
     type = factor(type, c("alim", "sante", "comm", "sortie")),
     tooltip = glue(
       "<b>{type}</b>
-      {round(100*cumind)}% des résidents ont une accessibilité aux aménités d'au plus {round(se)} ({round(rse*100)}% du max)
-      Surface équivalente moyenne : {round(se)}
+      {round(100*cumind)}% des résidents ont une proximité aux aménités d'au plus {round(mse)} ({round(rse*100)}% du max) pour un rayon de {temps}
+      Surface équivalente moyenne : {round(mse)}
       Diversité moyenne : {round(div,1)}
       Surface ajustée moyenne : {round(sa,1)}
       Surface : {round(sb)}m²
       Nbre d'unités : {round(n)}
       Nbre d'espèces : {round(n_e, 1)}"))
 
-src <- str_c("C200, OSM, fichiers fonciers, version ", version)
+src <- str_c("C200, OSM, fichiers fonciers")
 
-gg <- ggplot(lorenz) + 
-  aes(x=cumind, y = se, color = type) +
-  geom_step() +
-  geom_point_interactive(
-    shape = 1, size = 0.1, hover_nearest = TRUE,
-    data = lorenz_redux,
-    aes(tooltip = tooltip, data_id = cumind))+
-  theme_ofce(
-    marquee=TRUE,
-    plot.title.position = "plot",
-    legend.title = element_marquee(),
-    legend.text = element_marquee(),
-    legend.position = c(0.05, 0.95),
-    legend.justification = c(0,1),
-    legend.direction = "vertical" ) + 
-  guides(color = guide_marquee(title = "Proximité aux !!1, !!2, !!3 ou !!4")) +
-  xlab("% de la population de la métropole AMP") +
-  ylab("Proximité moyenne des aménités") +
-  scale_color_manual(values = c(alim = "purple4", sortie = "orange2", sante = "seagreen", comm = "yellow2"),
-                     labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")) +
-  scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
-  scale_y_log10() +
-  ofce_caption(
-    source = src,
-    note = "Les individus sont classés dans l'ordre de leur proximité aux aménités. 10% de la population d'AMP n'a accès à aucun commerce alimentaire, contre 7% pour les commerces non alimentaires et 12% pour la santé humaine et 14% pour les bars, restaurants et cinéma.")
+lplots <- map(temps_tc, ~ {
+  dl <- lorenz |> 
+    filter(temps==.x) |> 
+    select(cumind, se, type)
+  dlr <- lorenz_redux |> 
+    filter(temps == .x) |> 
+    select(cumind, se, type, tooltip)
+  ma <- dl |> 
+    group_by(type) |> 
+    filter(se >= 1) |>
+    filter(se == min(se)) |> 
+    mutate(cumind_s = str_c((100*cumind) |> round()," %")) |> 
+    pull(cumind_s, name = type) 
+  
+  ggplot(dl) + 
+    aes(x=cumind, y = se, color = type) +
+    geom_step() +
+    geom_point_interactive(
+      shape = 1, size = 0.1, hover_nearest = TRUE,
+      data = dlr,
+      aes(tooltip = tooltip, data_id = cumind))+
+    theme_ofce(
+      marquee=TRUE,
+      plot.title.position = "plot",
+      legend.title = element_marquee(),
+      legend.text = element_marquee(),
+      legend.position = c(0.05, 0.95),
+      legend.justification = c(0,1),
+      legend.direction = "vertical" ) + 
+    guides(color = guide_marquee(title = "Proximité aux !!1, !!2, !!3 ou !!4")) +
+    xlab("% de la population de la métropole AMP") +
+    ylab("Proximité moyenne des aménités") +
+    scale_color_manual(values = c(alim = "purple4", sortie = "orange2", sante = "seagreen", comm = "yellow2"),
+                       labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")) +
+    scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
+    scale_y_log10(limits = c(NA, 5000)) +
+    ofce_caption(
+      source = src,
+      note = "Les individus sont classés dans l'ordre de leur proximité aux aménités. {ma[['alim']]} de la population d'AMP n'a accès à aucun commerce alimentaire, contre {ma[['comm']]} pour les commerces non alimentaires, {ma[['sante']]} pour la santé humaine et {ma[['sortie']]} pour les bars, restaurants et cinéma pour un rayon de {temps_clair[[.x]]}.") }
+)
 
-girafy(gg, r=1)
+```
+
+
+```{r}
+#| label: fig-lorenz
+#| fig-cap: "Courbe de Lorenz, accessibilité aux aménités"
+#| fig-asp: 0.8
+#| results: asis
+
+tabsetize(lplots)
 
 ```
 
