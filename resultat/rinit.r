@@ -204,7 +204,7 @@ tabsetize <- function(list, facety = TRUE, cap = TRUE, girafy = TRUE, asp = NULL
         else 
           asp_txt <- ""
         lbl <- glue("'{id}'")
-        rendu <- knitr::knit(text = str_c("```{r ", lbl, asp_txt,"\n.x \n```"), quiet=TRUE)
+        rendu <- knitr::knit(text = str_c("```{r ", lbl, asp_txt," }\n.x \n```"), quiet=TRUE)
         cat(rendu, sep="\n")
       }
       cat("\n\n") })
