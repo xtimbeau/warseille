@@ -179,7 +179,7 @@ mapdeck::set_token(tkn)
 
 style <- "mapbox://styles/xtimbeau/ckyx5exex000r15n0rljbh8od"
 
-tabsetize <- function(list, facety = TRUE, cap = TRUE, girafy = TRUE) {
+tabsetize <- function(list, facety = TRUE, cap = TRUE, girafy = TRUE, asp = NULL) {
   if(knitr::is_html_output()) {
     chunk <- knitr::opts_current$get()
     label <- knitr::opts_current$get()$label
@@ -199,7 +199,12 @@ tabsetize <- function(list, facety = TRUE, cap = TRUE, girafy = TRUE) {
       else
       {
         id <- str_c(digest::digest(.x), "-", .y)
-        rendu <- knitr::knit(text = str_c("```{r, label ='", id ,"'}\n .x \n```"), quiet=TRUE)
+        if(!is.null(asp))
+          asp_txt <- glue(", fig.asp={asp}")
+        else 
+          asp_txt <- ""
+        lbl <- glue("'{id}'")
+        rendu <- knitr::knit(text = str_c("```{r ", lbl, asp_txt,"\n.x \n```"), quiet=TRUE)
         cat(rendu, sep="\n")
       }
       cat("\n\n") })
@@ -218,7 +223,8 @@ tabsetize <- function(list, facety = TRUE, cap = TRUE, girafy = TRUE) {
 }
 
 tabsetize2 <- function(list, facety = TRUE, cap = TRUE, girafy = FALSE) {
-  if(knitr::is_html_output()) {
+
+    if(knitr::is_html_output()) {
     chunk <- knitr::opts_current$get()
     label <- knitr::opts_current$get()$label
     
@@ -255,7 +261,7 @@ download_margin <- function(data, output_name = "donnees", label = "donn\u00e9es
     if(lobstr::obj_size(data)> 1e+5)
       cli::cli_alert("la taille de l'objet est sup\u00e9rieure à 100kB")
     fn <- tolower(output_name)
-    link <- stringr::str_c("dnwld/", output_name, ".csv")
+    link <- stringr::str_c("dnwld/", output_name, ".csv.gz")
     vroom::vroom_write(data, link, delim = ";")
     
     dwn <- downloadthis::download_link(

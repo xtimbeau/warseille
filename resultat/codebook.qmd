@@ -299,7 +299,7 @@ downloadthis::download_link(
 
 -   `div` : indice de diversité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
 
--   `n` : nombre d'unité d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
+-   `n` : nombre d'unité d'aménités accessibles en pour le rayon donné, calculé pour chaque type d'aménité.
 
 -   `n_e` : nombre d'espèces (code NAF 5 caractères) d'aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
 
@@ -308,6 +308,8 @@ downloadthis::download_link(
 -   `sb` : surface brute totale (`sprincp`) des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
 
 -   `se` : surface équivalente (voir [document](#sec-proxform)) ou indicateur de proximité des aménités accessibles en 15 minutes à pied ou en transport en commun, calculé pour chaque type d'aménité.
+
+-   `temps` : rayon de prise en compte des aménités (prend les valeurs "15m tc/w" pour 15 minutes marche/transport en commun ; "10m c" pour 10 minutes en voiture ; etc...)
 
 ## Lien densité proximité, résidu
 

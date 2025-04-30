@@ -37,13 +37,16 @@ book:
     - localisations.qmd
     - accessibilites.qmd
     - trajets.qmd
-    - commerces.qmd
+    - part: "Motif commerces"
+      chapters: 
+        - commerces methode.qmd
+        - commerces proximite.qmd
+        - commerces emc2.qmd
     - next.qmd
   appendices:
     - enquetes/enquetes.qmd
-    - annexe_commerces.qmd
+    - commerces annexes.qmd
     - codebook.qmd
-    - test.qmd
     
 execute: 
   freeze: auto

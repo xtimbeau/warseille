@@ -9,6 +9,18 @@ author:
 uu <- ofce::init_qmd()
 version <- bd_read("version_aa")
 library(paletteer)
+
+legend_h <- list(
+  theme_ofce_void(), 
+  theme(
+    legend.position = "bottom",
+    legend.box.spacing = unit(3, "pt"),
+    legend.title = marquee::element_marquee(vjust=1.2, margin = margin(t=0, b=0, r=6)),
+    legend.text = marquee::element_marquee(size = rel(0.6), margin = margin(t=1, b=1), width = NULL, hjust=0.5),
+    legend.text.position = "bottom", 
+    legend.key.spacing.x = unit(1, "pt"),
+    legend.key.height = unit(6, "pt") ) )
+
 ```
 
 # Déplacements pour le motif commerce
@@ -139,7 +151,7 @@ download_margin(
 
 ### Indicateur de proximité des aménités pour AMP
 
-L'application de la méthode décrite au dessus à partir des données décrites dans la première section permet de calculer l'indicateur de proximité pour les 4 types d'aménités. Sur les cartes, la coloration est établie après une découpage en quintile, pondéré par la population. Ainsi, la couleur bleu foncée est attribuée aux carreaux dasn lesquels résident les 20% de la population qui a le plus haut niveau de proximité. Comme ce découpage est identique pour les 4 types d'aménité, il n'est pas possible de les comparer entre elles. La @fig-lorenz repose sur la même notion (les quantiles), sans normaliser l'indicateur de proximité.
+L'application de la méthode décrite au dessus à partir des données décrites dans la première section permet de calculer l'indicateur de proximité pour les 4 types d'aménités. Sur les cartes, la coloration est établie après une découpage en quintile, pondéré par la population. Ainsi, la couleur bleu foncée est attribuée aux carreaux dans lesquels résident les 20% de la population qui a le plus haut niveau de proximité. Comme ce découpage est identique pour les 4 types d'aménité, il n'est pas possible de les comparer entre elles. La @fig-lorenz repose sur la même notion (les quantiles), sans normaliser l'indicateur de proximité.
 
 On observe que de façon commune aux quatre aménités la proximité élevée est une caractéristique des centre villes. C'est vrai pour les arrondissements centraux de Marseille comme pour Aix en Provence, la Ciotat ou Salon de Provence. Ces hauts niveaux de proximité sont liés à la fois à une grande diversité des commerces, un grand nombre de commerce ou de services ainsi qu'une surface cumulée importante. Le centre commercial "Plan de Campagne" appraît également, bien que la population aux alentours soit plutôt faible. Une part importante du territoire habité est associée à une proximité très faible (premier quintile pondéré de proximité).
 
@@ -148,63 +160,22 @@ D'une aménité à l'autre, le schéma global est conservé. Les aménités "sor
 
 ```{r, include=FALSE}
 
-dc <- bd_read("decor_carte")
-
-legend_h <- list(
-  theme_ofce_void(), 
-  theme(
-    legend.position = "bottom",
-    legend.box.spacing = unit(3, "pt"),
-    legend.title = marquee::element_marquee(vjust=1.2, margin = margin(t=0, b=0, r=6)),
-    legend.text = marquee::element_marquee(size = rel(0.6), margin = margin(t=1, b=1), width = NULL, hjust=0.5),
-    legend.text.position = "bottom", 
-    legend.key.spacing.x = unit(1, "pt"),
-    legend.key.height = unit(6, "pt") ) )
-
-vqh <- bd_read("vqh")
-
-temps_tc <- set_names(c("7m w", "7m tc/w", "15m tc/w", "7m b", "15m b", "10m c"), c("7m. m.", "7m. m./TC", "15m. m./TC", "7m. vélo", "15m. vélo", "10m. voit."))
-temps_clair <- set_names(c("7 minutes en marchant", "7 minutes en TC", "15 minutes en TC", "7 minutes en vélo", "15 minutes en vélo", "10 minutes en voiture"),
-                         temps_tc)
-commerces <- set_names(c("alim", "comm", "sante", "sortie"), c("Alimentaire", "Commerces", "Santé humaine", "Sorties"))
-inv_commerces <- set_names(names(commerces), commerces)
-plots <- map(commerces, \(.type) {
-  map(temps_tc, \(.temps){
-    data <- vqh |> 
-      filter(type == .type) |> 
-      filter(temps == .temps) |> 
-      select(idINS = fromidINS, wqse_tt) |> 
-      r3035::sidINS2sf() 
-    ggplot(data)+
-      dc +
-      geom_sf(
-        mapping= aes(fill = factor(wqse_tt)), col="white", linewidth = 0.01) + 
-      scale_fill_paletteer_d("fishualize::Bodianus_rufus", direction=1, 
-                             name = glue("Proximité {.type} : "), label = c("faible", "", "", "", "élevée"))+
-      legend_h + 
-      guides(fill = guide_legend(nrow=1))+
-      ofce::ofce_caption(
-        source=glue("C200, OSM, Fichiers fonciers 2023"),
-        note ="L'indicateur de proximité est calculé pour les aménités de type {inv_commerces[[.type]]} dans un rayon de {temps_clair[[.temps]]}. Les quintiles sont calculés pour la proximité en voiture, 10 minutes de rayon." |> glue())
-  })
-})
+plots <- ofce::source_data("commerces/proxplots.R")
 
 ```
 
 
-```{r, results="asis"}
+```{r}
 #| label: fig-proximite
 #| fig-cap: "Proximité aux aménités"
+#| results: asis
 
 tabsetize2(plots, girafy=FALSE)
 
 ```
 
-```{r dnwstat}
-#| column: margin
-
-data <- vqh |>
-  st_drop_geometry() |>
+```{r, results='asis'}
+data <- bd_read("vqh") |>
   mutate(idINS = r3035::expand_idINS(fromidINS)) |> 
   select(-fromidINS) 
 
@@ -216,89 +187,8 @@ download_margin(data, "amenites_idINS_pdvR_MetAMP", "données accessibilité aux
 
 Le graphique suivant est construit en classant la population par proximité croissante. On découpe ensuite en centile la population et on calcule pour chaque centile les valeurs moyennes qui composent l'indicateur de proximité (que l'on peut lire en survolant le graphique avec la souris).
 
-```{r}
-
-library(marquee)
-
-vqh <- bd_read("vqh") |>
-  mutate(wqse = factor(wqse))
-
-lorenz <- vqh |> 
-  group_by(type, temps) |> 
-  arrange(se) |> 
-  mutate(cumind = cumsum(ind)/sum(ind)) |> 
-  ungroup()
-
-lorenz_redux <- lorenz|> 
-  mutate(
-    cumind = ceiling(cumind*100)/100) |> 
-  group_by(cumind, type, temps) |> 
-  summarize(
-    se = last(se),
-    mse = mean(se),
-    div = mean(div),
-    sa = mean(sa),
-    sb = mean(sb),
-    n = mean(n),
-    n_e = mean(n_e)) |> 
-  group_by(type) |> 
-  mutate(rse = pmax(log(se), 0)/max(log(se))) |> 
-  ungroup() |> 
-  mutate(
-    type = factor(type, c("alim", "sante", "comm", "sortie")),
-    tooltip = glue(
-      "<b>{type}</b>
-      {round(100*cumind)}% des résidents ont une proximité aux aménités d'au plus {round(mse)} ({round(rse*100)}% du max) pour un rayon de {temps}
-      Surface équivalente moyenne : {round(mse)}
-      Diversité moyenne : {round(div,1)}
-      Surface ajustée moyenne : {round(sa,1)}
-      Surface : {round(sb)}m²
-      Nbre d'unités : {round(n)}
-      Nbre d'espèces : {round(n_e, 1)}"))
-
-src <- str_c("C200, OSM, fichiers fonciers")
-
-lplots <- map(temps_tc, ~ {
-  dl <- lorenz |> 
-    filter(temps==.x) |> 
-    select(cumind, se, type)
-  dlr <- lorenz_redux |> 
-    filter(temps == .x) |> 
-    select(cumind, se, type, tooltip)
-  ma <- dl |> 
-    group_by(type) |> 
-    filter(se >= 1) |>
-    filter(se == min(se)) |> 
-    mutate(cumind_s = str_c((100*cumind) |> round()," %")) |> 
-    pull(cumind_s, name = type) 
-  
-  ggplot(dl) + 
-    aes(x=cumind, y = se, color = type) +
-    geom_step() +
-    geom_point_interactive(
-      shape = 1, size = 0.1, hover_nearest = TRUE,
-      data = dlr,
-      aes(tooltip = tooltip, data_id = cumind))+
-    theme_ofce(
-      marquee=TRUE,
-      plot.title.position = "plot",
-      legend.title = element_marquee(),
-      legend.text = element_marquee(),
-      legend.position = c(0.05, 0.95),
-      legend.justification = c(0,1),
-      legend.direction = "vertical" ) + 
-    guides(color = guide_marquee(title = "Proximité aux !!1, !!2, !!3 ou !!4")) +
-    xlab("% de la population de la métropole AMP") +
-    ylab("Proximité moyenne des aménités") +
-    scale_color_manual(values = c(alim = "purple4", sortie = "orange2", sante = "seagreen", comm = "yellow2"),
-                       labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")) +
-    scale_x_continuous(breaks = scales::breaks_width(0.1), labels = scales::label_percent(1)) +
-    scale_y_log10(limits = c(NA, 5000)) +
-    ofce_caption(
-      source = src,
-      note = "Les individus sont classés dans l'ordre de leur proximité aux aménités. {ma[['alim']]} de la population d'AMP n'a accès à aucun commerce alimentaire, contre {ma[['comm']]} pour les commerces non alimentaires, {ma[['sante']]} pour la santé humaine et {ma[['sortie']]} pour les bars, restaurants et cinéma pour un rayon de {temps_clair[[.x]]}.") }
-)
-
+```{r, include=FALSE}
+lplots <- ofce::source_data("commerces/lorplots.R")
 ```
 
 
@@ -322,6 +212,8 @@ Le modèle estimé est $log(\mathcal{P}_{c,i}) = \alpha \times log(dens_i) + \de
 #| label: tbl-sise
 #| tbl-cap: Modèles de régression densité/proximité
 #| html-table-processing: none
+
+
 
 lien_se_si <- bd_read("lien_se_si")
 
@@ -348,114 +240,24 @@ lien_se_si |>
 
 On peut représenter les résidus de ces modèles sur une carte. Cela donne un indicateur de l'abondance de commerces relativement à la densité de population. Il apparaît que les aménités sont plus concentrées spatialement que la population. Les zones à "excès" d'aménité sont aussi les zones de densité élevée. Cependant, quelques zones font exception, comme le centre commercial "Plan de Campagne", entre Marseille et Aix en Provence.
 
-:::: {#fig-regsise}
-::: panel-tabset
-## Alimentaire
+```{r, include=FALSE}
+splots <- ofce::source_data("commerces/regsiseplots.R")
 
-```{r}
-thm_map_leg <- list(
-  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
-                         aesthetics = c("fill", "color"),
-                         labels = c("En déficit","","","", "En excès"),
-                         breaks = c(-5,-2.5,0, 2.5, 5),
-                         trans = pseudo_log_trans(), 
-                         name = "Aménités par rapport à la densité de population :"),
-  legend_h, 
-  theme(legend.key.width = unit(1, "cm"),
-        legend.text = element_blank()),
-  theme(legend.text = element_text(size = rel(0.4))))
 ```
 
-```{r}
-#| fig-asp: 1
-data <- lien_se_si |>
-  filter(t == "se_alim", m == 1) |>
-  pull(residus) |>
-  pluck(1) |>
-  r3035::sidINS2sf() |> drop_na(r)
 
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf( data = data, aes(fill = r, col = r)) +
-  thm_map_leg +
-  ofce_caption(
-    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (commerces alimentaires) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
+```{r}
+#| label: fig-sise
+#| fig-cap: Excès déficit de proximité d'aménité par rapport à la densité
+#| results: asis
+
+tabsetize(splots, girafy = FALSE)
+
 ```
 
-## Non alim.
 
 ```{r}
-#| fig-asp: 1
-
-data <- lien_se_si |> 
-  filter(t == "se_comm", m == 1) |>
-  pull(residus) |>
-  pluck(1) |> 
-  r3035::sidINS2sf() |>
-  drop_na(r)
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf( data = data, aes(fill = r, col = r)) +
-  thm_map_leg +
-  ofce_caption(
-    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (commerces non alimentaires) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
-```
-
-## Sorties
-
-```{r}
-#| fig-asp: 1
-
-data <- lien_se_si |> filter(t == "se_sortie", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf( data = data, aes(fill = r, col=r)) +
-  thm_map_leg +
-  ofce_caption(
-    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (bars, restaurants, cinémas) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
-```
-
-## Santé humaine
-
-```{r}
-#| fig-asp: 1
-
-data <- lien_se_si |> filter(t == "se_sante", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf( data = data, aes(fill = r, col = r)) +
-  thm_map_leg +
-  ofce_caption(
-    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (santé humaine) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
-```
-
-## Synth.
-
-```{r}
-#| fig-asp: 1
-
-data <- lien_se_si |> filter(t == "se_agg", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf( data = data, aes(fill = r, col = r)) +
-  thm_map_leg +
-  ofce_caption(
-    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (synthétique) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
-```
-:::
-::::
-
-```{r}
-#| column: margin
+#| results: asis
 data <- lien_se_si |> 
   filter( m == 1) |>
   select(type = t, residus) |> 
@@ -463,7 +265,7 @@ data <- lien_se_si |>
   unnest(residus) |> 
   mutate(idINS = r3035::expand_idINS(idINS))
 
-margin_link(data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
+download_margin(data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
 
 ```
 
@@ -479,7 +281,7 @@ data <- lien_se_si |>
   filter(type != "agg") |> 
   unnest(residus) |> 
   left_join(bd_read("c200ze") |> st_drop_geometry() |> select(idINS, ind, ind_snv), by="idINS") |> 
-  left_join(vqh |> st_drop_geometry() |> select(type, idINS = fromidINS, se ), by = c("idINS", "type")) |> 
+  left_join(bd_read("vqh") |> filter(temps=="15m tc/w") |> select(type, idINS = fromidINS, se ), by = c("idINS", "type")) |> 
   group_by(type) |> 
   mutate(
     ind_snv = ind_snv + rnorm(length(ind_snv)),
@@ -906,7 +708,7 @@ densite <- proj |>
   mutate( co2_pi =  dist * 365 * 218/1000000,
           co2 = co2_pi * ind ) |> 
   select(idINS, ind, co2_pi, co2) |> 
-  left_join( c200ze |> 
+  left_join( bd_read("c200ze") |> 
                st_drop_geometry() |> 
                select(idINS, dep, com = com22, iris = IRIS),
              by = "idINS")
