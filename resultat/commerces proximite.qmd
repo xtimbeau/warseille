@@ -244,7 +244,7 @@ data <- lien_se_si |>
   filter(type != "agg") |> 
   unnest(residus) |> 
   left_join(bd_read("c200ze") |> st_drop_geometry() |> select(idINS, ind, ind_snv), by="idINS") |> 
-  left_join(bd_read("vqh") |>select(type, idINS = fromidINS, se ), by = c("idINS", "type")) |> 
+  left_join(bd_read("vqh") |> filter(temps == "15m tc/w") |> select(type, idINS = fromidINS, se ), by = c("idINS", "type")) |> 
   group_by(type) |> 
   mutate(
     ind_snv = ind_snv + rnorm(length(ind_snv)),
