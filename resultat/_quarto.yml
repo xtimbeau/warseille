@@ -1,0 +1,71 @@
+project:
+  type: book
+  resources: 
+    - dnwld
+
+date: 12/14/2023
+date-modified: today
+
+book:
+  cookie-consent: implied
+  google-analytics: G-0S02BWQ0DX
+  title: "Métropole d'Aix Marseille Provence"
+  subtitle: "Premiers résultats"
+  cover-image: images/Marseille_vieille_carte.jpg
+  favicon: images/meaps-favicon.png
+  author:
+    - name: Maxime Parodi
+    - name: Xavier Timbeau
+  reader-mode: false
+  search: true
+  page-navigation: true
+  bread-crumbs: false
+  back-to-top-navigation: true
+  tools:
+    - icon: github
+      href: https://github.com/xtimbeau/marseille/
+  comments: 
+    utterances:
+      repo: xtimbeau/marseille
+  page-footer:
+    left: "*Premiers résultats, ne pas diffuser*"
+    right: "**CC BY 4.0**"
+  sidebar:
+    docked: true
+  chapters:
+    - index.qmd
+    - localisations.qmd
+    - accessibilites.qmd
+    - trajets.qmd
+    - part: "Motif commerces"
+      chapters: 
+        - commerces methode.qmd
+        - commerces proximite.qmd
+        - commerces emc2.qmd
+    - next.qmd
+  appendices:
+    - enquetes/enquetes.qmd
+    - commerces annexes.qmd
+    - codebook.qmd
+    
+execute: 
+  freeze: auto
+  echo: false
+  warning: false
+  
+filters:
+  - quarto
+  - section-bibliographies
+bibliography: references.bib
+reference-section-title: Références
+citeproc: false
+
+lang: fr
+
+format:
+  ofce-html:
+    toc-location: left
+    toc-depth: 3
+    toc-expand: false
+
+editor: visual
