@@ -41,7 +41,7 @@ Les indicateurs de proximité pour chaque grande catégorie de commerces sont fo
 #| fig-asp: 1.3
 
 vqh <- bd_read("vqh") |>
-  filter(temps == "15m tc/w") 
+  filter(temps == "15m tc/w") |> 
   mutate(wqse = factor(wqse))
 
 labels <- set_names(
@@ -75,6 +75,7 @@ vqh |>
   ofce_caption(
     source = "C200, Fichiers fonciers, OSM, calculs des auteurs", ofce = FALSE,
     note = "On découpe le plan composé de l'indicateur de proximité des commerces alimentaires (axe des X) et l'indicateur de proximité des autres commerces (axe des Y) avec des hexagones. On compte à l'intérieur de ces hexagones la population résidente et la couleur est d'autant plus foncée que le nombre d'habitants est élevé. Chaque graphique représente la corrélation entre les indicateurs, ainsi les hexagones en diagonale dans le graphique le plus à cause sont ceux où se trouve la population. On observe 2 pôles (proximité très élevée, le centre de Marseile) et proximité élevée (autres centre-villes).")
+
 ```
 
 ## Densité et indicateur de proximité

@@ -20,8 +20,11 @@ thm_map_leg <- list(
   theme(legend.text = element_text(size = rel(0.4))))
 
 cat <- c("se_alim", "se_comm", "se_sante", "se_sortie", "se_agg")
+cat <- set_names(
+  cat, 
+  c("Alimentaire", "Commerces", "Santé", "Sorties", "Synthétique"))
 labels <- c("commerces alimentaires", "commerces (non alimentaires)",
-            "établissement de santé humaine", "établissements de sorties", "commerces synthétiques (combinaison pondérée)")
+            "établissement de santé humaine", "établissements de sorties", "commerces synthétiques")
 labels <- set_names(labels, cat)
 
 plots <- map(cat, ~{ 

@@ -31,6 +31,8 @@ library(sf, quietly = TRUE)
 library(stars)
 library(mapdeck, quietly = TRUE)
 library(marquee, quietly = TRUE)
+library(paletteer)
+library(legendry)
 
 options(
   ofce.base_size = 12,

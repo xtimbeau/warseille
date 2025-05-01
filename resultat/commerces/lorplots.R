@@ -2,8 +2,11 @@ library(marquee)
 library(tidyverse)
 library(ofce)
 
-temps_tc <- set_names(c("7m w", "7m tc/w", "15m tc/w", "7m b", "15m b", "10m c"), c("7m. m.", "7m. m./TC", "15m. m./TC", "7m. vélo", "15m. vélo", "10m. voit."))
-temps_clair <- set_names(c("7 minutes en marchant", "7 minutes en TC", "15 minutes en TC", "7 minutes en vélo", "15 minutes en vélo", "10 minutes en voiture"),
+temps_tc <- set_names(c("7m w", "7m tc/w", "15m tc/w", "7m b", "15m b", "10m c", "15m c"), 
+                      c("7' m.", "7' TC", "15' /TC", "7' vélo", "15' vélo", "10' voit.",  "15' voit."))
+temps_clair <- set_names(
+  c("7 minutes en marchant", "7 minutes en TC", "15 minutes en TC", 
+    "7 minutes en vélo", "15 minutes en vélo", "10 minutes en voiture", "15 minutes en voiture"),
                          temps_tc)
 vqh <- bd_read("vqh") |>
   mutate(wqse = factor(wqse))

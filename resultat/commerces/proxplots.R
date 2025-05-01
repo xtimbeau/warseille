@@ -22,10 +22,10 @@ dc <- bd_read("decor_carte")
 vqh <- bd_read("vqh")
 
 temps_tc <- set_names(
-  c("7m w", "7m tc/w", "15m tc/w", "7m b", "15m b", "10m c", "15m c"),
-  c("7m. m.", "7m. m./TC", "15m. m./TC", "7m. vélo", "15m. vélo", "10m. voit.", "15m. voit."))
+  c("7m w", "7m tc/w", "10m tc/w", "15m tc/w", "7m b", "15m b", "10m c", "15m c"),
+  c("7' m.", "7' TC", "10' TC", "15' TC", "7' vélo", "15' vélo", "10' voit.", "15' voit."))
 temps_clair <- set_names(
-  c("7 minutes en marchant", "7 minutes en TC", "15 minutes en TC", 
+  c("7 minutes en marchant", "7 minutes en TC", "10 minutes en TC", "15 minutes en TC", 
     "7 minutes en vélo", "15 minutes en vélo", "10 minutes en voiture", "15 minutes en voiture"),
   temps_tc)
 commerces <- set_names(c("alim", "comm", "sante", "sortie"), c("Alimentaire", "Commerces", "Santé humaine", "Sorties"))
@@ -47,7 +47,7 @@ plots <- map(commerces, \(.type) {
       guides(fill = guide_legend(nrow=1))+
       ofce::ofce_caption(
         source=glue("C200, OSM, Fichiers fonciers 2023"),
-        note ="L'indicateur de proximité est calculé pour les aménités de type {inv_commerces[[.type]]} dans un rayon de {temps_clair[[.temps]]}. Les quintiles sont calculés pour la proximité en voiture, 10 minutes de rayon." |> glue())
+        note ="L'indicateur de proximité est calculé pour les aménités de type {inv_commerces[[.type]]} dans un rayon de {temps_clair[[.temps]]}. Les quintiles sont calculés pour un rayon de 15 minutes en TC." |> glue())
   })
 })
 
