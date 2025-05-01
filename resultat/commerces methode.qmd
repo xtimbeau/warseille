@@ -79,10 +79,10 @@ Nous tenons compte enfin de la diversité des commerces à partir de l'informati
 Formellement, l'indicateur de proximité des aménités $\mathcal{P}$ est construit comme :
 
 $$
-\mathcal{P}_c  = \left( \sum_{j \in V_{15 \space min}(i), j\in J} {s_j^\alpha \times w_J^{1-\alpha}}\right)^\beta \times  \sum_{j \in V_{15 \space min}(i), j \in J} {\frac {1}{w_J \times p_J^2}} 
+\mathcal{P}_c  = \left( \sum_{j \in V_{15 \space min}(i), j\in J} {s_j^\alpha}\right)^\beta \times  \sum_{j \in V_{15 \space min}(i), j \in J} {\frac {1}{p_J^2}} 
 $$
 
-La première partie de l'indicateur $\mathcal{P}_c$ est la somme des surfaces dans le vosinage de chaque carreau de résidents à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie de l'indicateur permet de prendre en compte la diversité des commerces accessibles dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (par exemple, parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifique). Le paramètre $w_J$ accorde aux catégories un poids en diversité, permettant de compter les grandes surfaces alimentaires comme contribuant plus à la diversité qu'une surface commerciale spécialisée.
+La première partie de l'indicateur $\mathcal{P}_c$ est la somme des surfaces dans le vosinage de chaque carreau de résidents à moins de 15 minutes (en marchant ou en transport en commun). La seconde partie de l'indicateur permet de prendre en compte la diversité des commerces accessibles dans le voisinage. Le terme $p_j$ est ainsi la part des commerces de la catégorie $J$ (par exemple, parmi les commerces alimentaires, une boucherie, une poissonerie, une épicerie sont autant de catégories qui ont un code NAF à 5 caractères spécifique). Les grandes surfaces alimentaires non spécialisées sont comptabilisées en répartissant leurs surfaces sur les catégories des surfaces spécialisées.
 
 Le rôle des paramètres $\alpha$ et $\beta$ est de moduler l'expression $\mathcal{P}_c$. Plus $\alpha$ est proche de 0, plus ce sont les commerces en tant qu'entité qui sont comptabilisés, indépendament de leur taille. Pour $\alpha$ égal à 1, ce sont les m² de commerce qui comptent, une grande surface de 1 000 m² valant 100 fois plus qu'une échoppe de 10 m². Le paramètre $\beta$ limite l'effet multiplicatif de la surface.
 

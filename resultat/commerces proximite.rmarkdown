@@ -1,0 +1,237 @@
+---
+author:
+  - name: Maxime Parodi
+  - name: Xavier Timbeau 
+---
+
+```{r, include=FALSE}
+ofce::init_qmd()
+library(paletteer)
+```
+
+# Indicateur de proximité des aménités pour AMP
+
+L'application de la méthode décrite au dessus à partir des données décrites dans la première section permet de calculer l'indicateur de proximité pour les 4 types d'aménités. Sur les cartes, la coloration est établie après une découpage en quintile, pondéré par la population. Ainsi, la couleur bleu foncée est attribuée aux carreaux dasn lesquels résident les 20% de la population qui a le plus haut niveau de proximité. Comme ce découpage est identique pour les 4 types d'aménité, il n'est pas possible de les comparer entre elles. La @fig-lorenz repose sur la même notion (les quantiles), sans normaliser l'indicateur de proximité.
+
+On observe que de façon commune aux quatre aménités la proximité élevée est une caractéristique des centre villes. C'est vrai pour les arrondissements centraux de Marseille comme pour Aix en Provence, la Ciotat ou Salon de Provence. Ces hauts niveaux de proximité sont liés à la fois à une grande diversité des commerces, un grand nombre de commerce ou de services ainsi qu'une surface cumulée importante. Le centre commercial "Plan de Campagne" appraît également, bien que la population aux alentours soit plutôt faible. Une part importante du territoire habité est associée à une proximité très faible (premier quintile pondéré de proximité).
+
+D'une aménité à l'autre, le schéma global est conservé. Les aménités "sortie" (bars, restaurants et cinémas) ou "santé humaine" sont plus concentrées spatialement, ce qui est amplifié par le @fig-regsise. La ressemblance n'est toutefois qu'apparente puisque le découpage en quintile écrase les différences. Le lien entre les indicateurs de proximité pour les différentes aménités est détaillé en annexe (@fig-corrcomm) ainsi que le lien avec la densité (@fig-denscom).
+
+
+```{r, include=FALSE}
+
+legend_h <- list(
+  theme_ofce_void(), 
+  coord_sf(crs = 4326),
+  theme(
+    legend.position = "bottom",
+    legend.box.spacing = unit(3, "pt"),
+    legend.title = marquee::element_marquee(vjust=1.2, margin = margin(t=0, b=0, r=6)),
+    legend.text = marquee::element_marquee(size = rel(0.6), margin = margin(t=1, b=1), width = NULL, hjust=0.5),
+    legend.text.position = "bottom", 
+    legend.key.spacing.x = unit(1, "pt"),
+    legend.key.height = unit(6, "pt") ) )
+
+pplots <- ofce::source_data("commerces/proxplots.R", force=TRUE)
+
+```
+
+
+```{r, results="asis"}
+#| label: fig-proximite
+#| fig-cap: "Proximité aux aménités"
+
+tabsetize2(pplots, girafy=FALSE, asp=1)
+
+```
+
+```{r, results="asis"}
+
+data <- bd_read("vqh") |>
+  st_drop_geometry() |>
+  mutate(idINS = r3035::expand_idINS(fromidINS)) |> 
+  select(temps, type, idINS, ind, se, div, n, n_e, s, sb, sa) 
+
+download_margin(data, "amenites_idINS_pdvR_MetAMP", "données accessibilité aux aménités au carreau, résidents")
+
+```
+
+### Répartition de la population en fonction de la proximité
+
+Le graphique suivant est construit en classant la population par proximité croissante. On découpe ensuite en centile la population et on calcule pour chaque centile les valeurs moyennes qui composent l'indicateur de proximité (que l'on peut lire en survolant le graphique avec la souris).
+
+```{r, include=FALSE}
+
+lplots <- ofce::source_data("commerces/lorplots.R", force=TRUE)
+
+```
+
+
+```{r}
+#| label: fig-lorenz
+#| fig-cap: "Courbe de Lorenz, accessibilité aux aménités"
+#| fig-asp: 0.8
+#| results: asis
+
+tabsetize(lplots)
+
+```
+
+### Localisation des anomalies de proximité {#sec-resprox}
+
+Sur la base de ces données, on construit des modèle simples et linéraire de régression reliant la densité et la proximité des aménités. Ces modèles sont résumés dans le tableau suivant (@tbl-sise).
+
+Le modèle estimé est $log(\mathcal{P}_{c,i}) = \alpha \times log(dens_i) + \delta + \varepsilon_i$ où chaque carreau $i$ est une observation et la densité est le nombre d'habitants dans un rayon de 15 minutes à pied ou en transport en commun.
+
+```{r}
+#| label: tbl-sise
+#| tbl-cap: Modèles de régression densité/proximité
+#| html-table-processing: none
+
+lien_se_si <- bd_read("lien_se_si")
+
+labels <- set_names(
+  c("Alimentaire", "Commerces non alimentaires", "Bars, restaurants, cinémas", "Santé humaine", "Synthétique"), 
+  c("se_alim","se_comm","se_sortie","se_sante", "se_agg"))
+
+lien_se_si |>
+  filter(m == 1) |> 
+  select(t, r2, c, se ) |> 
+  mutate(t = labels[t],
+         c = glue("{round(c,2)}<br>({round(se,3)})")) |> 
+  select(-se) |> 
+  gt() |> 
+  fmt_percent(r2, decimals =1) |> 
+  fmt_markdown(c ) |> 
+  cols_label(t = "", r2 = md("*R^2^*"), c = md("*\u03b1*")) |> 
+  tab_footnote(
+    "La proximité synthétique est construite en ajoutant 5 fois la proximité alimentaire à 3 fois celle des commerces non alimentaires, 2 fois les sorties et une fois la santé humaine, par un raisonnement de fréquence de fréquentation", 
+    location = cells_body(columns = t, rows = t == "Synthétique")) |>
+  tab_options(quarto.disable_processing = FALSE) |> 
+  tab_source_note(md("*Sources* : C200, OSM, Fichiers Fonciers, EMC^2^, calculs des auteurs."))
+```
+
+On peut représenter les résidus de ces modèles sur une carte. Cela donne un indicateur de l'abondance de commerces relativement à la densité de population. Il apparaît que les aménités sont plus concentrées spatialement que la population. Les zones à "excès" d'aménité sont aussi les zones de densité élevée. Cependant, quelques zones font exception, comme le centre commercial "Plan de Campagne", entre Marseille et Aix en Provence.
+
+```{r, include=FALSE}
+rplots <- ofce::source_data("commerces/resplots.R", force=TRUE)
+```
+
+```{r}
+#| label: fig-regsise
+#| fig-cap: Déficit ou excès de proximité par rapport à la densité de résidents
+#| results: asis
+
+tabsetize(rplots, asp=1, girafy=FALSE)
+
+```
+
+```{r, results="asis"}
+data <- lien_se_si |> 
+  filter( m == 1) |>
+  select(type = t, residus) |> 
+  mutate(type = str_remove(type, "^se_")) |> 
+  unnest(residus) |> 
+  mutate(idINS = r3035::expand_idINS(idINS))
+
+download_margin(data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
+```
+
+Les graphiques suivants (@fig-resndv) permettent de représenter le territoire sous un angle combinant la proximité des commerces (purgée de la densité) et le niveau de vie. Ces grpahiques indiquent une corrélation négative entre l'excès de proximité par rapport à la densité (axe des Y) et le niveau de vie : là où le niveau de vie est plus élevé que la moyenne, la proximité est plutôt plus faible qu'attendue compte tenu de la densité. Cette corrélation est cependant assez faible, laissant de nombreuses situations émerger. Pour les commerces alimentaires ce phénomène est assez marqué : dans le cadran supérieur gauche, proche de l'origine, (du graphique en haut à gauche du panneau du @fig-resndv) on trouve un nombre important d'individus (les hexagones sont colorés), indiquant une proximité plus élevée que la moyenne et des niveau de vie plutôt inférieurs à la moyenne
+
+```{r}
+library(santoku)
+probs <- 1:5
+data <- bd_read("lien_se_si") |>
+  filter(m==1) |> 
+  mutate(type = str_remove(t, "^se_")) |> 
+  select(type, residus) |> 
+  filter(type != "agg") |> 
+  unnest(residus) |> 
+  left_join(bd_read("c200ze") |> st_drop_geometry() |> select(idINS, ind, ind_snv), by="idINS") |> 
+  left_join(bd_read("vqh") |> filter(temps == "15m tc/w") |> select(type, idINS = fromidINS, se ),
+            by = c("idINS", "type")) |> 
+  group_by(type) |> 
+  mutate(
+    ind_snv = ind_snv + rnorm(length(ind_snv)),
+    qndv = chop_quantiles(ind_snv/ind, weights = ind, labels = str_c("q", probs), probs = probs/max(probs)),
+    qse = chop_quantiles(se, weights = ind, labels = str_c("q", probs), probs = probs/max(probs)),
+    qr = chop_quantiles(r, weights = ind, labels = str_c("q", probs), probs = probs/max(probs)),
+    ndv = scale(log(ind_snv/ind))[,1],
+    r = scale(r)[,1],
+    se = scale(log(se))[,1]) |> 
+  ungroup()
+
+labels <- set_names(labels, names(labels) |> str_remove("^se_"))
+
+```
+
+```{r}
+#| label: fig-resndv
+#| fig-cap: Niveau de vie vs excès ou déficit de proximité par rapport à la densité
+#| fig-asp: 1.2
+#| cache: FALSE
+
+# g2 <- ggplot(data |> filter(type != "agg", between(ndv, -2.5, 2.5), between(r, -2.5, 2.5))) +
+# geom_hex_interactive(
+#   aes(x = ndv, y = r, weight = ind, tooltip = after_stat(count)), 
+#   binwidth = 0.25) +
+# coord_fixed(xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5)) +
+# xlab('Niveau de vie (log standardisé)') +
+# ylab('Excès/déficit de proximité (log standardisé)') +
+# scale_fill_gradient(low = 'white', high = 'steelblue4', name = 'individus') +
+# geom_hline(yintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + 
+# geom_vline(xintercept = 0, linewidth= 0.5, color = 'gray', alpha = 0.5) + 
+# facet_wrap(vars(type), labeller = as_labeller(labels)) +
+# theme_ofce(
+#   legend.key.width = unit(36, 'pt'),
+#   legend.title = element_text(vjust = 1)) +
+# ofce_caption(
+#   source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs', ofce=FALSE,
+#   note = 'On standardise les deux variables (niveau de vie et résidu de proximité, en log) en centrant et réduisant. Le nombre d\u2019individus est indiqué par la couleur.')
+
+# girafy(g2)
+
+library(legendry)
+
+fmn <- function(x) formatC(signif(x, 3), digits = 3, format='fg', decimal.mark = ",", big.mark=" ")
+
+gdata <- data |> 
+  group_by(type, qr, qndv) |> 
+  summarize(ind = sum(ind), .groups = "drop") |> 
+  mutate(
+    tooltip = glue("<b>{labels[type]}</b><br> {fmn(ind)} individus")
+  )
+
+ggg <- ggplot(gdata)+
+  geom_point_interactive(
+    aes(x=qndv, y=qr, size = ind, col = type, tooltip = tooltip),
+    alpha = 0.75)+
+  scale_size_area(max_size = 10,
+                  labels = scales::label_number(scale = 1/1000, suffix="k"), 
+                  breaks = c(30000, 100000),
+                  name = "Nombre d'individus par cercle",
+                  guide = guide_circles( theme = theme(legend.text = element_marquee(size=rel(0.5)),
+                                                       legend.axis.line = element_line(linewidth = 0.1)) )) + 
+  facet_wrap(vars(type), labeller = as_labeller(labels)) +
+  theme_ofce(
+    legend.position = "bottom",
+    axis.line = element_blank(), 
+    legend.justification = c(1,0.5), 
+    legend.title.position = c("left"), 
+    legend.title = marquee::element_marquee(vjust = 0.5, hjust = 0.5)
+  ) +
+  xlab("Quintiles de niveau de vie")+
+  ylab("Quintiles d'excès ou déficit de proximité") +
+  scale_color_manual(values = c(alim = "purple4", sortie = "orange2", sante = "seagreen", comm = "yellow2"),
+                     labels = c("Commerces alimentaires", "Santé humaine", "Commerces non alimentaires", "Sorties")) +
+  guides(color = "none") +
+  ofce_caption(
+    source = 'C200, EMC^2^, Fichiers fonciers, calculs des auteurs',
+    note = 'On calcule des quintiles pondéré par la population les deux variables (niveau de vie et résidu de proximité). Le nombre d\u2019individus est indiqué par la couleur et l\u2019aire du cercle.')
+
+
+girafy(ggg) 
+```
+
+

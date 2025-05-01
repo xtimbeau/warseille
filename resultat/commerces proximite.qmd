@@ -32,7 +32,7 @@ legend_h <- list(
     legend.key.spacing.x = unit(1, "pt"),
     legend.key.height = unit(6, "pt") ) )
 
-pplots <- ofce::source_data("commerces/proxplots.R")
+pplots <- ofce::source_data("commerces/proxplots.R", force=TRUE)
 
 ```
 
@@ -41,7 +41,7 @@ pplots <- ofce::source_data("commerces/proxplots.R")
 #| label: fig-proximite
 #| fig-cap: "Proximité aux aménités"
 
-tabsetize2(pplots, girafy=FALSE)
+tabsetize2(pplots, girafy=FALSE, asp=1)
 
 ```
 
@@ -50,7 +50,7 @@ tabsetize2(pplots, girafy=FALSE)
 data <- bd_read("vqh") |>
   st_drop_geometry() |>
   mutate(idINS = r3035::expand_idINS(fromidINS)) |> 
-  select(-fromidINS, -wqse, -qse, -wqse_tt, -qse_tt, -id_d) 
+  select(temps, type, idINS, ind, se, div, n, n_e, s, sb, sa) 
 
 download_margin(data, "amenites_idINS_pdvR_MetAMP", "données accessibilité aux aménités au carreau, résidents")
 
@@ -62,7 +62,7 @@ Le graphique suivant est construit en classant la population par proximité croi
 
 ```{r, include=FALSE}
 
-lplots <- ofce::source_data("commerces/lorplots.R")
+lplots <- ofce::source_data("commerces/lorplots.R", force=TRUE)
 
 ```
 
@@ -113,114 +113,20 @@ lien_se_si |>
 
 On peut représenter les résidus de ces modèles sur une carte. Cela donne un indicateur de l'abondance de commerces relativement à la densité de population. Il apparaît que les aménités sont plus concentrées spatialement que la population. Les zones à "excès" d'aménité sont aussi les zones de densité élevée. Cependant, quelques zones font exception, comme le centre commercial "Plan de Campagne", entre Marseille et Aix en Provence.
 
-:::: {#fig-regsise}
-::: panel-tabset
-## Alimentaire
-
-```{r}
-thm_map_leg <- list(
-  scale_fill_paletteer_c(palette = "ggthemes::Red-Green Diverging", 
-                         aesthetics = c("fill", "color"),
-                         labels = c("En déficit","","","", "En excès"),
-                         breaks = c(-5,-2.5,0, 2.5, 5),
-                         trans = pseudo_log_trans(), 
-                         name = "Aménités par rapport à la densité de population :"),
-  legend_h, 
-  theme(legend.key.width = unit(1, "cm"),
-        legend.text = element_blank()),
-  theme(legend.text = element_text(size = rel(0.4))))
+```{r, include=FALSE}
+rplots <- ofce::source_data("commerces/resplots.R", force=TRUE)
 ```
 
 ```{r}
-#| fig-asp: 1
-data <- lien_se_si |>
-  filter(t == "se_alim", m == 1) |>
-  pull(residus) |>
-  pluck(1) |>
-  r3035::sidINS2sf() |> drop_na(r)
+#| label: fig-regsise
+#| fig-cap: Déficit ou excès de proximité par rapport à la densité de résidents
+#| results: asis
 
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf( data = data, aes(fill = r, col = r)) +
-  thm_map_leg +
-  ofce_caption(
-    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (commerces alimentaires) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
+tabsetize(rplots, asp=1, girafy=FALSE)
+
 ```
 
-## Non alim.
-
-```{r}
-#| fig-asp: 1
-
-data <- lien_se_si |> 
-  filter(t == "se_comm", m == 1) |>
-  pull(residus) |>
-  pluck(1) |> 
-  r3035::sidINS2sf() |>
-  drop_na(r)
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf( data = data, aes(fill = r, col = r)) +
-  thm_map_leg +
-  ofce_caption(
-    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (commerces non alimentaires) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
-```
-
-## Sorties
-
-```{r}
-#| fig-asp: 1
-
-data <- lien_se_si |> filter(t == "se_sortie", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf( data = data, aes(fill = r, col=r)) +
-  thm_map_leg +
-  ofce_caption(
-    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (bars, restaurants, cinémas) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
-```
-
-## Santé humaine
-
-```{r}
-#| fig-asp: 1
-
-data <- lien_se_si |> filter(t == "se_sante", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf( data = data, aes(fill = r, col = r) ) +
-  thm_map_leg +
-  ofce_caption(
-    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (santé humaine) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
-```
-
-## Synth.
-
-```{r}
-#| fig-asp: 1
-
-data <- lien_se_si |> filter(t == "se_agg", m == 1) |> pull(residus) |> pluck(1) |> r3035::sidINS2sf() |> drop_na(r)
-
-ggplot() +
-  bd_read("decor_carte") +
-  geom_sf( data = data, aes(fill = r, col = r)) +
-  thm_map_leg +
-  ofce_caption(
-    source = "C200, Fichiers Fonciers, OSM, calculs des auteurs",
-    note = "La carte représente le résidu d'une équation reliant proximité (variable expliquée) et densité (variable explicative) en log-log. La couleur rouge représente ainsi un déficit de proximité aux aménités (synthétique) par rapport à la densité. L'aménité synthétique est une moyenne pondérée des autres indicateurs de proximité des aménités.")
-```
-:::
-::::
-
-```{r}
-#| column: margin
+```{r, results="asis"}
 data <- lien_se_si |> 
   filter( m == 1) |>
   select(type = t, residus) |> 
@@ -228,8 +134,7 @@ data <- lien_se_si |>
   unnest(residus) |> 
   mutate(idINS = r3035::expand_idINS(idINS))
 
-margin_link(data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
-
+download_margin(data, "residus_prox-dens_MetAMP", "données résidus modèles proximité/densité (log)")
 ```
 
 Les graphiques suivants (@fig-resndv) permettent de représenter le territoire sous un angle combinant la proximité des commerces (purgée de la densité) et le niveau de vie. Ces grpahiques indiquent une corrélation négative entre l'excès de proximité par rapport à la densité (axe des Y) et le niveau de vie : là où le niveau de vie est plus élevé que la moyenne, la proximité est plutôt plus faible qu'attendue compte tenu de la densité. Cette corrélation est cependant assez faible, laissant de nombreuses situations émerger. Pour les commerces alimentaires ce phénomène est assez marqué : dans le cadran supérieur gauche, proche de l'origine, (du graphique en haut à gauche du panneau du @fig-resndv) on trouve un nombre important d'individus (les hexagones sont colorés), indiquant une proximité plus élevée que la moyenne et des niveau de vie plutôt inférieurs à la moyenne
@@ -237,14 +142,15 @@ Les graphiques suivants (@fig-resndv) permettent de représenter le territoire s
 ```{r}
 library(santoku)
 probs <- 1:5
-data <- lien_se_si |>
+data <- bd_read("lien_se_si") |>
   filter(m==1) |> 
   mutate(type = str_remove(t, "^se_")) |> 
   select(type, residus) |> 
   filter(type != "agg") |> 
   unnest(residus) |> 
   left_join(bd_read("c200ze") |> st_drop_geometry() |> select(idINS, ind, ind_snv), by="idINS") |> 
-  left_join(bd_read("vqh") |> filter(temps == "15m tc/w") |> select(type, idINS = fromidINS, se ), by = c("idINS", "type")) |> 
+  left_join(bd_read("vqh") |> filter(temps == "15m tc/w") |> select(type, idINS = fromidINS, se ),
+            by = c("idINS", "type")) |> 
   group_by(type) |> 
   mutate(
     ind_snv = ind_snv + rnorm(length(ind_snv)),
