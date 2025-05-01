@@ -222,7 +222,7 @@ tabsetize <- function(list, facety = TRUE, cap = TRUE, girafy = TRUE, asp = NULL
   }
 }
 
-tabsetize2 <- function(list, facety = TRUE, cap = TRUE, girafy = FALSE) {
+tabsetize2 <- function(list, facety = TRUE, cap = TRUE, girafy = FALSE, asp=NULL) {
 
     if(knitr::is_html_output()) {
     chunk <- knitr::opts_current$get()
@@ -237,7 +237,7 @@ tabsetize2 <- function(list, facety = TRUE, cap = TRUE, girafy = FALSE) {
     cat(":::: {.panel-tabset} \n\n")
     purrr::iwalk(list, ~{
       cat(paste0("### ", .y," {.tabset} \n\n"))
-      tabsetize(.x, facety=FALSE, cap = FALSE, girafy = girafy)
+      tabsetize(.x, facety=FALSE, cap = FALSE, girafy = girafy, asp = asp)
       cat("\n\n")
     })
     cat("::::\n\n")
