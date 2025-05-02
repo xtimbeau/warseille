@@ -55,13 +55,6 @@ COMs <- tibble(actifs = actifs,
 DCLTs <- tibble(emplois = emplois, 
                 to = tos, DCLT = dclts)
 
-# N <- length(actifs)
-# K <- length(emplois)
-# 
-# nshuf <- 256
-# 
-# shufs <- emiette(les_actifs = actifs, nshuf = nshuf, seuil = 500)
-
 if(calc) {
   tranked <- qs::qread(trg_file)
   tic()
@@ -77,7 +70,6 @@ if(calc) {
   rm(tranked, meaps)
   gc()
 } 
-db1 <-dbConnect( duckdb::duckdb(dbdir="/tmp/duck_meaps.db") )
 meaps <- arrow::open_dataset("{mdir}/meaps/meaps.parquet" |> glue()) |> 
   to_duckdb() |> 
   rename(f_ij = flux)
@@ -85,7 +77,6 @@ meaps <- arrow::open_dataset("{mdir}/meaps/meaps.parquet" |> glue()) |>
 # meaps.c <- communaliser(meaps, communes, dclts)
 
 # joining ----
-db2 <-dbConnect( duckdb::duckdb(dbdir="/tmp/duck_delta.db") )
 delta <- arrow::open_dataset("/space_mounts/data/marseille/delta_iris") |> 
   to_duckdb() |> 
   mutate(all = bike+walk+transit+car) |> 
@@ -101,8 +92,6 @@ delta <- arrow::open_dataset("/space_mounts/data/marseille/delta_iris") |>
 #   filter(mode %in% c("transit")) |>
 #   anti_join(distances.car, by=c("fromidINS", "toidINS")) |> 
 #   select(fromidINS, toidINS, travel_time, distance)
-
-db3 <- dbConnect( duckdb::duckdb(dbdir="/tmp/duck_dist.db") )
 dists <- open_dataset(dist_dts) |> 
   to_duckdb() |> 
   filter(mode == "car_dgr") |> 
