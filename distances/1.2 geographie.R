@@ -92,6 +92,9 @@ if(!file.exists(c200_file)|download) {
       men = Men,
       enfants = Ind_0_3+Ind_4_5+Ind_6_10+Ind_11_17,
       adultes = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64+Ind_65_79+Ind_80p,
+      elementaire = Ind_0_3/4 + Ind_4_5 + Ind_6_10,
+      college = 5*Ind_11_17/7,
+      lycee = 2*Ind_11_17/7 + Ind_18_24/7,  
       ind_18_64 = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64,
       ind_snv = Ind_snv
     )

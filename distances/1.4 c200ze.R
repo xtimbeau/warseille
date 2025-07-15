@@ -10,10 +10,10 @@ library(data.table)
 library(r3035)
 library(qs)
 library(arrow)
-  conflict_prefer_all("dplyr", quiet=TRUE)
+conflict_prefer_all("dplyr", quiet=TRUE)
 source("mglobals.r")
 
-bl <- load("baselayer.rda")
+# bl <- load("baselayer.rda")
 
 c200 <- qread(c200_file) 
 
@@ -116,7 +116,7 @@ c200ze <- c200i |>
     dep = if_else(is.na(dep), if_else(is.na(dep.e), dep.a, dep.e), dep),
     com = if_else(is.na(com), if_else(is.na(com.e), com.a, com.e), com),
     IRIS = if_else(is.na(IRIS), if_else(is.na(IRIS.e), IRIS.a, IRIS.e), IRIS),
-    across(c(emp, emp_resident, ind, men, adultes, ind_18_64, ind_snv, act_mobpro),~replace_na(.x, 0)),
+    across(c(emp, emp_resident, ind, men, adultes, ind_18_64, ind_snv, act_mobpro, elementaire, college, lycee),~replace_na(.x, 0)),
     amenite = replace_na(amenite, "") ) |>
   select(-ends_with(".e"), -ends_with(".a")) |> 
   mutate(geometry = r3035::sidINS2square(idINS)) |> 
@@ -146,4 +146,4 @@ popact <- readxl::read_xlsx(
 c200ze <- c200ze |> 
   left_join(popact, by=c("com"="com21"))
 qs::qsave(c200ze, file=c200ze_file)
-bd_write(c200ze)
+ofce::bd_write(c200ze)

@@ -12,7 +12,7 @@ library(sf)
 library(tidyverse)
 library(Matrix)
 library(ofce)
-source("secrets/azure.R")
+# source("secrets/azure.R")
 calc <- FALSE
 check <- FALSE
 conflict_prefer("filter", "dplyr", quiet=TRUE)
@@ -101,10 +101,12 @@ meaps.joined <- meaps |>
   left_join(dists , by = c("fromidINS", "toidINS"))  |> 
   left_join(delta, by = c("fromidINS", "toidINS")) 
 
+# on ajoute une constante aux distances
+# elle provient de l'EMC2 AMP, elle représente des km parcourus quoiqu'il arrive en voiture
 meaps.joined <- meaps.joined |> 
   filter(car>0, all>0) |> 
-  mutate(km_car_ij= f_ij * car, 
-         km_ij = f_ij * all,
+  mutate(km_car_ij= f_ij * car + 1.1584 * 365, 
+         km_ij = f_ij * all + 1.1584 * 365,
          fd_ij = f_ij * distance/1000) |> 
   mutate(co2_ij = km_car_ij * 218/1000000)
 
@@ -155,7 +157,7 @@ meaps_to <- meaps_to |>
 
 decor_carte <- bd_read("decor_carte")
 decor_carte_large <- bd_read("decor_carte_large")
-version <- "7.275"
+version <- "8.71"
 
 carte_co2_to <- ggplot() +
   decor_carte +
@@ -168,7 +170,7 @@ carte_co2_to <- ggplot() +
     name = "CO2/an/emploi") +
   theme_ofce_void()
 
-tension <- arrow::read_parquet("{mdir}/meaps/tension_odds_d.parquet" |> glue()) |>
+  tension <- arrow::read_parquet("{mdir}/meaps/tension_odds_d.parquet" |> glue()) |>
   mutate(toidINS = as.integer(toidINS),
          tension = (max(rang)-rang)/(max(rang)-min(rang))) |> 
   left_join(c200ze |> select(toidINS = idINS, com, scot), by='toidINS') |> 

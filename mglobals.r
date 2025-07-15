@@ -100,6 +100,6 @@ enqmobpro <- "{mdir}/mobpro2018.csv" |> glue()
 seuil_temps_car <- 120
 seuil_distance_proba <- 35000
 
-source("secrets/azure.R")
+# source("secrets/azure.R")
 progressr::handlers(global=TRUE)
 progressr::handlers("cli")
