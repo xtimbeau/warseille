@@ -6,7 +6,7 @@ library(tmap)
 library(sf)
 library(conflicted)
 conflicted::conflict_prefer_all("dplyr", quiet = TRUE)
-load("baselayer.rda")
+source("mglobals.r")
 # on prépare les données pour l'extrapolation des modèles
 # les données sont sourcées à l'IRIS, on extrapole au carreau
 dir.create("projection/data")

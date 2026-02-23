@@ -1,6 +1,6 @@
 # on fait un c200 local, correctement renseigné.
 # il est la réunion de c200 individus, plus des carreaux flores, sur l'étendue zone_emploi
-library(pins)
+
 library(tidyverse)
 library(stars)
 library(sf)
@@ -10,6 +10,7 @@ library(data.table)
 library(r3035)
 library(qs)
 library(arrow)
+library(ofce)
 conflict_prefer_all("dplyr", quiet=TRUE)
 source("mglobals.r")
 
@@ -56,7 +57,7 @@ irises[l_irises>=2] <- l2 |> pull(id)
 flat_irises <- purrr::list_c(irises)
 
 act_mobpro <- qs::qread(mobpro_file) |> 
-  filter(COMMUNE %in% communes) |> 
+  filter(COMMUNE %in% ttes_com) |> 
   group_by(COMMUNE) |> 
   mutate(mobpro95 = replace_na(mobpro95, FALSE)) |> 
   summarize(act_mobpro.tot = sum(NB),
@@ -144,6 +145,8 @@ popact <- readxl::read_xlsx(
             tactocc1564 = P18_ACTOCC1564/P18_POP1564)
 
 c200ze <- c200ze |> 
-  left_join(popact, by=c("com"="com21"))
+  mutate(COM = ifelse(str_detect(com, "^132"), "13055", com)) |> 
+  left_join(popact, by=join_by(COM == com21))
+
 qs::qsave(c200ze, file=c200ze_file)
 ofce::bd_write(c200ze)

@@ -16,21 +16,21 @@ library(arrow)
 
 conflict_prefer_all('dplyr', quiet = TRUE)
 
-load("baselayer.rda") # executer 1. zones avant
+source("mglobals.r") # executer 1. zones avant
 
 # on prend les IRIS 2022
 iris <- qread(iris_file)
 
 c200 <- qread(c200_file) # version 2017
 
-com_ze <- iris[zone_emploi, ] |>
-  rename(COM=DEPCOM) |> 
-  group_by(COM) |>
-  summarize(DEP = first(DEP)) |>
-  rename(idcom=COM)
-
-c200ze <- c200 |> 
-  semi_join(com_ze |> st_drop_geometry(), by=c("com22"="idcom"))
+# com_ze <- iris[zone_emploi, ] |>
+#   rename(COM=DEPCOM) |> 
+#   group_by(COM) |>
+#   summarize(DEP = first(DEP)) |>
+#   rename(idcom=COM)
+# 
+# c200ze <- c200 |> 
+#   semi_join(com_ze |> st_drop_geometry(), by=c("com22"="idcom"))
 
 curl::curl_download(
   "https://www.insee.fr/fr/statistiques/fichier/7637844/RP2020_mobpro_csv.zip",
@@ -90,13 +90,31 @@ mobpro99 <- mobilites |>
          mobpro95 = cemp <= .95) |> 
   transmute(COMMUNE, DCLT, fl, mobpro99, mobpro95, d, cemp, emp, emp.tot)
 
+mobpro99_ext <- mobilites |> 
+  filter(DCLT %in% scot, !COMMUNE %in% scot) |> 
+  mutate(emp.tot = sum(NB)) |> 
+  group_by(COMMUNE, DCLT) |> 
+  summarize(fl = any(fl),
+            emp = sum(NB),
+            emp.tot = first(emp.tot),
+            .groups = "drop") |> 
+  left_join(coms , by = c("COMMUNE"="insee"), suffix = c("", ".o")) |> 
+  left_join(coms, by = c("DCLT"="insee"), suffix = c("", ".d") ) |> 
+  mutate(d = st_distance(geometry, geometry.d, by_element = TRUE)) |> 
+  arrange(d) |> 
+  mutate(cemp = cumsum(emp)/sum(emp),
+         mobpro99_ext = cemp <= .99,
+         mobpro95_ext = cemp <= .95) |> 
+  transmute(COMMUNE, DCLT, fl, mobpro99_ext, mobpro95_ext, d, cemp, emp, emp.tot)
+
 dclt95 <- mobpro99 |> filter(mobpro95) |> distinct(DCLT) |> pull()
 communes <- communes |>
   filter(INSEE_COM %in% scot | INSEE_COM %in% dclt95)
 
 mobilites95 <- mobilites |>
   filter(DCLT %in% dclt95 | COMMUNE %in% scot) |> 
-  mutate(mobpro95 = (COMMUNE %in% scot) & (DCLT %in% dclt95))
+  mutate(mobpro95 = (COMMUNE %in% scot) & (DCLT %in% dclt95), 
+         mobpro95e = mobpro95 | ((COMMUNE %in% setdiff(dclt95,scot)) & (DCLT %in% scot)) )
 
 qs::qsave(mobilites95, mobpro_file)
 qs::qsave(communes, communes_mb99_file)  
@@ -104,7 +122,6 @@ qs::qsave(communes, communes_mb99_file)
 emplois_by_DCLT <- mobilites95[DCLT %in% dclt95,
                                .(emp = sum(NB), emp_scot = sum(NB[COMMUNE%chin%scot])),
                                by = c("DCLT", "NA5")]
-
 
 c200ze <- qread(c200_file) |> 
   filter(com22 %in% dclt95)
@@ -118,9 +135,9 @@ c200ze <- qread(c200_file) |>
 deps <- unique(str_sub(dclt95, 1, 2))
 
 locaux.duck <- open_dataset("/dropbox/dv3f/ff2022/pb0010_local") |> 
-  to_duckdb() |> 
   filter(ccodep %in% deps) |> 
-  select(sprincp, cconac, stoth, slocal, idcom, X, Y)
+  select(sprincp, cconac, stoth, slocal, idcom, X, Y) |> 
+  to_duckdb()
 
 locaux <- locaux.duck |> 
   filter(!is.na(cconac), !is.na(X), !is.na(Y)) |> 

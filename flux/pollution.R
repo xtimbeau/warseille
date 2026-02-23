@@ -7,7 +7,7 @@ library(stars)
 library(MetricsWeighted)
 library(ofce)
 library(glue)
-source("secrets/azure.R")
+# source("secrets/azure.R")
 source("mglobals.r")
 conflicted::conflicts_prefer(dplyr::filter)
 curl::curl_download("https://geoservices.atmosud.org/geoserver/mod_sudpaca_2022/ows?service=WMS&version=1.1.1&request=GetMap&layers=mod_sudpaca_2022:mod_sudpaca_2022_icair365&styles=&bbox=799602.0,6214473.0,1077706.0,6453458.0&width=768&height=659&srs=EPSG:2154&format=image/geotiff",

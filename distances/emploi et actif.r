@@ -95,7 +95,7 @@ les_emplois <- st_drop_geometry(c200) |>
   filter(idINS %in% toidINS)
 
 popact <- readxl::read_xlsx(
-  "{popactive_file}" |> glue(), sheet = "COM_2018", skip=5) |> 
+  "{popactive_file}" |> glue(), sheet = "COM_2018", skip=5) |>
   transmute(com=CODGEO,
             libcom = LIBGEO,
             pop1564 = P18_POP1564,

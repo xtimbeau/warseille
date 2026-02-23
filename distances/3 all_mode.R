@@ -1,5 +1,5 @@
 # init ---------------
-setwd("~/marseille")
+setwd("~/warseille")
 library(tidyverse, quietly = TRUE, warn.conflicts = FALSE)
 library(accessibility, quietly = TRUE, warn.conflicts = FALSE)
 library(r3035, quietly = TRUE, warn.conflicts = FALSE)
@@ -44,7 +44,9 @@ distances <- future_walk(communes, \(commune) {
     rename(fromidINS=fromId, toidINS=toId) |>
     mutate(DCLT = as.character(DCLT), 
            mode = "car_dgr",
-           access_time = NA_real_,
+           access_time = NA_integer_,
+           travel_time = as.integer(round(travel_time * 60)),
+           distance = as.integer(distance),
            n_rides = NA_integer_) |> 
     filter(!is.na(travel_time)) |> 
     to_arrow() |> 
@@ -59,7 +61,9 @@ distances <- future_walk(communes, \(commune) {
       rename(fromidINS=fromId, toidINS=toId) |>
       mutate(DCLT = as.character(DCLT),
              mode = !!mode, 
-             access_time = NA_real_,
+             access_time = NA_integer_,
+             travel_time = as.integer(round(travel_time * 60)),
+             distance = as.integer(distance),
              n_rides = NA_integer_) |> 
       filter(!is.na(travel_time)) |> 
       to_arrow() |> 
@@ -72,7 +76,9 @@ distances <- future_walk(communes, \(commune) {
     filter(COMMUNE == commune) |> 
     select(fromidINS, toidINS, travel_time, COMMUNE, DCLT, access_time, n_rides) |>
     mutate(DCLT = as.character(DCLT),
-           access_time = access_time,
+           access_time = as.integer(60*access_time),
+           travel_time = as.integer(round(travel_time * 60)),
+           distance = NA_integer_,
            n_rides = as.integer(n_rides),
            mode='transit') |> 
     filter(!is.na(travel_time)) |> 

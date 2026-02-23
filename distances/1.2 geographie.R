@@ -96,6 +96,7 @@ if(!file.exists(c200_file)|download) {
       college = 5*Ind_11_17/7,
       lycee = 2*Ind_11_17/7 + Ind_18_24/7,  
       ind_18_64 = Ind_18_24+Ind_25_39+Ind_40_54+Ind_55_64,
+      ind_15_64 = ind_18_64 + 3*Ind_11_17/7,
       ind_snv = Ind_snv
     )
   
@@ -137,7 +138,7 @@ epcis <- readxl::read_xls(
   skip=5)
 
 scot_tot.epci <- epcis |>
-  dplyr::filter(str_detect(LIBGEO, str_c(scot_tot.n, collapse='|'))) |>
+  dplyr::filter(EPCI %in% "epci.metropole") |>
   pull(CODGEO, name=LIBGEO)
 
 # commune plus arrondissements ----------------
@@ -281,7 +282,7 @@ decor_carte <- list(
   annotate(
     "label", x=Inf, y=-Inf, label = "\U00A9 Mapbox, \U00A9 OpenStreetMap",
     hjust=1, vjust=0, size=2, label.padding = unit(4, "pt"),
-    label.size = 0, fill="gray98", alpha=0.5),
+    linewidth = 0, fill="gray98", alpha=0.5),
   ggspatial::annotation_scale(
     line_width = 0.2, height = unit(0.1, "cm"), 
     text_cex = 0.4, pad_y = unit(0.1, "cm")),
@@ -304,7 +305,7 @@ decor_carte_large <- list(
   annotate(
     "label", x=Inf, y=-Inf, label = "\U00A9 Mapbox, \U00A9 OpenStreetMap",
     hjust=1, vjust=0, size=2, label.padding = unit(4, "pt"),
-    label.size = 0, fill="gray98", alpha=0.5),
+    linewidth = 0, fill="gray98", alpha=0.5),
   ggspatial::annotation_scale(
     line_width = 0.2, height = unit(0.1, "cm"), 
     text_cex = 0.4, pad_y = unit(0.1, "cm")),
@@ -315,7 +316,7 @@ decor_carte_large <- list(
 
 bd_write(decor_carte_large)
 
-# save -------------
-save(list = c(bl, "geoepci", "com2021epci",
-              "zone_emploi", "petite_zone_emploi",
-              "communes_ze", "communes_pze"), file="baselayer.rda")
+# # save -------------
+# save(list = c(bl, "geoepci", "com2021epci",
+#               "zone_emploi", "petite_zone_emploi",
+#               "communes_ze", "communes_pze"), file="baselayer.rda")

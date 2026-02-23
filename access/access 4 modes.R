@@ -8,12 +8,11 @@ library(tidyverse)
 library(conflicted)
 library(ggspatial)
 library(scico)
-load("baselayer.rda")
+source("mglobals.r")
 conflict_prefer( "dt2r", "r3035")
 conflict_prefer( "r2dt", "r3035")
 conflict_prefer( "idINS2square", "r3035")
 conflict_prefer_all("dplyr", quiet = TRUE)
-source("secrets/azure.R")
 
 c200ze <- qs::qread(c200ze_file)
 times <- seq(1, 120, 1)
@@ -31,8 +30,18 @@ emploi <- c200ze |>
 emploi <- open_dataset("/tmp/emploi") |> 
   to_duckdb()
 
+actif <- c200ze |> 
+  st_drop_geometry() |> 
+  filter(act_mobpro>0) |>
+  select(fromidINS=idINS, act_mobpro) |> 
+  write_dataset(("/tmp/actif"))
+
+actif <- open_dataset("/tmp/actif") |> 
+  to_duckdb()
+
 temps <- 1:120
-txt <- str_c("emp", temps, "= sum(emp*as.numeric(travel_time<=", temps,"), na.rm=TRUE)") 
+# !!!! chgt de convention
+txt <- str_c("opp", temps, "= sum(opp*as.numeric(travel_time<=", 60*temps,"), na.rm=TRUE)") 
 unlink("/tmp/access.r")
 ff <- file("/tmp/access.r", open = "at")
 writeLines("dd <- dd |> summarise(", ff)
@@ -40,27 +49,73 @@ walk(head(txt, -1), ~writeLines(str_c(.x, ","), ff))
 writeLines(str_c(dplyr::last(txt), ")"), ff)
 close(ff)
 
-access <- map_dfr(
+access_to <- map_dfr(
   modes, ~{
-    dd <- arrow::open_dataset(dist_dts) |>
+    ddo <- arrow::open_dataset(dist_dts) |>
       to_duckdb() |> 
-      filter(mode == .x)
+      filter(mode == .x) 
     
-    dd <- dd |> 
-      left_join(emploi, by="toidINS") |>
-      filter(!is.na(fromidINS) ) |> 
+    dd <- actif |> 
+      left_join(ddo, by="fromidINS") |>
+      filter(!is.na(toidINS) ) |> 
       filter(!is.na(travel_time)) |> 
-      group_by(fromidINS)
+      group_by(toidINS) |> 
+      rename(opp = act_mobpro)
+    
     source("/tmp/access.r", local = TRUE)
+    
     dd |> 
       collect() |> 
       mutate(mode = .x) |> 
-      relocate(fromidINS, mode)
+      relocate(toidINS, mode) |> 
+      mutate(across(-c(toidINS, mode), ~replace_na(.x, 0)))
+    
+  }, .progress=TRUE)
+
+arrow::write_dataset(access_to, "/tmp/access_to")
+access_to <- arrow::open_dataset("/tmp/access_to") |> 
+  to_duckdb()
+
+acc_to <- access_to |> 
+  select(idINS = toidINS, all_of(str_c("opp", seq(5,60,5)))) |>
+  collect() |> 
+  rename_with(~str_replace(.x, "opp", "m"))
+
+bd_write(acc_to)
+
+access <- map_dfr(
+  modes, ~{
+    ddo <- arrow::open_dataset(dist_dts) |>
+      to_duckdb() |> 
+      filter(mode == .x) 
+    
+    dd <- emploi |> 
+      left_join(ddo, by="toidINS") |>
+      filter(!is.na(fromidINS) ) |> 
+      filter(!is.na(travel_time)) |> 
+      group_by(fromidINS) |> 
+      rename(opp = emp)
+    
+    source("/tmp/access.r", local = TRUE)
+    
+    dd |> 
+      collect() |> 
+      mutate(mode = .x) |> 
+      relocate(fromidINS, mode) |> 
+      mutate(across(-c(fromidINS, mode), ~replace_na(.x, 0)))
+    
   }, .progress=TRUE)
 
 arrow::write_dataset(access, "/tmp/access")
 access <- arrow::open_dataset("/tmp/access") |> 
   to_duckdb()
+
+acc_from <- access |> 
+  select(idINS = fromidINS, all_of(str_c("opp", seq(5,60,5)))) |>
+  collect() |> 
+  rename_with(~str_replace(.x, "opp", "m"))
+
+bd_write(acc_from)
 
 t_access <- imap(modes, ~{
   res <- access |> filter(mode== .x) |> select(-mode) |> collect() |> 
@@ -102,8 +157,8 @@ c_access <- access |>
   collect() |> 
   rename(idINS = fromidINS) |> 
   left_join(c200ze |> select(com, idINS, ind), by="idINS") |> 
-  pivot_longer(cols = starts_with("emp"), names_to = "temps", values_to = "emp") |> 
-  mutate(temps = as.numeric(str_remove(temps, "emp")))
+  pivot_longer(cols = starts_with("opp"), names_to = "temps", values_to = "opp") |> 
+  mutate(temps = as.numeric(str_remove(temps, "opp")))
 
 fromCom <- c_access |> distinct(com) |> pull()
 
@@ -112,13 +167,13 @@ library(MetricsWeighted)
 
 mode_l <- c_access |> 
   group_by(com,  mode, temps) |> 
-  summarize(emp = weighted_median(emp, w = ind),
+  summarize(opp = weighted_median(opp, w = ind),
             repr = n(), 
             .groups = "drop")
 
 tout <- c_access |> 
   group_by(temps, mode) |> 
-  summarize(emp = weighted_median(emp, w = ind),
+  summarize(opp = weighted_median(opp, w = ind),
             repr = n(), 
             .groups = "drop") |> 
   mutate(com="99999")
@@ -144,9 +199,9 @@ bd_write(access_par_com)
 access_par_com_g <- ggplot(
   access_par_com |> 
     filter(mode %in% c("car_dgr2", "transit5", "bike_tblr", "walk_tblr"))) +
-  geom_line(aes(x=temps, y=emp, group=com), col="gray80", linewidth=0.2) +
+  geom_line(aes(x=temps, y=opp, group=com), col="gray80", linewidth=0.2) +
   geom_line(data = ~filter(.x, !str_detect(label, "^n")),
-            aes(x=temps, y=emp, color=label)) +
+            aes(x=temps, y=opp, color=label)) +
   scale_x_continuous(breaks  = c(0,20,40,60,80,100,120), limits = c(0,60))+
   scale_y_continuous(labels = ofce::f2si2)+
   ofce::theme_ofce()+
@@ -162,9 +217,9 @@ access_par_com_g <- ggplot(
 access_par_com_btblr <- ggplot(
   access_par_com |> 
     filter(mode %in% c("bike_tblr", "bike_ntblr"))) +
-  geom_line(aes(x=temps, y=emp, group=com), col="gray80", linewidth=0.2) +
+  geom_line(aes(x=temps, y=opp, group=com), col="gray80", linewidth=0.2) +
   geom_line(data = ~filter(.x, !str_detect(label, "^n")),
-            aes(x=temps, y=emp, color=label)) +
+            aes(x=temps, y=opp, color=label)) +
   scale_x_continuous(breaks  = c(0, 20,40,60,80,100,120), limits = c(0,60))+
   scale_y_continuous(labels = ofce::f2si2)+
   ofce::theme_ofce()+
@@ -180,9 +235,9 @@ access_par_com_btblr <- ggplot(
 access_par_com_wtblr <- ggplot(
   access_par_com |> 
     filter(mode %in% c("walk_tblr", "walk_ntblr"))) +
-  geom_line(aes(x=temps, y=emp, group=com), col="gray80", linewidth=0.2) +
+  geom_line(aes(x=temps, y=opp, group=com), col="gray80", linewidth=0.2) +
   geom_line(data = ~filter(.x, !str_detect(label, "^n")),
-            aes(x=temps, y=emp, color=label)) +
+            aes(x=temps, y=opp, color=label)) +
   scale_x_continuous(breaks  = c(0, 20,40,60,80,100,120))+
   scale_y_continuous(labels = ofce::f2si2)+
   ofce::theme_ofce()+
@@ -207,10 +262,12 @@ t_access  <- t_access |>
     .default = "autres"))
 
 ggplot(t_access |> filter(mode!="transit"))+
-  geom_density(aes(x=to10k, weight=ind , fill = zone, col= zone, y = after_stat(count) ), alpha=.5, position="stack") + 
+  geom_density(aes(x=to10k, weight=ind , fill = zone, col= zone, y = after_stat(count) ), 
+               alpha=.5, position="stack") + 
   scale_color_manual(
     aesthetics = c("color", "fill"), 
-    values = c("Marseille" = "chartreuse2", "Aix-en-Provence"="darkorchid1", "Fos-sur-Mer"="blue3", "autres" = "grey") ) +
+    values = c("Marseille" = "chartreuse2", "Aix-en-Provence"="darkorchid1", 
+               "Fos-sur-Mer"="blue3", "autres" = "grey") ) +
   facet_wrap(vars(mode)) +
   theme_ofce()
 

@@ -16,7 +16,7 @@ load(empetact_file) # pour fichier mobpro, pour virer les flux intercommunaux nu
 
 ## Les modèles de pratiques de mobilité :
 # (1) la fréquence journalière des boucles(cf. script Modele_Frequence_Boucles.r)
-MOD_frequence_boucle <- readRDS("mod/MOD_frequence_boucles.rda")
+# MOD_frequence_boucle <- readRDS("mod/MOD_frequence_boucles.rda")
 
 # (2) la probabilité d'une boucle simple (cf. script Modeles_Longueurs_Boucles.r)
 MOD_boucle_simple <- readRDS("mod/MOD_boucle_simple.rda")

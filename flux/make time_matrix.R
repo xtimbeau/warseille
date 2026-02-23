@@ -4,7 +4,7 @@ library(conflicted)
 library(arrow)
 library(r3035)
 library(furrr)
-source("secrets/azure.R")
+
 conflict_prefer("filter", "dplyr", quiet=TRUE)
 conflict_prefer("select", "dplyr", quiet=TRUE)
 conflict_prefer("collect", "dplyr", quiet=TRUE)
@@ -50,7 +50,7 @@ future_walk(com_geo21_scot, \(.c) {
     to_duckdb() |> 
     filter(COMMUNE==.c) |> 
     group_by(fromidINS, toidINS) |>
-    summarize(t = min(travel_time, na.rm=TRUE), .groups = "drop") |> 
+    summarize(t = min(travel_time, na.rm=TRUE)/60, .groups = "drop") |> 
     mutate(
       fromidINS = as.character(fromidINS),
       toidINS = as.character(toidINS)) |> 
