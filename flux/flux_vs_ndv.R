@@ -1,4 +1,4 @@
-setwd("~/marseille")
+setwd("~/warseille")
 library(tidyverse)
 library(conflicted)
 library(tmap)
@@ -6,7 +6,7 @@ library(ofce)
 library(sf)
 library(here)
 library(archive)
-source("secrets/azure.R")
+# source("secrets/azure.R")
 
 conflict_prefer_all("dplyr", quiet=TRUE)
 load("baselayer.rda")
@@ -17,18 +17,19 @@ c200ze <- bd_read("c200ze") |>
 
 km <- bd_read("meaps_from") |>
   as_tibble() |> 
+  select(-ind) |> 
   left_join(c200ze, by="fromidINS") |> 
   mutate(ndv  = ind_snv/ind)
 
-ggplot(km) +
-  aes(x=ind_snv/ind, y=km_pa, color = com) +
-  geom_point(alpha=0.1, shape = 19) +
-  scale_x_log10("Niveau de vie moyen du carreau", labels = scales::label_number(big.mark = " "), limits = c(15000, 35000)) + 
-  scale_y_log10("km parcourus pour le motif professionel", labels = scales::label_number(big.mark = " ")) +
-  geom_smooth(col="darkgrey") +
-  theme_ofce() +
-  labs(title = "Km versus niveau de vie, La Rochelle")+
-  guides(color = "none") 
+# ggplot(km) +
+#   aes(x=ind_snv/ind, y=km_pa, color = com) +
+#   geom_point(alpha=0.1, shape = 19) +
+#   scale_x_log10("Niveau de vie moyen du carreau", labels = scales::label_number(big.mark = " "), limits = c(15000, 35000)) + 
+#   scale_y_log10("km parcourus pour le motif professionel", labels = scales::label_number(big.mark = " ")) +
+#   geom_smooth(col="darkgrey") +
+#   theme_ofce() +
+#   labs(title = "Km versus niveau de vie, La Rochelle")+
+#   guides(color = "none") 
 
 
 # Les prix !
@@ -39,9 +40,7 @@ library(sf)
 library(arrow)
 dropbox <- "/dropbox/dv3f/dv3fv241"
 
-db <- open_dataset(glue("{dropbox}/mutation")) |> 
-  to_duckdb()
-
+db <- open_dataset(glue("{dropbox}/mutation")) 
 cols <- c("idnatmut", "datemut", "anneemut",  "moismut", "l_codinsee",   
           "coddep", "libnatmut", "vefa", "valeurfonc", "sterr", "sbati", "codtypbien", "libtypbien", "filtre",
           "devenir", "lon", "lat")
