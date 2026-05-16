@@ -44,6 +44,7 @@ kmnonpro_file <- "{dir_dist}/km_nonpro.parquet"
 trajets_pro_file <- "{dir_dist}/trajets_pro.parquet" |> glue()
 meaps_rep <- "{dir_dist}/meaps" |> glue()
 dir.create(meaps_rep, showWarnings = FALSE)
+meaps.joined_file <- "{dir_dist}/meaps/meaps_joined.parquet" |> glue()
 meaps_file <- "{meaps_rep}/meaps_est.rda" |> glue()
 decor_carte_file <- "{mdir}/decor_carte.rda" |> glue()
 mobilites_file <- "{mdir}/mobilites.qs" |> glue()
@@ -103,3 +104,24 @@ seuil_distance_proba <- 35000
 # source("secrets/azure.R")
 progressr::handlers(global=TRUE)
 progressr::handlers("cli")
+
+duckdb2parquet <- function(data, output, by = NULL, overwrite = TRUE, options=NULL) {
+  con <- dbplyr::remote_con(data)
+  sql <- dbplyr::sql_render(data, con = con)
+  if (is.null(options)) {
+    options <- list()
+  }
+  if (!is.null(by)) {
+    options <- c(list("PARTITION_BY" = str_c("(",str_c(by, collapse = ", "), ")")), options)
+  }
+  
+  options <- lapply(options, toupper)
+  options <- setNames(options, toupper(names(options)))
+  options$FORMAT = 'PARQUET'
+  
+  parquet_options <- paste(paste0(names(options), " ", options), collapse = ", ")
+  if(overwrite)
+    parquet_options <- stringr::str_c(parquet_options, ", OVERWRITE")
+  sql <- sprintf("COPY (%s) TO '%s' (%s)", sql, output, parquet_options)
+  DBI::dbExecute(con, sql)
+}

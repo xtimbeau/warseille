@@ -21,6 +21,15 @@ conflict_prefer("collect", "dplyr", quiet=TRUE)
 conflict_prefer("between", "dplyr", quiet=TRUE)
 conflict_prefer("first", "dplyr", quiet=TRUE)
 
+# paramètre duckdb
+con <- DBI::dbConnect(duckdb::duckdb())
+DBI::dbExecute(con, 'SET temp_directory = "/tmp"')
+DBI::dbExecute(con, 'SET max_temp_directory_size = "100GB"')
+DBI::dbExecute(con, 'SET memory_limit = "32GB"')
+DBI::dbExecute(con, 'SET threads to 4')
+DBI::dbExecute(con, 'SET preserve_insertion_order=false')
+# DBI::dbGetQuery(con, "SELECT * FROM duckdb_settings();" )
+
 # ---- Definition des zones ----
 source("mglobals.r")
 
@@ -80,7 +89,7 @@ meaps <- arrow::open_dataset("{mdir}/meaps/meaps.parquet" |> glue()) |>
 delta <- arrow::open_dataset("/space_mounts/data/marseille/delta_iris") |> 
   to_duckdb() |> 
   mutate(all = bike+walk+transit+car) |> 
-  select(fromidINS, toidINS, car, all)
+  select(fromidINS, toidINS, car, bike, transit, walk, all)
 
 # distances.car <- open_dataset(dist_dts) |> 
 #   to_duckdb() |> 
@@ -97,17 +106,26 @@ dists <- open_dataset(dist_dts) |>
   filter(mode == "car_dgr") |> 
   select(fromidINS, toidINS, distance) 
 
+c200ze.duck <- c200ze |> select(fromidINS = idINS, COMMUNE = com) |> st_drop_geometry() |> to_duckdb()
+
 meaps.joined <- meaps |> 
   left_join(dists , by = c("fromidINS", "toidINS"))  |> 
   left_join(delta, by = c("fromidINS", "toidINS")) |> 
+  left_join(c200ze.duck, join_by(fromidINS)) |> 
+  mutate(
+    across(c(car, bike, transit, walk), ~if_else(is.na(.x), 0, .x) ) ) |>  
+  mutate(car = car + 1.1584 * 365,
+         all = car+bike+transit+walk) |> 
   compute()
+
+meaps.joined |> duckdb2parquet(meaps.joined_file, by = "COMMUNE")
 
 # on ajoute une constante aux distances
 # elle provient de l'EMC2 AMP, elle représente des km parcourus quoiqu'il arrive en voiture
 meaps.joined <- meaps.joined |> 
   filter(car>0, all>0) |> 
-  mutate(km_car_ij= f_ij * (car + 1.1584 * 365), 
-         km_ij = f_ij * (all + 1.1584 * 365),
+  mutate(km_car_ij= f_ij * (car ), 
+         km_ij = f_ij * (all ),
          fd_ij = f_ij * distance/1000) |> 
   mutate(co2_ij = km_car_ij * 218/1000000)
 

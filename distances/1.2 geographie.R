@@ -142,28 +142,54 @@ scot_tot.epci <- epcis |>
   pull(CODGEO, name=LIBGEO)
 
 # commune plus arrondissements ----------------
-
+                    
 if(!file.exists(communes_ar_file)|download) {
   dir.create("/tmp/communes")
   curl::curl_download(
-    "https://data.geopf.fr/telechargement/download/ADMIN-EXPRESS/ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-09-21/ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-09-21.7z",
-    destfile = "/tmp/communes/adx.7z")
+    "https://data.geopf.fr/telechargement/download/ADMIN-EXPRESS-COG-CARTO/ADMIN-EXPRESS-COG-CARTO_3-1__SHP_WGS84G_FRA_2022-04-15/ADMIN-EXPRESS-COG-CARTO_3-1__SHP_WGS84G_FRA_2022-04-15.7z",
+    destfile = "/tmp/communes/adminexpress2022.7z")
+ 
+  # curl::curl_download(
+  #   "https://data.geopf.fr/telechargement/download/ADMIN-EXPRESS/ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-09-21/ADMIN-EXPRESS_3-2__SHP_LAMB93_FXX_2023-09-21.7z",
+  #   destfile = "/tmp/communes/adx.7z")
+  # communes <- sf::st_read("/tmp/communes/communes.json") |> 
+  #   rename(
+  #     INSEE_COM = code_insee,
+  #     INSEE_CAN = code_insee_du_canton,
+  #     INSEE_ARR = code_insee_de_l_arrondissement,
+  #     INSEE_DEP = code_insee_du_departement,
+  #     INSEE_REG = code_insee_de_la_region,
+  #     SIREN_EPCI = code_siren ) 
+  # 
+  # ars <- sf::st_read("/tmp/communes/ar.json")
+  commune <- archive_extract(
+    "/tmp/communes/adminexpress2022.7z",
+    files = archive("/tmp/communes/adminexpress2022.7z") |>
+      filter(str_detect(path, "/COMMUNE\\.")) |>
+      pull(path),
+    dir = "/tmp/communes")
+
+  ar <- archive_extract(
+    "/tmp/communes/adminexpress2022.7z",
+    files = archive("/tmp/communes/adminexpress2022.7z") |>
+      filter(str_detect(path, "/ARRONDISSEMENT_MUNICIPAL\\.")) |>
+      pull(path),
+    dir = "/tmp/communes")
+
+  communes <- sf::st_read(
+    str_c("/tmp/communes/", commune |> purrr::keep(~stringr::str_detect(.x, ".shp"))))
   
-  commune <- archive_extract("/tmp/communes/adx.7z", 
-                             files = archive("/tmp/communes/adx.7z") |> filter(str_detect(path, "/COMMUNE\\.")) |> pull(path),
-                             dir = "/tmp/communes")
+  ars <- sf::st_read(
+    str_c("/tmp/communes/", ar |> purrr::keep(~stringr::str_detect(.x, ".shp"))))
   
-  ar <- archive_extract("/tmp/communes/adx.7z", 
-                        files = archive("/tmp/communes/adx.7z") |> filter(str_detect(path, "/ARRONDISSEMENT_MUNICIPAL\\.")) |> pull(path),
-                        dir = "/tmp/communes")
-  
-  communes <- sf::st_read(str_c("/tmp/communes/", commune |> purrr::keep(~stringr::str_detect(.x, ".shp"))))
-  
-  ars <- sf::st_read(str_c("/tmp/communes/", ar |> purrr::keep(~stringr::str_detect(.x, ".shp")))) 
   com_ars <- unique(ars$INSEE_COM) 
+  
   ars <- tibble(ars) |> 
-    mutate(COMMUNE = INSEE_COM, INSEE_COM = INSEE_ARM, ar = TRUE, com = FALSE) |>
-    select(-INSEE_ARM) |> 
+    transmute(
+      COMMUNE = INSEE_COM, 
+      INSEE_COM = INSEE_ARM, 
+      ar = TRUE, com = FALSE, 
+      geometry) |>
     left_join(
       communes |> 
         st_drop_geometry() |> 
@@ -176,7 +202,15 @@ if(!file.exists(communes_ar_file)|download) {
     bind_rows(ars) |> 
     st_as_sf() |> 
     st_transform(3035)
+
+  ## grille de densité
+  curl::curl_download(
+    url = "https://www.insee.fr/fr/statistiques/fichier/8571524/fichier_diffusion_2026.xlsx",
+    destfile = "/tmp/grille_densite.xlsx")
+  grille <- readxl::read_xlsx("/tmp/grille_densite.xlsx", skip=4)  
   
+  communes <- communes |> 
+    left_join(grille |> select(CODGEO, DENS7, LIBDENS7), join_by(COMMUNE == CODGEO))
   qs::qsave(communes, communes_ref_file)
 }
 
