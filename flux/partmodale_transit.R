@@ -149,7 +149,7 @@ if(!dir.exists("/tmp/joined")) {
   
   tbl(con, tbl) |>
     mutate(d = round(distance/1000,1)) |>
-    filter(d<=50, d >  0) |> 
+    filter(d<=60, d >  0) |> 
     left_join(transitage, join_by(fromidINS, toidINS)) |> 
     duckdb2parquet("/tmp/joined", by = "COMMUNE")
   toc()
@@ -176,7 +176,7 @@ pm.transit <- meaps.joined |>
 
 pm.velo <- meaps.joined |>
   mutate(d = round(distance/1000,1)) |>
-  filter(d<=50, d > 0) |>
+  filter(d<=60, d > 0) |>
   mutate(dbike = 1*bike*if_else(d < 10, 1, if_else(d < 2*10, -(d-2*10)/10, 0))) |>
   mutate(dbike = if_else(dbike < car, dbike, car)) |> 
   mutate(car = car - dbike,
