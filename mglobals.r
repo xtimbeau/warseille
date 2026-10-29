@@ -125,3 +125,39 @@ duckdb2parquet <- function(data, output, by = NULL, overwrite = TRUE, options=NU
   sql <- sprintf("COPY (%s) TO '%s' (%s)", sql, output, parquet_options)
   DBI::dbExecute(con, sql)
 }
+
+unique_table_name <- function(con = DBI::dbConnect(duckdb::duckdb())) {
+  tables <- duckdb::duckdb_list_arrow(con)
+  max <- tables |> 
+    purrr::keep(~stringr::str_match(.x, "table_[0-9]+")) |>
+    stringr::str_remove("table_") |> 
+    as.numeric() 
+  if(length(max)>0)
+  max <- stringr::str_pad(max(max)+1, width = 3, pad = "0") else
+    max <- 1
+  return(stringr::str_c("table_", max))
+}
+
+parquet2duckdb <- function(con = DBI::dbConnect(duckdb::duckdb()),
+                           parquet,
+                           table = unique_table_name(con),
+                           cols = "*", 
+                           lines = "true",
+                           hive  = "true") {
+  tables <- DBI::dbListTables(con)
+  if(table %in% tables)
+    DBI::dbExecute(con, glue("DROP VIEW IF EXISTS {table}"))
+  DBI::dbExecute(con, glue::glue("
+    CREATE VIEW {table} AS
+    SELECT {cols}
+    FROM read_parquet('{parquet}', hive_partitioning = {hive})
+    WHERE {lines}
+  "))
+  return(table) 
+}
+
+clear_arrow <- function(con = arrow:::arrow_duck_connection()) {
+  purrr::map(
+    duckdb::duckdb_list_arrow(con=con),
+    ~duckdb::duckdb_unregister_arrow(con=con,.x))
+}
